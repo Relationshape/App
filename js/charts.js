@@ -6,6 +6,7 @@
 
 import { CATEGORIES, SPIDER_AXES } from "./data.js";
 import { Store } from "./storage.js";
+import { t } from "./i18n.js";
 
 function dsScale(ds) {
   return (ds && Array.isArray(ds.scale) && ds.scale.length >= 2)
@@ -18,8 +19,7 @@ function scaleMaxValue(scale) {
   return m;
 }
 
-// Returns 0..1 normalised average of one dataset over one category.
-function categoryAverage(answers, catId, scale) {
+export function categoryAverage(answers, catId, scale) {
   const cat = CATEGORIES.find(c => c.id === catId);
   if (!cat) return null;
   scale = scale || Store.getScale();
@@ -51,14 +51,28 @@ function itemNorm(answers, catId, item, isCustom, scale) {
   return { value: sc.value, norm: max ? sc.value / max : 0, scaleEntry: sc, entry };
 }
 
+// Compute adaptive font size for axis labels based on number of axes.
+// More axes → smaller font, capped at 18px, minimum 9px.
+function labelFontSize(axisCount) {
+  // At 6 axes: 16px; at 12: 12px; at 20+: 9px; max 18px (at ≤5 axes)
+  const size = Math.round(Math.max(9, Math.min(18, 96 / axisCount)));
+  return size;
+}
+
 // Generic radar chart. All point values are normalised (0..1).
-// `datasets`: [{ name, color, points: [{norm,label?}|null,...] }]
 function radar(axes, datasets, opts = {}) {
   const size = opts.size || 520;
   const cx = size / 2, cy = size / 2;
-  const r = size / 2 - (opts.pad || 90);
   const N = axes.length;
-  if (!N) return `<div class="rs-empty">Not enough data yet.</div>`;
+  if (!N) return `<div class="rs-empty">${t("spider_empty")}</div>`;
+
+  // Adaptive padding based on font size and label length
+  const fs = labelFontSize(N);
+  const maxLabelLen = Math.max(...axes.map(a => (a.title || a.key).length));
+  // More characters + larger font → need more padding for labels
+  const labelPad = Math.min(110, Math.max(72, Math.ceil(maxLabelLen * fs * 0.38)));
+  const pad = opts.pad || labelPad;
+  const r = size / 2 - pad;
 
   const rings = [];
   const ringSteps = opts.ringSteps || 5;
@@ -69,17 +83,27 @@ function radar(axes, datasets, opts = {}) {
   }
   let spokes = "";
   let labels = "";
+
   axes.forEach((ax, i) => {
     const [x, y] = angle(i, N, r, cx, cy);
     spokes += `<line class="rs-grid-spoke" x1="${cx}" y1="${cy}" x2="${x}" y2="${y}"/>`;
-    const [lx, ly] = angle(i, N, r + 22, cx, cy);
+
+    // Label position slightly further out than the ring
+    const labelR = r + fs * 1.6;
+    const [lx, ly] = angle(i, N, labelR, cx, cy);
     const anchor = Math.abs(lx - cx) < 4 ? "middle" : (lx > cx ? "start" : "end");
+
     const fullTitle = (ax.title || ax.key);
-    const title = fullTitle.length > 24 ? fullTitle.slice(0, 22) + "…" : fullTitle;
+    // Truncate only if extremely long; dynamic font already handles compression
+    const maxChars = Math.max(20, Math.round(120 / fs));
+    const title = fullTitle.length > maxChars ? fullTitle.slice(0, maxChars - 1) + "…" : fullTitle;
+
+    // Icon line slightly above label
+    const iconOffset = ax.icon ? -(fs + 2) : 0;
     labels += `
       <g class="rs-axis-label" text-anchor="${anchor}" data-axis="${i}">
-        ${ax.icon ? `<text x="${lx}" y="${ly - 8}" class="rs-axis-icon" text-anchor="${anchor}">${ax.icon}</text>` : ""}
-        <text x="${lx}" y="${ly + (ax.icon ? 8 : 4)}" class="rs-axis-text"><title>${escape(fullTitle)}</title>${escape(title)}</text>
+        ${ax.icon ? `<text x="${lx}" y="${ly + iconOffset}" class="rs-axis-icon" text-anchor="${anchor}" font-size="${fs + 2}">${ax.icon}</text>` : ""}
+        <text x="${lx}" y="${ly + (ax.icon ? fs * 1.1 : fs * 0.4)}" class="rs-axis-text" font-size="${fs}" text-anchor="${anchor}"><title>${escape(fullTitle)}</title>${escape(title)}</text>
       </g>`;
   });
 
@@ -209,7 +233,7 @@ export function renderSpider(datasets, opts = {}) {
       }),
     };
   });
-  return radar(axes, ds, { size: opts.size || 540, title: "Category overview", pad: 92 });
+  return radar(axes, ds, { size: opts.size || 540, title: "Category overview", pad: opts.pad });
 }
 
 function pickCategoryAxes(datasets) {
@@ -240,7 +264,7 @@ export function renderItemSpider(datasets, catId, opts = {}) {
     ...customItems.map(name => ({ key: "✶ " + name, title: "✶ " + name, _custom: true, _name: name })),
   ];
   if (axes.length < 3) {
-    return `<div class="rs-empty">Answer at least 3 items in this category to see a spider chart.</div>`;
+    return `<div class="rs-empty">${t("item_spider_empty")}</div>`;
   }
 
   const ds = datasets.map(d => {
@@ -257,7 +281,6 @@ export function renderItemSpider(datasets, catId, opts = {}) {
   return radar(axes, ds, {
     size: opts.size || 480,
     title: `Spider chart for ${cat.title}`,
-    pad: 110,
   });
 }
 
@@ -308,12 +331,12 @@ export function renderAlignment(datasets) {
     const va = categoryAverage(a.answers, cat.id, sa);
     const vb = categoryAverage(b.answers, cat.id, sb);
     if (!va || !vb) return null;
-    const diff = Math.abs(va.norm - vb.norm); // 0..1
+    const diff = Math.abs(va.norm - vb.norm);
     const align = 1 - diff;
     return { cat, va, vb, diff, align };
   }).filter(Boolean).sort((x, y) => x.diff - y.diff);
 
-  if (!rows.length) return `<div class="rs-empty">No overlapping answered categories yet.</div>`;
+  if (!rows.length) return `<div class="rs-empty">${t("spider_empty")}</div>`;
   const top = rows.slice(0, 5);
   const bottom = rows.slice(-5).reverse();
   const fmt = r => `
@@ -326,11 +349,11 @@ export function renderAlignment(datasets) {
   return `
     <div class="rs-align-grid">
       <section>
-        <h3>🎯 Strongest alignment</h3>
+        <h3>${t("alignment_match")}</h3>
         <ul class="rs-align-list">${top.map(fmt).join("")}</ul>
       </section>
       <section>
-        <h3>⚡ Biggest gaps — talk about these</h3>
+        <h3>${t("alignment_gaps")}</h3>
         <ul class="rs-align-list">${bottom.map(fmt).join("")}</ul>
       </section>
     </div>`;
@@ -355,5 +378,3 @@ function escape(s) {
   }[c]));
 }
 function truncate(s, n) { s = String(s ?? ""); return s.length > n ? s.slice(0, n - 1) + "…" : s; }
-
-export { categoryAverage };

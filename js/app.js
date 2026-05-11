@@ -8,6 +8,7 @@ import {
   renderSpider, renderItemSpider, renderCategoryBars, renderAlignment,
   categoryAverage, bindSpiderInteractivity,
 } from "./charts.js";
+import { t, getLang, setLang, availableLangs } from "./i18n.js";
 
 const $app = document.getElementById("app");
 const $nav = document.getElementById("nav");
@@ -34,14 +35,12 @@ const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({
 const fmtDate = ts => new Date(ts).toLocaleDateString(undefined, { year:"numeric", month:"short", day:"numeric" });
 function navigate(hash) { location.hash = hash; }
 function getResultScale(result) { return Store.getResultScale(result); }
-function scaleByKeyIn(scale, k) { return scale.find(s => s.key === k) || null; }
 
 // ----- Theme -----
 function applyTheme(t) {
   const theme = t || Store.getTheme() || "auto";
   document.documentElement.setAttribute("data-theme", theme);
   Store.setTheme(theme);
-  // update meta theme-color
   const dark = theme === "dark" || (theme === "auto" && matchMedia("(prefers-color-scheme: dark)").matches);
   document.querySelectorAll('meta[name="theme-color"]').forEach(m => m.remove());
   const meta = document.createElement("meta");
@@ -50,7 +49,7 @@ function applyTheme(t) {
   document.head.append(meta);
 }
 
-// ----- Labels with versioning -----
+// ----- Labels -----
 function resultLabel(r, profile) {
   const v = r.version > 1 ? ` (v${r.version})` : "";
   const pName = profile?.name || (Store.getProfile(r.profileId)?.name) || "?";
@@ -71,10 +70,11 @@ const EMOJI_BANK = [
   "☕","🍵","🍷","🍓","🍑","🍇","🥑","🍩","🧁","🍪","🥐","🌮","🍣","🍜",
   "⚓","🚲","🛵","🏔️","🏝️","🛶","🪁","🎢","🎡","♾️","🌀","🪄","🔮","🧿",
 ];
+
 async function pickEmojiDialog(current = "✨") {
   let freeInput;
   return dialog({
-    title: "Pick an emoji",
+    title: t("profile_emoji_label"),
     body: (close) => {
       freeInput = h("input", { type: "text", maxlength: 8, value: "", placeholder: "or type your own emoji…" });
       return h("div", { class: "emoji-picker" },
@@ -87,8 +87,8 @@ async function pickEmojiDialog(current = "✨") {
         h("div", { class: "emoji-free" }, freeInput));
     },
     actions: [
-      { label: "Cancel", kind: "ghost", value: null },
-      { label: "Use typed", kind: "primary", primary: true,
+      { label: t("btn_cancel"), kind: "ghost", value: null },
+      { label: t("btn_ok"), kind: "primary", primary: true,
         handler: () => {
           const v = (freeInput?.value || "").trim();
           if (!v) return false;
@@ -147,15 +147,14 @@ function scaleSliderEl({ scale, valueKey, onChange, onClear, compact = false }) 
   if (hasValue) {
     const clear = h("button", {
       class: "rs-slider-clear", type: "button",
-      title: "Reset this answer",
+      title: t("q_slider_reset"),
       onClick: e => { e.stopPropagation(); onClear && onClear(); },
-    }, "↺ Reset");
+    }, t("q_slider_reset"));
     root.append(clear);
   } else {
-    root.append(h("div", { class: "rs-slider-hint muted" }, "Drag the slider or tap a label to rate"));
+    root.append(h("div", { class: "rs-slider-hint muted" }, t("q_slider_hint")));
   }
 
-  // Pointer drag on the track
   let dragging = false;
   function indexFromX(clientX) {
     const rect = trackGradWrap.getBoundingClientRect();
@@ -180,7 +179,6 @@ function scaleSliderEl({ scale, valueKey, onChange, onClear, compact = false }) 
   trackGradWrap.addEventListener("pointerup", () => { dragging = false; });
   trackGradWrap.addEventListener("pointercancel", () => { dragging = false; });
 
-  // Keyboard on the wrapper (when focused as a slider)
   root.addEventListener("keydown", (e) => {
     if (e.target !== root) return;
     let idx = hasValue ? activeIdx : Math.floor(N / 2);
@@ -198,20 +196,18 @@ function scaleSliderEl({ scale, valueKey, onChange, onClear, compact = false }) 
   return root;
 }
 
-// ----- Asked-items helper (for filtered/import-based maps) -----
+// ----- Asked-items helper -----
 function isCategoryEnabled(result, catId) {
   if (!result.enabledCategories) return true;
   return result.enabledCategories.includes(catId);
 }
 function askedItemsForCat(result, catId) {
-  // If askedItems is set, only those are "asked" (the import subset).
   if (result.askedItems && result.askedItems[catId]) {
     return {
       base: result.askedItems[catId].base || [],
       custom: result.askedItems[catId].custom || [],
     };
   }
-  // Otherwise the full category + any custom items the user has added.
   return null;
 }
 function enabledCategoryList(result) {
@@ -283,8 +279,8 @@ function dialog({ title, body, fields = [], actions, dismissable = true }) {
     }
 
     const acts = actions || [
-      { label: "Cancel", value: null, kind: "ghost" },
-      { label: "OK", value: true, kind: "primary", primary: true },
+      { label: t("btn_cancel"), value: null, kind: "ghost" },
+      { label: t("btn_ok"), value: true, kind: "primary", primary: true },
     ];
     const actionRow = h("div", { class: "rs-modal-actions" });
     acts.forEach(a => {
@@ -322,19 +318,19 @@ async function dlgAlert(message, title = "") {
   return dialog({
     title: title || undefined,
     body: h("p", {}, message),
-    actions: [{ label: "OK", kind: "primary", value: true, primary: true }],
+    actions: [{ label: t("btn_ok"), kind: "primary", value: true, primary: true }],
   });
 }
-async function dlgConfirm(message, { okLabel = "OK", danger = false } = {}) {
+async function dlgConfirm(message, { okLabel = "", danger = false } = {}) {
   return dialog({
     body: h("p", {}, message),
     actions: [
-      { label: "Cancel", kind: "ghost", value: false },
-      { label: okLabel, kind: danger ? "danger" : "primary", value: true, primary: true },
+      { label: t("btn_cancel"), kind: "ghost", value: false },
+      { label: okLabel || t("btn_ok"), kind: danger ? "danger" : "primary", value: true, primary: true },
     ],
   });
 }
-async function dlgPrompt({ title, label, placeholder = "", value = "", multiline = false, okLabel = "Save" } = {}) {
+async function dlgPrompt({ title, label, placeholder = "", value = "", multiline = false, okLabel = "" } = {}) {
   const result = await dialog({
     title,
     fields: [{
@@ -342,8 +338,8 @@ async function dlgPrompt({ title, label, placeholder = "", value = "", multiline
       type: multiline ? "textarea" : "text", autofocus: true, required: true,
     }],
     actions: [
-      { label: "Cancel", kind: "ghost", value: null },
-      { label: okLabel, kind: "primary", primary: true,
+      { label: t("btn_cancel"), kind: "ghost", value: null },
+      { label: okLabel || t("btn_save"), kind: "primary", primary: true,
         handler: vals => (vals.v?.trim() ? vals.v.trim() : false) },
     ],
   });
@@ -352,22 +348,85 @@ async function dlgPrompt({ title, label, placeholder = "", value = "", multiline
 
 let toastT;
 function showToast(msg) {
-  let t = document.querySelector(".toast");
-  if (!t) { t = document.createElement("div"); t.className = "toast"; document.body.append(t); }
-  t.textContent = msg;
-  t.classList.add("show");
+  let toastEl = document.querySelector(".toast");
+  if (!toastEl) { toastEl = document.createElement("div"); toastEl.className = "toast"; document.body.append(toastEl); }
+  toastEl.textContent = msg;
+  toastEl.classList.add("show");
   clearTimeout(toastT);
-  toastT = setTimeout(() => t.classList.remove("show"), 1900);
+  toastT = setTimeout(() => toastEl.classList.remove("show"), 1900);
+}
+
+// ---------- Onboarding Wizard ----------
+async function showWizardIfFirstVisit() {
+  if (!Store.isFirstVisit()) return;
+  Store.markWizardSeen();
+
+  const steps = [
+    { title: t("wizard_s1_title"), body: t("wizard_s1_body"), emoji: "🌷" },
+    { title: t("wizard_s2_title"), body: t("wizard_s2_body"), emoji: "🔒" },
+    { title: t("wizard_s3_title"), body: t("wizard_s3_body"), emoji: "👤" },
+    { title: t("wizard_s4_title"), body: t("wizard_s4_body"), emoji: "🗺️" },
+    { title: t("wizard_s5_title"), body: t("wizard_s5_body"), emoji: "📊" },
+  ];
+
+  return new Promise(resolve => {
+    let idx = 0;
+
+    const overlay = h("div", { class: "rs-modal-overlay wizard-overlay", role: "dialog", "aria-modal": "true" });
+    const card = h("div", { class: "rs-modal-card wizard-card" });
+
+    const close = () => {
+      overlay.classList.add("closing");
+      setTimeout(() => overlay.remove(), 160);
+      resolve();
+    };
+
+    function render() {
+      const step = steps[idx];
+      const isLast = idx === steps.length - 1;
+      card.innerHTML = "";
+
+      // Progress dots
+      const dots = h("div", { class: "wizard-dots" },
+        ...steps.map((_, i) => h("span", { class: "wizard-dot" + (i === idx ? " active" : "") }))
+      );
+
+      const content = h("div", { class: "wizard-content" },
+        h("div", { class: "wizard-emoji" }, step.emoji),
+        h("h2", { class: "wizard-title" }, step.title),
+        h("p", { class: "wizard-body" }, step.body),
+      );
+
+      const actions = h("div", { class: "wizard-actions" },
+        idx > 0
+          ? h("button", { class: "btn btn-ghost", onClick: () => { idx--; render(); } }, t("wizard_prev"))
+          : h("span", {}),
+        isLast
+          ? h("button", { class: "btn btn-primary", onClick: close }, t("wizard_finish"))
+          : h("button", { class: "btn btn-primary", onClick: () => { idx++; render(); } }, t("wizard_next")),
+      );
+
+      card.append(dots, content, actions);
+    }
+
+    render();
+    overlay.append(card);
+    document.body.append(overlay);
+    requestAnimationFrame(() => overlay.classList.add("open"));
+  });
 }
 
 // ---------- router ----------
 window.addEventListener("hashchange", route);
-window.addEventListener("DOMContentLoaded", () => {
+window.addEventListener("DOMContentLoaded", async () => {
   applyTheme();
-  // re-apply on OS theme change in case mode is "auto"
   matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", () => applyTheme());
   bindGlobalNav();
   route();
+  // Show wizard on first ever visit (only on home page)
+  const hash = location.hash.replace(/^#\/?/, "");
+  const seg = hash.split("?")[0].split("/")[0];
+  if (!seg) await showWizardIfFirstVisit();
 });
 
 function route() {
@@ -408,21 +467,22 @@ function route() {
 }
 
 function bindGlobalNav() {
-  $nav.innerHTML = `
-    <a href="#/" class="nav-brand">
-      <span class="nav-logo">∞</span>
-      <span class="nav-title">Relationshape</span>
-    </a>
-    <div class="nav-links">
-      <a href="#/" title="Profiles">👤 Profiles</a>
-      <a href="#/import" title="Import">📥 Import</a>
-      <a href="#/compare" title="Compare">📊 Compare</a>
-      <a href="#/settings" title="Settings">⚙️ Settings</a>
-      <a href="#/intro" title="About">ℹ️</a>
-    </div>`;
+  $nav.innerHTML = "";
+  $nav.append(
+    h("a", { href: "#/", class: "nav-brand" },
+      h("span", { class: "nav-logo" }, "∞"),
+      h("span", { class: "nav-title" }, "Relationshape")),
+    h("div", { class: "nav-links" },
+      h("a", { href: "#/", title: t("nav_profiles") }, t("nav_profiles")),
+      h("a", { href: "#/import", title: t("nav_import") }, t("nav_import")),
+      h("a", { href: "#/compare", title: t("nav_compare") }, t("nav_compare")),
+      h("a", { href: "#/settings", title: t("nav_settings") }, t("nav_settings")),
+      h("a", { href: "#/intro", title: t("nav_about") }, t("nav_about")),
+    )
+  );
 }
 
-// ---------- Home / Profile picker ----------
+// ---------- Home ----------
 function viewHome() {
   const profiles = Store.getProfiles();
   const imports  = Store.getImports();
@@ -434,8 +494,8 @@ function viewHome() {
 
   $app.append(h("section", { class: "page" },
     h("header", { class: "page-head" },
-      h("h1", {}, "Your profiles"),
-      h("p", { class: "muted" }, "Each profile holds your own answers. Keep separate profiles per chapter of life or persona.")),
+      h("h1", {}, t("profiles_title")),
+      h("p", { class: "muted" }, t("profiles_sub"))),
     h("div", { class: "grid cards" },
       ...profiles.map(profileCard),
       h("button", {
@@ -443,12 +503,12 @@ function viewHome() {
         onClick: () => navigate("/profile/new"),
       },
         h("div", { class: "card-add-icon" }, "+"),
-        h("div", {}, "New profile"))
+        h("div", {}, t("new_profile_btn")))
     ),
     imports.length ? h("section", { class: "page-section" },
       h("header", { class: "section-head" },
-        h("h2", {}, "📥 Imported results"),
-        h("p", { class: "muted" }, "Encrypted shares from people you trust.")),
+        h("h2", {}, t("imports_title")),
+        h("p", { class: "muted" }, t("imports_sub"))),
       h("div", { class: "list" },
         ...imports.map(importCard))
     ) : null,
@@ -456,28 +516,106 @@ function viewHome() {
 }
 
 function viewWelcome() {
-  return h("section", { class: "page hero" },
-    h("div", { class: "hero-blob" }),
-    h("h1", { class: "hero-title" }, "Relationshape"),
-    h("p", { class: "hero-sub" }, "A private space to map your relationships — your needs, your boundaries, your shape."),
-    h("div", { class: "hero-actions" },
-      h("button", { class: "btn btn-primary", onClick: () => navigate("/profile/new") }, "✨ Create your first profile"),
-      h("button", { class: "btn btn-ghost", onClick: () => navigate("/intro") }, "What is Relationshape?")),
-    h("ul", { class: "hero-features" },
-      h("li", {}, "🔒 Stays on this device"),
-      h("li", {}, "📤 End-to-end encrypted sharing"),
-      h("li", {}, "📊 Per-category & overview spider charts"),
-      h("li", {}, "👥 Multiple profiles in one app")),
+  return h("section", { class: "page" },
+    // Hero
+    h("div", { class: "hero" },
+      h("div", { class: "hero-blob" }),
+      h("h1", { class: "hero-title" }, t("welcome_title")),
+      h("p", { class: "hero-sub" }, t("welcome_sub")),
+      h("div", { class: "hero-actions" },
+        h("button", { class: "btn btn-primary", onClick: () => navigate("/profile/new") }, t("welcome_cta")),
+        h("button", { class: "btn btn-ghost", onClick: () => navigate("/intro") }, t("welcome_about")),
+        h("button", { class: "btn btn-ghost", onClick: () => showWizard() }, t("howto_wizard_btn")),
+      ),
+      h("ul", { class: "hero-features" },
+        h("li", {}, t("welcome_f1")),
+        h("li", {}, t("welcome_f2")),
+        h("li", {}, t("welcome_f3")),
+        h("li", {}, t("welcome_f4")),
+      ),
+    ),
+
+    // How-to section
+    h("section", { class: "page-section howto-section" },
+      h("header", { class: "section-head" },
+        h("h2", {}, t("howto_title"))),
+      h("div", { class: "howto-steps" },
+        howtoStep("1", t("howto_step1_title"), t("howto_step1_desc"), "👤"),
+        howtoStep("2", t("howto_step2_title"), t("howto_step2_desc"), "🗺️"),
+        howtoStep("3", t("howto_step3_title"), t("howto_step3_desc"), "📝"),
+        howtoStep("4", t("howto_step4_title"), t("howto_step4_desc"), "📊"),
+        howtoStep("5", t("howto_step5_title"), t("howto_step5_desc"), "🔒"),
+      ),
+    ),
   );
+}
+
+function howtoStep(num, title, desc, icon) {
+  return h("div", { class: "howto-step" },
+    h("div", { class: "howto-step-icon" }, icon),
+    h("div", { class: "howto-step-num" }, num),
+    h("div", { class: "howto-step-body" },
+      h("h3", {}, title),
+      h("p", { class: "muted small" }, desc),
+    ),
+  );
+}
+
+async function showWizard() {
+  // Re-show wizard manually
+  const steps = [
+    { title: t("wizard_s1_title"), body: t("wizard_s1_body"), emoji: "🌷" },
+    { title: t("wizard_s2_title"), body: t("wizard_s2_body"), emoji: "🔒" },
+    { title: t("wizard_s3_title"), body: t("wizard_s3_body"), emoji: "👤" },
+    { title: t("wizard_s4_title"), body: t("wizard_s4_body"), emoji: "🗺️" },
+    { title: t("wizard_s5_title"), body: t("wizard_s5_body"), emoji: "📊" },
+  ];
+  return new Promise(resolve => {
+    let idx = 0;
+    const overlay = h("div", { class: "rs-modal-overlay wizard-overlay", role: "dialog", "aria-modal": "true" });
+    const card = h("div", { class: "rs-modal-card wizard-card" });
+    const close = () => {
+      overlay.classList.add("closing"); setTimeout(() => overlay.remove(), 160); resolve();
+    };
+    function render() {
+      const step = steps[idx];
+      const isLast = idx === steps.length - 1;
+      card.innerHTML = "";
+      card.append(
+        h("div", { class: "wizard-dots" }, ...steps.map((_, i) => h("span", { class: "wizard-dot" + (i === idx ? " active" : "") }))),
+        h("div", { class: "wizard-content" },
+          h("div", { class: "wizard-emoji" }, step.emoji),
+          h("h2", { class: "wizard-title" }, step.title),
+          h("p", { class: "wizard-body" }, step.body),
+        ),
+        h("div", { class: "wizard-actions" },
+          idx > 0
+            ? h("button", { class: "btn btn-ghost", onClick: () => { idx--; render(); } }, t("wizard_prev"))
+            : h("span", {}),
+          isLast
+            ? h("button", { class: "btn btn-primary", onClick: close }, t("wizard_finish"))
+            : h("button", { class: "btn btn-primary", onClick: () => { idx++; render(); } }, t("wizard_next")),
+        ),
+      );
+    }
+    render();
+    overlay.append(card);
+    document.body.append(overlay);
+    requestAnimationFrame(() => overlay.classList.add("open"));
+  });
 }
 
 function profileCard(p) {
   const results = Store.getResultsForProfile(p.id);
+  const count = results.length;
+  const countStr = count === 0
+    ? t("no_results")
+    : `${count} ${count === 1 ? t("results_count_one") : t("results_count_many")}`;
   return h("a", { class: "card profile-card", href: `#/profile/${p.id}`, style: `--c:${p.color}` },
     h("div", { class: "avatar" }, p.emoji || "✨"),
     h("h3", {}, p.name),
     p.pronouns ? h("p", { class: "muted small" }, p.pronouns) : null,
-    h("p", { class: "small" }, results.length ? `${results.length} relationship${results.length > 1 ? "s" : ""} mapped` : "no results yet"),
+    h("p", { class: "small" }, countStr),
   );
 }
 
@@ -487,14 +625,14 @@ function importCard(imp) {
     h("div", { class: "li-avatar" }, imp.emoji || "📨"),
     h("div", { class: "li-body" },
       h("h3", {}, (imp.name || "Imported result") + v),
-      h("p", { class: "muted small" }, `For: ${esc(imp.subject || "—")}${v} · imported ${fmtDate(imp.importedAt)}`)),
+      h("p", { class: "muted small" }, `${esc(imp.subject || "—")}${v} · ${t("imported_on")} ${fmtDate(imp.importedAt)}`)),
     h("div", { class: "li-actions" },
-      h("button", { class: "btn", onClick: () => navigate("/compare?ids=imp:" + imp.id) }, "Compare"),
+      h("button", { class: "btn", onClick: () => navigate("/compare?ids=imp:" + imp.id) }, t("btn_compare")),
       h("button", { class: "btn btn-danger-ghost", onClick: async () => {
-        if (await dlgConfirm("Remove imported result?", { danger: true, okLabel: "Delete" })) {
+        if (await dlgConfirm(t("confirm_delete_map"), { danger: true, okLabel: t("btn_delete") })) {
           Store.deleteImport(imp.id); route();
         }
-      }}, "Delete"))
+      }}, t("btn_delete")))
   );
 }
 
@@ -515,12 +653,12 @@ function viewProfileEdit(id) {
     if (id) { Store.updateProfile(id, patch); navigate(`/profile/${id}`); }
     else { const p = Store.createProfile(patch); navigate(`/profile/${p.id}`); }
   }},
-    h("h1", {}, id ? "Edit profile" : "New profile"),
-    h("label", {}, "Display name",
-      h("input", { name: "name", value: profile.name, required: true, autofocus: true, placeholder: "e.g. Alex" })),
-    h("label", {}, "Pronouns",
-      h("input", { name: "pronouns", value: profile.pronouns, placeholder: "she / they · he / him · …" })),
-    h("label", {}, "Avatar emoji",
+    h("h1", {}, id ? t("profile_edit_title") : t("profile_new_title")),
+    h("label", {}, t("profile_name_label"),
+      h("input", { name: "name", value: profile.name, required: true, autofocus: true, placeholder: t("profile_name_placeholder") })),
+    h("label", {}, t("profile_pronouns_label"),
+      h("input", { name: "pronouns", value: profile.pronouns, placeholder: t("profile_pronouns_placeholder") })),
+    h("label", {}, t("profile_emoji_label"),
       h("div", { class: "emoji-field" },
         h("input", { name: "emoji", id: "emoji-input", value: profile.emoji, maxlength: 6, placeholder: "🌷" }),
         h("button", { class: "btn", type: "button",
@@ -528,17 +666,17 @@ function viewProfileEdit(id) {
             const v = await pickEmojiDialog(document.getElementById("emoji-input")?.value || profile.emoji);
             if (v) document.getElementById("emoji-input").value = v;
           },
-        }, "✨ Pick"))),
-    h("label", {}, "Accent colour",
+        }, t("profile_emoji_pick")))),
+    h("label", {}, t("profile_color_label"),
       h("input", { name: "color", type: "color", value: profile.color })),
     h("div", { class: "form-actions" },
-      h("button", { class: "btn btn-primary", type: "submit" }, id ? "Save" : "Create profile"),
-      h("button", { class: "btn btn-ghost", type: "button", onClick: () => history.back() }, "Cancel"),
+      h("button", { class: "btn btn-primary", type: "submit" }, id ? t("btn_save") : t("btn_create_profile")),
+      h("button", { class: "btn btn-ghost", type: "button", onClick: () => history.back() }, t("btn_cancel")),
       id ? h("button", { class: "btn btn-danger", type: "button", onClick: async () => {
-        if (await dlgConfirm("Delete this profile and all its answers? This cannot be undone.", { danger: true, okLabel: "Delete profile" })) {
+        if (await dlgConfirm(t("confirm_delete_profile"), { danger: true, okLabel: t("btn_delete_profile") })) {
           Store.deleteProfile(id); navigate("/");
         }
-      }}, "Delete profile") : null,
+      }}, t("btn_delete_profile")) : null,
     ),
   );
 
@@ -558,35 +696,35 @@ function viewProfile(id) {
         h("h1", {}, profile.name),
         profile.pronouns ? h("p", { class: "muted" }, profile.pronouns) : null),
       h("div", { class: "flex-spacer" }),
-      h("button", { class: "btn", onClick: () => navigate(`/profile/${id}/edit`) }, "✏️ Edit"),
+      h("button", { class: "btn", onClick: () => navigate(`/profile/${id}/edit`) }, t("btn_edit")),
     ),
 
     h("section", { class: "page-section" },
       h("header", { class: "section-head" },
-        h("h2", {}, "Relationship maps"),
-        h("p", { class: "muted" }, "One map per relationship you want to reflect on. You can revisit & update them anytime.")),
+        h("h2", {}, t("maps_title")),
+        h("p", { class: "muted" }, t("maps_sub"))),
       h("div", { class: "list" },
         ...results.map(r => resultCard(r, profile)),
         h("button", { class: "list-add", onClick: () => createNewResult(profile.id) },
-          "➕ Start a new relationship map")),
+          t("btn_new_map"))),
     ),
   ));
 }
 
 function resultCard(r, profile) {
   const cat = r.subjectColor || profile.color;
-  const title = (r.subject || "Untitled relationship") + (r.version > 1 ? ` (v${r.version})` : "");
+  const title = (r.subject || "Untitled") + (r.version > 1 ? ` (v${r.version})` : "");
   return h("div", { class: "list-item", style: `--c:${cat}` },
     h("div", { class: "li-avatar" }, r.subjectEmoji || "💞"),
     h("div", { class: "li-body" },
       h("h3", {}, title),
-      h("p", { class: "muted small" }, `Updated ${fmtDate(r.updatedAt)} · ${countAnswers(r)} answers`)),
+      h("p", { class: "muted small" }, `${t("updated")} ${fmtDate(r.updatedAt)} · ${countAnswers(r)} ${t("answers")}`)),
     h("div", { class: "li-actions" },
-      h("button", { class: "btn btn-primary", onClick: () => navigate(`/q/${profile.id}/${r.id}`) }, "Continue"),
-      h("button", { class: "btn", onClick: () => navigate(`/result/${r.id}`) }, "📊 View"),
-      h("button", { class: "btn", onClick: () => navigate(`/share/${r.id}`) }, "📤 Share"),
+      h("button", { class: "btn btn-primary", onClick: () => navigate(`/q/${profile.id}/${r.id}`) }, t("btn_continue")),
+      h("button", { class: "btn", onClick: () => navigate(`/result/${r.id}`) }, t("btn_view")),
+      h("button", { class: "btn", onClick: () => navigate(`/share/${r.id}`) }, t("btn_share")),
       h("button", { class: "btn btn-danger-ghost", onClick: async () => {
-        if (await dlgConfirm("Delete this relationship map?", { danger: true, okLabel: "Delete" })) {
+        if (await dlgConfirm(t("confirm_delete_map"), { danger: true, okLabel: t("btn_delete") })) {
           Store.deleteResult(r.id); route();
         }
       }}, "🗑"))
@@ -608,20 +746,20 @@ async function createNewResult(profileId) {
   const imports = Store.getImports();
 
   const choice = await dialog({
-    title: "Start a new relationship map",
+    title: t("new_map_title"),
     body: (close) => h("div", { class: "start-choices" },
       h("button", { class: "start-card", type: "button", onClick: () => close("blank") },
         h("div", { class: "start-icon" }, "✨"),
         h("div", { class: "start-body" },
-          h("h3", {}, "Start blank"),
-          h("p", { class: "muted small" }, "Default scale; you can optionally pick which categories to focus on."))),
+          h("h3", {}, t("start_blank_title")),
+          h("p", { class: "muted small" }, t("start_blank_desc")))),
       imports.length ? h("button", { class: "start-card", type: "button", onClick: () => close("import") },
         h("div", { class: "start-icon" }, "📥"),
         h("div", { class: "start-body" },
-          h("h3", {}, "Start from an imported result"),
-          h("p", { class: "muted small" }, `Inherit the other person's scale, categories and custom items. ${imports.length} import${imports.length>1?"s":""} available.`))) : null,
+          h("h3", {}, t("start_import_title")),
+          h("p", { class: "muted small" }, `${t("start_import_desc")} ${imports.length} ${imports.length>1 ? t("start_import_desc_count_many") : t("start_import_desc_count_one")}`))) : null,
     ),
-    actions: [{ label: "Cancel", kind: "ghost", value: null }],
+    actions: [{ label: t("btn_cancel"), kind: "ghost", value: null }],
   });
   if (!choice) return;
 
@@ -631,23 +769,18 @@ async function createNewResult(profileId) {
 
 async function startBlank(profileId) {
   const subject = await dlgPrompt({
-    title: "New relationship map",
-    label: "What is this map about? Just a private label for you.",
+    title: t("new_map_title"),
+    label: t("map_name_label"),
     placeholder: "e.g. Sam, my best friend",
-    okLabel: "Continue",
+    okLabel: t("btn_next"),
   });
   if (!subject) return;
 
-  // Optional onboarding
-  const themes = ONBOARDING_THEMES.map(t => ({ ...t, on: t.defaultOn }));
+  const themes = ONBOARDING_THEMES.map(thm => ({ ...thm, on: thm.defaultOn }));
   const enabled = await runOnboarding(themes);
-  // enabled === null → skipped (all categories)
-  // enabled === false → cancelled
   if (enabled === false) return;
 
-  const enabledCategories = enabled === null
-    ? null
-    : computeEnabledCategories(enabled);
+  const enabledCategories = enabled === null ? null : computeEnabledCategories(enabled);
 
   const version = Store.nextResultVersion(profileId, subject);
   const r = Store.saveResult({
@@ -669,7 +802,7 @@ async function startFromImport(profileId) {
   if (!imports.length) return;
 
   const chosen = await dialog({
-    title: "Pick an import to start from",
+    title: t("pick_import_title"),
     body: (close) => h("div", { class: "compare-grid" },
       ...imports.map(imp => h("button", {
         class: "compare-tile", type: "button",
@@ -679,25 +812,24 @@ async function startFromImport(profileId) {
         h("div", { class: "li-avatar" }, imp.emoji || "📨"),
         h("div", { class: "compare-tile-body" },
           h("h3", {}, importLabel(imp)),
-          h("p", { class: "muted small" }, `Imported ${fmtDate(imp.importedAt)}`)),
+          h("p", { class: "muted small" }, `${t("imported_on")} ${fmtDate(imp.importedAt)}`)),
         h("span", { class: "compare-tile-arrow" }, "→")))
     ),
-    actions: [{ label: "Cancel", kind: "ghost", value: null }],
+    actions: [{ label: t("btn_cancel"), kind: "ghost", value: null }],
   });
   if (!chosen) return;
   const imp = imports.find(i => i.id === chosen);
   if (!imp) return;
 
   const subject = await dlgPrompt({
-    title: "Your version of this map",
-    label: `What do you want to call your map for ${imp.name}'s "${imp.subject}"?`,
+    title: t("your_version_title"),
+    label: t("your_version_label", { name: imp.name, subject: imp.subject }),
     placeholder: imp.subject,
     value: imp.subject,
-    okLabel: "Create",
+    okLabel: t("btn_create"),
   });
   if (!subject) return;
 
-  // Derive askedItems + enabled categories from the import's answers.
   const askedItems = {};
   const enabledCategories = [];
   for (const cat of CATEGORIES) {
@@ -711,7 +843,6 @@ async function startFromImport(profileId) {
     }
   }
 
-  // Pre-seed __custom names so they show up as questions (without values).
   const seededAnswers = {};
   for (const [catId, { custom }] of Object.entries(askedItems)) {
     if (!custom.length) continue;
@@ -731,55 +862,50 @@ async function startFromImport(profileId) {
     version,
     seededFromImportId: imp.id,
   });
-  showToast(`Created from ${importLabel(imp)} — same questions, your own answers.`);
+  showToast(t("seeded_toast", { name: importLabel(imp) }));
   navigate(`/q/${profileId}/${r.id}`);
 }
 
 function cloneScale(s) { return (s || []).map(x => ({ ...x })); }
 
-// returns: null = "skip / all categories" ; false = cancelled ; or themes obj
 async function runOnboarding(themes) {
   return dialog({
-    title: "Quick onboarding",
+    title: t("onboarding_title"),
     body: (close) => h("div", { class: "onboarding-body" },
-      h("p", { class: "muted small" }, "Toggle which broad themes apply to this relationship. You can change this later. Skip to include everything."),
+      h("p", { class: "muted small" }, t("onboarding_sub")),
       h("div", { class: "onboard-toggles" },
-        ...themes.map(t => {
+        ...themes.map(thm => {
           const row = h("button", {
-            class: "onboard-toggle" + (t.on ? " is-on" : ""),
+            class: "onboard-toggle" + (thm.on ? " is-on" : ""),
             type: "button",
             onClick: () => {
-              t.on = !t.on;
-              row.classList.toggle("is-on", t.on);
-              row.querySelector(".onboard-switch").classList.toggle("on", t.on);
+              thm.on = !thm.on;
+              row.classList.toggle("is-on", thm.on);
+              row.querySelector(".onboard-switch").classList.toggle("on", thm.on);
             },
           },
             h("div", { class: "onboard-text" },
-              h("strong", {}, t.title),
-              h("p", { class: "muted small" }, t.blurb)),
-            h("div", { class: "onboard-switch" + (t.on ? " on" : "") }),
+              h("strong", {}, thm.title),
+              h("p", { class: "muted small" }, thm.blurb)),
+            h("div", { class: "onboard-switch" + (thm.on ? " on" : "") }),
           );
           return row;
         })),
     ),
     actions: [
-      { label: "Skip — include everything", kind: "ghost", value: null },
-      { label: "Use these themes", kind: "primary", primary: true,
-        handler: () => themes },
+      { label: t("btn_skip_onboarding"), kind: "ghost", value: null },
+      { label: t("btn_use_themes"), kind: "primary", primary: true, handler: () => themes },
     ],
   }).catch(() => false);
 }
 
 function computeEnabledCategories(themes) {
-  // Start: every category is candidate. Then remove any whose categories
-  // are exclusively in turned-off themes.
   const onSet = new Set();
-  for (const t of themes) {
-    if (t.on) t.categories.forEach(c => onSet.add(c));
+  for (const thm of themes) {
+    if (thm.on) thm.categories.forEach(c => onSet.add(c));
   }
-  // For categories not gated by any theme, include them by default.
   const themedCategoryIds = new Set();
-  ONBOARDING_THEMES.forEach(t => t.categories.forEach(c => themedCategoryIds.add(c)));
+  ONBOARDING_THEMES.forEach(thm => thm.categories.forEach(c => themedCategoryIds.add(c)));
   const enabled = [];
   for (const cat of CATEGORIES) {
     if (!themedCategoryIds.has(cat.id) || onSet.has(cat.id)) enabled.push(cat.id);
@@ -811,7 +937,6 @@ function setMode(result, mode) {
   result.progress = result.progress || {};
   const prevMode = result.progress.mode;
   result.progress.mode = mode;
-  // Sync the cursors so each mode lands on the same question.
   if (prevMode === "single" && mode === "list") {
     const items = flatItemsForResult(result);
     const cur = items[clamp(result.progress.flatIndex ?? 0, 0, items.length - 1)];
@@ -882,8 +1007,8 @@ function viewQuestionnaireList(profile, result) {
         h("div", {},
           h("h1", {}, cat.title),
           h("p", { class: "muted" }, cat.blurb),
-          cat.gr ? h("p", { class: "muted small" }, "Tip: items here support a “Giving / Receiving / Both” marker.") : null,
-          h("p", { class: "muted small" }, `⌨️ Tip: focus a question and press 1–${SCALE.length} to rate, ${SCALE.length+1} to skip, Enter to advance.`)
+          cat.gr ? h("p", { class: "muted small" }, t("q_gr_tip")) : null,
+          h("p", { class: "muted small" }, t("q_keyboard_tip", { n: SCALE.length, m: SCALE.length + 1 }))
         ),
       ),
       h("div", { class: "scale-legend" }, ...SCALE.map((s, i) =>
@@ -892,41 +1017,39 @@ function viewQuestionnaireList(profile, result) {
 
       h("div", { class: "q-items" },
         ...baseItems.map(item => itemRow(cat, item, answers, false, SCALE)),
-        ...customNames.map(name =>
-          itemRow(cat, name, answers.__custom, true, SCALE)),
+        ...customNames.map(name => itemRow(cat, name, answers.__custom, true, SCALE)),
         h("button", { class: "q-add", onClick: async () => {
           const name = await dlgPrompt({
-            title: "Add a custom item",
-            label: "Name of the new item",
-            placeholder: "e.g. astronomy",
-            okLabel: "Add",
+            title: t("add_custom_title"),
+            label: t("add_custom_label"),
+            placeholder: t("add_custom_placeholder"),
+            okLabel: t("btn_add"),
           });
           if (!name) return;
           if (cat.items.includes(name) || answers.__custom[name]) {
-            return showToast("That item already exists.");
+            return showToast(t("item_already_exists"));
           }
           answers.__custom[name] = { scale: "open" };
           persist(); rerender();
-        }}, "➕ Add custom item"),
+        }}, t("btn_add_custom")),
       ),
     ),
 
     h("nav", { class: "q-nav" },
-      h("button", { class: "btn", disabled: idx === 0, onClick: () => move(-1) }, "← Previous"),
-      h("button", { class: "btn", onClick: () => navigate(`/result/${resultId}`) }, "Skip to results"),
+      h("button", { class: "btn", disabled: idx === 0, onClick: () => move(-1) }, t("btn_previous")),
+      h("button", { class: "btn", onClick: () => navigate(`/result/${resultId}`) }, t("btn_skip_results")),
       h("button", { class: "btn btn-primary", onClick: () => move(1) },
-        idx === total - 1 ? "Finish ✨" : "Next →"),
+        idx === total - 1 ? t("btn_finish") : t("btn_next")),
     )
   );
 
   $app.append(root);
-  // Prefer the focusItem that was synced from single mode, otherwise first unanswered.
+
   let target = null;
   const focusItem = result.progress?.focusItem;
   if (focusItem && focusItem.catId === cat.id) {
     target = Array.from(root.querySelectorAll(".q-item")).find(el =>
       el.dataset.itemKey === focusItem.item);
-    // clear it once consumed
     delete result.progress.focusItem;
     Store.saveResult(result);
   }
@@ -959,9 +1082,9 @@ function viewQuestionnaireList(profile, result) {
       "data-item-key": item,
     },
       h("div", { class: "q-item-name" },
-        isCustom ? h("span", { class: "q-item-tag" }, "custom") : null,
+        isCustom ? h("span", { class: "q-item-tag" }, t("custom_tag")) : null,
         item,
-        isCustom ? h("button", { class: "icon-btn", title: "Remove", onClick: e => {
+        isCustom ? h("button", { class: "icon-btn", title: t("btn_delete"), onClick: e => {
           e.stopPropagation();
           delete store[item]; persist(); rerender();
         }}, "✕") : null
@@ -989,7 +1112,7 @@ function viewQuestionnaireList(profile, result) {
       h("input", {
         class: "q-note",
         type: "text",
-        placeholder: "Note (optional)…",
+        placeholder: t("note_placeholder"),
         value: existing.note || "",
         onChange: e => { store[item] = { ...(store[item] || { scale: "open" }), note: e.target.value }; persist(); }
       }),
@@ -997,7 +1120,6 @@ function viewQuestionnaireList(profile, result) {
 
     function applyScale(key, { advance = true } = {}) {
       if (key == null) {
-        // explicit clear: remove the entry entirely
         delete store[item];
       } else {
         store[item] = { ...existing, scale: key };
@@ -1007,7 +1129,6 @@ function viewQuestionnaireList(profile, result) {
       rerender();
       if (next) {
         requestAnimationFrame(() => {
-          if (!next) return;
           const all = Array.from(document.querySelectorAll(".q-item"));
           const idx = parseInt(next.dataset.idx || "-1", 10);
           const el = idx >= 0 ? all[idx] : null;
@@ -1027,7 +1148,7 @@ function viewQuestionnaireList(profile, result) {
     }
 
     row.addEventListener("keydown", e => {
-      if (e.target !== row) return; // keys only act on item itself
+      if (e.target !== row) return;
       const n = parseInt(e.key, 10);
       if (!isNaN(n) && n >= 1 && n <= SCALE.length) {
         e.preventDefault();
@@ -1054,10 +1175,10 @@ function viewQuestionnaireList(profile, result) {
 
 function qHeader({ profileId, resultId, idx, total, cat, progressPct, result, mode, isItemBased }) {
   const stepLabel = isItemBased
-    ? `Item ${idx + 1} of ${total}`
-    : `Category ${idx + 1} of ${total}`;
+    ? `${t("q_item")} ${idx + 1} ${t("q_of")} ${total}`
+    : `${t("q_category")} ${idx + 1} ${t("q_of")} ${total}`;
   return h("header", { class: "q-head" },
-    h("button", { class: "btn btn-ghost", onClick: () => navigate(`/profile/${profileId}`) }, "← Back"),
+    h("button", { class: "btn btn-ghost", onClick: () => navigate(`/profile/${profileId}`) }, t("btn_back")),
     h("div", { class: "q-progress" },
       h("div", { class: "q-progress-bar" },
         h("div", { class: "q-progress-fill", style: `width:${progressPct}%; background:${cat.color}` })),
@@ -1074,7 +1195,7 @@ function qHeader({ profileId, resultId, idx, total, cat, progressPct, result, mo
       h("button", {
         class: "btn" + (mode === "single" ? " is-active" : ""),
         onClick: () => { setMode(result, "single"); route(); },
-        title: "One item at a time, swipe to skip",
+        title: "One item at a time",
       }, "📱 Single"),
     ),
     h("button", {
@@ -1083,19 +1204,11 @@ function qHeader({ profileId, resultId, idx, total, cat, progressPct, result, mo
       "aria-label": "Keyboard shortcuts",
       onClick: () => showKeyboardHelpDialog(mode),
     }, "⌨️"),
-    h("button", { class: "btn", onClick: () => navigate(`/result/${resultId}`) }, "📊 Results"),
+    h("button", { class: "btn", onClick: () => navigate(`/result/${resultId}`) }, t("btn_results")),
   );
 }
 
-// ---------- Single / Tinder questionnaire ----------
-function flatItems() {
-  const out = [];
-  CATEGORIES.forEach(cat => {
-    cat.items.forEach(item => out.push({ catId: cat.id, item, isCustom: false, cat }));
-  });
-  return out;
-}
-
+// ---------- Single questionnaire ----------
 function viewQuestionnaireSingle(profile, result) {
   const profileId = profile.id;
   const resultId = result.id;
@@ -1126,11 +1239,11 @@ function viewQuestionnaireSingle(profile, result) {
     if (cursor >= items.length) {
       stack.innerHTML = "";
       stack.append(h("div", { class: "q-done" },
-        h("h1", {}, "All done ✨"),
-        h("p", { class: "muted" }, "You've walked through every item. Review your map below."),
+        h("h1", {}, t("q_done_title")),
+        h("p", { class: "muted" }, t("q_done_body")),
         h("div", { class: "form-actions" },
-          h("button", { class: "btn", onClick: () => { cursor = 0; renderCard(); } }, "Start over"),
-          h("button", { class: "btn btn-primary", onClick: () => navigate(`/result/${resultId}`) }, "📊 See results"),
+          h("button", { class: "btn", onClick: () => { cursor = 0; renderCard(); } }, t("btn_start_over")),
+          h("button", { class: "btn btn-primary", onClick: () => navigate(`/result/${resultId}`) }, t("btn_see_results")),
         ),
       ));
       return;
@@ -1144,7 +1257,6 @@ function viewQuestionnaireSingle(profile, result) {
     const card = makeCard(cur, false);
     stack.append(card);
 
-    // Update header dynamically.
     root.querySelector(".q-head")?.replaceWith(qHeader({
       profileId, resultId,
       idx: cursor, total: items.length, isItemBased: true,
@@ -1169,7 +1281,7 @@ function viewQuestionnaireSingle(profile, result) {
       h("div", { class: "q-card-cat" },
         h("span", { class: "q-card-icon" }, it.cat.icon),
         h("span", {}, it.cat.title),
-        it.isCustom ? h("span", { class: "q-item-tag" }, "custom") : null,
+        it.isCustom ? h("span", { class: "q-item-tag" }, t("custom_tag")) : null,
       ),
       h("h1", { class: "q-card-item" }, it.item),
       h("p", { class: "q-card-blurb muted" }, it.cat.blurb),
@@ -1189,26 +1301,22 @@ function viewQuestionnaireSingle(profile, result) {
       h("input", {
         class: "q-card-note",
         type: "text",
-        placeholder: "Note (optional)…",
+        placeholder: t("note_placeholder"),
         value: existing.note || "",
         onChange: e => setNote(it, e.target.value),
       }),
       h("div", { class: "q-card-actions" },
-        h("button", { class: "btn", onClick: () => advance(null, "back") }, "← Back"),
+        h("button", { class: "btn", onClick: () => advance(null, "back") }, t("btn_back")),
         h("button", {
           class: "btn btn-primary",
           onClick: () => advance(null, existing.scale ? "right" : "left"),
-        }, existing.scale ? "Next →" : "Skip →"),
+        }, existing.scale ? t("btn_next") : t("btn_skip")),
       ),
       h("div", { class: "q-card-progress" }, `${cursor + 1} / ${items.length}`),
     );
     return card;
   }
 
-  function rate(it, scaleKey) {
-    setStore(it, prev => ({ ...(prev || {}), scale: scaleKey }));
-    advance(scaleKey, "right");
-  }
   function setGR(it, g) {
     setStore(it, prev => {
       const cur = prev || { scale: "open" };
@@ -1250,18 +1358,15 @@ function viewQuestionnaireSingle(profile, result) {
     }
   }
 
-  // Keyboard
   const onKey = (e) => {
     if (e.target.matches("input, textarea")) return;
     const n = parseInt(e.key, 10);
     if (!isNaN(n) && n >= 1 && n <= SCALE.length) {
       e.preventDefault();
-      // 1. Update the slider visually so the user sees their vote.
       const cur = items[cursor];
       const key = SCALE[n - 1].key;
       setStore(cur, prev => ({ ...(prev || {}), scale: key }));
       renderCard();
-      // 2. Then animate away after a brief beat.
       setTimeout(() => advance(null, "right"), 420);
     } else if (e.key === "ArrowRight" || e.key === "Enter") {
       e.preventDefault(); advance(null, "right");
@@ -1272,7 +1377,6 @@ function viewQuestionnaireSingle(profile, result) {
     }
   };
   document.addEventListener("keydown", onKey);
-  // Detach on next route.
   const detach = () => { document.removeEventListener("keydown", onKey); window.removeEventListener("hashchange", detach); };
   window.addEventListener("hashchange", detach);
 }
@@ -1280,19 +1384,19 @@ function viewQuestionnaireSingle(profile, result) {
 function bindSwipe(el, { onLeft, onRight, threshold = 80 } = {}) {
   let startX = null, startY = null, dx = 0, dy = 0, dragging = false;
   const start = e => {
-    const t = e.touches ? e.touches[0] : e;
-    if (!t) return;
+    const tch = e.touches ? e.touches[0] : e;
+    if (!tch) return;
     if (e.target.closest("button, input, textarea, .scale-pill, .gr-btn")) return;
-    startX = t.clientX; startY = t.clientY; dx = 0; dy = 0; dragging = true;
+    startX = tch.clientX; startY = tch.clientY; dx = 0; dy = 0; dragging = true;
     el.classList.add("dragging");
   };
   const move = e => {
     if (!dragging) return;
-    const t = e.touches ? e.touches[0] : e;
-    if (!t) return;
-    dx = t.clientX - startX;
-    dy = t.clientY - startY;
-    if (Math.abs(dy) > Math.abs(dx) * 1.5 && Math.abs(dy) > 30) return; // vertical scroll
+    const tch = e.touches ? e.touches[0] : e;
+    if (!tch) return;
+    dx = tch.clientX - startX;
+    dy = tch.clientY - startY;
+    if (Math.abs(dy) > Math.abs(dx) * 1.5 && Math.abs(dy) > 30) return;
     el.style.transform = `translate(${dx}px, ${dy * 0.2}px) rotate(${dx * 0.04}deg)`;
     el.style.opacity = String(1 - Math.min(0.5, Math.abs(dx) / 600));
   };
@@ -1314,36 +1418,35 @@ function bindSwipe(el, { onLeft, onRight, threshold = 80 } = {}) {
 }
 
 function clamp(n, lo, hi) { return Math.max(lo, Math.min(hi, n)); }
-function itemCategoryIndex(catId) { return CATEGORIES.findIndex(c => c.id === catId); }
 
 function showKeyboardHelpDialog(mode = "list") {
-  const row = (k, t) => h("div", { class: "kbd-row" },
-    h("kbd", { class: "kbd" }, k), h("span", {}, t));
+  const row = (k, txt) => h("div", { class: "kbd-row" },
+    h("kbd", { class: "kbd" }, k), h("span", {}, txt));
   return dialog({
-    title: "Keyboard shortcuts",
+    title: t("kbd_title"),
     body: h("div", { class: "kbd-help" },
-      h("p", { class: "muted small" }, "Works on desktop in both questionnaire modes."),
+      h("p", { class: "muted small" }, t("kbd_sub")),
       mode === "single" ? h("div", { class: "kbd-section" },
-        h("h3", {}, "Single mode (one item at a time)"),
-        row("1 – 9", "Rate with that step (briefly shown, then auto-advance)"),
-        row("→  /  Enter", "Skip / next without rating"),
-        row("←", "Previous"),
-        row("Space", "Skip"),
+        h("h3", {}, t("kbd_single_title")),
+        row("1 – 9", t("kbd_rate")),
+        row("→  /  Enter", t("kbd_skip_next")),
+        row("←", t("kbd_prev")),
+        row("Space", t("kbd_skip")),
       ) : h("div", { class: "kbd-section" },
-        h("h3", {}, "List mode (all items in category)"),
-        row("Tab", "Move between items"),
-        row("1 – 9", "Rate the focused item"),
-        row("0", "Clear the focused item's rating"),
-        row("Enter  /  ↓", "Next item"),
-        row("↑", "Previous item"),
+        h("h3", {}, t("kbd_list_title")),
+        row("Tab", t("kbd_tab")),
+        row("1 – 9", t("kbd_rate_list")),
+        row("0", t("kbd_clear")),
+        row("Enter  /  ↓", t("kbd_next_item")),
+        row("↑", t("kbd_prev_item")),
       ),
       h("div", { class: "kbd-section" },
-        h("h3", {}, "Slider"),
-        row("← / →", "Step lower / higher"),
-        row("Home / End", "Lowest / highest"),
-        row("Backspace", "Clear rating"),
+        h("h3", {}, t("kbd_slider_title")),
+        row("← / →", t("kbd_step")),
+        row("Home / End", t("kbd_bounds")),
+        row("Backspace", t("kbd_clear_rating")),
       )),
-    actions: [{ label: "Got it", kind: "primary", primary: true, value: true }],
+    actions: [{ label: t("btn_got_it"), kind: "primary", primary: true, value: true }],
   });
 }
 
@@ -1362,43 +1465,57 @@ function viewResult(resultId) {
 
   $app.append(h("section", { class: "page" },
     h("header", { class: "result-head", style: `--c:${dataset.color}` },
-      h("button", { class: "btn btn-ghost", onClick: () => navigate(`/profile/${profile.id}`) }, "← Back"),
+      h("button", { class: "btn btn-ghost", onClick: () => navigate(`/profile/${profile.id}`) }, t("btn_back")),
       h("div", { class: "li-avatar" }, r.subjectEmoji || "💞"),
       h("div", {},
         h("h1", {}, r.subject + (r.version > 1 ? ` (v${r.version})` : "")),
-        h("p", { class: "muted" }, `${profile.emoji} ${profile.name} · ${countAnswers(r)} answers · last edited ${fmtDate(r.updatedAt)}`)),
+        h("p", { class: "muted" }, `${profile.emoji} ${profile.name} · ${countAnswers(r)} ${t("answers")} · ${t("result_last_edited")} ${fmtDate(r.updatedAt)}`)),
       h("div", { class: "flex-spacer" }),
-      h("button", { class: "btn", onClick: () => navigate(`/map/${r.id}/settings`) }, "⚙️ Map settings"),
-      h("button", { class: "btn", onClick: () => navigate(`/q/${profile.id}/${r.id}`) }, "✏️ Continue editing"),
-      h("button", { class: "btn btn-primary", onClick: () => navigate(`/share/${r.id}`) }, "📤 Share"),
+      h("button", { class: "btn", onClick: () => navigate(`/map/${r.id}/settings`) }, t("btn_map_settings")),
+      h("button", { class: "btn", onClick: () => navigate(`/q/${profile.id}/${r.id}`) }, t("btn_continue_editing")),
+      h("button", { class: "btn btn-primary", onClick: () => navigate(`/share/${r.id}`) }, t("btn_share")),
     ),
 
-    // Overview spider — only when Fabi mode is on (category averages can be misleading).
     Store.getFabiMode() ? h("section", { class: "page-section" },
       h("header", { class: "section-head" },
-        h("h2", {}, "Category overview"),
-        h("p", { class: "muted" }, "Averaged per category — the further out, the more important to you on average.")),
-      h("div", { class: "panel", html: renderSpider([dataset], { size: 540 }) })) : null,
+        h("h2", {}, t("result_category_overview")),
+        h("p", { class: "muted" }, t("result_category_overview_sub"))),
+      h("div", { class: "panel rs-chart-clickable", title: t("enlarge_chart"),
+        onClick: () => openEnlargedSpiderModal([dataset]),
+        html: renderSpider([dataset], { size: 540 }) })) : null,
 
-    // Compare picker
     h("section", { class: "page-section" },
       h("header", { class: "section-head" },
-        h("h2", {}, "Compare with someone")),
+        h("h2", {}, t("compare_with"))),
       h("div", { class: "compare-pickers" },
         compareTargetPicker(profile.id, r.id))),
 
-    // By category
     h("section", { class: "page-section" },
       h("header", { class: "section-head" },
-        h("h2", {}, "By category"),
-        h("p", { class: "muted" }, "Open a card to see a per-item spider chart and the underlying breakdown.")),
-      h("div", { class: "cat-grid" }, ...categoryCards([dataset]))),
-
+        h("h2", {}, t("by_category")),
+        h("p", { class: "muted" }, t("by_category_sub"))),
+      h("div", { class: "cat-grid" }, ...categoryCards([dataset], r))),
   ));
 }
 
-function categoryCards(datasets) {
-  const fabi = Store.getFabiMode();
+// ---------- Enlarged spider modal (for Compare / Result overview) ----------
+function openEnlargedSpiderModal(datasets) {
+  return dialog({
+    title: t("chart_modal_title"),
+    body: () => {
+      const wrap = h("div", { class: "enlarged-spider-wrap" },
+        h("div", { html: renderSpider(datasets, { size: 680 }) })
+      );
+      requestAnimationFrame(() => bindSpiderInteractivity(wrap));
+      return wrap;
+    },
+    actions: [{ label: t("btn_close"), kind: "ghost", value: null, primary: true }],
+  });
+}
+
+// ---------- Category cards ----------
+function categoryCards(datasets, editableResult = null) {
+  const fabiMode = Store.getFabiMode();
   return CATEGORIES.map(cat => {
     const filledCount = datasets.reduce((acc, d) => {
       const slot = d.answers?.[cat.id] || {};
@@ -1414,14 +1531,14 @@ function categoryCards(datasets) {
       class: "cat-card cat-card-btn",
       style: `--c:${cat.color}`,
       type: "button",
-      onClick: () => openCategoryModal(datasets, cat),
+      onClick: () => openCategoryModal(datasets, cat, editableResult),
     },
       h("div", { class: "cat-card-head" },
         h("div", { class: "cat-card-icon" }, cat.icon),
         h("div", { class: "cat-card-titles" },
           h("h3", {}, cat.title),
           h("p", { class: "muted small" }, cat.blurb)),
-        fabi ? h("div", { class: "cat-card-summary", html: summaryCellsHTML(datasets, cat.id) }) : null,
+        fabiMode ? h("div", { class: "cat-card-summary", html: summaryCellsHTML(datasets, cat.id) }) : null,
         h("span", { class: "cat-card-toggle", "aria-hidden": "true" }, "→"),
       ),
     );
@@ -1430,28 +1547,210 @@ function categoryCards(datasets) {
   });
 }
 
-function openCategoryModal(datasets, cat) {
-  return dialog({
-    title: undefined,
-    body: (close) => {
-      const body = h("div", { class: "cat-modal-body", style: `--c:${cat.color}` },
-        h("header", { class: "cat-modal-head" },
+// ---------- Category modal with tabs (Spider | Item-by-Item | Edit) ----------
+function openCategoryModal(datasets, cat, editableResult = null) {
+  // Deep-clone answers for local editing so we can diff on close
+  let localAnswers = editableResult
+    ? JSON.parse(JSON.stringify(editableResult.answers || {}))
+    : null;
+  let hasChanges = false;
+
+  const tabs = [
+    { id: "spider", label: t("tab_spider") },
+    { id: "items",  label: t("tab_items") },
+    ...(editableResult ? [{ id: "edit", label: t("tab_edit") }] : []),
+  ];
+  let activeTab = "spider";
+
+  return new Promise(resolve => {
+    const overlay = h("div", { class: "rs-modal-overlay cat-modal-overlay", role: "dialog", "aria-modal": "true" });
+    const card = h("div", { class: "rs-modal-card cat-modal-wrap" });
+
+    const close = async (save = false) => {
+      if (hasChanges && !save) {
+        const discard = await dlgConfirm(t("confirm_discard_changes"), {
+          okLabel: t("btn_discard"),
+          danger: true,
+        });
+        if (!discard) return; // stay open
+      }
+      if (save && editableResult && hasChanges) {
+        editableResult.answers = localAnswers;
+        Store.saveResult(editableResult);
+        showToast(t("btn_save_changes") + " ✔");
+      }
+      overlay.classList.add("closing");
+      setTimeout(() => overlay.remove(), 160);
+      document.removeEventListener("keydown", escKey);
+      resolve();
+    };
+
+    const escKey = (e) => { if (e.key === "Escape") close(false); };
+    document.addEventListener("keydown", escKey);
+    overlay.addEventListener("click", e => { if (e.target === overlay) close(false); });
+
+    function renderTab() {
+      card.innerHTML = "";
+
+      // Header
+      card.append(h("div", { class: "cat-modal-head-row" },
+        h("div", { class: "cat-modal-icon-wrap" },
           h("span", { class: "cat-modal-icon" }, cat.icon),
           h("div", {},
-            h("h2", {}, cat.title),
-            h("p", { class: "muted small" }, cat.blurb)),
+            h("h2", { class: "cat-modal-title" }, cat.title),
+            h("p", { class: "muted small" }, cat.blurb),
+          ),
         ),
-        h("section", { class: "cat-modal-spider" },
-          h("div", { html: renderItemSpider(datasets, cat.id, { size: 580 }) })),
-        h("section", { class: "cat-modal-bars" },
-          h("h3", {}, "Item-by-item"),
-          h("div", { html: renderCategoryBars(datasets, cat.id) })),
+      ));
+
+      // Tab bar
+      const tabBar = h("div", { class: "cat-modal-tabs" },
+        ...tabs.map(tab => h("button", {
+          class: "cat-modal-tab" + (activeTab === tab.id ? " active" : ""),
+          type: "button",
+          onClick: () => { activeTab = tab.id; renderTab(); },
+        }, tab.label))
       );
-      requestAnimationFrame(() => bindSpiderInteractivity(body));
-      return body;
-    },
-    actions: [{ label: "Close", kind: "ghost", value: null, primary: true }],
+      card.append(tabBar);
+
+      // Tab content
+      const content = h("div", { class: "cat-modal-content" });
+
+      if (activeTab === "spider") {
+        const datasetsForModal = editableResult
+          ? [{ ...datasets[0], answers: localAnswers }]
+          : datasets;
+        const spiderWrap = h("div", { class: "cat-modal-spider", html: renderItemSpider(datasetsForModal, cat.id, { size: 520 }) });
+        requestAnimationFrame(() => bindSpiderInteractivity(spiderWrap));
+        content.append(spiderWrap);
+
+      } else if (activeTab === "items") {
+        const datasetsForModal = editableResult
+          ? [{ ...datasets[0], answers: localAnswers }]
+          : datasets;
+        content.append(h("div", { class: "cat-modal-bars-scroll" },
+          h("div", { html: renderCategoryBars(datasetsForModal, cat.id) })
+        ));
+
+      } else if (activeTab === "edit" && editableResult) {
+        content.append(renderEditTab(cat, editableResult, localAnswers, () => { hasChanges = true; }));
+      }
+
+      card.append(content);
+
+      // Actions
+      const actionRow = h("div", { class: "rs-modal-actions" });
+      if (editableResult && hasChanges) {
+        actionRow.append(
+          h("button", { class: "btn btn-ghost", onClick: () => close(false) }, t("btn_discard")),
+          h("button", { class: "btn btn-primary", onClick: () => close(true) }, t("btn_save_changes")),
+        );
+      } else {
+        actionRow.append(h("button", { class: "btn btn-ghost", onClick: () => close(false) }, t("btn_close")));
+      }
+      card.append(actionRow);
+    }
+
+    renderTab();
+    overlay.append(card);
+    document.body.append(overlay);
+    requestAnimationFrame(() => overlay.classList.add("open"));
   });
+}
+
+// Renders the editable items tab inside the category modal
+function renderEditTab(cat, result, localAnswers, onChanged) {
+  const SCALE = getResultScale(result);
+  localAnswers[cat.id] = localAnswers[cat.id] || {};
+  const catAnswers = localAnswers[cat.id];
+  catAnswers.__custom = catAnswers.__custom || {};
+
+  const asked = askedItemsForCat(result, cat.id);
+  const baseItems = asked ? asked.base : cat.items;
+  const customNames = asked
+    ? Array.from(new Set([...(asked.custom || []), ...Object.keys(catAnswers.__custom)]))
+    : Object.keys(catAnswers.__custom);
+
+  const container = h("div", { class: "modal-edit-items" });
+
+  function rerender() {
+    container.innerHTML = "";
+    const items = [
+      ...baseItems.map(name => ({ name, isCustom: false })),
+      ...customNames.map(name => ({ name, isCustom: true })),
+    ];
+
+    items.forEach(({ name, isCustom }) => {
+      const store = isCustom ? catAnswers.__custom : catAnswers;
+      const existing = store[name] || {};
+
+      const row = h("div", { class: "q-item modal-edit-item" + (existing.scale ? " is-answered" : "") },
+        h("div", { class: "q-item-name" },
+          isCustom ? h("span", { class: "q-item-tag" }, t("custom_tag")) : null,
+          name,
+        ),
+        h("div", { class: "q-slider-wrap" },
+          scaleSliderEl({
+            scale: SCALE,
+            valueKey: existing.scale,
+            onChange: (key) => {
+              store[name] = { ...(store[name] || {}), scale: key };
+              onChanged();
+              rerender();
+            },
+            onClear: () => {
+              delete store[name];
+              onChanged();
+              rerender();
+            },
+          })
+        ),
+        cat.gr ? h("div", { class: "gr-pick" },
+          ["G","R","×"].map(g => h("button", {
+            class: "gr-btn" + (existing.gr === g ? " is-active" : ""),
+            title: g === "G" ? "Giving" : g === "R" ? "Receiving" : "Both",
+            onClick: () => {
+              store[name] = { ...(store[name] || { scale: "open" }), gr: existing.gr === g ? null : g };
+              onChanged();
+              rerender();
+            }
+          }, g))
+        ) : null,
+        h("input", {
+          class: "q-note",
+          type: "text",
+          placeholder: t("note_placeholder"),
+          value: existing.note || "",
+          onChange: e => {
+            store[name] = { ...(store[name] || { scale: "open" }), note: e.target.value };
+            onChanged();
+          }
+        }),
+      );
+      container.append(row);
+    });
+
+    // Add custom item
+    container.append(h("button", { class: "q-add", onClick: async () => {
+      const newName = await dlgPrompt({
+        title: t("add_custom_title"),
+        label: t("add_custom_label"),
+        placeholder: t("add_custom_placeholder"),
+        okLabel: t("btn_add"),
+      });
+      if (!newName) return;
+      if (cat.items.includes(newName) || catAnswers.__custom[newName]) {
+        return showToast(t("item_already_exists"));
+      }
+      catAnswers.__custom[newName] = {};
+      customNames.push(newName);
+      onChanged();
+      rerender();
+    }}, t("btn_add_custom")));
+  }
+
+  rerender();
+  return container;
 }
 
 function summaryCellsHTML(datasets, catId) {
@@ -1477,7 +1776,7 @@ function compareTargetPicker(profileId, currentResultId) {
   const others = Store.getResults().filter(x => x.id !== currentResultId);
   const imports = Store.getImports();
   if (!others.length && !imports.length) {
-    return h("p", { class: "muted" }, "Create another relationship map or import a shared one to compare.");
+    return h("p", { class: "muted" }, t("no_compare"));
   }
   const tile = (cfg) => h("button", {
     class: "compare-tile",
@@ -1499,7 +1798,7 @@ function compareTargetPicker(profileId, currentResultId) {
         emoji: o.subjectEmoji || op?.emoji || "💞",
         color: o.subjectColor || op?.color,
         title: `${op?.name || "?"} → ${o.subject}`,
-        sub: `Updated ${fmtDate(o.updatedAt)}`,
+        sub: `${t("updated")} ${fmtDate(o.updatedAt)}`,
       });
     }),
     ...imports.map(i => tile({
@@ -1507,12 +1806,12 @@ function compareTargetPicker(profileId, currentResultId) {
       emoji: i.emoji || "📨",
       color: i.color || "#7c3aed",
       title: `${i.name} → ${i.subject}`,
-      sub: `Imported ${fmtDate(i.importedAt)}`,
+      sub: `${t("imported_on")} ${fmtDate(i.importedAt)}`,
     })),
   );
 }
 
-// ---------- Share view ----------
+// ---------- Share ----------
 function viewShare(resultId) {
   const r = Store.getResult(resultId);
   if (!r) return navigate("/");
@@ -1537,13 +1836,13 @@ function viewShare(resultId) {
 
   const output = h("textarea", { class: "share-out", readonly: "", rows: 12 });
   const out = h("div", { class: "share-result", style: "display:none" },
-    h("h2", {}, "Your encrypted bundle"),
-    h("p", { class: "muted" }, "Copy this text or download the file. Keep the passphrase separate."),
+    h("h2", {}, t("share_bundle_title")),
+    h("p", { class: "muted" }, t("share_bundle_sub")),
     output,
     h("div", { class: "form-actions" },
       h("button", { class: "btn", onClick: async () => {
-        await navigator.clipboard.writeText(output.value); showToast("Copied!");
-      }}, "📋 Copy text"),
+        await navigator.clipboard.writeText(output.value); showToast(t("btn_copy") + " ✔");
+      }}, t("btn_copy")),
       h("button", { class: "btn", onClick: () => {
         const blob = new Blob([output.value], { type: "text/plain" });
         const url = URL.createObjectURL(blob);
@@ -1552,35 +1851,34 @@ function viewShare(resultId) {
         a.download = `relationshape-${slug(profile.name)}-${slug(r.subject)}.rshape.txt`;
         a.click();
         URL.revokeObjectURL(url);
-      }}, "💾 Download file")),
+      }}, t("btn_download"))),
   );
 
   const root = h("section", { class: "page narrow" },
-    h("button", { class: "btn btn-ghost", onClick: () => navigate(`/result/${resultId}`) }, "← Back"),
-    h("h1", {}, "📤 Share encrypted result"),
-    h("p", {}, "Your answers will be packaged and encrypted with a passphrase. Send the bundle via any channel — and tell the other person the passphrase ", h("strong", {}, "separately"), " (e.g. by phone or in person)."),
+    h("button", { class: "btn btn-ghost", onClick: () => navigate(`/result/${resultId}`) }, t("btn_back")),
+    h("h1", {}, t("share_title")),
+    h("p", {}, t("share_intro"), " ", h("strong", {}, t("share_intro_separately")), " ", t("share_intro_rest")),
     h("div", { class: "callout" },
-      h("strong", {}, "🔐 No server, no traces. "),
-      "Encryption happens on this device. The passphrase never leaves your head."),
+      h("strong", {}, t("share_callout_title")), " ", t("share_callout_body")),
 
     h("form", { class: "form", onSubmit: async (e) => {
       e.preventDefault();
       const fd = new FormData(e.target);
       const pass = fd.get("pass");
       const passConfirm = fd.get("passConfirm");
-      if (pass.length < 6) return dlgAlert("Please choose at least 6 characters.");
-      if (pass !== passConfirm) return dlgAlert("The two passphrases don't match.");
+      if (pass.length < 6) return dlgAlert(t("pass_too_short"));
+      if (pass !== passConfirm) return dlgAlert(t("pass_mismatch"));
       const blob = await encryptResult(payload, pass);
       output.value = blob;
       out.style.display = "block";
       out.scrollIntoView({ behavior: "smooth" });
     }},
-      h("label", {}, "Passphrase",
+      h("label", {}, t("share_pass_label"),
         h("input", { name: "pass", type: "password", autocomplete: "new-password", required: true, minlength: 6 })),
-      h("label", {}, "Repeat passphrase",
+      h("label", {}, t("share_pass_confirm_label"),
         h("input", { name: "passConfirm", type: "password", autocomplete: "new-password", required: true })),
       h("div", { class: "form-actions" },
-        h("button", { class: "btn btn-primary", type: "submit" }, "🔒 Encrypt & generate share")),
+        h("button", { class: "btn btn-primary", type: "submit" }, t("btn_encrypt"))),
     ),
     out,
   );
@@ -1590,21 +1888,21 @@ function viewShare(resultId) {
 
 function slug(s) { return String(s).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 24); }
 
-// ---------- Import view ----------
+// ---------- Import ----------
 function viewImport() {
   const root = h("section", { class: "page narrow" },
-    h("h1", {}, "📥 Import a shared result"),
-    h("p", {}, "Paste the encrypted bundle below or load a ", h("code", {}, ".rshape.txt"), " file. Decryption happens locally."),
+    h("h1", {}, t("import_title")),
+    h("p", {}, t("import_intro"), " ", h("code", {}, ".rshape.txt"), " ", t("import_intro2")),
 
     h("form", { class: "form", onSubmit: async (e) => {
       e.preventDefault();
       const fd = new FormData(e.target);
       const blob = (fd.get("blob") || "").toString().trim();
       const pass = (fd.get("pass") || "").toString();
-      if (!blob) return dlgAlert("Paste an encrypted bundle first.");
+      if (!blob) return dlgAlert(t("import_empty"));
       try {
         const payload = await decryptResult(blob, pass);
-        if (payload.type !== "relationshape-result") throw new Error("This bundle is not a Relationshape result.");
+        if (payload.type !== "relationshape-result") throw new Error(t("import_wrong_type"));
         const version = Store.nextImportVersion(payload.name, payload.subject);
         const imp = Store.saveImport({
           name: payload.name, pronouns: payload.pronouns,
@@ -1617,31 +1915,31 @@ function viewImport() {
           version,
           srcVersion: payload.version || 1,
         });
-        showToast(version > 1 ? `Imported as v${version} ✔` : "Imported ✔");
+        showToast(version > 1 ? t("imported_versioned_toast", { n: version }) : t("imported_toast"));
         navigate(`/compare?ids=imp:${imp.id}`);
       } catch (err) {
-        dlgAlert(err.message || "Could not decrypt.", "Import failed");
+        dlgAlert(err.message || "Could not decrypt.", t("import_failed_title"));
       }
     }},
-      h("label", {}, "Encrypted bundle",
+      h("label", {}, t("import_bundle_label"),
         h("textarea", { name: "blob", rows: 10, placeholder: "-----BEGIN RELATIONSHAPE BUNDLE-----\nv1\n…\n-----END RELATIONSHAPE BUNDLE-----" })),
-      h("label", {}, "Or load a file",
+      h("label", {}, t("import_file_label"),
         h("input", { type: "file", accept: ".txt,.rshape,.json", onChange: e => {
           const f = e.target.files[0]; if (!f) return;
           const reader = new FileReader();
           reader.onload = () => { document.querySelector("[name=blob]").value = reader.result; };
           reader.readAsText(f);
         }})),
-      h("label", {}, "Passphrase",
+      h("label", {}, t("import_pass_label"),
         h("input", { name: "pass", type: "password", autocomplete: "off", required: true })),
       h("div", { class: "form-actions" },
-        h("button", { class: "btn btn-primary", type: "submit" }, "🔓 Decrypt & import")),
+        h("button", { class: "btn btn-primary", type: "submit" }, t("btn_decrypt"))),
     )
   );
   $app.append(root);
 }
 
-// ---------- Compare view ----------
+// ---------- Compare ----------
 function viewCompare(ids) {
   const profiles = Store.getProfiles();
   const results = Store.getResults();
@@ -1675,8 +1973,8 @@ function viewCompare(ids) {
 
   const root = h("section", { class: "page" },
     h("header", { class: "page-head" },
-      h("h1", {}, "📊 Compare"),
-      h("p", { class: "muted" }, "Pick up to four results to overlay. Open a category for a per-item spider chart.")),
+      h("h1", {}, t("compare_title")),
+      h("p", { class: "muted" }, t("compare_sub"))),
 
     h("div", { class: "compare-pick" },
       ...allOptions.map(o => {
@@ -1693,32 +1991,34 @@ function viewCompare(ids) {
     ),
 
     selected.length === 0
-      ? h("div", { class: "callout" }, "Select results above.")
+      ? h("div", { class: "callout" }, t("compare_select"))
       : (Store.getFabiMode()
-          ? h("div", { class: "panel", html: renderSpider(datasets, { size: 560 }) })
+          ? h("div", { class: "panel rs-chart-clickable", title: t("enlarge_chart"),
+              onClick: () => openEnlargedSpiderModal(datasets),
+              html: renderSpider(datasets, { size: 560 }) })
           : h("div", { class: "callout muted small" },
-              "Tip: enable “Fabi mode” in Settings to also see a per-category averages spider chart here. Otherwise pick a category below to compare item by item.")),
+              getLang() === "de"
+                ? "Tipp: Aktiviere den \u201eFabi-Modus\u201c in den Einstellungen f\u00fcr ein \u00dcbersichts-Spinnendiagramm. W\u00e4hle unten eine Kategorie f\u00fcr einen detaillierten Item-Vergleich."
+                : "Tip: Enable \u201cFabi mode\u201d in Settings to see a category overviews spider chart here. Or pick a category below to compare item by item.")),
 
     selected.length >= 2 ? h("section", { class: "page-section" },
-      h("header", { class: "section-head" }, h("h2", {}, "Alignment overview")),
+      h("header", { class: "section-head" }, h("h2", {}, t("alignment_title"))),
       h("div", { class: "panel", html: renderAlignment(datasets) })
     ) : null,
 
     selected.length >= 1 ? h("section", { class: "page-section" },
       h("header", { class: "section-head" },
-        h("h2", {}, "Category details"),
-        h("p", { class: "muted" }, "Each card opens a spider chart of the items inside it.")),
-      h("div", { class: "cat-grid" }, ...categoryCards(datasets))
+        h("h2", {}, t("cat_details_title")),
+        h("p", { class: "muted" }, t("cat_details_sub"))),
+      h("div", { class: "cat-grid" }, ...categoryCards(datasets, null))
     ) : null,
   );
   $app.append(root);
 }
 
-// ---------- Settings view ----------
+// ---------- Settings ----------
 function viewSettings() {
   const SCALE = Store.getScale();
-  const used = {};
-  SCALE.forEach(s => { used[s.key] = Store.scaleHasData(s.key); });
 
   const list = h("div", { class: "scale-editor" });
 
@@ -1731,13 +2031,13 @@ function viewSettings() {
         h("input", { class: "scale-row-color", type: "color", value: s.color, onInput: (e) => {
           fresh[i].color = e.target.value; Store.setScale(fresh);
         }}),
-        h("input", { class: "scale-row-label", type: "text", value: s.label, placeholder: "Long label",
+        h("input", { class: "scale-row-label", type: "text", value: s.label, placeholder: t("scale_step_label"),
           onChange: (e) => { fresh[i].label = e.target.value || s.label; Store.setScale(fresh); }
         }),
-        h("input", { class: "scale-row-short", type: "text", value: s.short, maxlength: 24, placeholder: "Short",
+        h("input", { class: "scale-row-short", type: "text", value: s.short, maxlength: 24, placeholder: t("scale_step_short"),
           onChange: (e) => { fresh[i].short = (e.target.value || s.short).slice(0, 24); Store.setScale(fresh); }
         }),
-        h("input", { class: "scale-row-desc", type: "text", value: s.description || "", placeholder: "Tooltip / description",
+        h("input", { class: "scale-row-desc", type: "text", value: s.description || "", placeholder: t("scale_step_desc"),
           onChange: (e) => { fresh[i].description = e.target.value; Store.setScale(fresh); }
         }),
         h("div", { class: "scale-row-actions" },
@@ -1748,7 +2048,7 @@ function viewSettings() {
           h("button", { class: "icon-btn danger", title: "Remove", disabled: fresh.length <= 2,
             onClick: async () => {
               if (Store.scaleHasData(s.key)) {
-                if (!await dlgConfirm(`The step "${s.label}" is in use in some answers. Removing it will clear those answers. Continue?`, { danger: true, okLabel: "Remove" })) return;
+                if (!await dlgConfirm(t("scale_step_remove_confirm", { label: s.label }), { danger: true, okLabel: t("btn_delete") })) return;
               }
               fresh.splice(i, 1);
               Store.setScale(fresh);
@@ -1762,10 +2062,9 @@ function viewSettings() {
     });
   }
 
-  function swap(arr, a, b) { const t = arr[a]; arr[a] = arr[b]; arr[b] = t; }
+  function swap(arr, a, b) { const tmp = arr[a]; arr[a] = arr[b]; arr[b] = tmp; }
 
   function clearScaleKey(key) {
-    // Remove all answers using this key.
     const data = Store.exportAll();
     function scrub(answers) {
       for (const cat of Object.values(answers || {})) {
@@ -1781,7 +2080,7 @@ function viewSettings() {
       }
     }
     for (const r of data.results) scrub(r.answers);
-    for (const i of data.imports) scrub(i.answers);
+    for (const imp of data.imports) scrub(imp.answers);
     localStorage.setItem("relationshape.v1", JSON.stringify(data));
   }
 
@@ -1790,9 +2089,9 @@ function viewSettings() {
   const theme = Store.getTheme();
   const themeRow = h("div", { class: "theme-picker" },
     ...[
-      { v: "auto",  label: "🖥 Auto (follow OS)" },
-      { v: "light", label: "☀️ Light" },
-      { v: "dark",  label: "🌙 Dark" },
+      { v: "auto",  label: t("theme_auto") },
+      { v: "light", label: t("theme_light") },
+      { v: "dark",  label: t("theme_dark") },
     ].map(opt => h("button", {
       class: "theme-pick" + (theme === opt.v ? " is-on" : ""),
       type: "button",
@@ -1800,18 +2099,34 @@ function viewSettings() {
     }, opt.label))
   );
 
+  // Language picker
+  const currentLang = getLang();
+  const langRow = h("div", { class: "theme-picker" },
+    ...availableLangs().map(lang => h("button", {
+      class: "theme-pick" + (currentLang === lang.code ? " is-on" : ""),
+      type: "button",
+      onClick: () => { setLang(lang.code); bindGlobalNav(); route(); },
+    }, lang.label))
+  );
+
   $app.append(h("section", { class: "page narrow" },
-    h("h1", {}, "⚙️ Settings"),
+    h("h1", {}, t("settings_title")),
 
     h("section", { class: "page-section" },
       h("header", { class: "section-head" },
-        h("h2", {}, "Appearance")),
+        h("h2", {}, t("settings_appearance"))),
       themeRow,
     ),
 
     h("section", { class: "page-section" },
       h("header", { class: "section-head" },
-        h("h2", {}, "Display modes")),
+        h("h2", {}, t("lang_label"))),
+      langRow,
+    ),
+
+    h("section", { class: "page-section" },
+      h("header", { class: "section-head" },
+        h("h2", {}, t("settings_display_modes"))),
       h("div", { class: "onboard-toggles" },
         (() => {
           const fabi = Store.getFabiMode();
@@ -1826,9 +2141,8 @@ function viewSettings() {
             },
           },
             h("div", { class: "onboard-text" },
-              h("strong", {}, "Fabi mode"),
-              h("p", { class: "muted small" },
-                "Show a category-averages spider chart on the result and compare pages, and small per-category summary chips on the cards. Off by default because averaging across very different items can be misleading.")),
+              h("strong", {}, t("fabi_mode_title")),
+              h("p", { class: "muted small" }, t("fabi_mode_desc"))),
             h("div", { class: "onboard-switch" + (fabi ? " on" : "") }),
           );
           return row;
@@ -1837,28 +2151,28 @@ function viewSettings() {
 
     h("section", { class: "page-section" },
       h("header", { class: "section-head" },
-        h("h2", {}, "Default answer scale"),
-        h("p", { class: "muted" }, "Used as the starting point when you create a new map. Each map keeps its own copy of the scale, so editing here only affects future maps.")),
+        h("h2", {}, t("settings_scale_title")),
+        h("p", { class: "muted" }, t("settings_scale_sub"))),
       list,
       h("div", { class: "form-actions" },
         h("button", { class: "btn", onClick: () => {
-          const SCALE = Store.getScale();
+          const sc = Store.getScale();
           const newKey = "step-" + Date.now().toString(36);
-          const fresh = [...SCALE, {
-            key: newKey, label: "New step", short: "New",
+          const fresh = [...sc, {
+            key: newKey, label: t("scale_step_new"), short: t("scale_step_new"),
             color: pickColor(), description: "",
           }];
           Store.setScale(fresh); rerender();
-        }}, "➕ Add step"),
+        }}, t("btn_add_step")),
         h("button", { class: "btn btn-ghost", onClick: async () => {
-          if (await dlgConfirm("Reset the scale to the default 7 steps?")) {
+          if (await dlgConfirm(t("confirm_reset_scale"))) {
             Store.resetScale(); rerender();
           }
-        }}, "Reset to defaults"))
+        }}, t("btn_reset_defaults")))
     ),
 
     h("section", { class: "page-section" },
-      h("header", { class: "section-head" }, h("h2", {}, "Data")),
+      h("header", { class: "section-head" }, h("h2", {}, t("settings_data"))),
       h("div", { class: "form-actions" },
         h("button", { class: "btn", onClick: () => {
           const data = Store.exportAll();
@@ -1867,13 +2181,13 @@ function viewSettings() {
           const a = document.createElement("a");
           a.href = url; a.download = "relationshape-backup.json";
           a.click(); URL.revokeObjectURL(url);
-        }}, "💾 Download local backup"),
-        h("button", { class: "btn", onClick: () => promptRestoreBackup() }, "📂 Restore from backup"),
+        }}, t("btn_backup")),
+        h("button", { class: "btn", onClick: () => promptRestoreBackup() }, t("btn_restore")),
         h("button", { class: "btn btn-danger-ghost", onClick: async () => {
-          if (await dlgConfirm("Erase ALL data on this device — profiles, maps, imports, settings? This cannot be undone.", { danger: true, okLabel: "Erase everything" })) {
+          if (await dlgConfirm(t("confirm_erase"), { danger: true, okLabel: t("btn_erase") })) {
             Store.wipe(); navigate("/");
           }
-        }}, "🗑 Erase all local data"))
+        }}, t("btn_erase")))
     ),
   ));
 }
@@ -1881,21 +2195,21 @@ function viewSettings() {
 async function promptRestoreBackup() {
   const input = h("input", { type: "file", accept: ".json,application/json" });
   const choice = await dialog({
-    title: "Restore from backup",
-    body: (close) => h("div", { class: "form" },
-      h("p", { class: "muted small" }, "This will replace ALL data currently on this device with the contents of the backup. Your existing profiles, maps and imports will be lost."),
-      h("label", {}, "Backup file (.json)", input),
+    title: t("restore_title"),
+    body: () => h("div", { class: "form" },
+      h("p", { class: "muted small" }, t("restore_warning")),
+      h("label", {}, t("restore_file_label"), input),
     ),
     actions: [
-      { label: "Cancel", kind: "ghost", value: null },
-      { label: "Replace all data", kind: "danger", primary: true,
+      { label: t("btn_cancel"), kind: "ghost", value: null },
+      { label: t("btn_replace_all"), kind: "danger", primary: true,
         handler: async () => {
           const f = input.files?.[0];
-          if (!f) { showToast("Pick a file first."); return false; }
+          if (!f) { showToast(t("restore_pick_file")); return false; }
           const text = await f.text();
           let parsed;
           try { parsed = JSON.parse(text); }
-          catch { showToast("Not a valid JSON file."); return false; }
+          catch { showToast(t("restore_invalid")); return false; }
           try { Store.replaceAll(parsed); }
           catch (e) { showToast(e.message); return false; }
           return true;
@@ -1903,7 +2217,7 @@ async function promptRestoreBackup() {
       },
     ],
   });
-  if (choice) { applyTheme(); showToast("Backup restored"); navigate("/"); }
+  if (choice) { applyTheme(); showToast(t("restore_done")); navigate("/"); }
 }
 
 // ---------- Per-map settings ----------
@@ -1924,20 +2238,20 @@ function viewMapSettings(resultId) {
         h("input", { class: "scale-row-color", type: "color", value: s.color, onInput: (e) => {
           fresh[i].color = e.target.value; Store.setResultScale(r.id, fresh);
         }}),
-        h("input", { class: "scale-row-label", type: "text", value: s.label, placeholder: "Long label",
+        h("input", { class: "scale-row-label", type: "text", value: s.label, placeholder: t("scale_step_label"),
           onChange: (e) => { fresh[i].label = e.target.value || s.label; Store.setResultScale(r.id, fresh); }
         }),
-        h("input", { class: "scale-row-short", type: "text", value: s.short, maxlength: 24, placeholder: "Short",
+        h("input", { class: "scale-row-short", type: "text", value: s.short, maxlength: 24, placeholder: t("scale_step_short"),
           onChange: (e) => { fresh[i].short = (e.target.value || s.short).slice(0, 24); Store.setResultScale(r.id, fresh); }
         }),
-        h("input", { class: "scale-row-desc", type: "text", value: s.description || "", placeholder: "Tooltip / description",
+        h("input", { class: "scale-row-desc", type: "text", value: s.description || "", placeholder: t("scale_step_desc"),
           onChange: (e) => { fresh[i].description = e.target.value; Store.setResultScale(r.id, fresh); }
         }),
         h("div", { class: "scale-row-actions" },
           h("button", { class: "icon-btn", title: "Move up", disabled: i === 0,
-            onClick: () => { const t = fresh[i]; fresh[i] = fresh[i-1]; fresh[i-1] = t; Store.setResultScale(r.id, fresh); rerenderScale(); } }, "↑"),
+            onClick: () => { const tmp = fresh[i]; fresh[i] = fresh[i-1]; fresh[i-1] = tmp; Store.setResultScale(r.id, fresh); rerenderScale(); } }, "↑"),
           h("button", { class: "icon-btn", title: "Move down", disabled: i === fresh.length - 1,
-            onClick: () => { const t = fresh[i]; fresh[i] = fresh[i+1]; fresh[i+1] = t; Store.setResultScale(r.id, fresh); rerenderScale(); } }, "↓"),
+            onClick: () => { const tmp = fresh[i]; fresh[i] = fresh[i+1]; fresh[i+1] = tmp; Store.setResultScale(r.id, fresh); rerenderScale(); } }, "↓"),
           h("button", { class: "icon-btn danger", title: "Remove", disabled: fresh.length <= 2,
             onClick: () => { fresh.splice(i, 1); Store.setResultScale(r.id, fresh); rerenderScale(); } }, "🗑"),
         )
@@ -1973,26 +2287,26 @@ function viewMapSettings(resultId) {
   renderCats();
 
   $app.append(h("section", { class: "page narrow" },
-    h("button", { class: "btn btn-ghost", onClick: () => navigate(`/result/${r.id}`) }, "← Back"),
-    h("h1", {}, "⚙️ Map settings — " + r.subject + (r.version > 1 ? ` (v${r.version})` : "")),
-    h("p", { class: "muted small" }, `Profile: ${profile?.emoji || ""} ${profile?.name || ""}`),
+    h("button", { class: "btn btn-ghost", onClick: () => navigate(`/result/${r.id}`) }, t("btn_back")),
+    h("h1", {}, `${t("map_settings_title")} — ${r.subject}${r.version > 1 ? ` (v${r.version})` : ""}`),
+    h("p", { class: "muted small" }, `${t("q_category").replace("Kategorie","Profil").replace("Category","Profile")}: ${profile?.emoji || ""} ${profile?.name || ""}`),
 
     h("section", { class: "page-section" },
       h("header", { class: "section-head" },
-        h("h2", {}, "Identity"),
-        h("p", { class: "muted" }, "Visual identity of this relationship map.")),
+        h("h2", {}, t("map_settings_identity")),
+        h("p", { class: "muted" }, t("map_settings_identity_sub"))),
       h("div", { class: "form" },
-        h("label", {}, "Map name (subject)",
+        h("label", {}, t("map_name_label"),
           h("input", { value: r.subject, onChange: e => { r.subject = e.target.value || r.subject; Store.saveResult(r); } })),
-        h("label", {}, "Avatar emoji",
+        h("label", {}, t("map_emoji_label"),
           h("div", { class: "form-row" },
             h("button", { class: "emoji-display-btn", type: "button",
               onClick: async () => {
                 const picked = await pickEmojiDialog(r.subjectEmoji);
                 if (picked) { r.subjectEmoji = picked; Store.saveResult(r); route(); }
               }
-            }, r.subjectEmoji || "💞", h("span", { class: "muted small" }, " · click to change")))),
-        h("label", {}, "Accent colour",
+            }, r.subjectEmoji || "💞", h("span", { class: "muted small" }, " " + t("map_emoji_change"))))),
+        h("label", {}, t("map_color_label"),
           h("input", { type: "color", value: r.subjectColor || "#ec4899",
             onChange: e => { r.subjectColor = e.target.value; Store.saveResult(r); } })),
       ),
@@ -2000,60 +2314,59 @@ function viewMapSettings(resultId) {
 
     h("section", { class: "page-section" },
       h("header", { class: "section-head" },
-        h("h2", {}, "Answer scale (this map only)"),
-        h("p", { class: "muted" }, "These steps are stored with this map and will travel along when you share it. Other maps and profiles use their own scale.")),
+        h("h2", {}, t("map_scale_title")),
+        h("p", { class: "muted" }, t("map_scale_sub"))),
       list,
       h("div", { class: "form-actions" },
         h("button", { class: "btn", onClick: () => {
           const newKey = "step-" + Date.now().toString(36);
-          r.scale = [...r.scale, { key: newKey, label: "New step", short: "New", color: pickColor(), description: "" }];
+          r.scale = [...r.scale, { key: newKey, label: t("scale_step_new"), short: t("scale_step_new"), color: pickColor(), description: "" }];
           Store.setResultScale(r.id, r.scale); rerenderScale();
-        }}, "➕ Add step"),
+        }}, t("btn_add_step")),
         h("button", { class: "btn btn-ghost", onClick: async () => {
-          if (await dlgConfirm("Reset this map's scale to the default scale?")) {
+          if (await dlgConfirm(t("confirm_reset_scale"))) {
             r.scale = cloneScale(Store.getScale());
             Store.setResultScale(r.id, r.scale); rerenderScale();
           }
-        }}, "Reset to defaults"),
+        }}, t("btn_reset_defaults")),
       ),
     ),
 
     h("section", { class: "page-section" },
       h("header", { class: "section-head" },
-        h("h2", {}, "Categories"),
-        h("p", { class: "muted" }, "Toggle which categories this map will ask about. Hidden categories keep their existing answers (if any) but won't appear in the questionnaire.")),
+        h("h2", {}, t("map_cats_title")),
+        h("p", { class: "muted" }, t("map_cats_sub"))),
       catGrid,
       r.askedItems ? h("div", { class: "callout" },
-        h("strong", {}, "This map was started from an import. "),
-        "By default it only asks about the items the other person also answered. ",
+        h("strong", {}, t("map_asked_items_notice") + " "),
         h("button", { class: "btn", onClick: async () => {
-          if (await dlgConfirm("Expand this map to ask all items in the enabled categories?")) {
+          if (await dlgConfirm(t("confirm_ask_all"))) {
             r.askedItems = null; Store.saveResult(r); route();
           }
-        }}, "Ask all items in enabled categories")) : null,
+        }}, t("btn_ask_all"))) : null,
     ),
   ));
 }
 
-// ---------- Intro / About ----------
+// ---------- About ----------
 function viewIntro() {
   $app.append(h("section", { class: "page narrow prose" },
-    h("h1", {}, "About Relationshape"),
-    h("p", {}, "Relationshape is a communication tool to help shape relationships around the actual needs and desires of everyone involved — independently from outside norms or hierarchies."),
-    h("p", {}, "It comes from the world of relationship anarchy and was inspired by Andie Nordgren’s manifesto, the Smorgasbord of relationship anarchy, and books like Polysecure (Jessica Fern) and More than Two (Eve Rickert & Franklin Veaux)."),
-    h("h2", {}, "How to use this app"),
+    h("h1", {}, t("about_title")),
+    h("p", {}, t("about_p1")),
+    h("p", {}, t("about_p2")),
+    h("h2", {}, t("about_how_title")),
     h("ol", {},
-      h("li", {}, "Create a profile for yourself."),
-      h("li", {}, "Start a relationship map for each connection you want to reflect on."),
-      h("li", {}, "Walk through the categories at your own pace. Use ", h("em", {}, "Need → No"), " (or your own custom scale) to mark how important each item is."),
-      h("li", {}, "Open a category in the result view to see a spider chart of its items."),
-      h("li", {}, "Optionally exchange your encrypted bundle with the other person and compare."),
+      h("li", {}, t("about_how_1")),
+      h("li", {}, t("about_how_2")),
+      h("li", {}, t("about_how_3"), " ", h("em", {}, "Need → No"), " ", t("about_how_3b")),
+      h("li", {}, t("about_how_4")),
+      h("li", {}, t("about_how_5")),
     ),
-    h("h2", {}, "Privacy"),
-    h("p", {}, "Everything stays in your browser’s local storage on this device. The app has no backend. Shared bundles are encrypted with AES-GCM (256-bit) using a key derived from your passphrase via PBKDF2 (250 000 iterations). Pick a passphrase you and the other person agree on out of band — for example, in person or via a secure messenger."),
-    h("h2", {}, "Credits"),
-    h("p", {}, "The Relationshape questionnaire and concept are by Anne Lüscher (she/they) and Benjamin Frey (him/his), released under CC BY-NC 4.0. ",
-      h("a", { href: "https://github.com/Relationshape/Relationshape-Pre-release-1", target: "_blank", rel: "noopener" }, "Original repository"), ".",
+    h("h2", {}, t("about_privacy_title")),
+    h("p", {}, t("about_privacy")),
+    h("h2", {}, t("about_credits_title")),
+    h("p", {}, t("about_credits"), " ",
+      h("a", { href: "https://github.com/Relationshape/Relationshape-Pre-release-1", target: "_blank", rel: "noopener" }, t("about_credits_repo")), ".",
       " This app is an unofficial implementation built to make the tool more interactive and accessible."),
   ));
 }

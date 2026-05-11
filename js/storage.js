@@ -42,13 +42,10 @@ function cloneScale(s) {
 }
 
 function recalcScaleValues(steps) {
-  // Position 0 = lowest, position N-1 = highest.
   steps.forEach((s, i) => { s.value = i; });
   return steps;
 }
 
-// Convert any pre-v5 scale (where index 0 was the maximum) into the new
-// orientation (index 0 = minimum). Idempotent.
 function migrateScale(scale) {
   if (!Array.isArray(scale) || scale.length < 2) return scale;
   const looksOld = scale[0].value > scale[scale.length - 1].value;
@@ -89,7 +86,7 @@ export const Store = {
     save(data);
   },
 
-  // ---- Results (per profile, per relationship subject) ----
+  // ---- Results ----
   getResults() { return load().results; },
   getResultsForProfile(pid) { return load().results.filter(r => r.profileId === pid); },
   getResult(rid) { return load().results.find(r => r.id === rid) || null; },
@@ -113,7 +110,7 @@ export const Store = {
     save(data);
   },
 
-  // ---- Imports (decrypted shared results from other people) ----
+  // ---- Imports ----
   getImports() { return load().imports; },
   saveImport(imp) {
     const data = load();
@@ -129,7 +126,7 @@ export const Store = {
     save(data);
   },
 
-  // ---- Default scale (used as starting point when a new map is created) ----
+  // ---- Default scale ----
   getScale() {
     const data = load();
     if (!Array.isArray(data.scale) || data.scale.length < 2) {
@@ -156,14 +153,13 @@ export const Store = {
     return data.scale;
   },
 
-  // ---- Per-map scale (a Result owns its own scale) ----
+  // ---- Per-map scale ----
   getResultScale(result) {
     if (!result || !Array.isArray(result.scale) || result.scale.length < 2) {
       return this.getScale();
     }
     const migrated = migrateScale(result.scale);
     if (JSON.stringify(migrated) !== JSON.stringify(result.scale)) {
-      // persist the migration so the on-disk value matches the rendered one
       result.scale = migrated;
       const data = load();
       const r = data.results.find(x => x.id === result.id);
@@ -194,7 +190,19 @@ export const Store = {
     return t;
   },
 
-  // ---- Fabi mode (category averages + overview spider) ----
+  // ---- Language ----
+  getLang() {
+    const data = load();
+    return data.settings?.lang || null;
+  },
+  setLang(lang) {
+    const data = load();
+    data.settings = data.settings || {};
+    data.settings.lang = lang;
+    save(data);
+  },
+
+  // ---- Fabi mode ----
   getFabiMode() {
     const data = load();
     return !!data.settings?.fabiMode;
@@ -205,6 +213,18 @@ export const Store = {
     data.settings.fabiMode = !!on;
     save(data);
     return !!on;
+  },
+
+  // ---- First-visit flag (for onboarding wizard) ----
+  isFirstVisit() {
+    const data = load();
+    return !data.settings?.wizardSeen;
+  },
+  markWizardSeen() {
+    const data = load();
+    data.settings = data.settings || {};
+    data.settings.wizardSeen = true;
+    save(data);
   },
 
   // ---- Versioning helpers ----
@@ -246,7 +266,7 @@ export const Store = {
     return false;
   },
 
-  // ---- Wipe ----
+  // ---- Wipe / backup ----
   wipe() { localStorage.removeItem(KEY); },
   exportAll() { return load(); },
   replaceAll(snapshot) {
