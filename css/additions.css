@@ -1,5 +1,5 @@
 /* ============================================================
-   Relationshape – ADDITIONS (feature styles)
+   Relationshape – ADDITIONS (Celestial Map edition)
    ============================================================ */
 
 /* ---- Wizard modal ---- */
@@ -28,7 +28,7 @@
   transition: color .15s ease, background .15s ease;
   flex-shrink: 0;
 }
-.wizard-close-btn:hover { color: var(--text); background: var(--surface-2); }
+.wizard-close-btn:hover { color: var(--text); background: color-mix(in oklab, var(--surface-2) 80%, transparent); }
 .wizard-dots {
   display: flex;
   gap: 6px;
@@ -47,6 +47,7 @@
   transform: scale(1.35);
   width: 18px;
   border-radius: 4px;
+  box-shadow: 0 0 8px rgba(185, 110, 255, 0.5);
 }
 .wizard-content {
   display: grid;
@@ -57,22 +58,23 @@
 .wizard-emoji {
   font-size: 54px;
   line-height: 1;
-  filter: drop-shadow(0 4px 18px rgba(183,148,255,.4));
+  filter: drop-shadow(0 4px 20px rgba(185,110,255,.45));
 }
 .wizard-visual {
   width: 180px;
   height: 180px;
   display: grid;
   place-items: center;
-  filter: drop-shadow(0 4px 18px rgba(183,148,255,.25));
+  filter: drop-shadow(0 4px 24px rgba(185,110,255,.3));
 }
 .wizard-visual svg { overflow: visible; }
 .wizard-title {
   margin: 0;
   font-size: 21px;
   font-weight: 700;
-  letter-spacing: -.4px;
+  letter-spacing: -.3px;
   line-height: 1.2;
+  font-family: var(--font-heading);
 }
 .wizard-body {
   margin: 0;
@@ -117,19 +119,22 @@
   grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
 }
 .howto-step {
-  background: var(--surface);
-  border: 1px solid var(--line);
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   border-radius: var(--radius);
   padding: 16px;
   display: grid;
   grid-template-columns: auto auto 1fr;
   gap: 10px;
   align-items: start;
-  transition: border-color .15s ease, transform .15s ease;
+  transition: border-color .18s ease, transform .18s ease, box-shadow .18s ease;
 }
 .howto-step:hover {
-  border-color: color-mix(in oklab, var(--primary) 30%, var(--line));
-  transform: translateY(-1px);
+  border-color: color-mix(in oklab, var(--primary) 35%, var(--glass-border));
+  transform: translateY(-2px);
+  box-shadow: 0 0 20px rgba(185, 110, 255, 0.1);
 }
 .howto-step-icon { font-size: 24px; line-height: 1; margin-top: 3px; }
 .howto-step-num {
@@ -153,37 +158,39 @@
 }
 .nav-lang-btn {
   background: color-mix(in oklab, var(--surface-2) 70%, transparent);
-  border: 1px solid color-mix(in oklab, var(--line) 70%, transparent);
+  border: 1px solid var(--glass-border);
   color: var(--muted);
   border-radius: 8px;
-  padding: 5px 10px;
+  padding: 4px 9px;
   font: inherit;
-  font-size: 12.5px;
-  font-weight: 600;
+  font-size: 10.5px;
+  font-weight: 700;
   cursor: pointer;
   display: flex; align-items: center; gap: 5px;
   transition: background .15s ease, color .15s ease, border-color .15s ease;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
-.nav-lang-btn:hover { color: var(--text); background: var(--surface-2); border-color: var(--line); }
+.nav-lang-btn:hover { color: var(--text); background: var(--surface-2); border-color: color-mix(in oklab, var(--primary) 40%, var(--glass-border)); }
 .nav-lang-btn .lang-arrow {
-  font-size: 9px;
+  font-size: 8px;
   opacity: 0.6;
   transition: transform .2s ease;
 }
 .nav-lang.open .lang-arrow { transform: rotate(180deg); }
 .nav-lang-dropdown {
   position: absolute;
-  top: calc(100% + 6px);
+  top: calc(100% + 8px);
   right: 0;
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  box-shadow: 0 12px 32px -8px rgba(0,0,0,.4);
+  background: var(--glass);
+  backdrop-filter: blur(24px) saturate(1.6);
+  -webkit-backdrop-filter: blur(24px) saturate(1.6);
+  border: 1px solid var(--glass-border);
+  border-radius: 14px;
+  box-shadow: 0 16px 40px -8px rgba(0,0,0,.55), var(--glow);
   min-width: 130px;
   padding: 6px;
-  z-index: 100;
+  z-index: 300;
   display: none;
   gap: 2px;
   flex-direction: column;
@@ -202,11 +209,11 @@
   display: flex; align-items: center; gap: 10px;
   transition: background .12s ease;
 }
-.nav-lang-option:hover { background: var(--surface-2); }
+.nav-lang-option:hover { background: color-mix(in oklab, var(--surface-2) 80%, transparent); }
 .nav-lang-option.active {
   color: var(--primary);
   font-weight: 600;
-  background: color-mix(in oklab, var(--primary) 10%, var(--surface-2));
+  background: color-mix(in oklab, var(--primary) 10%, transparent);
 }
 .nav-lang-option .lang-check { font-size: 12px; margin-left: auto; opacity: 0; }
 .nav-lang-option.active .lang-check { opacity: 1; }
@@ -246,7 +253,7 @@
 }
 .cat-modal-head-row {
   padding: 20px 24px 12px;
-  border-bottom: 1px solid var(--line);
+  border-bottom: 1px solid var(--glass-border);
   flex-shrink: 0;
 }
 .cat-modal-icon-wrap { display: flex; align-items: center; gap: 14px; }
@@ -255,12 +262,12 @@
   background: color-mix(in oklab, var(--c, var(--primary)) 22%, var(--surface-2));
   display: grid; place-items: center; font-size: 24px; flex-shrink: 0;
 }
-.cat-modal-title { margin: 0; font-size: 19px; font-weight: 600; }
+.cat-modal-title { margin: 0; font-size: 19px; font-weight: 600; font-family: var(--font-heading); }
 
 /* Tab bar */
 .cat-modal-tabs {
   display: flex; gap: 0;
-  border-bottom: 1px solid var(--line);
+  border-bottom: 1px solid var(--glass-border);
   flex-shrink: 0; padding: 0 24px;
 }
 .cat-modal-tab {
@@ -283,7 +290,7 @@
 /* Modal action row (bottom) */
 .cat-modal-overlay .rs-modal-actions {
   padding: 12px 24px 16px;
-  border-top: 1px solid var(--line);
+  border-top: 1px solid var(--glass-border);
   flex-shrink: 0;
   display: flex; gap: 8px; justify-content: flex-end;
 }
@@ -298,7 +305,7 @@
 .modal-edit-items { display: grid; gap: 8px; }
 .modal-edit-item {
   background: var(--surface-2);
-  border: 1px solid var(--line); border-radius: 14px;
+  border: 1px solid var(--glass-border); border-radius: 14px;
   padding: 12px 14px;
   display: grid;
   grid-template-columns: minmax(160px, 1fr) auto;
