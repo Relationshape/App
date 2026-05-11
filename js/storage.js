@@ -2,6 +2,7 @@
 // All data lives in window.localStorage; nothing is sent anywhere.
 
 import { DEFAULT_SCALE } from "./data.js";
+import { getLocalizedDefaultScale } from "./i18n.js";
 
 const KEY = "relationshape.v1";
 
@@ -129,8 +130,9 @@ export const Store = {
   // ---- Default scale ----
   getScale() {
     const data = load();
+    const localDefault = getLocalizedDefaultScale(DEFAULT_SCALE);
     if (!Array.isArray(data.scale) || data.scale.length < 2) {
-      data.scale = cloneScale(DEFAULT_SCALE);
+      data.scale = cloneScale(localDefault);
       save(data);
     } else {
       const migrated = migrateScale(data.scale);
@@ -148,7 +150,7 @@ export const Store = {
   },
   resetScale() {
     const data = load();
-    data.scale = cloneScale(DEFAULT_SCALE);
+    data.scale = cloneScale(getLocalizedDefaultScale(DEFAULT_SCALE));
     save(data);
     return data.scale;
   },

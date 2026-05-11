@@ -1,6 +1,6 @@
 // i18n – internationalisation for Relationshape.
 // Supports EN (default) and DE. Language is auto-detected from browser
-// and can be overridden manually in Settings (stored in localStorage).
+// and can be overridden manually in Settings or via the nav language picker.
 
 const TRANSLATIONS = {
   en: {
@@ -10,6 +10,7 @@ const TRANSLATIONS = {
     nav_compare: "📊 Compare",
     nav_settings: "⚙️ Settings",
     nav_about: "ℹ️",
+    nav_home: "Home",
 
     // Home / Welcome
     welcome_title: "Relationshape",
@@ -18,7 +19,7 @@ const TRANSLATIONS = {
     welcome_about: "What is Relationshape?",
     welcome_f1: "🔒 Stays on this device",
     welcome_f2: "📤 End-to-end encrypted sharing",
-    welcome_f3: "📊 Per-category & overview spider charts",
+    welcome_f3: "📊 Per-category & overview radar charts",
     welcome_f4: "👥 Multiple profiles in one app",
     profiles_title: "Your profiles",
     profiles_sub: "Each profile holds your own answers. Keep separate profiles per chapter of life or persona.",
@@ -41,7 +42,7 @@ const TRANSLATIONS = {
     howto_step3_title: "Answer the questionnaire",
     howto_step3_desc: "Walk through 30 categories covering emotional intimacy, physical closeness, finances, shared life and more. Rate each item on a scale from No to Need.",
     howto_step4_title: "Explore your results",
-    howto_step4_desc: "View spider charts, item-by-item breakdowns and alignment overviews for any two maps side by side.",
+    howto_step4_desc: "View radar charts, item-by-item breakdowns and alignment overviews for any two maps side by side.",
     howto_step5_title: "Share encrypted",
     howto_step5_desc: "Optionally export your answers as an AES-encrypted bundle — nothing is sent to any server. Share the file and agree on a passphrase separately.",
     howto_wizard_btn: "✨ Show me around",
@@ -56,12 +57,17 @@ const TRANSLATIONS = {
     wizard_s3_title: "Create a profile first 👤",
     wizard_s3_body: "A profile represents you (or a persona). You can have multiple profiles on one device, e.g. for different life chapters.",
     wizard_s4_title: "Map your relationships 🗺️",
-    wizard_s4_body: 'For each relationship you want to reflect on, create a "relationship map". Walk through the categories and rate each item — from \'No\' to \'Need\'.',
-    wizard_s5_title: "Compare & share 📊",
-    wizard_s5_body: "Compare any two maps side by side with spider charts. Optionally share your answers with someone using end-to-end encryption.",
+    wizard_s4_body: "For each relationship you want to reflect on, create a \"relationship map\". Walk through the categories and rate each item — from 'No' to 'Need'.",
+    wizard_s5_title: "Share & import results 📤",
+    wizard_s5_body: "Share your answers and import your counterpart's map with end-to-end encryption. Nothing is sent to any server — you exchange a file and agree on a passphrase separately.",
+    wizard_s6_title: "Compare & mapping 📊",
+    wizard_s6_body: "View your counterpart's answers and overlay both your maps for a visual comparison of your wishes and needs.",
+    wizard_s7_title: "Customise in settings ⚙️",
+    wizard_s7_body: "In Settings you can adjust the answer scale (labels, colours, number of steps) and customise which items appear in each category — make it fully your own.",
     wizard_prev: "← Back",
     wizard_next: "Next →",
     wizard_finish: "Let's go! ✨",
+    wizard_skip: "Skip intro",
 
     // Profile edit
     profile_new_title: "New profile",
@@ -142,11 +148,11 @@ const TRANSLATIONS = {
     result_category_overview_sub: "Averaged per category — the further out, the more important to you on average.",
     compare_with: "Compare with someone",
     by_category: "By category",
-    by_category_sub: "Open a card to see a per-item spider chart and the underlying breakdown.",
+    by_category_sub: "Open a card to see a per-item radar chart and the underlying breakdown.",
     no_compare: "Create another relationship map or import a shared one to compare.",
 
     // Category modal tabs
-    tab_spider: "Spider Chart",
+    tab_spider: "Radar Chart",
     tab_items: "Item by Item",
     tab_edit: "Edit Answers",
     btn_close: "Close",
@@ -157,11 +163,11 @@ const TRANSLATIONS = {
 
     // Compare
     compare_title: "📊 Compare",
-    compare_sub: "Pick up to four results to overlay. Open a category for a per-item spider chart.",
+    compare_sub: "Pick up to four results to overlay. Open a category for a per-item radar chart.",
     compare_select: "Select results above.",
     alignment_title: "Alignment overview",
     cat_details_title: "Category details",
-    cat_details_sub: "Each card opens a spider chart of the items inside it.",
+    cat_details_sub: "Each card opens a radar chart of the items inside it.",
 
     // Share
     share_title: "📤 Share encrypted result",
@@ -199,7 +205,7 @@ const TRANSLATIONS = {
     settings_appearance: "Appearance",
     settings_display_modes: "Display modes",
     fabi_mode_title: "Fabi mode",
-    fabi_mode_desc: "Show a category-averages spider chart on the result and compare pages, and small per-category summary chips on the cards. Off by default because averaging across very different items can be misleading.",
+    fabi_mode_desc: "Show a category-averages radar chart on the result and compare pages, and small per-category summary chips on the cards. Off by default because averaging across very different items can be misleading.",
     settings_scale_title: "Default answer scale",
     settings_scale_sub: "Used as the starting point when you create a new map. Each map keeps its own copy of the scale, so editing here only affects future maps.",
     btn_add_step: "➕ Add step",
@@ -247,7 +253,7 @@ const TRANSLATIONS = {
     about_how_2: "Start a relationship map for each connection you want to reflect on.",
     about_how_3: "Walk through the categories at your own pace. Use",
     about_how_3b: "(or your own custom scale) to mark how important each item is.",
-    about_how_4: "Open a category in the result view to see a spider chart of its items.",
+    about_how_4: "Open a category in the result view to see a radar chart of its items.",
     about_how_5: "Optionally exchange your encrypted bundle with the other person and compare.",
     about_privacy_title: "Privacy",
     about_privacy: "Everything stays in your browser's local storage on this device. The app has no backend. Shared bundles are encrypted with AES-GCM (256-bit) using a key derived from your passphrase via PBKDF2 (250 000 iterations). Pick a passphrase you and the other person agree on out of band.",
@@ -280,7 +286,7 @@ const TRANSLATIONS = {
     alignment_match: "🎯 Strongest alignment",
     alignment_gaps: "⚡ Biggest gaps — talk about these",
     spider_empty: "Not enough data yet.",
-    item_spider_empty: "Answer at least 3 items in this category to see a spider chart.",
+    item_spider_empty: "Answer at least 3 items in this category to see a radar chart.",
     restore_title: "Restore from backup",
     restore_warning: "This will replace ALL data currently on this device with the contents of the backup.",
     restore_file_label: "Backup file (.json)",
@@ -304,6 +310,7 @@ const TRANSLATIONS = {
     nav_compare: "📊 Vergleichen",
     nav_settings: "⚙️ Einstellungen",
     nav_about: "ℹ️",
+    nav_home: "Startseite",
 
     // Home / Welcome
     welcome_title: "Relationshape",
@@ -312,7 +319,7 @@ const TRANSLATIONS = {
     welcome_about: "Was ist Relationshape?",
     welcome_f1: "🔒 Bleibt auf diesem Gerät",
     welcome_f2: "📤 Ende-zu-Ende-verschlüsseltes Teilen",
-    welcome_f3: "📊 Kategorie- & Übersichts-Spinnendiagramme",
+    welcome_f3: "📊 Kategorie- & Übersichts-Netzdiagramme",
     welcome_f4: "👥 Mehrere Profile in einer App",
     profiles_title: "Deine Profile",
     profiles_sub: "Jedes Profil enthält deine eigenen Antworten. Führe separate Profile für verschiedene Lebensphasen oder Personas.",
@@ -331,11 +338,11 @@ const TRANSLATIONS = {
     howto_step1_title: "Profil erstellen",
     howto_step1_desc: "Dein Profil ist deine Identität in der App. Wähle Name, Emoji und Akzentfarbe.",
     howto_step2_title: "Beziehungskarte starten",
-    howto_step2_desc: "Für jede Verbindung, über die du nachdenken möchtest, legst du eine neue Karte an – z.B. „Sam, meine beste Freundin“.",
+    howto_step2_desc: "Für jede Verbindung, über die du nachdenken möchtest, legst du eine neue Karte an – z.B. „Sam, meine beste Freundin".",
     howto_step3_title: "Fragebogen ausfüllen",
     howto_step3_desc: "Gehe durch 30 Kategorien – emotionale Nähe, körperliche Intimität, Finanzen, gemeinsames Leben u.v.m. Bewerte jedes Element von Nein bis Brauche ich.",
     howto_step4_title: "Ergebnisse erkunden",
-    howto_step4_desc: "Sieh dir Spinnendiagramme, Einzel-Item-Auswertungen und Übereinstimmungsübersichten für je zwei Karten nebeneinander an.",
+    howto_step4_desc: "Sieh dir Netzdiagramme, Einzel-Item-Auswertungen und Übereinstimmungsübersichten für je zwei Karten nebeneinander an.",
     howto_step5_title: "Verschlüsselt teilen",
     howto_step5_desc: "Exportiere deine Antworten optional als AES-verschlüsseltes Paket – nichts wird an einen Server gesendet. Teile die Datei und einigt euch separat auf ein Passwort.",
     howto_wizard_btn: "✨ Zeig mir die App",
@@ -350,12 +357,17 @@ const TRANSLATIONS = {
     wizard_s3_title: "Zuerst ein Profil anlegen 👤",
     wizard_s3_body: "Ein Profil repräsentiert dich (oder eine Persona). Du kannst mehrere Profile auf einem Gerät führen – z.B. für verschiedene Lebensphasen.",
     wizard_s4_title: "Beziehungen kartieren 🗺️",
-    wizard_s4_body: "Für jede Beziehung, über die du nachdenken möchtest, erstelle eine „Beziehungskarte“. Gehe durch die Kategorien und bewerte jedes Element – von „Nein“ bis „Brauche ich“.",
-    wizard_s5_title: "Vergleichen & teilen 📊",
-    wizard_s5_body: "Vergleiche zwei Karten nebeneinander mit Spinnendiagrammen. Teile deine Antworten optional mit jemandem – Ende-zu-Ende-verschlüsselt.",
+    wizard_s4_body: "Für jede Beziehung, über die du nachdenken möchtest, erstelle eine „Beziehungskarte". Gehe durch die Kategorien und bewerte jedes Element – von „Nein" bis „Brauche ich".",
+    wizard_s5_title: "Ergebnisse teilen und importieren 📤",
+    wizard_s5_body: "Teile deine Eingaben und importiere die Karte deines Gegenübers mit Ende-zu-Ende-Verschlüsselung. Nichts wird an einen Server gesendet – du tauschst eine Datei aus und einigt euch separat auf ein Passwort.",
+    wizard_s6_title: "Vergleichen und Mapping 📊",
+    wizard_s6_body: "Sieh dir die Antworten deines Gegenübers an und überlagere eure jeweiligen Karten für einen visuellen Vergleich eurer Wünsche und Bedürfnisse.",
+    wizard_s7_title: "In den Einstellungen anpassen ⚙️",
+    wizard_s7_body: "In den Einstellungen kannst du die Antwortskala anpassen (Beschriftungen, Farben, Anzahl der Stufen) und festlegen, welche Elemente in jeder Kategorie erscheinen – mach es ganz zu deinem eigenen.",
     wizard_prev: "← Zurück",
     wizard_next: "Weiter →",
     wizard_finish: "Los geht's! ✨",
+    wizard_skip: "Einleitung überspringen",
 
     // Profile edit
     profile_new_title: "Neues Profil",
@@ -410,7 +422,7 @@ const TRANSLATIONS = {
     add_custom_placeholder: "z.B. Astronomie",
     btn_add: "Hinzufügen",
     item_already_exists: "Dieses Element existiert bereits.",
-    q_gr_tip: "Tipp: Elemente hier unterstützen eine „Geben / Empfangen / Beides“-Markierung.",
+    q_gr_tip: "Tipp: Elemente hier unterstützen eine „Geben / Empfangen / Beides"-Markierung.",
     q_keyboard_tip: "⌨️ Tipp: Fokussiere eine Frage und drücke 1–{n} zum Bewerten, {m} zum Überspringen, Enter zum Weiter.",
     q_slider_hint: "Schieberegler ziehen oder Label antippen zum Bewerten",
     q_slider_reset: "↺ Zurücksetzen",
@@ -436,11 +448,11 @@ const TRANSLATIONS = {
     result_category_overview_sub: "Durchschnitt pro Kategorie — je weiter außen, desto wichtiger im Schnitt.",
     compare_with: "Mit jemandem vergleichen",
     by_category: "Nach Kategorie",
-    by_category_sub: "Öffne eine Karte, um ein Spinnendiagramm der Elemente und die zugrunde liegende Aufschlüsselung zu sehen.",
+    by_category_sub: "Öffne eine Karte, um ein Netzdiagramm der Elemente und die zugrunde liegende Aufschlüsselung zu sehen.",
     no_compare: "Erstelle eine weitere Beziehungskarte oder importiere eine geteilte, um zu vergleichen.",
 
     // Category modal tabs
-    tab_spider: "Spinnendiagramm",
+    tab_spider: "Netzdiagramm",
     tab_items: "Element für Element",
     tab_edit: "Antworten bearbeiten",
     btn_close: "Schließen",
@@ -451,11 +463,11 @@ const TRANSLATIONS = {
 
     // Compare
     compare_title: "📊 Vergleichen",
-    compare_sub: "Wähle bis zu vier Ergebnisse zum Überlagern aus. Öffne eine Kategorie für ein Spinnendiagramm.",
+    compare_sub: "Wähle bis zu vier Ergebnisse zum Überlagern aus. Öffne eine Kategorie für ein Netzdiagramm.",
     compare_select: "Wähle oben Ergebnisse aus.",
     alignment_title: "Übereinstimmungsübersicht",
     cat_details_title: "Kategorie-Details",
-    cat_details_sub: "Jede Karte öffnet ein Spinnendiagramm der enthaltenen Elemente.",
+    cat_details_sub: "Jede Karte öffnet ein Netzdiagramm der enthaltenen Elemente.",
 
     // Share
     share_title: "📤 Ergebnis verschlüsselt teilen",
@@ -493,7 +505,7 @@ const TRANSLATIONS = {
     settings_appearance: "Erscheinungsbild",
     settings_display_modes: "Anzeigemodi",
     fabi_mode_title: "Fabi-Modus",
-    fabi_mode_desc: "Zeigt ein Kategoriedurchschnitts-Spinnendiagramm auf den Ergebnis- und Vergleichsseiten sowie kleine Kategorie-Zusammenfassungschips auf den Karten. Standardmäßig deaktiviert, da das Mitteln über sehr unterschiedliche Elemente irreführend sein kann.",
+    fabi_mode_desc: "Zeigt ein Kategoriedurchschnitts-Netzdiagramm auf den Ergebnis- und Vergleichsseiten sowie kleine Kategorie-Zusammenfassungschips auf den Karten. Standardmäßig deaktiviert, da das Mitteln über sehr unterschiedliche Elemente irreführend sein kann.",
     settings_scale_title: "Standard-Antwortskala",
     settings_scale_sub: "Wird als Ausgangspunkt verwendet, wenn du eine neue Karte erstellst. Jede Karte behält ihre eigene Kopie der Skala, daher betrifft eine Änderung hier nur zukünftige Karten.",
     btn_add_step: "➕ Stufe hinzufügen",
@@ -514,7 +526,7 @@ const TRANSLATIONS = {
     scale_step_short: "Kurz",
     scale_step_desc: "Tooltip / Beschreibung",
     scale_step_new: "Neue Stufe",
-    scale_step_remove_confirm: "Die Stufe „{label}“ wird in einigen Antworten verwendet. Das Entfernen löscht diese Antworten. Fortfahren?",
+    scale_step_remove_confirm: "Die Stufe „{label}" wird in einigen Antworten verwendet. Das Entfernen löscht diese Antworten. Fortfahren?",
 
     // Map settings
     map_settings_title: "⚙️ Karten-Einstellungen",
@@ -541,7 +553,7 @@ const TRANSLATIONS = {
     about_how_2: "Starte für jede Beziehung, über die du nachdenken möchtest, eine Beziehungskarte.",
     about_how_3: "Gehe die Kategorien in deinem eigenen Tempo durch. Nutze",
     about_how_3b: "(oder deine eigene Skala), um die Wichtigkeit jedes Elements zu markieren.",
-    about_how_4: "Öffne in der Ergebnisansicht eine Kategorie, um ein Spinnendiagramm ihrer Elemente zu sehen.",
+    about_how_4: "Öffne in der Ergebnisansicht eine Kategorie, um ein Netzdiagramm ihrer Elemente zu sehen.",
     about_how_5: "Tausche optional dein verschlüsseltes Paket mit der anderen Person aus und vergleiche.",
     about_privacy_title: "Datenschutz",
     about_privacy: "Alles bleibt im lokalen Speicher deines Browsers auf diesem Gerät. Die App hat kein Backend. Geteilte Pakete werden mit AES-GCM (256-Bit) verschlüsselt, wobei der Schlüssel über PBKDF2 aus deinem Passwort abgeleitet wird (250.000 Iterationen).",
@@ -574,7 +586,7 @@ const TRANSLATIONS = {
     alignment_match: "🎯 Stärkste Übereinstimmung",
     alignment_gaps: "⚡ Größte Unterschiede – darüber reden",
     spider_empty: "Noch nicht genug Daten.",
-    item_spider_empty: "Beantworte mindestens 3 Elemente in dieser Kategorie, um ein Spinnendiagramm zu sehen.",
+    item_spider_empty: "Beantworte mindestens 3 Elemente in dieser Kategorie, um ein Netzdiagramm zu sehen.",
     restore_title: "Aus Backup wiederherstellen",
     restore_warning: "Alle aktuellen Daten auf diesem Gerät werden durch den Inhalt des Backups ersetzt.",
     restore_file_label: "Backup-Datei (.json)",
@@ -591,6 +603,17 @@ const TRANSLATIONS = {
     chart_modal_title: "Diagramm-Übersicht",
   },
 };
+
+// German localized default answer scale
+export const DEFAULT_SCALE_DE = [
+  { key: "no",         label: "Nein",                   short: "Nein",       value: 0, color: "#264653", description: "Ich will das nicht / stimme dem nicht zu." },
+  { key: "not-really", label: "Eher nicht",              short: "Eher nicht", value: 1, color: "#577590", description: "Ich tendiere dagegen." },
+  { key: "maybe",      label: "Vielleicht / Zukünftig",  short: "Vielleicht", value: 2, color: "#43aa8b", description: "Hoffentlich oder vielleicht in der Zukunft." },
+  { key: "open",       label: "Offen dafür",             short: "Offen",      value: 3, color: "#90be6d", description: "Ich bin offen, neutral, bereit es auszuprobieren." },
+  { key: "want",       label: "Möchte ich",              short: "Möchte",     value: 4, color: "#f9c74f", description: "Das würde ich gerne haben." },
+  { key: "hell-yes",   label: "Ja, unbedingt!",          short: "Ja!",        value: 5, color: "#f3722c", description: "Starkes Ja, aufregend und willkommen." },
+  { key: "need",       label: "Brauche ich",             short: "Brauche",    value: 6, color: "#e63946", description: "Höchste Wichtigkeit. Wenn unerfüllt, stelle ich die Beziehung evtl. in Frage." },
+];
 
 // Detect or load language
 function detectLanguage() {
@@ -635,4 +658,9 @@ export function availableLangs() {
     { code: "en", label: "English" },
     { code: "de", label: "Deutsch" },
   ];
+}
+
+export function getLocalizedDefaultScale(englishDefault) {
+  if (_lang === "de") return DEFAULT_SCALE_DE;
+  return englishDefault;
 }

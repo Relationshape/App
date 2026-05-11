@@ -356,43 +356,85 @@ function showToast(msg) {
   toastT = setTimeout(() => toastEl.classList.remove("show"), 1900);
 }
 
-// ---------- Onboarding Wizard ----------
-async function showWizardIfFirstVisit() {
-  if (!Store.isFirstVisit()) return;
-  Store.markWizardSeen();
+// ---------- Wizard helpers ----------
+function demoSpiderSVG() {
+  const CX = 95, CY = 95, R = 68, N = 6;
+  const a0 = -Math.PI / 2;
+  const step = (2 * Math.PI) / N;
+  const pt = (f, i) => [CX + f * R * Math.cos(a0 + i * step), CY + f * R * Math.sin(a0 + i * step)];
+  const polyStr = (vals) => vals.map((f, i) => { const [x, y] = pt(f, i); return `${x.toFixed(1)},${y.toFixed(1)}`; }).join(" ");
+  const axisLines = Array.from({ length: N }, (_, i) => {
+    const [x, y] = pt(1, i);
+    return `<line x1="${CX}" y1="${CY}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="var(--line)" stroke-width="1" opacity=".5"/>`;
+  }).join("");
+  const ringStr = (f) => polyStr(Array(N).fill(f));
+  const va = [0.85, 0.6, 0.78, 0.5, 0.92, 0.65];
+  const vb = [0.5, 0.88, 0.55, 0.85, 0.62, 0.9];
+  return `<svg viewBox="0 0 190 190" width="172" height="172" xmlns="http://www.w3.org/2000/svg">
+    ${axisLines}
+    <polygon points="${ringStr(1)}" fill="none" stroke="var(--line)" stroke-width="1" opacity=".45"/>
+    <polygon points="${ringStr(0.66)}" fill="none" stroke="var(--line)" stroke-width="1" opacity=".3" stroke-dasharray="3,3"/>
+    <polygon points="${ringStr(0.33)}" fill="none" stroke="var(--line)" stroke-width="1" opacity=".2" stroke-dasharray="2,4"/>
+    <polygon points="${polyStr(va)}" style="fill:color-mix(in oklab,var(--primary) 22%,transparent);stroke:var(--primary);" stroke-width="2" stroke-linejoin="round" fill-opacity="1"/>
+    <polygon points="${polyStr(vb)}" style="fill:color-mix(in oklab,var(--accent) 22%,transparent);stroke:var(--accent);" stroke-width="2" stroke-linejoin="round" fill-opacity="1"/>
+    ${va.map((f, i) => { const [x, y] = pt(f, i); return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4" style="fill:var(--primary);stroke:var(--bg);" stroke-width="1.5"/>`; }).join("")}
+    ${vb.map((f, i) => { const [x, y] = pt(f, i); return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4" style="fill:var(--accent);stroke:var(--bg);" stroke-width="1.5"/>`; }).join("")}
+  </svg>`;
+}
 
-  const steps = [
+function buildWizardSteps() {
+  return [
     { title: t("wizard_s1_title"), body: t("wizard_s1_body"), emoji: "🌷" },
     { title: t("wizard_s2_title"), body: t("wizard_s2_body"), emoji: "🔒" },
     { title: t("wizard_s3_title"), body: t("wizard_s3_body"), emoji: "👤" },
     { title: t("wizard_s4_title"), body: t("wizard_s4_body"), emoji: "🗺️" },
-    { title: t("wizard_s5_title"), body: t("wizard_s5_body"), emoji: "📊" },
+    { title: t("wizard_s5_title"), body: t("wizard_s5_body"), emoji: "📤" },
+    { title: t("wizard_s6_title"), body: t("wizard_s6_body"), visual: demoSpiderSVG() },
+    { title: t("wizard_s7_title"), body: t("wizard_s7_body"), emoji: "⚙️" },
   ];
+}
 
+function runWizard(steps) {
   return new Promise(resolve => {
     let idx = 0;
+    let touchStartX = 0;
 
     const overlay = h("div", { class: "rs-modal-overlay wizard-overlay", role: "dialog", "aria-modal": "true" });
     const card = h("div", { class: "rs-modal-card wizard-card" });
 
     const close = () => {
       overlay.classList.add("closing");
-      setTimeout(() => overlay.remove(), 160);
+      setTimeout(() => overlay.remove(), 180);
       resolve();
     };
+
+    // Touch/swipe support
+    card.addEventListener("touchstart", (e) => { touchStartX = e.touches[0].clientX; }, { passive: true });
+    card.addEventListener("touchend", (e) => {
+      const dx = e.changedTouches[0].clientX - touchStartX;
+      if (Math.abs(dx) < 40) return;
+      if (dx < 0 && idx < steps.length - 1) { idx++; render(); }
+      else if (dx > 0 && idx > 0) { idx--; render(); }
+    }, { passive: true });
 
     function render() {
       const step = steps[idx];
       const isLast = idx === steps.length - 1;
       card.innerHTML = "";
 
-      // Progress dots
-      const dots = h("div", { class: "wizard-dots" },
-        ...steps.map((_, i) => h("span", { class: "wizard-dot" + (i === idx ? " active" : "") }))
+      const header = h("div", { class: "wizard-header" },
+        h("div", { class: "wizard-dots" },
+          ...steps.map((_, i) => h("span", { class: "wizard-dot" + (i === idx ? " active" : "") }))
+        ),
+        h("button", { class: "wizard-close-btn", title: t("btn_close"), onClick: close }, "✕"),
       );
 
+      const visual = step.visual
+        ? h("div", { class: "wizard-visual", html: step.visual })
+        : h("div", { class: "wizard-emoji" }, step.emoji);
+
       const content = h("div", { class: "wizard-content" },
-        h("div", { class: "wizard-emoji" }, step.emoji),
+        visual,
         h("h2", { class: "wizard-title" }, step.title),
         h("p", { class: "wizard-body" }, step.body),
       );
@@ -406,7 +448,11 @@ async function showWizardIfFirstVisit() {
           : h("button", { class: "btn btn-primary", onClick: () => { idx++; render(); } }, t("wizard_next")),
       );
 
-      card.append(dots, content, actions);
+      const skipRow = h("div", { class: "wizard-skip-row" },
+        h("button", { class: "wizard-skip-link", onClick: close }, t("wizard_skip")),
+      );
+
+      card.append(header, content, actions, skipRow);
     }
 
     render();
@@ -414,6 +460,13 @@ async function showWizardIfFirstVisit() {
     document.body.append(overlay);
     requestAnimationFrame(() => overlay.classList.add("open"));
   });
+}
+
+// ---------- Onboarding Wizard ----------
+async function showWizardIfFirstVisit() {
+  if (!Store.isFirstVisit()) return;
+  Store.markWizardSeen();
+  return runWizard(buildWizardSteps());
 }
 
 // ---------- router ----------
@@ -440,6 +493,7 @@ function route() {
   switch (segs[0]) {
     case undefined:
     case "":         viewHome(); break;
+    case "welcome":  $app.append(viewWelcome()); break;
     case "profile":
       if (segs[1] === "new") viewProfileEdit(null);
       else if (segs[2] === "edit") viewProfileEdit(segs[1]);
@@ -459,17 +513,54 @@ function route() {
     case "about":    viewIntro(); break;
     default:         viewHome();
   }
-  document.querySelectorAll("#nav a").forEach(a => {
-    a.classList.toggle("active", a.getAttribute("href") === "#/" + (segs[0] || ""));
+  document.querySelectorAll("#nav a:not(.nav-brand)").forEach(a => {
+    const href = a.getAttribute("href");
+    const seg = segs[0] || "";
+    a.classList.toggle("active", href === "#/" + seg || (href === "#/" && seg === ""));
   });
   bindSpiderInteractivity($app);
   window.scrollTo(0, 0);
 }
 
+function buildLangPicker() {
+  const wrap = h("div", { class: "nav-lang" });
+  const currentLang = getLang();
+  const langs = availableLangs();
+  const currentLabel = langs.find(l => l.code === currentLang)?.code.toUpperCase() || "EN";
+
+  const btn = h("button", { class: "nav-lang-btn", type: "button", "aria-label": "Language" },
+    currentLabel,
+    h("span", { class: "lang-arrow" }, "▾"),
+  );
+
+  const dropdown = h("div", { class: "nav-lang-dropdown" },
+    ...langs.map(lang => h("button", {
+      class: "nav-lang-option" + (currentLang === lang.code ? " active" : ""),
+      type: "button",
+      onClick: () => {
+        setLang(lang.code);
+        wrap.classList.remove("open");
+        bindGlobalNav();
+        route();
+      },
+    }, lang.label, h("span", { class: "lang-check" }, "✓")))
+  );
+
+  btn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    wrap.classList.toggle("open");
+  });
+
+  document.addEventListener("click", () => wrap.classList.remove("open"), { capture: false });
+
+  wrap.append(btn, dropdown);
+  return wrap;
+}
+
 function bindGlobalNav() {
   $nav.innerHTML = "";
   $nav.append(
-    h("a", { href: "#/", class: "nav-brand" },
+    h("a", { href: "#/welcome", class: "nav-brand", title: t("nav_home") },
       h("span", { class: "nav-logo" }, "∞"),
       h("span", { class: "nav-title" }, "Relationshape")),
     h("div", { class: "nav-links" },
@@ -478,7 +569,8 @@ function bindGlobalNav() {
       h("a", { href: "#/compare", title: t("nav_compare") }, t("nav_compare")),
       h("a", { href: "#/settings", title: t("nav_settings") }, t("nav_settings")),
       h("a", { href: "#/intro", title: t("nav_about") }, t("nav_about")),
-    )
+    ),
+    buildLangPicker(),
   );
 }
 
@@ -562,47 +654,7 @@ function howtoStep(num, title, desc, icon) {
 }
 
 async function showWizard() {
-  // Re-show wizard manually
-  const steps = [
-    { title: t("wizard_s1_title"), body: t("wizard_s1_body"), emoji: "🌷" },
-    { title: t("wizard_s2_title"), body: t("wizard_s2_body"), emoji: "🔒" },
-    { title: t("wizard_s3_title"), body: t("wizard_s3_body"), emoji: "👤" },
-    { title: t("wizard_s4_title"), body: t("wizard_s4_body"), emoji: "🗺️" },
-    { title: t("wizard_s5_title"), body: t("wizard_s5_body"), emoji: "📊" },
-  ];
-  return new Promise(resolve => {
-    let idx = 0;
-    const overlay = h("div", { class: "rs-modal-overlay wizard-overlay", role: "dialog", "aria-modal": "true" });
-    const card = h("div", { class: "rs-modal-card wizard-card" });
-    const close = () => {
-      overlay.classList.add("closing"); setTimeout(() => overlay.remove(), 160); resolve();
-    };
-    function render() {
-      const step = steps[idx];
-      const isLast = idx === steps.length - 1;
-      card.innerHTML = "";
-      card.append(
-        h("div", { class: "wizard-dots" }, ...steps.map((_, i) => h("span", { class: "wizard-dot" + (i === idx ? " active" : "") }))),
-        h("div", { class: "wizard-content" },
-          h("div", { class: "wizard-emoji" }, step.emoji),
-          h("h2", { class: "wizard-title" }, step.title),
-          h("p", { class: "wizard-body" }, step.body),
-        ),
-        h("div", { class: "wizard-actions" },
-          idx > 0
-            ? h("button", { class: "btn btn-ghost", onClick: () => { idx--; render(); } }, t("wizard_prev"))
-            : h("span", {}),
-          isLast
-            ? h("button", { class: "btn btn-primary", onClick: close }, t("wizard_finish"))
-            : h("button", { class: "btn btn-primary", onClick: () => { idx++; render(); } }, t("wizard_next")),
-        ),
-      );
-    }
-    render();
-    overlay.append(card);
-    document.body.append(overlay);
-    requestAnimationFrame(() => overlay.classList.add("open"));
-  });
+  return runWizard(buildWizardSteps());
 }
 
 function profileCard(p) {
