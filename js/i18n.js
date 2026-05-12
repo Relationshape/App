@@ -9,7 +9,7 @@ const TRANSLATIONS = {
     nav_import: "📥 Import",
     nav_compare: "📊 Compare",
     nav_settings: "⚙️ Settings",
-    nav_about: "ℹ️",
+    nav_about: "About",
     nav_home: "Home",
 
     // Home / Welcome
@@ -169,11 +169,22 @@ const TRANSLATIONS = {
     cat_details_title: "Category details",
     cat_details_sub: "Each card opens a radar chart of the items inside it.",
 
+    // New card scale dialog
+    new_card_scale_title: "Scale for this map",
+    new_card_scale_sub: "Use the default scale or customize it for this map only.",
+    new_card_scale_use: "Use default",
+    new_card_scale_customize: "Customize…",
+    new_card_scale_confirm: "Use this scale",
+
+    // Per-item scale
+    item_edit_scale: "Edit scale for this item",
+    item_scale_change_warning: "This item already has an answer. Changing the scale will clear it. Continue?",
+
     // Share
     share_title: "📤 Share encrypted result",
-    share_intro: "Your answers will be packaged and encrypted with a passphrase. Send the bundle via any channel — and tell the other person the passphrase",
-    share_intro_separately: "separately",
-    share_intro_rest: "(e.g. by phone or in person).",
+    share_intro: "Your answers will be packaged and encrypted with a passphrase. Set the passphrase and send the generated text via any channel to the other person. Share the passphrase separately (e.g. by phone or in person) to guarantee maximum data security. Both are required for a successful import.",
+    share_intro_separately: "",
+    share_intro_rest: "",
     share_callout_title: "🔐 No server, no traces.",
     share_callout_body: "Encryption happens on this device. The passphrase never leaves your head.",
     share_pass_label: "Passphrase",
@@ -206,8 +217,8 @@ const TRANSLATIONS = {
     settings_display_modes: "Display modes",
     fabi_mode_title: "Fabi mode",
     fabi_mode_desc: "Show a category-averages radar chart on the result and compare pages, and small per-category summary chips on the cards. Off by default because averaging across very different items can be misleading.",
-    settings_scale_title: "Default answer scale",
-    settings_scale_sub: "Used as the starting point when you create a new map. Each map keeps its own copy of the scale, so editing here only affects future maps.",
+    settings_scale_title: "Default Answer Scale",
+    settings_scale_sub: "Sets the default answer scale for future relationship maps. Already created maps keep their own copy of the scale — this change only affects future maps. Use the arrows to adjust the order of the steps.",
     btn_add_step: "➕ Add step",
     btn_reset_defaults: "Reset to defaults",
     confirm_reset_scale: "Reset the scale to the default 7 steps?",
@@ -227,6 +238,9 @@ const TRANSLATIONS = {
     scale_step_desc: "Tooltip / description",
     scale_step_new: "New step",
     scale_step_remove_confirm: "The step \"{label}\" is in use in some answers. Removing it will clear those answers. Continue?",
+    scale_col_color: "Color",
+    scale_col_label: "Label",
+    scale_col_short: "Shorthand",
 
     // Map settings
     map_settings_title: "⚙️ Map settings",
@@ -260,6 +274,9 @@ const TRANSLATIONS = {
     about_credits_title: "Credits",
     about_credits: "The Relationshape questionnaire and concept are by Anne Lüscher (she/they) and Benjamin Frey (him/his), released under CC BY-NC 4.0.",
     about_credits_repo: "Original repository",
+    about_credits_unofficial: "This app is an unofficial implementation built to make the tool more interactive and accessible.",
+    about_ai_title: "Transparency on the Use of AI Tools",
+    about_ai_text: "This app was programmed with the help of Claude Code. The original idea, the structure of the app, as well as all elements, questions and texts are 100% the work of the original authors and the experiences of the broader community.",
 
     // Keyboard help
     kbd_title: "Keyboard shortcuts",
@@ -309,7 +326,7 @@ const TRANSLATIONS = {
     nav_import: "📥 Importieren",
     nav_compare: "📊 Vergleichen",
     nav_settings: "⚙️ Einstellungen",
-    nav_about: "ℹ️",
+    nav_about: "Über",
     nav_home: "Startseite",
 
     // Home / Welcome
@@ -469,11 +486,22 @@ const TRANSLATIONS = {
     cat_details_title: "Kategorie-Details",
     cat_details_sub: "Jede Karte öffnet ein Netzdiagramm der enthaltenen Elemente.",
 
+    // New card scale dialog
+    new_card_scale_title: "Skala für diese Karte",
+    new_card_scale_sub: "Verwende die Standardskala oder passe sie nur für diese Karte an.",
+    new_card_scale_use: "Standard verwenden",
+    new_card_scale_customize: "Anpassen…",
+    new_card_scale_confirm: "Diese Skala verwenden",
+
+    // Per-item scale
+    item_edit_scale: "Skala für dieses Element bearbeiten",
+    item_scale_change_warning: "Dieses Element hat bereits eine Antwort. Das Ändern der Skala löscht diese. Fortfahren?",
+
     // Share
     share_title: "📤 Ergebnis verschlüsselt teilen",
-    share_intro: "Deine Antworten werden verpackt und mit einem Passwort verschlüsselt. Sende das Paket über einen beliebigen Kanal — und teile das Passwort",
-    share_intro_separately: "separat",
-    share_intro_rest: "(z.B. per Telefon oder persönlich).",
+    share_intro: "Deine Antworten werden verpackt und mit einem Passwort verschlüsselt. Setze dazu das Passwort und sende den anschliessend generierten Text über einen beliebigen Kanal deinem Gegenüber. Teile anschliessend das Passwort separat (z.B. per Telefon oder persönlich) um maximale Datensicherheit zu garantieren. Für einen erfolgreichen Import wird beides benötigt.",
+    share_intro_separately: "",
+    share_intro_rest: "",
     share_callout_title: "🔐 Kein Server, keine Spuren.",
     share_callout_body: "Die Verschlüsselung findet auf diesem Gerät statt. Das Passwort verlässt nie deinen Kopf.",
     share_pass_label: "Passwort",
@@ -506,8 +534,8 @@ const TRANSLATIONS = {
     settings_display_modes: "Anzeigemodi",
     fabi_mode_title: "Fabi-Modus",
     fabi_mode_desc: "Zeigt ein Kategoriedurchschnitts-Netzdiagramm auf den Ergebnis- und Vergleichsseiten sowie kleine Kategorie-Zusammenfassungschips auf den Karten. Standardmäßig deaktiviert, da das Mitteln über sehr unterschiedliche Elemente irreführend sein kann.",
-    settings_scale_title: "Standard-Antwortskala",
-    settings_scale_sub: "Wird als Ausgangspunkt verwendet, wenn du eine neue Karte erstellst. Jede Karte behält ihre eigene Kopie der Skala, daher betrifft eine Änderung hier nur zukünftige Karten.",
+    settings_scale_title: "Standard Antwortskala",
+    settings_scale_sub: "Setzt die Standard-Bewertungs-Skala für künftige Beziehungskarten. Bisher erstellte Karten behalten ihre eigene Kopie der Skala – die Änderung betrifft nur die zukünftige Beantwortung. Verwende die Pfeile, um die Reihenfolge der Stufen anzupassen.",
     btn_add_step: "➕ Stufe hinzufügen",
     btn_reset_defaults: "Auf Standard zurücksetzen",
     confirm_reset_scale: "Die Skala auf die Standard-7-Stufen zurücksetzen?",
@@ -527,6 +555,9 @@ const TRANSLATIONS = {
     scale_step_desc: "Tooltip / Beschreibung",
     scale_step_new: "Neue Stufe",
     scale_step_remove_confirm: 'Die Stufe „{label}" wird in einigen Antworten verwendet. Das Entfernen löscht diese Antworten. Fortfahren?',
+    scale_col_color: "Farbe",
+    scale_col_label: "Bezeichnung",
+    scale_col_short: "Kurzform",
 
     // Map settings
     map_settings_title: "⚙️ Karten-Einstellungen",
@@ -560,6 +591,9 @@ const TRANSLATIONS = {
     about_credits_title: "Credits",
     about_credits: "Der Relationshape-Fragebogen und das Konzept stammen von Anne Lüscher (sie/ihr) und Benjamin Frey (er/ihm), veröffentlicht unter CC BY-NC 4.0.",
     about_credits_repo: "Original-Repository",
+    about_credits_unofficial: "Diese App ist eine inoffizielle Implementierung, um das Werkzeug interaktiver und zugänglicher zu machen.",
+    about_ai_title: "Transparenz zur Verwendung von KI-Tools",
+    about_ai_text: "Diese App wurde mithilfe von Claude Code programmiert. Die ursprüngliche Idee, die Struktur der App, sowie alle Elemente, Fragen und Texte entstammen jedoch zu 100% der Arbeit der Urheber*innen, sowie den Erfahrungswelten der breiteren Community.",
 
     // Keyboard help
     kbd_title: "Tastaturkürzel",

@@ -646,10 +646,8 @@ function howtoStep(num, title, desc, icon) {
   return h("div", { class: "howto-step" },
     h("div", { class: "howto-step-icon" }, icon),
     h("div", { class: "howto-step-num" }, num),
-    h("div", { class: "howto-step-body" },
-      h("h3", {}, title),
-      h("p", { class: "muted small" }, desc),
-    ),
+    h("h3", { class: "howto-step-title" }, title),
+    h("p", { class: "howto-step-desc muted small" }, desc),
   );
 }
 
@@ -834,13 +832,16 @@ async function startBlank(profileId) {
 
   const enabledCategories = enabled === null ? null : computeEnabledCategories(enabled);
 
+  const chosenScale = await promptScaleForNewCard();
+  if (chosenScale === null) return;
+
   const version = Store.nextResultVersion(profileId, subject);
   const r = Store.saveResult({
     profileId, subject: subject.trim(),
     subjectEmoji: pickEmoji(),
     subjectColor: pickColor(),
     answers: {},
-    scale: cloneScale(Store.getScale()),
+    scale: chosenScale,
     enabledCategories,
     askedItems: null,
     progress: { catIndex: 0 },
@@ -919,6 +920,137 @@ async function startFromImport(profileId) {
 }
 
 function cloneScale(s) { return (s || []).map(x => ({ ...x })); }
+
+function resolveAnswerKey(customKey, itemScale, resultScale) {
+  if (resultScale.some(s => s.key === customKey)) return customKey;
+  const idx = itemScale.findIndex(s => s.key === customKey);
+  if (idx < 0) return customKey;
+  const norm = idx / Math.max(1, itemScale.length - 1);
+  const ri = Math.round(norm * (resultScale.length - 1));
+  return resultScale[ri].key;
+}
+
+function findActiveItemScaleKey(storedKey, itemScale, resultScale) {
+  if (itemScale.some(s => s.key === storedKey)) return storedKey;
+  const ri = resultScale.findIndex(s => s.key === storedKey);
+  if (ri < 0) return null;
+  const norm = ri / Math.max(1, resultScale.length - 1);
+  const ii = Math.round(norm * (itemScale.length - 1));
+  return itemScale[ii]?.key || null;
+}
+
+async function promptScaleForNewCard() {
+  const defaultScale = cloneScale(Store.getScale());
+
+  const choice = await dialog({
+    title: t("new_card_scale_title"),
+    body: () => h("div", { class: "scale-dialog-body" },
+      h("p", { class: "muted small" }, t("new_card_scale_sub")),
+      h("div", { class: "scale-preview-list" },
+        ...defaultScale.map(s => h("div", { class: "scale-preview-row" },
+          h("div", { class: "scale-preview-swatch", style: `background:${s.color}` }),
+          h("span", { class: "scale-preview-label" }, s.label),
+          h("span", { class: "scale-preview-short muted small" }, s.short),
+        ))
+      ),
+    ),
+    actions: [
+      { label: t("btn_cancel"), kind: "ghost", value: null },
+      { label: t("new_card_scale_customize"), kind: "ghost", value: "customize" },
+      { label: t("new_card_scale_use"), kind: "primary", primary: true, value: "default" },
+    ],
+  });
+
+  if (!choice) return null;
+  if (choice === "default") return defaultScale;
+  return promptEditScaleDialog(defaultScale);
+}
+
+async function promptEditScaleDialog(initialScale) {
+  const scaleRef = cloneScale(initialScale);
+  const listEl = h("div", { class: "scale-editor" });
+
+  function rerenderList() {
+    listEl.innerHTML = "";
+    scaleRef.forEach((s, i) => {
+      const row = h("div", { class: "scale-row", style: `--c:${s.color}` },
+        h("div", { class: "scale-row-rank" }, `${scaleRef.length - i}`),
+        h("input", { class: "scale-row-color", type: "color", value: s.color,
+          onInput: e => { scaleRef[i].color = e.target.value; } }),
+        h("input", { class: "scale-row-label", type: "text", value: s.label, placeholder: t("scale_step_label"),
+          onChange: e => { scaleRef[i].label = e.target.value || s.label; } }),
+        h("input", { class: "scale-row-short", type: "text", value: s.short, maxlength: 24, placeholder: t("scale_step_short"),
+          onChange: e => { scaleRef[i].short = e.target.value || s.short; } }),
+        h("input", { class: "scale-row-desc", type: "text", value: s.description || "", placeholder: t("scale_step_desc"),
+          onChange: e => { scaleRef[i].description = e.target.value; } }),
+        h("div", { class: "scale-row-actions" },
+          h("button", { class: "icon-btn", title: "Move up", disabled: i === 0,
+            onClick: () => { const tmp = scaleRef[i]; scaleRef[i] = scaleRef[i - 1]; scaleRef[i - 1] = tmp; rerenderList(); } }, "↑"),
+          h("button", { class: "icon-btn", title: "Move down", disabled: i === scaleRef.length - 1,
+            onClick: () => { const tmp = scaleRef[i]; scaleRef[i] = scaleRef[i + 1]; scaleRef[i + 1] = tmp; rerenderList(); } }, "↓"),
+          h("button", { class: "icon-btn danger", title: "Remove", disabled: scaleRef.length <= 2,
+            onClick: () => { scaleRef.splice(i, 1); rerenderList(); } }, "🗑"),
+        ),
+      );
+      listEl.append(row);
+    });
+  }
+
+  rerenderList();
+
+  return dialog({
+    title: t("new_card_scale_title"),
+    body: () => listEl,
+    actions: [
+      { label: t("btn_cancel"), kind: "ghost", value: null },
+      { label: t("new_card_scale_confirm"), kind: "primary", primary: true,
+        handler: () => cloneScale(scaleRef) },
+    ],
+  });
+}
+
+async function editItemScaleDialog(currentItemScale, resultScale) {
+  const scaleRef = cloneScale(currentItemScale);
+  const listEl = h("div", { class: "scale-editor" });
+
+  function rerenderList() {
+    listEl.innerHTML = "";
+    scaleRef.forEach((s, i) => {
+      const row = h("div", { class: "scale-row", style: `--c:${s.color}` },
+        h("div", { class: "scale-row-rank" }, `${scaleRef.length - i}`),
+        h("input", { class: "scale-row-color", type: "color", value: s.color,
+          onInput: e => { scaleRef[i].color = e.target.value; } }),
+        h("input", { class: "scale-row-label", type: "text", value: s.label, placeholder: t("scale_step_label"),
+          onChange: e => { scaleRef[i].label = e.target.value || s.label; } }),
+        h("input", { class: "scale-row-short", type: "text", value: s.short, maxlength: 24, placeholder: t("scale_step_short"),
+          onChange: e => { scaleRef[i].short = e.target.value || s.short; } }),
+        h("input", { class: "scale-row-desc", type: "text", value: s.description || "", placeholder: t("scale_step_desc"),
+          onChange: e => { scaleRef[i].description = e.target.value; } }),
+        h("div", { class: "scale-row-actions" },
+          h("button", { class: "icon-btn", title: "Move up", disabled: i === 0,
+            onClick: () => { const tmp = scaleRef[i]; scaleRef[i] = scaleRef[i - 1]; scaleRef[i - 1] = tmp; rerenderList(); } }, "↑"),
+          h("button", { class: "icon-btn", title: "Move down", disabled: i === scaleRef.length - 1,
+            onClick: () => { const tmp = scaleRef[i]; scaleRef[i] = scaleRef[i + 1]; scaleRef[i + 1] = tmp; rerenderList(); } }, "↓"),
+          h("button", { class: "icon-btn danger", title: "Remove", disabled: scaleRef.length <= 2,
+            onClick: () => { scaleRef.splice(i, 1); rerenderList(); } }, "🗑"),
+        ),
+      );
+      listEl.append(row);
+    });
+  }
+
+  rerenderList();
+
+  return dialog({
+    title: t("item_edit_scale"),
+    body: () => listEl,
+    actions: [
+      { label: t("btn_cancel"), kind: "ghost", value: null },
+      { label: t("new_card_scale_confirm"), kind: "primary", primary: true,
+        handler: () => cloneScale(scaleRef) },
+    ],
+  });
+}
 
 async function runOnboarding(themes) {
   return dialog({
@@ -1127,6 +1259,12 @@ function viewQuestionnaireList(profile, result) {
   function itemRow(cat, item, store, isCustom, SCALE) {
     const existing = store[item] || {};
     const answered = !!existing.scale;
+    const itemScale = existing.itemScale || null;
+    const activeScale = itemScale || SCALE;
+    const sliderKey = itemScale
+      ? findActiveItemScaleKey(existing.scale, itemScale, SCALE)
+      : existing.scale;
+
     const row = h("div", {
       class: "q-item" + (answered ? " is-answered" : ""),
       tabindex: "0",
@@ -1136,6 +1274,21 @@ function viewQuestionnaireList(profile, result) {
       h("div", { class: "q-item-name" },
         isCustom ? h("span", { class: "q-item-tag" }, t("custom_tag")) : null,
         item,
+        h("button", { class: "icon-btn item-scale-btn", title: t("item_edit_scale"), tabindex: "-1",
+          onClick: async e => {
+            e.stopPropagation();
+            if (answered) {
+              if (!await dlgConfirm(t("item_scale_change_warning"), { okLabel: t("btn_ok") })) return;
+              delete store[item];
+              persist();
+            }
+            const newItemScale = await editItemScaleDialog(itemScale || cloneScale(SCALE), SCALE);
+            if (!newItemScale) { rerender(); return; }
+            store[item] = { ...(store[item] || {}), itemScale: newItemScale };
+            delete store[item].scale;
+            persist(); rerender();
+          }
+        }, "⚙"),
         isCustom ? h("button", { class: "icon-btn", title: t("btn_delete"), onClick: e => {
           e.stopPropagation();
           delete store[item]; persist(); rerender();
@@ -1143,8 +1296,8 @@ function viewQuestionnaireList(profile, result) {
       ),
       h("div", { class: "q-slider-wrap" },
         scaleSliderEl({
-          scale: SCALE,
-          valueKey: existing.scale,
+          scale: activeScale,
+          valueKey: sliderKey,
           onChange: (key) => applyScale(key),
           onClear: () => applyScale(null),
         }),
@@ -1172,9 +1325,20 @@ function viewQuestionnaireList(profile, result) {
 
     function applyScale(key, { advance = true } = {}) {
       if (key == null) {
-        delete store[item];
+        const saved = store[item] || {};
+        const newVal = { ...saved };
+        delete newVal.scale;
+        if (Object.keys(newVal).some(k => k !== "itemScale" && newVal[k] != null)) {
+          store[item] = newVal;
+        } else if (newVal.itemScale) {
+          store[item] = { itemScale: newVal.itemScale };
+        } else {
+          delete store[item];
+        }
       } else {
-        store[item] = { ...existing, scale: key };
+        const resultKey = itemScale ? resolveAnswerKey(key, itemScale, SCALE) : key;
+        store[item] = { ...existing, scale: resultKey };
+        if (itemScale) store[item].itemScale = itemScale;
       }
       persist();
       const next = advance && key != null ? nextItemElement(row) : null;
@@ -1202,10 +1366,10 @@ function viewQuestionnaireList(profile, result) {
     row.addEventListener("keydown", e => {
       if (e.target !== row) return;
       const n = parseInt(e.key, 10);
-      if (!isNaN(n) && n >= 1 && n <= SCALE.length) {
+      if (!isNaN(n) && n >= 1 && n <= activeScale.length) {
         e.preventDefault();
-        applyScale(SCALE[n - 1].key);
-      } else if (e.key === "0" || (!isNaN(n) && n === SCALE.length + 1)) {
+        applyScale(activeScale[n - 1].key);
+      } else if (e.key === "0" || (!isNaN(n) && n === activeScale.length + 1)) {
         e.preventDefault();
         applyScale(null, { advance: false });
       } else if (e.key === "Enter" || e.key === "ArrowDown") {
@@ -1328,21 +1492,54 @@ function viewQuestionnaireSingle(profile, result) {
     const slot = result.answers?.[it.catId];
     const store = it.isCustom ? slot?.__custom : slot;
     const existing = store?.[it.item] || {};
+    const itemScale = existing.itemScale || null;
+    const activeScale = itemScale || SCALE;
+    const sliderKey = itemScale
+      ? findActiveItemScaleKey(existing.scale, itemScale, SCALE)
+      : existing.scale;
 
     const card = h("article", { class: "q-card" + (isPeek ? " is-peek" : ""), style: `--c:${it.cat.color}` },
       h("div", { class: "q-card-cat" },
         h("span", { class: "q-card-icon" }, it.cat.icon),
         h("span", {}, it.cat.title),
         it.isCustom ? h("span", { class: "q-item-tag" }, t("custom_tag")) : null,
+        h("button", { class: "icon-btn item-scale-btn", title: t("item_edit_scale"), tabindex: "-1",
+          onClick: async e => {
+            e.stopPropagation();
+            if (existing.scale) {
+              if (!await dlgConfirm(t("item_scale_change_warning"), { okLabel: t("btn_ok") })) return;
+            }
+            const newItemScale = await editItemScaleDialog(itemScale || cloneScale(SCALE), SCALE);
+            if (!newItemScale) return;
+            setStore(it, prev => {
+              const n = { ...(prev || {}) };
+              n.itemScale = newItemScale;
+              delete n.scale;
+              return n;
+            });
+            renderCard();
+          }
+        }, "⚙"),
       ),
       h("h1", { class: "q-card-item" }, it.item),
       h("p", { class: "q-card-blurb muted" }, it.cat.blurb),
       h("div", { class: "q-card-slider" },
         scaleSliderEl({
-          scale: SCALE,
-          valueKey: existing.scale,
-          onChange: (key) => { setStore(it, prev => ({ ...(prev || {}), scale: key })); renderCard(); },
-          onClear: () => { setStore(it, prev => { const c = { ...(prev || {}) }; delete c.scale; return c; }); renderCard(); },
+          scale: activeScale,
+          valueKey: sliderKey,
+          onChange: (key) => {
+            const resultKey = itemScale ? resolveAnswerKey(key, itemScale, SCALE) : key;
+            setStore(it, prev => ({ ...(prev || {}), scale: resultKey, ...(itemScale ? { itemScale } : {}) }));
+            renderCard();
+          },
+          onClear: () => {
+            setStore(it, prev => {
+              const c = { ...(prev || {}) };
+              delete c.scale;
+              return c;
+            });
+            renderCard();
+          },
         })),
       it.cat.gr ? h("div", { class: "q-card-gr" },
         ["G","R","×"].map(g => h("button", {
@@ -1909,7 +2106,7 @@ function viewShare(resultId) {
   const root = h("section", { class: "page narrow" },
     h("button", { class: "btn btn-ghost", onClick: () => navigate(`/result/${resultId}`) }, t("btn_back")),
     h("h1", {}, t("share_title")),
-    h("p", {}, t("share_intro"), " ", h("strong", {}, t("share_intro_separately")), " ", t("share_intro_rest")),
+    h("p", {}, t("share_intro")),
     h("div", { class: "callout" },
       h("strong", {}, t("share_callout_title")), " ", t("share_callout_body")),
 
@@ -2205,6 +2402,13 @@ function viewSettings() {
       h("header", { class: "section-head" },
         h("h2", {}, t("settings_scale_title")),
         h("p", { class: "muted" }, t("settings_scale_sub"))),
+      h("div", { class: "scale-legend-header" },
+        h("span", {}),
+        h("span", {}, t("scale_col_color")),
+        h("span", {}, t("scale_col_label")),
+        h("span", {}, t("scale_col_short")),
+        h("span", {}),
+      ),
       list,
       h("div", { class: "form-actions" },
         h("button", { class: "btn", onClick: () => {
@@ -2368,6 +2572,13 @@ function viewMapSettings(resultId) {
       h("header", { class: "section-head" },
         h("h2", {}, t("map_scale_title")),
         h("p", { class: "muted" }, t("map_scale_sub"))),
+      h("div", { class: "scale-legend-header" },
+        h("span", {}),
+        h("span", {}, t("scale_col_color")),
+        h("span", {}, t("scale_col_label")),
+        h("span", {}, t("scale_col_short")),
+        h("span", {}),
+      ),
       list,
       h("div", { class: "form-actions" },
         h("button", { class: "btn", onClick: () => {
@@ -2416,9 +2627,11 @@ function viewIntro() {
     ),
     h("h2", {}, t("about_privacy_title")),
     h("p", {}, t("about_privacy")),
+    h("h2", {}, t("about_ai_title")),
+    h("p", {}, t("about_ai_text")),
     h("h2", {}, t("about_credits_title")),
     h("p", {}, t("about_credits"), " ",
       h("a", { href: "https://github.com/Relationshape/Relationshape-Pre-release-1", target: "_blank", rel: "noopener" }, t("about_credits_repo")), ".",
-      " This app is an unofficial implementation built to make the tool more interactive and accessible."),
+      " ", t("about_credits_unofficial")),
   ));
 }
