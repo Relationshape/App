@@ -177,8 +177,11 @@ const TRANSLATIONS = {
     new_card_scale_confirm: "Use this scale",
 
     // Per-item scale
-    item_edit_scale: "Edit scale for this item",
+    item_edit_scale: "Edit Item/Scale",
     item_scale_change_warning: "This item already has an answer. Changing the scale will clear it. Continue?",
+    q_single_hint_mobile: "Swipe left/right to go to previous/next question",
+    q_single_hint_desktop: "Use ← → arrow keys to navigate between questions",
+    btn_categories: "Categories",
 
     // Share
     share_title: "📤 Share encrypted result",
@@ -494,8 +497,11 @@ const TRANSLATIONS = {
     new_card_scale_confirm: "Diese Skala verwenden",
 
     // Per-item scale
-    item_edit_scale: "Skala für dieses Element bearbeiten",
+    item_edit_scale: "Element/Skala bearbeiten",
     item_scale_change_warning: "Dieses Element hat bereits eine Antwort. Das Ändern der Skala löscht diese. Fortfahren?",
+    q_single_hint_mobile: "Links/rechts wischen für vorherige/nächste Frage",
+    q_single_hint_desktop: "Pfeiltasten ← → zum Navigieren zwischen den Fragen",
+    btn_categories: "Kategorien",
 
     // Share
     share_title: "📤 Ergebnis verschlüsselt teilen",
