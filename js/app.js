@@ -1137,6 +1137,7 @@ async function runOnboarding(themes) {
     title: t("onboarding_title"),
     body: (close) => h("div", { class: "onboarding-body" },
       h("p", { class: "muted small" }, t("onboarding_sub")),
+      h("div", { class: "onboard-toggles-wrap" },
       h("div", { class: "onboard-toggles" },
         ...themes.map(thm => {
           const row = h("button", {
@@ -1155,6 +1156,7 @@ async function runOnboarding(themes) {
           );
           return row;
         })),
+      ),
     ),
     actions: [
       { label: t("btn_skip_onboarding"), kind: "ghost", value: null },
@@ -1322,7 +1324,6 @@ function viewQuestionnaireList(profile, result) {
   }
   if (target) {
     target.focus({ preventScroll: true });
-    target.scrollIntoView({ block: "center", behavior: "instant" });
   }
 
   function persist() { Store.saveResult(result); }
@@ -1454,12 +1455,12 @@ function viewQuestionnaireList(profile, result) {
         e.preventDefault();
         const all = Array.from(document.querySelectorAll(".q-item"));
         const i = all.indexOf(row);
-        all[i + 1]?.focus();
+        all[i + 1]?.focus({ preventScroll: true });
       } else if (e.key === "ArrowUp") {
         e.preventDefault();
         const all = Array.from(document.querySelectorAll(".q-item"));
         const i = all.indexOf(row);
-        all[i - 1]?.focus();
+        all[i - 1]?.focus({ preventScroll: true });
       }
     });
 
