@@ -511,6 +511,7 @@ function route() {
       break;
     case "intro":
     case "about":    viewIntro(); break;
+    case "q-categories": viewCategoryOverview(segs[1], segs[2]); break;
     default:         viewHome();
   }
   document.querySelectorAll("#nav a:not(.nav-brand)").forEach(a => {
@@ -618,12 +619,6 @@ function viewWelcome() {
         h("button", { class: "btn btn-primary", onClick: () => navigate("/profile/new") }, t("welcome_cta")),
         h("button", { class: "btn btn-ghost", onClick: () => navigate("/intro") }, t("welcome_about")),
         h("button", { class: "btn btn-ghost", onClick: () => showWizard() }, t("howto_wizard_btn")),
-      ),
-      h("ul", { class: "hero-features" },
-        h("li", {}, t("welcome_f1")),
-        h("li", {}, t("welcome_f2")),
-        h("li", {}, t("welcome_f3")),
-        h("li", {}, t("welcome_f4")),
       ),
     ),
 
@@ -792,6 +787,67 @@ function countAnswers(r) {
   return n;
 }
 
+function viewCategoryOverview(profileId, resultId) {
+  const profile = Store.getProfile(profileId);
+  const result = Store.getResult(resultId);
+  if (!profile || !result || result.profileId !== profileId) return navigate("/");
+
+  const enabledCats = enabledCategoryList(result);
+  if (!enabledCats.length) return navigate(`/result/${resultId}`);
+
+  function catProgress(cat) {
+    const slot = result.answers?.[cat.id] || {};
+    const asked = askedItemsForCat(result, cat.id);
+    const baseItems = asked ? asked.base : cat.items;
+    const customNames = asked
+      ? Array.from(new Set([...(asked.custom || []), ...Object.keys(slot.__custom || {})]))
+      : Object.keys(slot.__custom || {});
+    const total = baseItems.length + customNames.length;
+    let answered = 0;
+    for (const item of baseItems) { if (slot[item]?.scale) answered++; }
+    for (const name of customNames) { if (slot.__custom?.[name]?.scale) answered++; }
+    return { answered, total };
+  }
+
+  $app.append(h("section", { class: "page narrow" },
+    h("button", { class: "btn btn-ghost", onClick: () => navigate(`/profile/${profileId}`) }, t("btn_back")),
+    h("div", { class: "cat-overview-header" },
+      h("div", { class: "li-avatar", style: `--c:${result.subjectColor || "#7c3aed"}` }, result.subjectEmoji || "💞"),
+      h("div", {},
+        h("h1", {}, result.subject),
+        h("p", { class: "muted small" }, `${profile.emoji || ""} ${profile.name}`)),
+    ),
+    h("div", { class: "cat-overview-grid" },
+      ...enabledCats.map((cat, i) => {
+        const { answered, total } = catProgress(cat);
+        const pct = total > 0 ? Math.round((answered / total) * 100) : 0;
+        const done = answered >= total && total > 0;
+        return h("button", {
+          class: "cat-overview-tile" + (done ? " is-done" : ""),
+          style: `--c:${cat.color}`,
+          onClick: () => {
+            result.progress = result.progress || {};
+            result.progress.catIndex = i;
+            Store.saveResult(result);
+            navigate(`/q/${profileId}/${resultId}`);
+          },
+        },
+          h("span", { class: "cat-overview-icon" }, cat.icon),
+          h("div", { class: "cat-overview-body" },
+            h("span", { class: "cat-overview-title" }, cat.title),
+            h("div", { class: "cat-overview-bar-wrap" },
+              h("div", { class: "cat-overview-bar", style: `width:${pct}%; background:${cat.color}` })),
+            h("span", { class: "cat-overview-pct muted small" }, done ? "✓ " + t("q_done_title") : `${answered}/${total}`),
+          ),
+        );
+      })
+    ),
+    h("div", { class: "form-actions" },
+      h("button", { class: "btn btn-primary", onClick: () => navigate(`/result/${resultId}`) }, t("btn_see_results")),
+    ),
+  ));
+}
+
 async function createNewResult(profileId) {
   const imports = Store.getImports();
 
@@ -847,7 +903,7 @@ async function startBlank(profileId) {
     progress: { catIndex: 0 },
     version,
   });
-  navigate(`/q/${profileId}/${r.id}`);
+  navigate(`/q-categories/${profileId}/${r.id}`);
 }
 
 async function startFromImport(profileId) {
@@ -942,28 +998,41 @@ function findActiveItemScaleKey(storedKey, itemScale, resultScale) {
 async function promptScaleForNewCard() {
   const defaultScale = cloneScale(Store.getScale());
 
-  const choice = await dialog({
-    title: t("new_card_scale_title"),
-    body: () => h("div", { class: "scale-dialog-body" },
-      h("p", { class: "muted small" }, t("new_card_scale_sub")),
-      h("div", { class: "scale-preview-list" },
-        ...defaultScale.map(s => h("div", { class: "scale-preview-row" },
-          h("div", { class: "scale-preview-swatch", style: `background:${s.color}` }),
-          h("span", { class: "scale-preview-label" }, s.label),
-          h("span", { class: "scale-preview-short muted small" }, s.short),
-        ))
+  while (true) {
+    const choice = await dialog({
+      title: t("new_card_scale_title"),
+      body: () => h("div", { class: "scale-dialog-body" },
+        h("p", { class: "muted small" }, t("new_card_scale_sub")),
+        h("div", { class: "scale-legend-header" },
+          h("span", {}),
+          h("span", {}, t("scale_col_color")),
+          h("span", {}, t("scale_col_label")),
+          h("span", {}, t("scale_col_short")),
+          h("span", {}),
+        ),
+        h("div", { class: "scale-preview-list" },
+          ...defaultScale.map(s => h("div", { class: "scale-preview-row" },
+            h("div", { class: "scale-preview-swatch", style: `background:${s.color}` }),
+            h("span", { class: "scale-preview-label" }, s.label),
+            h("span", { class: "scale-preview-short muted small" }, s.short),
+          ))
+        ),
       ),
-    ),
-    actions: [
-      { label: t("btn_cancel"), kind: "ghost", value: null },
-      { label: t("new_card_scale_customize"), kind: "ghost", value: "customize" },
-      { label: t("new_card_scale_use"), kind: "primary", primary: true, value: "default" },
-    ],
-  });
+      actions: [
+        { label: t("btn_cancel"), kind: "ghost", value: null },
+        { label: t("new_card_scale_customize"), kind: "ghost", value: "customize" },
+        { label: t("new_card_scale_confirm"), kind: "primary", primary: true, value: "use" },
+      ],
+    });
 
-  if (!choice) return null;
-  if (choice === "default") return defaultScale;
-  return promptEditScaleDialog(defaultScale);
+    if (!choice) return null;
+    if (choice === "use") return cloneScale(defaultScale);
+
+    const edited = await promptEditScaleDialog(defaultScale);
+    if (edited === "BACK") continue;
+    if (!edited) return null;
+    return edited;
+  }
 }
 
 async function promptEditScaleDialog(initialScale) {
@@ -998,15 +1067,26 @@ async function promptEditScaleDialog(initialScale) {
 
   rerenderList();
 
-  return dialog({
+  const result = await dialog({
     title: t("new_card_scale_title"),
-    body: () => listEl,
+    body: () => h("div", { class: "scale-dialog-body" },
+      h("div", { class: "scale-legend-header" },
+        h("span", {}),
+        h("span", {}, t("scale_col_color")),
+        h("span", {}, t("scale_col_label")),
+        h("span", {}, t("scale_col_short")),
+        h("span", {}),
+      ),
+      listEl,
+    ),
     actions: [
-      { label: t("btn_cancel"), kind: "ghost", value: null },
+      { label: t("btn_cancel"), kind: "ghost", value: "BACK" },
       { label: t("new_card_scale_confirm"), kind: "primary", primary: true,
         handler: () => cloneScale(scaleRef) },
     ],
   });
+
+  return result ?? "BACK";
 }
 
 async function editItemScaleDialog(currentItemScale, resultScale) {
@@ -1112,7 +1192,7 @@ function viewQuestionnaire(profileId, resultId) {
   const result = Store.getResult(resultId);
   if (!profile || !result || result.profileId !== profileId) return navigate("/");
 
-  const mode = result.progress?.mode || (matchMedia("(pointer: coarse)").matches ? "single" : "list");
+  const mode = result.progress?.mode || "list";
   if (mode === "single") return viewQuestionnaireSingle(profile, result);
   return viewQuestionnaireList(profile, result);
 }
@@ -1222,8 +1302,7 @@ function viewQuestionnaireList(profile, result) {
     h("nav", { class: "q-nav" },
       h("button", { class: "btn", disabled: idx === 0, onClick: () => move(-1) }, t("btn_previous")),
       h("button", { class: "btn", onClick: () => navigate(`/result/${resultId}`) }, t("btn_skip_results")),
-      h("button", { class: "btn btn-primary", onClick: () => move(1) },
-        idx === total - 1 ? t("btn_finish") : t("btn_next")),
+      h("button", { class: "btn btn-primary", onClick: () => move(1) }, t("btn_next")),
     )
   );
 
@@ -1249,9 +1328,9 @@ function viewQuestionnaireList(profile, result) {
   function persist() { Store.saveResult(result); }
   function move(d) {
     result.progress = result.progress || {};
-    result.progress.catIndex = Math.max(0, Math.min(total, idx + d));
+    result.progress.catIndex = Math.max(0, Math.min(total - 1, idx + d));
     persist();
-    if (result.progress.catIndex >= total) navigate(`/result/${resultId}`);
+    if (d > 0) navigate(`/q-categories/${profileId}/${resultId}`);
     else route();
   }
   function rerender() { $app.innerHTML = ""; viewQuestionnaireList(profile, result); }
@@ -1274,7 +1353,7 @@ function viewQuestionnaireList(profile, result) {
       h("div", { class: "q-item-name" },
         isCustom ? h("span", { class: "q-item-tag" }, t("custom_tag")) : null,
         item,
-        h("button", { class: "icon-btn item-scale-btn", title: t("item_edit_scale"), tabindex: "-1",
+        h("button", { class: "btn btn-ghost item-scale-btn", type: "button",
           onClick: async e => {
             e.stopPropagation();
             if (answered) {
@@ -1288,7 +1367,7 @@ function viewQuestionnaireList(profile, result) {
             delete store[item].scale;
             persist(); rerender();
           }
-        }, "⚙"),
+        }, t("item_edit_scale")),
         isCustom ? h("button", { class: "icon-btn", title: t("btn_delete"), onClick: e => {
           e.stopPropagation();
           delete store[item]; persist(); rerender();
@@ -1350,7 +1429,6 @@ function viewQuestionnaireList(profile, result) {
           const el = idx >= 0 ? all[idx] : null;
           if (!el) return;
           el.focus({ preventScroll: true });
-          el.scrollIntoView({ block: "nearest", behavior: "smooth" });
         });
       }
     }
@@ -1394,7 +1472,7 @@ function qHeader({ profileId, resultId, idx, total, cat, progressPct, result, mo
     ? `${t("q_item")} ${idx + 1} ${t("q_of")} ${total}`
     : `${t("q_category")} ${idx + 1} ${t("q_of")} ${total}`;
   return h("header", { class: "q-head" },
-    h("button", { class: "btn btn-ghost", onClick: () => navigate(`/profile/${profileId}`) }, t("btn_back")),
+    h("button", { class: "btn btn-ghost", onClick: () => navigate(`/q-categories/${profileId}/${resultId}`) }, "← " + t("btn_categories")),
     h("div", { class: "q-progress" },
       h("div", { class: "q-progress-bar" },
         h("div", { class: "q-progress-fill", style: `width:${progressPct}%; background:${cat.color}` })),
@@ -1437,6 +1515,7 @@ function viewQuestionnaireSingle(profile, result) {
   let cursor = clamp(result.progress?.flatIndex ?? 0, 0, items.length - 1);
   const stack = h("div", { class: "q-stack" });
 
+  const isMobile = matchMedia("(pointer: coarse)").matches;
   const root = h("section", { class: "page q-page q-single-page" },
     qHeader({
       profileId, resultId,
@@ -1445,6 +1524,8 @@ function viewQuestionnaireSingle(profile, result) {
       progressPct: ((cursor + 1) / items.length) * 100,
       result, mode: "single",
     }),
+    h("p", { class: "q-nav-hint muted small" },
+      isMobile ? t("q_single_hint_mobile") : t("q_single_hint_desktop")),
     stack,
   );
 
@@ -1458,7 +1539,7 @@ function viewQuestionnaireSingle(profile, result) {
         h("h1", {}, t("q_done_title")),
         h("p", { class: "muted" }, t("q_done_body")),
         h("div", { class: "form-actions" },
-          h("button", { class: "btn", onClick: () => { cursor = 0; renderCard(); } }, t("btn_start_over")),
+          h("button", { class: "btn btn-ghost", onClick: () => navigate(`/q-categories/${profileId}/${resultId}`) }, "← " + t("btn_categories")),
           h("button", { class: "btn btn-primary", onClick: () => navigate(`/result/${resultId}`) }, t("btn_see_results")),
         ),
       ));
@@ -1503,7 +1584,7 @@ function viewQuestionnaireSingle(profile, result) {
         h("span", { class: "q-card-icon" }, it.cat.icon),
         h("span", {}, it.cat.title),
         it.isCustom ? h("span", { class: "q-item-tag" }, t("custom_tag")) : null,
-        h("button", { class: "icon-btn item-scale-btn", title: t("item_edit_scale"), tabindex: "-1",
+        h("button", { class: "btn btn-ghost item-scale-btn", type: "button",
           onClick: async e => {
             e.stopPropagation();
             if (existing.scale) {
@@ -1519,7 +1600,7 @@ function viewQuestionnaireSingle(profile, result) {
             });
             renderCard();
           }
-        }, "⚙"),
+        }, t("item_edit_scale")),
       ),
       h("h1", { class: "q-card-item" }, it.item),
       h("p", { class: "q-card-blurb muted" }, it.cat.blurb),
@@ -1932,18 +2013,39 @@ function renderEditTab(cat, result, localAnswers, onChanged) {
     items.forEach(({ name, isCustom }) => {
       const store = isCustom ? catAnswers.__custom : catAnswers;
       const existing = store[name] || {};
+      const itemScale = existing.itemScale || null;
+      const activeScale = itemScale || SCALE;
+      const sliderKey = itemScale
+        ? findActiveItemScaleKey(existing.scale, itemScale, SCALE)
+        : existing.scale;
 
       const row = h("div", { class: "q-item modal-edit-item" + (existing.scale ? " is-answered" : "") },
         h("div", { class: "q-item-name" },
           isCustom ? h("span", { class: "q-item-tag" }, t("custom_tag")) : null,
           name,
+          h("button", { class: "btn btn-ghost item-scale-btn", type: "button",
+            onClick: async e => {
+              e.stopPropagation();
+              if (existing.scale) {
+                if (!await dlgConfirm(t("item_scale_change_warning"), { okLabel: t("btn_ok") })) return;
+              }
+              const newItemScale = await editItemScaleDialog(itemScale || cloneScale(SCALE), SCALE);
+              if (!newItemScale) return;
+              store[name] = { ...(store[name] || {}), itemScale: newItemScale };
+              delete store[name].scale;
+              onChanged();
+              rerender();
+            }
+          }, t("item_edit_scale")),
         ),
         h("div", { class: "q-slider-wrap" },
           scaleSliderEl({
-            scale: SCALE,
-            valueKey: existing.scale,
+            scale: activeScale,
+            valueKey: sliderKey,
             onChange: (key) => {
-              store[name] = { ...(store[name] || {}), scale: key };
+              const resultKey = itemScale ? resolveAnswerKey(key, itemScale, SCALE) : key;
+              store[name] = { ...(store[name] || {}), scale: resultKey };
+              if (itemScale) store[name].itemScale = itemScale;
               onChanged();
               rerender();
             },
