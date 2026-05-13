@@ -1498,7 +1498,7 @@ async function runCategoryPicker(existingIds) {
   }).catch(() => false);
 }
 
-async function openAddCategoriesDialog(profileId, resultId) {
+async function openAddCategoriesDialog(profileId, resultId, returnPath) {
   const result = Store.getResult(resultId);
   if (!result) return;
   const existing = result.enabledCategories || CATEGORIES.map(c => c.id);
@@ -1516,7 +1516,7 @@ async function openAddCategoriesDialog(profileId, resultId) {
     }
   }
   Store.saveResult(result);
-  navigate(`/q-categories/${profileId}/${resultId}`);
+  navigate(returnPath || `/q-categories/${profileId}/${resultId}`);
 }
 
 function pickEmoji() {
@@ -2236,7 +2236,7 @@ function viewResult(resultId) {
       h("header", { class: "section-head" },
         h("h2", {}, t("by_category")),
         h("p", { class: "muted" }, t("by_category_sub")),
-        r.enabledCategories ? h("button", { class: "btn", onClick: () => openAddCategoriesDialog(r.profileId, r.id) }, t("btn_add_categories")) : null),
+        r.enabledCategories ? h("button", { class: "btn", onClick: () => openAddCategoriesDialog(r.profileId, r.id, `/result/${r.id}`) }, t("btn_add_categories")) : null),
       h("div", { class: "cat-grid" }, ...categoryCards([dataset], r))),
   ));
 }
@@ -2247,7 +2247,7 @@ function openEnlargedSpiderModal(datasets) {
     title: t("chart_modal_title"),
     body: () => {
       const wrap = h("div", { class: "enlarged-spider-wrap" },
-        h("div", { html: renderSpider(datasets, { size: 680 }) })
+        h("div", { html: renderSpider(datasets, { size: 760 }) })
       );
       requestAnimationFrame(() => bindSpiderInteractivity(wrap));
       return wrap;
