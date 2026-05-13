@@ -169,10 +169,12 @@ a:hover { text-decoration: underline; }
 .nav-logo {
   display: inline-grid; place-items: center;
   width: 30px; height: 30px; border-radius: 9px;
-  background: linear-gradient(140deg, var(--primary), var(--accent));
+  background: linear-gradient(140deg, var(--primary), rgba(56,189,248,0.9), var(--accent), rgba(192,132,252,0.85), var(--primary));
+  background-size: 300% 300%;
   color: #fff; font-size: 16px; font-weight: 800;
   box-shadow: var(--glow-sm);
   flex-shrink: 0;
+  animation: silkShift 6s ease-in-out infinite;
 }
 .nav-title {
   font-size: 10.5px;
