@@ -259,6 +259,7 @@ a:hover { text-decoration: underline; }
   line-height: 1.7;
   padding: 0 8px;
   margin: 0;
+  white-space: pre-line;
 }
 .hero-actions {
   display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;
