@@ -503,25 +503,97 @@ function heroConstellationSVG() {
   const lines = [...mainEdges, ...crossEdges].map(([a,b]) => renderEdge(a,b)).join("");
 
   const renderNode = ({ x, y, r, d, acc }, i) => {
-    const col   = acc ? "var(--accent)" : "var(--primary)";
-    const speed = [3.8, 2.6, 1.8][d];
+    const col  = acc ? "var(--accent)" : "var(--primary)";
+    const col2 = acc ? "var(--primary)" : "var(--accent)";
+    const speed = [4.2, 3.0, 2.1][d];
     const d1 = (speed + (i * 0.23) % 1.5).toFixed(1);
-    const d2 = (speed * 1.45 + (i * 0.37) % 2).toFixed(1);
-    const d3 = (speed * 1.9  + (i * 0.19) % 2.5).toFixed(1);
-    const glowR  = r * [5.0, 3.4, 2.1][d];
-    const glowOp = [0.07, 0.13, 0.22][d];
-    const rimOp  = [0.00, 0.14, 0.28][d];
+    const d2 = (speed * 1.55 + (i * 0.37) % 2.0).toFixed(1);
+    const d3 = (speed * 0.82 + (i * 0.29) % 1.2).toFixed(1);
+
+    // Depth-scaled ring opacity and stroke width
+    const op1 = [0.28, 0.44, 0.65][d];
+    const op2 = [0.20, 0.34, 0.52][d];
+    const op3 = [0.14, 0.24, 0.40][d];
+    const sw1 = [0.55, 0.75, 1.0][d].toFixed(2);
+    const sw2 = [0.45, 0.60, 0.80][d].toFixed(2);
+    const sw3 = [0.35, 0.50, 0.65][d].toFixed(2);
+    const rimOp = [0.00, 0.14, 0.28][d];
+
+    // Soap bubble ring radii: start near sphere, expand outward and vanish
+    // Each ring expands from rS to rE while fading, then invisibly resets
+    const rA_s = (r * [1.8, 1.6, 1.4][d]).toFixed(1);
+    const rA_e = (r * [5.5, 4.2, 3.2][d]).toFixed(1);
+    const rB_s = (r * [1.5, 1.4, 1.2][d]).toFixed(1);
+    const rB_e = (r * [4.2, 3.4, 2.6][d]).toFixed(1);
+    const rC_s = (r * [1.3, 1.2, 1.1][d]).toFixed(1);
+    const rC_e = (r * [3.2, 2.6, 2.0][d]).toFixed(1);
+
+    // Morph ratio: rx and ry animate in opposite directions for wobbly ellipse
+    const mA = [1.18, 1.14, 1.10][d];
+    const mB = [1.22, 1.16, 1.12][d];
+    const mC = [1.14, 1.10, 1.08][d];
+
+    // Smooth expand+fade with invisible reset: keyTimes 0→expand→hold(invisible)→reset
+    const kt = "0;0.62;0.92;1";
 
     return `<g>
-      <circle cx="${x}" cy="${y}" r="${glowR.toFixed(1)}" fill="${col}" opacity="${glowOp}">
-        <animate attributeName="opacity" values="${glowOp};${(glowOp*2.1).toFixed(2)};${glowOp}" dur="${d2}s" repeatCount="indefinite"/>
-        <animate attributeName="r" values="${glowR.toFixed(1)};${(glowR*1.38).toFixed(1)};${glowR.toFixed(1)}" dur="${d2}s" repeatCount="indefinite"/>
-      </circle>
+      <!-- Soap bubble ring A — primary colour, outermost, slow -->
+      <ellipse cx="${x}" cy="${y}" rx="${rA_s}" ry="${(parseFloat(rA_s)*mA).toFixed(1)}"
+        fill="none" stroke="${col}" stroke-width="${sw1}">
+        <animate attributeName="rx"
+          values="${rA_s};${rA_e};${rA_e};${rA_s}" keyTimes="${kt}"
+          calcMode="spline" keySplines="0.4 0 0.6 1;0 0 1 1;0 0 1 1"
+          dur="${d2}s" repeatCount="indefinite"/>
+        <animate attributeName="ry"
+          values="${(parseFloat(rA_s)*mA).toFixed(1)};${(parseFloat(rA_e)/mA).toFixed(1)};${(parseFloat(rA_e)/mA).toFixed(1)};${(parseFloat(rA_s)*mA).toFixed(1)}" keyTimes="${kt}"
+          calcMode="spline" keySplines="0.4 0 0.6 1;0 0 1 1;0 0 1 1"
+          dur="${d2}s" repeatCount="indefinite"/>
+        <animate attributeName="stroke-opacity"
+          values="${op1};0;0;${op1}" keyTimes="${kt}"
+          calcMode="spline" keySplines="0.42 0 0.58 1;0 0 1 1;0 0 1 1"
+          dur="${d2}s" repeatCount="indefinite"/>
+      </ellipse>
+
+      <!-- Soap bubble ring B — accent colour, mid, offset phase -->
+      <ellipse cx="${x}" cy="${y}" rx="${rB_s}" ry="${(parseFloat(rB_s)/mB).toFixed(1)}"
+        fill="none" stroke="${col2}" stroke-width="${sw2}">
+        <animate attributeName="rx"
+          values="${rB_s};${rB_e};${rB_e};${rB_s}" keyTimes="${kt}"
+          calcMode="spline" keySplines="0.4 0 0.6 1;0 0 1 1;0 0 1 1"
+          dur="${d3}s" repeatCount="indefinite"/>
+        <animate attributeName="ry"
+          values="${(parseFloat(rB_s)/mB).toFixed(1)};${(parseFloat(rB_e)*mB).toFixed(1)};${(parseFloat(rB_e)*mB).toFixed(1)};${(parseFloat(rB_s)/mB).toFixed(1)}" keyTimes="${kt}"
+          calcMode="spline" keySplines="0.4 0 0.6 1;0 0 1 1;0 0 1 1"
+          dur="${d3}s" repeatCount="indefinite"/>
+        <animate attributeName="stroke-opacity"
+          values="${op2};0;0;${op2}" keyTimes="${kt}"
+          calcMode="spline" keySplines="0.42 0 0.58 1;0 0 1 1;0 0 1 1"
+          dur="${d3}s" repeatCount="indefinite"/>
+      </ellipse>
+
+      <!-- Soap bubble ring C — teal iridescence, innermost, fast -->
+      <ellipse cx="${x}" cy="${y}" rx="${rC_s}" ry="${(parseFloat(rC_s)*mC).toFixed(1)}"
+        fill="none" stroke="rgba(79,172,254,1)" stroke-width="${sw3}">
+        <animate attributeName="rx"
+          values="${rC_s};${rC_e};${rC_e};${rC_s}" keyTimes="${kt}"
+          calcMode="spline" keySplines="0.4 0 0.6 1;0 0 1 1;0 0 1 1"
+          dur="${d1}s" repeatCount="indefinite"/>
+        <animate attributeName="ry"
+          values="${(parseFloat(rC_s)*mC).toFixed(1)};${(parseFloat(rC_e)/mC).toFixed(1)};${(parseFloat(rC_e)/mC).toFixed(1)};${(parseFloat(rC_s)*mC).toFixed(1)}" keyTimes="${kt}"
+          calcMode="spline" keySplines="0.4 0 0.6 1;0 0 1 1;0 0 1 1"
+          dur="${d1}s" repeatCount="indefinite"/>
+        <animate attributeName="stroke-opacity"
+          values="${op3};0;0;${op3}" keyTimes="${kt}"
+          calcMode="spline" keySplines="0.42 0 0.58 1;0 0 1 1;0 0 1 1"
+          dur="${d1}s" repeatCount="indefinite"/>
+      </ellipse>
+
+      <!-- 3D sphere body (unchanged) -->
       <circle cx="${x}" cy="${y}" r="${r}" fill="url(#sg${i})">
         <animate attributeName="opacity" values="1;0.85;1" dur="${d1}s" repeatCount="indefinite"/>
       </circle>
       <circle cx="${x}" cy="${y}" r="${r}" fill="url(#hg${i})">
-        <animate attributeName="opacity" values="1;0.45;1" dur="${d3}s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="1;0.45;1" dur="${d2}s" repeatCount="indefinite"/>
       </circle>
       ${rimOp > 0 ? `<circle cx="${x}" cy="${y}" r="${(r-0.3).toFixed(1)}" fill="none" stroke="white" stroke-width="0.55" stroke-opacity="${rimOp.toFixed(2)}"/>` : ""}
     </g>`;
@@ -796,8 +868,6 @@ function viewWelcome() {
     h("div", { class: "hero" },
       h("div", { class: "hero-blob" }),
       h("div", { class: "hero-blob hero-blob-holo" }),
-      h("div", { class: "hero-bubble hero-bubble-b" }),
-      h("div", { class: "hero-bubble hero-bubble-c" }),
       h("div", { class: "hero-constellation", html: heroConstellationSVG() }),
       h("h1", { class: "hero-title" }, t("welcome_title")),
       h("p", { class: "hero-sub" }, t("welcome_sub")),
