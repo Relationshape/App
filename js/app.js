@@ -405,48 +405,98 @@ function demoSpiderSVG() {
 
 function heroConstellationSVG() {
   const W = 840, H = 340;
-  // [x, y, radius]
+
+  // Three depth layers: d=0 far (large/dim/slow), d=1 mid, d=2 near (small/bright/fast)
+  // acc=true → uses accent (magenta) color for depth variety
   const nodes = [
-    [130, 52, 4.5], [295, 28, 3],   [565, 36, 4.2], [720, 62, 3.5],
-    [22,  138, 3],  [818, 118, 3.5],
-    [38,  220, 2.8],[802, 202, 3.2],
-    [158, 278, 3.8],[362, 304, 3],  [502, 314, 2.6],[682, 272, 4.2],[832, 258, 3],
-  ];
-  const edges = [
-    [0,1],[1,2],[2,3],
-    [0,4],[3,5],
-    [4,6],[5,7],
-    [6,8],[7,12],
-    [8,9],[9,10],[10,11],[11,12],
-    [1,9],[2,11],
-    [0,6],[3,7],
+    // Far layer — large soft orbs, slow pulse
+    { x: 118, y: 50,  r: 5.2, d: 0, acc: false },
+    { x: 292, y: 24,  r: 4,   d: 0, acc: false },
+    { x: 562, y: 35,  r: 5,   d: 0, acc: false },
+    { x: 718, y: 60,  r: 4.5, d: 0, acc: false },
+    { x: 18,  y: 142, r: 4.2, d: 0, acc: false },
+    { x: 820, y: 120, r: 4.5, d: 0, acc: false },
+    { x: 30,  y: 225, r: 3.8, d: 0, acc: false },
+    { x: 808, y: 200, r: 4.2, d: 0, acc: false },
+    { x: 152, y: 282, r: 5.5, d: 0, acc: false },
+    { x: 362, y: 308, r: 4.2, d: 0, acc: false },
+    { x: 505, y: 318, r: 3.8, d: 0, acc: false },
+    { x: 682, y: 278, r: 5.5, d: 0, acc: false },
+    { x: 835, y: 258, r: 4,   d: 0, acc: false },
+    // Mid layer — accent highlights, medium brightness
+    { x: 195, y: 148, r: 3.2, d: 1, acc: true  },
+    { x: 445, y: 100, r: 2.8, d: 1, acc: false },
+    { x: 638, y: 162, r: 3.5, d: 1, acc: true  },
+    { x: 275, y: 228, r: 2.8, d: 1, acc: false },
+    { x: 590, y: 242, r: 3.2, d: 1, acc: true  },
+    { x: 755, y: 178, r: 3,   d: 1, acc: false },
+    // Near layer — small, sharp, bright, fast
+    { x: 388, y: 168, r: 2.2, d: 2, acc: true  },
+    { x: 518, y: 198, r: 1.8, d: 2, acc: false },
+    { x: 320, y: 278, r: 2,   d: 2, acc: true  },
+    { x: 210, y: 200, r: 1.6, d: 2, acc: false },
   ];
 
-  const lines = edges.map(([a,b]) => {
-    const [ax,ay] = nodes[a], [bx,by] = nodes[b];
-    const dist = Math.hypot(bx-ax, by-ay);
-    const op = Math.max(0.04, (0.18 - dist * 0.00017)).toFixed(2);
-    return `<line x1="${ax}" y1="${ay}" x2="${bx}" y2="${by}" stroke="var(--primary)" stroke-opacity="${op}" stroke-width="0.8"/>`;
+  const mainEdges  = [[0,1],[1,2],[2,3],[0,4],[3,5],[4,6],[5,7],[6,8],[7,12],[8,9],[9,10],[10,11],[11,12],[1,9],[2,11]];
+  const crossEdges = [[13,0],[13,14],[14,2],[15,3],[15,18],[16,8],[17,9],[18,11],[13,16],[17,20],[19,14],[16,21],[22,9],[22,16]];
+
+  // Scattered micro-stars for depth/starfield
+  const starData = [
+    [42,18,0.6],[160,38,0.8],[380,15,0.5],[550,22,0.7],[720,40,0.6],[800,55,0.9],
+    [60,90,0.5],[200,75,0.7],[330,55,0.6],[480,80,0.8],[640,60,0.5],[770,90,0.7],
+    [85,150,0.6],[245,135,0.5],[450,130,0.7],[700,140,0.6],[140,190,0.5],[490,155,0.8],
+    [720,190,0.6],[350,240,0.7],[570,260,0.5],[715,245,0.6],[100,260,0.7],
+    [475,290,0.5],[640,320,0.6],[200,310,0.7],[700,330,0.5],[820,300,0.6],
+  ];
+  const stars = starData.map(([x,y,r], i) => {
+    const op = (0.12 + (i % 6) * 0.06).toFixed(2);
+    const col = i % 4 === 0 ? "var(--accent)" : "var(--primary)";
+    return `<circle cx="${x}" cy="${y}" r="${r}" fill="${col}" opacity="${op}"/>`;
   }).join("");
 
-  const pts = nodes.map(([x,y,r], i) => {
-    const d1 = (2.4 + (i * 0.31) % 1.6).toFixed(1);
-    const d2 = (3.5 + (i * 0.47) % 2.2).toFixed(1);
+  const renderEdge = (a, b) => {
+    const na = nodes[a], nb = nodes[b];
+    if (!na || !nb) return "";
+    const dist = Math.hypot(nb.x - na.x, nb.y - na.y);
+    const depthAvg = (na.d + nb.d) / 2;
+    const baseOp   = [0.18, 0.28, 0.42][Math.round(depthAvg)] ?? 0.18;
+    const op = Math.max(0.05, baseOp - dist * 0.000065).toFixed(2);
+    const w  = (0.7 + depthAvg * 0.45).toFixed(1);
+    const col = (na.acc || nb.acc) ? "var(--accent)" : "var(--primary)";
+    return `<line x1="${na.x.toFixed(1)}" y1="${na.y.toFixed(1)}" x2="${nb.x.toFixed(1)}" y2="${nb.y.toFixed(1)}" stroke="${col}" stroke-opacity="${op}" stroke-width="${w}"/>`;
+  };
+
+  const lines = [...mainEdges, ...crossEdges].map(([a,b]) => renderEdge(a,b)).join("");
+
+  const renderNode = ({ x, y, r, d, acc }, i) => {
+    const col  = acc ? "var(--accent)" : "var(--primary)";
+    const speed = [3.8, 2.6, 1.8][d];
+    const d1 = (speed + (i * 0.23) % 1.5).toFixed(1);
+    const d2 = (speed * 1.45 + (i * 0.37) % 2).toFixed(1);
+
+    const dotOp  = [0.48, 0.72, 0.95][d];
+    const glowR  = r * [5.5, 3.8, 2.4][d];
+    const glowOp = [0.09, 0.16, 0.28][d];
+    const coreOp = d === 2 ? 0.72 : d === 1 ? 0.2 : 0;
+    const coreR  = r * 0.4;
+
     return `<g>
-      <circle cx="${x}" cy="${y}" r="${(r*4.5).toFixed(1)}" fill="var(--primary)" opacity="0.05">
-        <animate attributeName="opacity" values="0.05;0.13;0.05" dur="${d2}s" repeatCount="indefinite"/>
-        <animate attributeName="r" values="${(r*4.5).toFixed(1)};${(r*6).toFixed(1)};${(r*4.5).toFixed(1)}" dur="${d2}s" repeatCount="indefinite"/>
+      <circle cx="${x}" cy="${y}" r="${glowR.toFixed(1)}" fill="${col}" opacity="${glowOp}">
+        <animate attributeName="opacity" values="${glowOp};${(glowOp*2.3).toFixed(2)};${glowOp}" dur="${d2}s" repeatCount="indefinite"/>
+        <animate attributeName="r" values="${glowR.toFixed(1)};${(glowR*1.4).toFixed(1)};${glowR.toFixed(1)}" dur="${d2}s" repeatCount="indefinite"/>
       </circle>
-      <circle cx="${x}" cy="${y}" r="${r.toFixed(1)}" fill="var(--primary)" opacity="0.72">
-        <animate attributeName="opacity" values="0.72;1;0.72" dur="${d1}s" repeatCount="indefinite"/>
+      <circle cx="${x}" cy="${y}" r="${r}" fill="${col}" opacity="${dotOp}">
+        <animate attributeName="opacity" values="${dotOp};${Math.min(1,dotOp+0.3).toFixed(2)};${dotOp}" dur="${d1}s" repeatCount="indefinite"/>
       </circle>
-      <circle cx="${x}" cy="${y}" r="${(r*0.42).toFixed(1)}" fill="white" opacity="0.55">
-        <animate attributeName="opacity" values="0.55;0.88;0.55" dur="${d1}s" repeatCount="indefinite"/>
-      </circle>
+      ${coreOp > 0 ? `<circle cx="${x}" cy="${y}" r="${coreR.toFixed(1)}" fill="white" opacity="${coreOp}">
+        <animate attributeName="opacity" values="${coreOp};${Math.min(1,coreOp+0.28).toFixed(2)};${coreOp}" dur="${d1}s" repeatCount="indefinite"/>
+      </circle>` : ""}
     </g>`;
-  }).join("");
+  };
 
-  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" aria-hidden="true">${lines}${pts}</svg>`;
+  const pts = nodes.map((n, i) => renderNode(n, i)).join("");
+
+  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" aria-hidden="true">${stars}${lines}${pts}</svg>`;
 }
 
 function buildWizardSteps() {
