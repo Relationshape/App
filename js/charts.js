@@ -88,11 +88,28 @@ function itemNorm(answers, catId, item, isCustom, scale) {
 }
 
 // Compute adaptive font size for axis labels based on number of axes.
-// More axes → smaller font, capped at 18px, minimum 9px.
+// Doubles the old baseline: min 18px (readable), max 34px (sparse charts).
+// For very many items where overlap would occur, scales down toward 18px.
 function labelFontSize(axisCount) {
-  // At 6 axes: 16px; at 12: 12px; at 20+: 9px; max 18px (at ≤5 axes)
-  const size = Math.round(Math.max(9, Math.min(18, 96 / axisCount)));
-  return size;
+  return Math.round(Math.max(18, Math.min(34, 220 / axisCount)));
+}
+
+// Word-wrap label text into lines of at most maxChars characters.
+function wrapLabel(text, maxChars) {
+  const words = text.split(/\s+/);
+  const lines = [];
+  let current = "";
+  for (const word of words) {
+    const candidate = current ? current + " " + word : word;
+    if (candidate.length > maxChars && current) {
+      lines.push(current);
+      current = word;
+    } else {
+      current = candidate;
+    }
+  }
+  if (current) lines.push(current);
+  return lines.length ? lines : [text];
 }
 
 // Generic radar chart. All point values are normalised (0..1).
@@ -102,11 +119,9 @@ function radar(axes, datasets, opts = {}) {
   const N = axes.length;
   if (!N) return `<div class="rs-empty">${t("spider_empty")}</div>`;
 
-  // Adaptive padding based on font size and label length
+  // Adaptive padding: larger fonts need more space around the chart ring
   const fs = labelFontSize(N);
-  const maxLabelLen = Math.max(...axes.map(a => (a.title || a.key).length));
-  // More characters + larger font → need more padding for labels
-  const labelPad = Math.min(110, Math.max(72, Math.ceil(maxLabelLen * fs * 0.38)));
+  const labelPad = Math.max(100, Math.min(145, Math.ceil(fs * 4.2)));
   const pad = opts.pad || labelPad;
   const r = size / 2 - pad;
 
@@ -130,16 +145,29 @@ function radar(axes, datasets, opts = {}) {
     const anchor = Math.abs(lx - cx) < 4 ? "middle" : (lx > cx ? "start" : "end");
 
     const fullTitle = (ax.title || ax.key);
-    // Truncate only if extremely long; dynamic font already handles compression
-    const maxChars = Math.max(20, Math.round(120 / fs));
-    const title = fullTitle.length > maxChars ? fullTitle.slice(0, maxChars - 1) + "…" : fullTitle;
+    // Word-wrap: more chars per line for small fonts, fewer for large fonts
+    const maxCharsPerLine = Math.max(14, Math.round(480 / fs));
+    const lines = wrapLabel(fullTitle, maxCharsPerLine);
 
-    // Icon line slightly above label
-    const iconOffset = ax.icon ? -(fs + 2) : 0;
+    // Vertical layout: center the wrapped block around the label anchor point
+    const lineH = fs * 1.28;
+    const textBaseY = ly + (ax.icon ? fs * 1.1 : fs * 0.35);
+    const blockH = (lines.length - 1) * lineH;
+    const startY = textBaseY - blockH / 2;
+
+    // Icon line slightly above the text block
+    const iconY = startY - fs * 1.05;
+    const tspans = lines.map((line, li) => {
+      if (li === 0) {
+        return `<tspan x="${lx.toFixed(1)}" y="${startY.toFixed(1)}" text-anchor="${anchor}">${escape(line)}</tspan>`;
+      }
+      return `<tspan x="${lx.toFixed(1)}" dy="${lineH.toFixed(1)}" text-anchor="${anchor}">${escape(line)}</tspan>`;
+    }).join("");
+
     labels += `
       <g class="rs-axis-label" text-anchor="${anchor}" data-axis="${i}">
-        ${ax.icon ? `<text x="${lx}" y="${ly + iconOffset}" class="rs-axis-icon" text-anchor="${anchor}" font-size="${fs + 2}">${ax.icon}</text>` : ""}
-        <text x="${lx}" y="${ly + (ax.icon ? fs * 1.1 : fs * 0.4)}" class="rs-axis-text" font-size="${fs}" text-anchor="${anchor}"><title>${escape(fullTitle)}</title>${escape(title)}</text>
+        ${ax.icon ? `<text x="${lx.toFixed(1)}" y="${iconY.toFixed(1)}" class="rs-axis-icon" text-anchor="${anchor}" font-size="${(fs + 2).toFixed(0)}">${ax.icon}</text>` : ""}
+        <text class="rs-axis-text" font-size="${fs}" text-anchor="${anchor}"><title>${escape(fullTitle)}</title>${tspans}</text>
       </g>`;
   });
 
@@ -269,7 +297,7 @@ export function renderSpider(datasets, opts = {}) {
       }),
     };
   });
-  return radar(axes, ds, { size: opts.size || 540, title: "Category overview", pad: opts.pad });
+  return radar(axes, ds, { size: opts.size || 640, title: "Category overview", pad: opts.pad });
 }
 
 function pickCategoryAxes(datasets) {
@@ -316,7 +344,7 @@ export function renderItemSpider(datasets, catId, opts = {}) {
     };
   });
   return radar(axes, ds, {
-    size: opts.size || 480,
+    size: opts.size || 560,
     title: `Spider chart for ${cat.title}`,
   });
 }

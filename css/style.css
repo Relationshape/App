@@ -708,8 +708,8 @@ a:hover { text-decoration: underline; }
 .rs-dot { stroke-width: 1.5; stroke: white; transition: opacity .15s ease, r .15s ease; cursor: pointer; }
 .rs-dot.is-faded { opacity: .25; }
 .rs-dot:hover { r: 6; }
-.rs-axis-text { fill: var(--text); font-size: 11.5px; font-family: inherit; font-weight: 500; }
-.rs-axis-icon { fill: var(--muted); font-size: 14px; }
+.rs-axis-text { fill: var(--text); font-family: inherit; font-weight: 500; }
+.rs-axis-icon { fill: var(--muted); }
 .rs-axis-label text { dominant-baseline: middle; }
 .rs-empty {
   text-align: center; color: var(--muted); padding: 22px;
