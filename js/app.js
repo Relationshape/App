@@ -419,32 +419,32 @@ function heroConstellationSVG() {
   const W = 840, H = 340;
 
   const nodes = [
-    // Far layer — large soft orbs, slow pulse
-    { x: 118, y: 50,  r: 5.2, d: 0, acc: false },
-    { x: 292, y: 24,  r: 4,   d: 0, acc: false },
-    { x: 562, y: 35,  r: 5,   d: 0, acc: false },
-    { x: 718, y: 60,  r: 4.5, d: 0, acc: false },
-    { x: 18,  y: 142, r: 4.2, d: 0, acc: false },
-    { x: 820, y: 120, r: 4.5, d: 0, acc: false },
-    { x: 30,  y: 225, r: 3.8, d: 0, acc: false },
-    { x: 808, y: 200, r: 4.2, d: 0, acc: false },
-    { x: 152, y: 282, r: 5.5, d: 0, acc: false },
-    { x: 362, y: 308, r: 4.2, d: 0, acc: false },
-    { x: 505, y: 318, r: 3.8, d: 0, acc: false },
-    { x: 682, y: 278, r: 5.5, d: 0, acc: false },
-    { x: 835, y: 258, r: 4,   d: 0, acc: false },
+    // Far layer — large soft orbs, slow pulse (varied sizes for visual interest)
+    { x: 118, y: 50,  r: 9.5, d: 0, acc: false },
+    { x: 292, y: 24,  r: 7,   d: 0, acc: false },
+    { x: 562, y: 35,  r: 11,  d: 0, acc: false },
+    { x: 718, y: 60,  r: 8,   d: 0, acc: false },
+    { x: 18,  y: 142, r: 7.5, d: 0, acc: false },
+    { x: 820, y: 120, r: 8.5, d: 0, acc: false },
+    { x: 30,  y: 225, r: 6.5, d: 0, acc: false },
+    { x: 808, y: 200, r: 7.5, d: 0, acc: false },
+    { x: 152, y: 282, r: 12,  d: 0, acc: false },
+    { x: 362, y: 308, r: 8,   d: 0, acc: false },
+    { x: 505, y: 318, r: 6.5, d: 0, acc: false },
+    { x: 682, y: 278, r: 10,  d: 0, acc: false },
+    { x: 835, y: 258, r: 7,   d: 0, acc: false },
     // Mid layer — accent highlights, medium brightness
-    { x: 195, y: 148, r: 3.2, d: 1, acc: true  },
-    { x: 445, y: 100, r: 2.8, d: 1, acc: false },
-    { x: 638, y: 162, r: 3.5, d: 1, acc: true  },
-    { x: 275, y: 228, r: 2.8, d: 1, acc: false },
-    { x: 590, y: 242, r: 3.2, d: 1, acc: true  },
-    { x: 755, y: 178, r: 3,   d: 1, acc: false },
+    { x: 195, y: 148, r: 6,   d: 1, acc: true  },
+    { x: 445, y: 100, r: 5,   d: 1, acc: false },
+    { x: 638, y: 162, r: 7,   d: 1, acc: true  },
+    { x: 275, y: 228, r: 5.5, d: 1, acc: false },
+    { x: 590, y: 242, r: 6.5, d: 1, acc: true  },
+    { x: 755, y: 178, r: 5.5, d: 1, acc: false },
     // Near layer — small, sharp, bright, fast
-    { x: 388, y: 168, r: 2.2, d: 2, acc: true  },
-    { x: 518, y: 198, r: 1.8, d: 2, acc: false },
-    { x: 320, y: 278, r: 2,   d: 2, acc: true  },
-    { x: 210, y: 200, r: 1.6, d: 2, acc: false },
+    { x: 388, y: 168, r: 4,   d: 2, acc: true  },
+    { x: 518, y: 198, r: 3.2, d: 2, acc: false },
+    { x: 320, y: 278, r: 3.6, d: 2, acc: true  },
+    { x: 210, y: 200, r: 2.8, d: 2, acc: false },
   ];
 
   const mainEdges  = [[0,1],[1,2],[2,3],[0,4],[3,5],[4,6],[5,7],[6,8],[7,12],[8,9],[9,10],[10,11],[11,12],[1,9],[2,11]];
@@ -545,10 +545,10 @@ function heroConstellationSVG() {
     const rC_s = (r * 1.02).toFixed(1);
     const rC_e = (r * [3.2, 2.5, 2.0][d]).toFixed(1);
 
-    const opA = [0.32, 0.50, 0.72][d];
-    const opB = [0.24, 0.38, 0.58][d];
-    const opC = [0.18, 0.28, 0.45][d];
-    const filmOp = [0.025, 0.04, 0.06][d];
+    const opA = [0.45, 0.65, 0.85][d];
+    const opB = [0.35, 0.52, 0.70][d];
+    const opC = [0.28, 0.42, 0.60][d];
+    const filmOp = [0.04, 0.06, 0.09][d];
 
     // rx and ry morph in opposite directions — wobbly organic bubble shape
     const mA = 1.18, mB = 1.24, mC = 1.15;
@@ -808,18 +808,41 @@ function navLink(href, icon, label) {
 
 function bindGlobalNav() {
   $nav.innerHTML = "";
+  $nav.classList.remove("nav-open");
+
+  const navLinks = h("div", { class: "nav-links" },
+    navLink("#/",         ICONS.nav_profiles, t("nav_profiles")),
+    navLink("#/import",   ICONS.nav_import,   t("nav_import")),
+    navLink("#/compare",  ICONS.nav_compare,  t("nav_compare")),
+    navLink("#/settings", ICONS.nav_settings, t("nav_settings")),
+    navLink("#/intro",    ICONS.nav_about,    t("nav_about")),
+  );
+
+  // Close mobile menu when any nav link is clicked
+  navLinks.addEventListener("click", e => {
+    if (e.target.closest("a")) $nav.classList.remove("nav-open");
+  });
+
+  const hamburger = h("button", { class: "nav-hamburger", type: "button", "aria-label": "Menu" },
+    h("span", { class: "hb-bar" }),
+    h("span", { class: "hb-bar" }),
+    h("span", { class: "hb-bar" }),
+  );
+  hamburger.addEventListener("click", e => {
+    e.stopPropagation();
+    $nav.classList.toggle("nav-open");
+  });
+  document.addEventListener("click", e => {
+    if (!$nav.contains(e.target)) $nav.classList.remove("nav-open");
+  }, { capture: false });
+
   $nav.append(
     h("a", { href: "#/welcome", class: "nav-brand", title: t("nav_home") },
       h("span", { class: "nav-logo" }, "∞"),
       h("span", { class: "nav-title" }, "Relationshape")),
-    h("div", { class: "nav-links" },
-      navLink("#/",          ICONS.nav_profiles, t("nav_profiles")),
-      navLink("#/import",    ICONS.nav_import,   t("nav_import")),
-      navLink("#/compare",   ICONS.nav_compare,  t("nav_compare")),
-      navLink("#/settings",  ICONS.nav_settings, t("nav_settings")),
-      navLink("#/intro",     ICONS.nav_about,    t("nav_about")),
-    ),
+    navLinks,
     buildLangPicker(),
+    hamburger,
   );
 }
 

@@ -188,6 +188,73 @@
   box-shadow: var(--glow-sm);
 }
 
+/* ---- Hamburger / mobile nav ---- */
+.nav-hamburger {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px 8px;
+  border-radius: 8px;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background .15s ease;
+  margin-left: auto;
+}
+.nav-hamburger:hover { background: color-mix(in oklab, var(--surface-2) 80%, transparent); }
+.hb-bar {
+  display: block;
+  width: 18px; height: 2px;
+  background: var(--muted);
+  border-radius: 2px;
+  transition: transform .22s ease, opacity .22s ease, background .15s ease;
+  transform-origin: center;
+}
+.nav-hamburger:hover .hb-bar { background: var(--text); }
+
+/* Animate bars into × when open */
+#nav.nav-open .hb-bar:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+#nav.nav-open .hb-bar:nth-child(2) { opacity: 0; transform: scaleX(0); }
+#nav.nav-open .hb-bar:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+@media (max-width: 640px) {
+  .nav-hamburger { display: flex; }
+
+  /* Hide nav links by default on mobile; show as overlay when nav-open */
+  #nav .nav-links {
+    display: none;
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0; right: 0;
+    background: var(--glass);
+    backdrop-filter: blur(28px) saturate(1.6);
+    -webkit-backdrop-filter: blur(28px) saturate(1.6);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    box-shadow: 0 16px 40px -8px rgba(0,0,0,.55), var(--glow);
+    flex-direction: column;
+    gap: 2px;
+    padding: 8px;
+    z-index: 300;
+  }
+  #nav.nav-open .nav-links { display: flex; }
+
+  #nav .nav-links a {
+    padding: 10px 14px;
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  #nav .nav-links a .nav-icon { display: inline-flex; }
+  #nav .nav-links a .nav-link-label { display: inline; }
+}
+
 /* ---- Language picker in nav ---- */
 .nav-lang {
   position: relative;
@@ -1047,3 +1114,258 @@ body::before {
     0 0 0 1px color-mix(in oklab, var(--c) 45%, transparent),
     inset 0 1px 0 rgba(255,255,255,0.3);
 }
+
+/* ================================================================
+   LIGHT MODE — vivid iridescent boost
+   Make the light theme as visually rich as dark mode
+   ================================================================ */
+
+/* Light mode: stronger primary/accent tokens */
+@media (prefers-color-scheme: light) {
+  :root[data-theme="auto"], :root:not([data-theme]) {
+    --primary:        #6d28d9;
+    --primary-strong: #5b21b6;
+    --accent:         #c2185b;
+    --glow:    0 0 32px rgba(109, 40, 217, 0.32), 0 0 64px rgba(109, 40, 217, 0.14);
+    --glow-sm: 0 0 18px rgba(109, 40, 217, 0.28);
+  }
+}
+:root[data-theme="light"] {
+  --primary:        #6d28d9;
+  --primary-strong: #5b21b6;
+  --accent:         #c2185b;
+  --glow:    0 0 32px rgba(109, 40, 217, 0.32), 0 0 64px rgba(109, 40, 217, 0.14);
+  --glow-sm: 0 0 18px rgba(109, 40, 217, 0.28);
+}
+
+/* Light mode hero blobs: very vivid, almost neon */
+@media (prefers-color-scheme: light) {
+  :root[data-theme="auto"] .hero-blob,
+  :root:not([data-theme]) .hero-blob {
+    background:
+      radial-gradient(circle at 36% 32%, rgba(255,255,255,0.20) 0%, transparent 30%),
+      radial-gradient(circle at center, color-mix(in oklab, var(--primary) 62%, transparent), transparent 62%);
+    filter: blur(55px) saturate(2.8);
+    opacity: 1.0;
+  }
+  :root[data-theme="auto"] .hero-blob-holo,
+  :root:not([data-theme]) .hero-blob-holo {
+    background:
+      radial-gradient(circle at 40% 38%, color-mix(in oklab, var(--accent) 58%, transparent), transparent 55%),
+      radial-gradient(circle at 65% 60%, rgba(79,172,254,0.40), transparent 60%);
+    filter: blur(70px) saturate(2.8);
+    opacity: 1.0;
+  }
+}
+:root[data-theme="light"] .hero-blob {
+  background:
+    radial-gradient(circle at 36% 32%, rgba(255,255,255,0.20) 0%, transparent 30%),
+    radial-gradient(circle at center, color-mix(in oklab, var(--primary) 62%, transparent), transparent 62%);
+  filter: blur(55px) saturate(2.8);
+  opacity: 1.0;
+}
+:root[data-theme="light"] .hero-blob-holo {
+  background:
+    radial-gradient(circle at 40% 38%, color-mix(in oklab, var(--accent) 58%, transparent), transparent 55%),
+    radial-gradient(circle at 65% 60%, rgba(79,172,254,0.40), transparent 60%);
+  filter: blur(70px) saturate(2.8);
+  opacity: 1.0;
+}
+
+/* Light mode body: richer atmospheric gradient */
+@media (prefers-color-scheme: light) {
+  :root[data-theme="auto"] body, :root:not([data-theme]) body {
+    background:
+      radial-gradient(ellipse 110% 70% at 15% -5%,  rgba(109, 40, 217, 0.30) 0%, transparent 55%),
+      radial-gradient(ellipse 70%  60% at 88% 105%, rgba(194, 24, 91, 0.24)  0%, transparent 55%),
+      radial-gradient(ellipse 50%  50% at 60%  80%, rgba(56, 189, 248, 0.18)  0%, transparent 60%),
+      var(--bg);
+  }
+}
+:root[data-theme="light"] body {
+  background:
+    radial-gradient(ellipse 110% 70% at 15% -5%,  rgba(109, 40, 217, 0.30) 0%, transparent 55%),
+    radial-gradient(ellipse 70%  60% at 88% 105%, rgba(194, 24, 91, 0.24)  0%, transparent 55%),
+    radial-gradient(ellipse 50%  50% at 60%  80%, rgba(56, 189, 248, 0.18)  0%, transparent 60%),
+    var(--bg);
+}
+
+/* Light mode glass surfaces: more vivid border */
+@media (prefers-color-scheme: light) {
+  :root[data-theme="auto"] .card,
+  :root:not([data-theme]) .card,
+  :root[data-theme="auto"] .panel,
+  :root:not([data-theme]) .panel,
+  :root[data-theme="auto"] .q-cat,
+  :root:not([data-theme]) .q-cat {
+    border-color: color-mix(in oklab, var(--primary) 22%, var(--glass-border));
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.55), inset 1px 0 0 rgba(255,255,255,0.30);
+  }
+}
+:root[data-theme="light"] .card,
+:root[data-theme="light"] .panel,
+:root[data-theme="light"] .q-cat {
+  border-color: color-mix(in oklab, var(--primary) 22%, var(--glass-border));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.55), inset 1px 0 0 rgba(255,255,255,0.30);
+}
+
+/* ================================================================
+   OUTSIDE LANDING PAGE — iridescent design elements
+   These apply globally (questionnaire, results, profiles, compare)
+   ================================================================ */
+
+/* ---- Q-cat header: animated gradient top border ---- */
+.q-cat {
+  border-top-width: 3px;
+  position: relative;
+}
+.q-cat::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  background: linear-gradient(90deg,
+    var(--c, var(--primary)) 0%,
+    rgba(56,189,248,0.9) 35%,
+    var(--accent) 65%,
+    var(--c, var(--primary)) 100%);
+  background-size: 300% 100%;
+  animation: iridShift 5s linear infinite;
+  opacity: 0.85;
+}
+
+/* ---- Scale pills in single mode: iridescent active state ---- */
+.scale-pill.is-active {
+  background: linear-gradient(135deg,
+    color-mix(in oklab, var(--c) 30%, var(--surface)) 0%,
+    color-mix(in oklab, var(--c) 20%, rgba(56,189,248,0.15)) 50%,
+    color-mix(in oklab, var(--c) 28%, var(--surface)) 100%);
+  border-color: var(--c);
+  box-shadow:
+    0 0 16px color-mix(in oklab, var(--c) 40%, transparent),
+    0 0 0 1px color-mix(in oklab, var(--c) 50%, transparent),
+    inset 0 1px 0 rgba(255,255,255,0.18);
+}
+
+/* ---- Profile card top accent: animated gradient border ---- */
+.profile-card {
+  position: relative;
+  overflow: hidden;
+}
+.profile-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+  background: linear-gradient(90deg,
+    var(--c, var(--primary)) 0%,
+    rgba(56,189,248,0.9) 40%,
+    var(--accent) 70%,
+    var(--c, var(--primary)) 100%);
+  background-size: 250% 100%;
+  animation: iridShift 6s linear infinite;
+}
+
+/* ---- Q-done card: iridescent ring ---- */
+.q-done {
+  position: relative;
+  overflow: hidden;
+}
+.q-done::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 22px;
+  background: conic-gradient(
+    from 0deg at 50% 50%,
+    rgba(192,132,252,0.12) 0deg,
+    rgba(56,189,248,0.10) 90deg,
+    rgba(244,114,182,0.12) 180deg,
+    rgba(167,139,250,0.10) 270deg,
+    rgba(192,132,252,0.12) 360deg);
+  pointer-events: none;
+  animation: holoBtnSpin 12s linear infinite;
+  opacity: 0.8;
+}
+
+/* ---- Callout box: iridescent border ---- */
+.callout {
+  border-color: color-mix(in oklab, var(--primary) 45%, var(--glass-border));
+  position: relative;
+  overflow: hidden;
+}
+.callout::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--primary), rgba(56,189,248,0.9), var(--accent), var(--primary));
+  background-size: 200% 100%;
+  animation: iridShift 4s linear infinite;
+}
+
+/* ---- Start card: iridescent hover glow ---- */
+.start-card:hover {
+  box-shadow:
+    0 0 24px rgba(185,110,255,0.22),
+    0 0 0 1px color-mix(in oklab, var(--accent) 22%, rgba(56,189,248,0.18)),
+    inset 0 1px 0 rgba(255,255,255,0.10);
+}
+
+/* ---- Nav logo: animated holo gradient ---- */
+.nav-logo {
+  background: linear-gradient(140deg, var(--primary), var(--accent), rgba(56,189,248,0.9), var(--primary));
+  background-size: 300% 300%;
+  animation: iridShift 6s ease-in-out infinite;
+}
+
+/* ---- Chip (scale legend): vivid colored chips ---- */
+.chip {
+  border-color: color-mix(in oklab, var(--c) 42%, var(--glass-border));
+  background: color-mix(in oklab, var(--c) 18%, var(--surface-2));
+}
+
+/* ---- Cat overview bar: gradient fill ---- */
+.cat-overview-bar {
+  background: linear-gradient(90deg, var(--c, var(--primary)), color-mix(in oklab, var(--c, var(--primary)) 70%, rgba(56,189,248,1)));
+}
+
+/* ---- Compare section headers: bolder ---- */
+.compare-section-title {
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  background-clip: text; -webkit-background-clip: text;
+  color: transparent;
+  font-size: 14px;
+  letter-spacing: 0.08em;
+}
+
+/* ---- Q-nav (bottom bar): iridescent border highlight ---- */
+.q-nav {
+  border-color: color-mix(in oklab, var(--primary) 22%, var(--glass-border));
+  box-shadow: var(--shadow), 0 0 20px rgba(185,110,255,0.14);
+}
+
+/* ---- Dark mode body: subtle animated radial overlay ---- */
+@keyframes bgPulse {
+  0%, 100% { opacity: 0.65; }
+  50%       { opacity: 0.85; }
+}
+body::after {
+  content: "";
+  position: fixed; inset: 0;
+  pointer-events: none; z-index: 0;
+  background:
+    radial-gradient(ellipse 60% 50% at 20% 30%, rgba(192,132,252,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 45% at 80% 70%, rgba(244,114,182,0.07) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 40% at 55% 50%, rgba(56,189,248,0.05) 0%, transparent 60%);
+  animation: bgPulse 12s ease-in-out infinite;
+}
+/* Don't show this in light mode — the hero blobs do the job */
+@media (prefers-color-scheme: light) {
+  :root[data-theme="auto"] body::after,
+  :root:not([data-theme]) body::after { display: none; }
+}
+:root[data-theme="light"] body::after { display: none; }
+/* Page content sits above both pseudo-element layers */
+#app { position: relative; z-index: 1; }
