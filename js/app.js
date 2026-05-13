@@ -796,6 +796,8 @@ function viewWelcome() {
     h("div", { class: "hero" },
       h("div", { class: "hero-blob" }),
       h("div", { class: "hero-blob hero-blob-holo" }),
+      h("div", { class: "hero-bubble hero-bubble-b" }),
+      h("div", { class: "hero-bubble hero-bubble-c" }),
       h("div", { class: "hero-constellation", html: heroConstellationSVG() }),
       h("h1", { class: "hero-title" }, t("welcome_title")),
       h("p", { class: "hero-sub" }, t("welcome_sub")),
