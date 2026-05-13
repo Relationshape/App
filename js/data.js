@@ -19,7 +19,7 @@ export const DEFAULT_SCALE = [
 // Categories trimmed slightly for app use; users can add custom items in profile.
 export const CATEGORIES = [
   {
-    id: "connection", title: "General connection",
+    id: "connection", title: "General connection", de: "Allgemeine Verbindung",
     icon: "🌱", color: "#7c3aed",
     blurb: "How you connect, communicate and share humour day-to-day.",
     items: [
@@ -36,7 +36,7 @@ export const CATEGORIES = [
     ],
   },
   {
-    id: "time-together", title: "Spending time together",
+    id: "time-together", title: "Spending time together", de: "Zeit miteinander verbringen",
     icon: "⏳", color: "#06b6d4",
     blurb: "Activities, dates, hobbies you'd like to share.",
     items: [
@@ -58,7 +58,7 @@ export const CATEGORIES = [
     ],
   },
   {
-    id: "creative", title: "Creative together",
+    id: "creative", title: "Creative together", de: "Kreativ sein zusammen",
     icon: "🎨", color: "#ec4899",
     blurb: "Joint creative endeavours.",
     items: [
@@ -68,7 +68,7 @@ export const CATEGORIES = [
     ],
   },
   {
-    id: "social-circles", title: "Mutual social circles",
+    id: "social-circles", title: "Mutual social circles", de: "Gemeinsame Freundeskreise",
     icon: "👥", color: "#10b981",
     blurb: "How your social worlds connect.",
     items: [
@@ -79,7 +79,7 @@ export const CATEGORIES = [
     ],
   },
   {
-    id: "collaboration", title: "(Professional) collaboration",
+    id: "collaboration", title: "(Professional) collaboration", de: "Zusammenarbeit / Gemeinsame Projekte",
     icon: "🤝", color: "#0ea5e9",
     blurb: "Working on things together.",
     items: [
@@ -88,7 +88,7 @@ export const CATEGORIES = [
     ],
   },
   {
-    id: "belief", title: "Belief and religion",
+    id: "belief", title: "Belief and religion", de: "Glaube und Religion",
     icon: "🕊️", color: "#a78bfa",
     blurb: "Spiritual life and worldview.",
     items: [
@@ -100,7 +100,7 @@ export const CATEGORIES = [
     ],
   },
   {
-    id: "emotional-intimacy", title: "Emotional intimacy",
+    id: "emotional-intimacy", title: "Emotional intimacy", de: "Emotionale Intimität",
     icon: "💞", color: "#ef4444",
     blurb: "Vulnerability, openness, trust, conflict.",
     items: [
@@ -121,7 +121,7 @@ export const CATEGORIES = [
     ],
   },
   {
-    id: "physical-intimacy", title: "Physical intimacy",
+    id: "physical-intimacy", title: "Physical intimacy", de: "Körperliche Intimität",
     icon: "🤗", color: "#f97316",
     blurb: "Non-sexual physical closeness.",
     items: [
@@ -130,9 +130,9 @@ export const CATEGORIES = [
     ],
   },
   {
-    id: "sexual", title: "Sexual practices and kinks",
+    id: "sexual", title: "Sexual practices and kinks", de: "Sexuelle Praktiken und Kinks",
     icon: "🔥", color: "#dc2626",
-    blurb: "Use G/R/× notation in notes for giving / receiving / both.",
+    blurb: "Rate each item for Giving and Receiving separately.",
     gr: true,
     items: [
       "Orgasms", "Genital touching", "Oral sex", "Anal stimulation",
@@ -147,7 +147,7 @@ export const CATEGORIES = [
     ],
   },
   {
-    id: "caregiving", title: "Caregiving",
+    id: "caregiving", title: "Caregiving", de: "Fürsorge",
     icon: "🩺", color: "#14b8a6",
     blurb: "Mutual care in difficult times.", gr: true,
     items: [
@@ -163,7 +163,7 @@ export const CATEGORIES = [
     ],
   },
   {
-    id: "emotional-support", title: "Emotional support",
+    id: "emotional-support", title: "Emotional support", de: "Emotionale Unterstützung",
     icon: "🫂", color: "#22c55e",
     blurb: "Showing up for one another.", gr: true,
     items: [
@@ -177,7 +177,7 @@ export const CATEGORIES = [
     ],
   },
   {
-    id: "romantic", title: "Romantic",
+    id: "romantic", title: "Romantic", de: "Romantik",
     icon: "💖", color: "#e11d48",
     blurb: "Romance, swooning, affection.",
     items: [
@@ -190,7 +190,7 @@ export const CATEGORIES = [
     ],
   },
   {
-    id: "partnership", title: "Partner & companionship",
+    id: "partnership", title: "Partner & companionship", de: "Partner & Begleitung",
     icon: "🪢", color: "#8b5cf6",
     blurb: "Long-term shape and shared life.",
     items: [
@@ -207,7 +207,7 @@ export const CATEGORIES = [
     ],
   },
   {
-    id: "exclusivity", title: "Exclusivity",
+    id: "exclusivity", title: "Exclusivity", de: "Exklusivität",
     icon: "🔐", color: "#475569",
     blurb: "Where exclusivity matters (or doesn't).",
     items: [
@@ -219,7 +219,7 @@ export const CATEGORIES = [
     ],
   },
   {
-    id: "legal", title: "Legal",
+    id: "legal", title: "Legal", de: "Rechtliches",
     icon: "⚖️", color: "#334155",
     blurb: "Formal and legal arrangements.",
     items: [
@@ -232,7 +232,7 @@ export const CATEGORIES = [
     ],
   },
   {
-    id: "financial", title: "Financial",
+    id: "financial", title: "Financial", de: "Finanzen",
     icon: "💰", color: "#84cc16",
     blurb: "Money matters.",
     items: [
@@ -252,7 +252,7 @@ export const CATEGORIES = [
     ],
   },
   {
-    id: "domestic", title: "Domestic",
+    id: "domestic", title: "Domestic", de: "Haushalt",
     icon: "🏠", color: "#f59e0b",
     blurb: "How a shared home looks (or not).",
     items: [
@@ -266,7 +266,7 @@ export const CATEGORIES = [
     ],
   },
   {
-    id: "planning", title: "Planning & time management",
+    id: "planning", title: "Planning & time management", de: "Planung & Zeitmanagement",
     icon: "🗓️", color: "#0891b2",
     blurb: "How time together is organised.",
     items: [
@@ -280,7 +280,7 @@ export const CATEGORIES = [
     ],
   },
   {
-    id: "family-planning", title: "Family planning & contraception",
+    id: "family-planning", title: "Family planning & contraception", de: "Familienplanung & Verhütung",
     icon: "👶", color: "#fb7185", gr: true,
     blurb: "Children, contraception, parenthood.",
     items: [
@@ -302,7 +302,7 @@ export const CATEGORIES = [
     ],
   },
   {
-    id: "sexual-health", title: "Safer sex & sexual health",
+    id: "sexual-health", title: "Safer sex & sexual health", de: "Safer Sex & sexuelle Gesundheit",
     icon: "🛡️", color: "#0d9488",
     blurb: "Testing, protection, safer practices.",
     items: [
@@ -316,7 +316,7 @@ export const CATEGORIES = [
     ],
   },
   {
-    id: "co-caregivers", title: "Co-caregivers",
+    id: "co-caregivers", title: "Co-caregivers", de: "Gemeinsame Betreuung",
     icon: "🌿", color: "#65a30d",
     blurb: "Looking after others together.",
     items: [
@@ -328,7 +328,7 @@ export const CATEGORIES = [
     ],
   },
   {
-    id: "holidays", title: "Holidays together",
+    id: "holidays", title: "Holidays together", de: "Gemeinsame Ferien",
     icon: "🏝️", color: "#0284c7",
     blurb: "Travel, trips, time off.",
     items: [
@@ -357,7 +357,7 @@ export const CATEGORIES = [
     ],
   },
   {
-    id: "labels", title: "Labels",
+    id: "labels", title: "Labels", de: "Bezeichnungen",
     icon: "🏷️", color: "#9333ea",
     blurb: "What to call this connection.",
     items: [
@@ -367,7 +367,7 @@ export const CATEGORIES = [
     ],
   },
   {
-    id: "affection-display", title: "Displays of affection",
+    id: "affection-display", title: "Displays of affection", de: "Zuneigung zeigen",
     icon: "💌", color: "#db2777",
     blurb: "Public-facing affection.",
     items: [
@@ -376,7 +376,7 @@ export const CATEGORIES = [
     ],
   },
   {
-    id: "communication", title: "Communication frequency",
+    id: "communication", title: "Communication frequency", de: "Kommunikationshäufigkeit",
     icon: "💬", color: "#2563eb",
     blurb: "How often you communicate.",
     items: [
@@ -385,7 +385,7 @@ export const CATEGORIES = [
     ],
   },
   {
-    id: "attachment", title: "Relationship attachment",
+    id: "attachment", title: "Relationship attachment", de: "Beziehungsbindung",
     icon: "🪶", color: "#a16207",
     blurb: "Attachment style and security.",
     items: [
@@ -397,7 +397,7 @@ export const CATEGORIES = [
     ],
   },
   {
-    id: "monogamy-labels", title: "(Non-)monogamy labels",
+    id: "monogamy-labels", title: "(Non-)monogamy labels", de: "(Nicht-)Monogamie-Bezeichnungen",
     icon: "♾️", color: "#be185d",
     blurb: "Relationship structure preferences.",
     items: [
@@ -409,7 +409,7 @@ export const CATEGORIES = [
     ],
   },
   {
-    id: "other-relationships", title: "Cultivating other relationships",
+    id: "other-relationships", title: "Cultivating other relationships", de: "Andere Beziehungen pflegen",
     icon: "🌌", color: "#7e22ce",
     blurb: "Space for other connections.",
     items: [
@@ -433,7 +433,7 @@ export const CATEGORIES = [
     ],
   },
   {
-    id: "communication-meta", title: "Communication about other relationships",
+    id: "communication-meta", title: "Communication about other relationships", de: "Kommunikation über andere Beziehungen",
     icon: "🔁", color: "#9333ea",
     blurb: "How information about other connections is shared.",
     items: [
@@ -445,7 +445,7 @@ export const CATEGORIES = [
     ],
   },
   {
-    id: "metamours", title: "Contact with metamours",
+    id: "metamours", title: "Contact with metamours", de: "Kontakt mit Metamours",
     icon: "🫧", color: "#0369a1",
     blurb: "Relationship with partner's partners.",
     items: [
@@ -461,51 +461,69 @@ export const CATEGORIES = [
   },
 ];
 
-// Optional onboarding: a few coarse yes/no themes that map to category ids.
-// "include" means: if user says No, those categories are excluded by default
-// (user can always re-enable individual ones in the map settings).
-export const ONBOARDING_THEMES = [
+// Category groups for the onboarding picker.
+// Each group has EN + DE titles; categories lists the category ids in display order.
+// defaultOn controls which categories are pre-checked when starting a new map.
+export const CATEGORY_GROUPS = [
   {
-    id: "physical",
-    title: "Physical & sexual",
-    blurb: "Includes physical closeness, sexual practices, family planning, sexual health.",
-    categories: ["physical-intimacy", "sexual", "family-planning", "sexual-health"],
-    defaultOn: true,
-  },
-  {
-    id: "polyamory",
-    title: "Polyamory & non-monogamy",
-    blurb: "Includes exclusivity, monogamy labels, other relationships, metamours.",
-    categories: ["exclusivity", "monogamy-labels", "other-relationships", "communication-meta", "metamours"],
-    defaultOn: true,
-  },
-  {
-    id: "household",
-    title: "Shared household & domestic life",
-    blurb: "Includes domestic chores, financial life, holidays, caregiving for plants/pets/kids.",
-    categories: ["domestic", "financial", "co-caregivers", "holidays"],
-    defaultOn: true,
-  },
-  {
-    id: "legal-long-term",
-    title: "Legal & long-term commitments",
-    blurb: "Includes marriage, civil partnership, power of attorney, inheritance.",
-    categories: ["legal"],
-    defaultOn: true,
-  },
-  {
-    id: "belief",
-    title: "Belief & spirituality",
-    blurb: "Includes religion, ritual, shared beliefs.",
-    categories: ["belief"],
-    defaultOn: false,
+    id: "general",
+    en: "General", de: "Allgemein",
+    categories: [
+      { id: "connection",        defaultOn: true },
+      { id: "time-together",     defaultOn: true },
+      { id: "communication",     defaultOn: true },
+      { id: "planning",          defaultOn: true },
+      { id: "holidays",          defaultOn: true },
+      { id: "social-circles",    defaultOn: true },
+      { id: "partnership",       defaultOn: true },
+      { id: "emotional-intimacy",defaultOn: true },
+    ],
   },
   {
     id: "collab",
-    title: "Professional collaboration",
-    blurb: "Includes teaching, mutual projects, activism, founding things together.",
-    categories: ["collaboration"],
-    defaultOn: false,
+    en: "Collaboration & shared practices", de: "Zusammenarbeit & gemeinsame Praktiken",
+    categories: [
+      { id: "collaboration", defaultOn: false },
+      { id: "creative",      defaultOn: true },
+      { id: "belief",        defaultOn: false },
+    ],
+  },
+  {
+    id: "structure",
+    en: "Relationship structure", de: "Beziehungsstruktur",
+    categories: [
+      { id: "romantic",             defaultOn: true },
+      { id: "exclusivity",          defaultOn: true },
+      { id: "labels",               defaultOn: true },
+      { id: "attachment",           defaultOn: true },
+      { id: "monogamy-labels",      defaultOn: true },
+      { id: "metamours",            defaultOn: true },
+      { id: "communication-meta",   defaultOn: true },
+      { id: "other-relationships",  defaultOn: true },
+    ],
+  },
+  {
+    id: "physical",
+    en: "Physical & sexual", de: "Körperlich & sexuell",
+    categories: [
+      { id: "physical-intimacy",  defaultOn: true },
+      { id: "sexual",             defaultOn: true },
+      { id: "affection-display",  defaultOn: true },
+      { id: "sexual-health",      defaultOn: true },
+      { id: "family-planning",    defaultOn: true },
+    ],
+  },
+  {
+    id: "care",
+    en: "Responsibilities & care", de: "Verantwortung & Fürsorge",
+    categories: [
+      { id: "financial",       defaultOn: true },
+      { id: "domestic",        defaultOn: true },
+      { id: "legal",           defaultOn: true },
+      { id: "co-caregivers",   defaultOn: true },
+      { id: "caregiving",      defaultOn: true },
+      { id: "emotional-support", defaultOn: true },
+    ],
   },
 ];
 

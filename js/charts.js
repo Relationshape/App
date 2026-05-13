@@ -19,6 +19,18 @@ function scaleMaxValue(scale) {
   return m;
 }
 
+// Push scale value(s) from an answer entry into values array.
+// For gr categories (giving/receiving), both directions contribute independently.
+function pushAnswerValues(entry, scale, byKey, values) {
+  if (!entry) return;
+  if (entry.giving !== undefined || entry.receiving !== undefined) {
+    if (entry.giving && byKey(entry.giving)) values.push(byKey(entry.giving).value);
+    if (entry.receiving && byKey(entry.receiving)) values.push(byKey(entry.receiving).value);
+  } else if (entry.scale && byKey(entry.scale)) {
+    values.push(byKey(entry.scale).value);
+  }
+}
+
 export function categoryAverage(answers, catId, scale) {
   const cat = CATEGORIES.find(c => c.id === catId);
   if (!cat) return null;
@@ -27,28 +39,44 @@ export function categoryAverage(answers, catId, scale) {
   const byKey = (k) => scale.find(s => s.key === k);
   const values = [];
   const slot = answers?.[catId] || {};
-  for (const item of cat.items) {
-    const a = slot[item];
-    if (a && byKey(a.scale)) values.push(byKey(a.scale).value);
-  }
-  for (const k of Object.keys(slot.__custom || {})) {
-    const a = slot.__custom[k];
-    if (a && byKey(a.scale)) values.push(byKey(a.scale).value);
-  }
+  for (const item of cat.items) pushAnswerValues(slot[item], scale, byKey, values);
+  for (const k of Object.keys(slot.__custom || {})) pushAnswerValues(slot.__custom[k], scale, byKey, values);
   if (!values.length) return null;
   const avg = values.reduce((a, b) => a + b, 0) / values.length;
   return { value: avg, norm: max ? avg / max : 0 };
+}
+
+function answerScaleKey(entry) {
+  if (!entry) return null;
+  if (entry.giving !== undefined || entry.receiving !== undefined) {
+    // For gr items: average giving + receiving; fall back to whichever is set
+    return entry.giving || entry.receiving || null;
+  }
+  return entry.scale || null;
+}
+
+function answerAvgValue(entry, scale) {
+  if (!entry) return null;
+  if (entry.giving !== undefined || entry.receiving !== undefined) {
+    const g = entry.giving ? scale.find(s => s.key === entry.giving) : null;
+    const r = entry.receiving ? scale.find(s => s.key === entry.receiving) : null;
+    if (!g && !r) return null;
+    const avg = g && r ? (g.value + r.value) / 2 : (g || r).value;
+    const max = scaleMaxValue(scale);
+    const sc = g || r;
+    return { value: avg, norm: max ? avg / max : 0, scaleEntry: sc, entry };
+  }
+  const sc = scale.find(s => s.key === entry.scale);
+  if (!sc) return null;
+  const max = scaleMaxValue(scale);
+  return { value: sc.value, norm: max ? sc.value / max : 0, scaleEntry: sc, entry };
 }
 
 function itemNorm(answers, catId, item, isCustom, scale) {
   const slot = answers?.[catId];
   if (!slot) return null;
   const entry = isCustom ? slot.__custom?.[item] : slot[item];
-  if (!entry) return null;
-  const sc = scale.find(s => s.key === entry.scale);
-  if (!sc) return null;
-  const max = scaleMaxValue(scale);
-  return { value: sc.value, norm: max ? sc.value / max : 0, scaleEntry: sc, entry };
+  return answerAvgValue(entry, scale);
 }
 
 // Compute adaptive font size for axis labels based on number of axes.
@@ -301,10 +329,11 @@ export function renderCategoryBars(datasets, catId) {
       const slot = isCustom
         ? ds.answers?.[catId]?.__custom?.[key]
         : ds.answers?.[catId]?.[key];
-      const sc = slot && scale.find(s => s.key === slot.scale);
-      const w = sc ? Math.round((sc.value / max) * 100) : 0;
+      const avg = slot ? answerAvgValue(slot, scale) : null;
+      const sc = avg?.scaleEntry;
+      const w = avg ? Math.round((avg.value / max) * 100) : 0;
       const color = sc ? sc.color : "transparent";
-      const tip = sc ? `${ds.name}: ${sc.label}${slot.gr ? " ("+slot.gr+")" : ""}${slot.note ? " — "+slot.note : ""}` : `${ds.name}: —`;
+      const tip = sc ? `${ds.name}: ${sc.label}${slot.note ? " — "+slot.note : ""}` : `${ds.name}: —`;
       return `
         <div class="rs-bar-cell" title="${escape(tip)}">
           <span class="rs-bar-name">${escape(truncate(ds.name, 18))}</span>

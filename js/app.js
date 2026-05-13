@@ -1,7 +1,7 @@
 // Relationshape – App shell, router and view rendering.
 // All state lives in localStorage via Store. No network calls.
 
-import { CATEGORIES, DEFAULT_SCALE, SPIDER_AXES, ONBOARDING_THEMES } from "./data.js";
+import { CATEGORIES, DEFAULT_SCALE, SPIDER_AXES, CATEGORY_GROUPS } from "./data.js";
 import { Store } from "./storage.js";
 import { encryptResult, decryptResult } from "./crypto.js";
 import {
@@ -151,8 +151,6 @@ function scaleSliderEl({ scale, valueKey, onChange, onClear, compact = false }) 
       onClick: e => { e.stopPropagation(); onClear && onClear(); },
     }, t("q_slider_reset"));
     root.append(clear);
-  } else {
-    root.append(h("div", { class: "rs-slider-hint muted" }, t("q_slider_hint")));
   }
 
   let dragging = false;
@@ -462,6 +460,25 @@ function runWizard(steps) {
   });
 }
 
+// ---------- Age Gate ----------
+async function checkAgeGate() {
+  if (localStorage.getItem("rs-age-confirmed")) return;
+  const confirmed = await dialog({
+    title: t("age_gate_title"),
+    body: () => h("p", { class: "muted" }, t("age_gate_body")),
+    actions: [
+      { label: t("age_gate_no"), kind: "ghost", value: false },
+      { label: t("age_gate_yes"), kind: "primary", primary: true, value: true },
+    ],
+    dismissable: false,
+  }).catch(() => false);
+  if (confirmed) {
+    localStorage.setItem("rs-age-confirmed", "1");
+  } else {
+    document.body.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100vh;text-align:center;padding:2rem;font-family:sans-serif"><p style="max-width:360px;color:#666">${t("age_gate_body")}</p></div>`;
+  }
+}
+
 // ---------- Onboarding Wizard ----------
 async function showWizardIfFirstVisit() {
   if (!Store.isFirstVisit()) return;
@@ -476,6 +493,7 @@ window.addEventListener("DOMContentLoaded", async () => {
   matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", () => applyTheme());
   bindGlobalNav();
   route();
+  await checkAgeGate();
   // Show wizard on first ever visit (only on home page)
   const hash = location.hash.replace(/^#\/?/, "");
   const seg = hash.split("?")[0].split("/")[0];
@@ -765,7 +783,7 @@ function resultCard(r, profile) {
       h("h3", {}, title),
       h("p", { class: "muted small" }, `${t("updated")} ${fmtDate(r.updatedAt)} · ${countAnswers(r)} ${t("answers")}`)),
     h("div", { class: "li-actions" },
-      h("button", { class: "btn btn-primary", onClick: () => navigate(`/q/${profile.id}/${r.id}`) }, t("btn_continue")),
+      h("button", { class: "btn btn-primary", onClick: () => navigate(`/q-categories/${profile.id}/${r.id}`) }, t("btn_continue")),
       h("button", { class: "btn", onClick: () => navigate(`/result/${r.id}`) }, t("btn_view")),
       h("button", { class: "btn", onClick: () => navigate(`/share/${r.id}`) }, t("btn_share")),
       h("button", { class: "btn btn-danger-ghost", onClick: async () => {
@@ -795,6 +813,11 @@ function viewCategoryOverview(profileId, resultId) {
   const enabledCats = enabledCategoryList(result);
   if (!enabledCats.length) return navigate(`/result/${resultId}`);
 
+  function isItemAnswered(entry, cat) {
+    if (!entry) return false;
+    return cat.gr ? (!!(entry.giving || entry.receiving)) : !!entry.scale;
+  }
+
   function catProgress(cat) {
     const slot = result.answers?.[cat.id] || {};
     const asked = askedItemsForCat(result, cat.id);
@@ -804,24 +827,27 @@ function viewCategoryOverview(profileId, resultId) {
       : Object.keys(slot.__custom || {});
     const total = baseItems.length + customNames.length;
     let answered = 0;
-    for (const item of baseItems) { if (slot[item]?.scale) answered++; }
-    for (const name of customNames) { if (slot.__custom?.[name]?.scale) answered++; }
+    for (const item of baseItems) { if (isItemAnswered(slot[item], cat)) answered++; }
+    for (const name of customNames) { if (isItemAnswered(slot.__custom?.[name], cat)) answered++; }
     return { answered, total };
   }
+
+  const lang = Store.getLang ? Store.getLang() : (localStorage.getItem("rs-lang") || "en");
 
   $app.append(h("section", { class: "page narrow" },
     h("button", { class: "btn btn-ghost", onClick: () => navigate(`/profile/${profileId}`) }, t("btn_back")),
     h("div", { class: "cat-overview-header" },
       h("div", { class: "li-avatar", style: `--c:${result.subjectColor || "#7c3aed"}` }, result.subjectEmoji || "💞"),
       h("div", {},
-        h("h1", {}, result.subject),
-        h("p", { class: "muted small" }, `${profile.emoji || ""} ${profile.name}`)),
+        h("h1", {}, t("btn_categories")),
+        h("p", { class: "muted small" }, result.subject + " · " + (profile.emoji || "") + " " + profile.name)),
     ),
     h("div", { class: "cat-overview-grid" },
       ...enabledCats.map((cat, i) => {
         const { answered, total } = catProgress(cat);
         const pct = total > 0 ? Math.round((answered / total) * 100) : 0;
         const done = answered >= total && total > 0;
+        const catTitle = lang === "de" && cat.de ? cat.de : cat.title;
         return h("button", {
           class: "cat-overview-tile" + (done ? " is-done" : ""),
           style: `--c:${cat.color}`,
@@ -834,7 +860,7 @@ function viewCategoryOverview(profileId, resultId) {
         },
           h("span", { class: "cat-overview-icon" }, cat.icon),
           h("div", { class: "cat-overview-body" },
-            h("span", { class: "cat-overview-title" }, cat.title),
+            h("span", { class: "cat-overview-title" }, catTitle),
             h("div", { class: "cat-overview-bar-wrap" },
               h("div", { class: "cat-overview-bar", style: `width:${pct}%; background:${cat.color}` })),
             h("span", { class: "cat-overview-pct muted small" }, done ? "✓ " + t("q_done_title") : `${answered}/${total}`),
@@ -843,6 +869,7 @@ function viewCategoryOverview(profileId, resultId) {
       })
     ),
     h("div", { class: "form-actions" },
+      h("button", { class: "btn btn-ghost", onClick: () => openAddCategoriesDialog(profileId, resultId) }, t("btn_add_categories")),
       h("button", { class: "btn btn-primary", onClick: () => navigate(`/result/${resultId}`) }, t("btn_see_results")),
     ),
   ));
@@ -882,11 +909,10 @@ async function startBlank(profileId) {
   });
   if (!subject) return;
 
-  const themes = ONBOARDING_THEMES.map(thm => ({ ...thm, on: thm.defaultOn }));
-  const enabled = await runOnboarding(themes);
-  if (enabled === false) return;
+  const selectedCatIds = await runCategoryPicker(null);
+  if (selectedCatIds === false) return;
 
-  const enabledCategories = enabled === null ? null : computeEnabledCategories(enabled);
+  const enabledCategories = selectedCatIds;
 
   const chosenScale = await promptScaleForNewCard();
   if (chosenScale === null) return;
@@ -1132,51 +1158,91 @@ async function editItemScaleDialog(currentItemScale, resultScale) {
   });
 }
 
-async function runOnboarding(themes) {
+// Category picker for onboarding and "add more categories" flow.
+// Pass existingIds (array) to pre-check + disable already-selected categories,
+// or null to use the CATEGORY_GROUPS defaults.
+// Returns array of selected category IDs, null for "include everything", or false for cancelled.
+async function runCategoryPicker(existingIds) {
+  const lang = Store.getLang ? Store.getLang() : (localStorage.getItem("rs-lang") || "en");
+  // Build checked state: defaultOn for new maps, all existing + defaultOn for add-more
+  const checkedIds = new Set(
+    existingIds !== null
+      ? existingIds
+      : CATEGORY_GROUPS.flatMap(g => g.categories.filter(c => c.defaultOn).map(c => c.id))
+  );
+  const lockedIds = new Set(existingIds || []);
+
   return dialog({
     title: t("onboarding_title"),
-    body: (close) => h("div", { class: "onboarding-body" },
+    body: () => h("div", { class: "onboarding-body" },
       h("p", { class: "muted small" }, t("onboarding_sub")),
-      h("div", { class: "onboard-toggles-wrap" },
-      h("div", { class: "onboard-toggles" },
-        ...themes.map(thm => {
-          const row = h("button", {
-            class: "onboard-toggle" + (thm.on ? " is-on" : ""),
-            type: "button",
-            onClick: () => {
-              thm.on = !thm.on;
-              row.classList.toggle("is-on", thm.on);
-              row.querySelector(".onboard-switch").classList.toggle("on", thm.on);
-            },
-          },
-            h("div", { class: "onboard-text" },
-              h("strong", {}, thm.title),
-              h("p", { class: "muted small" }, thm.blurb)),
-            h("div", { class: "onboard-switch" + (thm.on ? " on" : "") }),
+      h("div", { class: "cat-picker-groups" },
+        ...CATEGORY_GROUPS.map(group => {
+          const groupTitle = lang === "de" ? group.de : group.en;
+          return h("div", { class: "cat-picker-group" },
+            h("h3", { class: "cat-picker-group-title" }, groupTitle),
+            h("div", { class: "cat-picker-items" },
+              ...group.categories.map(({ id }) => {
+                const cat = CATEGORIES.find(c => c.id === id);
+                if (!cat) return null;
+                const catTitle = lang === "de" && cat.de ? cat.de : cat.title;
+                const locked = lockedIds.has(id);
+                const isChecked = checkedIds.has(id);
+                const checkEl = h("input", {
+                  type: "checkbox",
+                  id: "cp-" + id,
+                  checked: isChecked,
+                  disabled: locked,
+                  onChange: e => {
+                    e.target.checked ? checkedIds.add(id) : checkedIds.delete(id);
+                    label.classList.toggle("is-checked", e.target.checked);
+                    checkMark.textContent = e.target.checked ? "✓" : "";
+                  },
+                });
+                const checkMark = h("span", { class: "cat-picker-check" }, isChecked ? "✓" : "");
+                const label = h("label", {
+                  for: "cp-" + id,
+                  class: "cat-picker-item" + (locked ? " is-locked" : "") + (isChecked ? " is-checked" : ""),
+                },
+                  checkEl,
+                  h("span", { class: "cat-picker-icon" }, cat.icon),
+                  h("span", { class: "cat-picker-label" }, catTitle),
+                  locked ? h("span", { class: "cat-picker-lock" }, "✓") : checkMark,
+                );
+                return label;
+              }).filter(Boolean)
+            )
           );
-          return row;
-        })),
-      ),
+        })
+      )
     ),
     actions: [
       { label: t("btn_skip_onboarding"), kind: "ghost", value: null },
-      { label: t("btn_use_themes"), kind: "primary", primary: true, handler: () => themes },
+      { label: existingIds ? t("btn_add_categories") : t("btn_start_map"), kind: "primary", primary: true,
+        handler: () => Array.from(checkedIds) },
     ],
   }).catch(() => false);
 }
 
-function computeEnabledCategories(themes) {
-  const onSet = new Set();
-  for (const thm of themes) {
-    if (thm.on) thm.categories.forEach(c => onSet.add(c));
+async function openAddCategoriesDialog(profileId, resultId) {
+  const result = Store.getResult(resultId);
+  if (!result) return;
+  const existing = result.enabledCategories || CATEGORIES.map(c => c.id);
+  const newIds = await runCategoryPicker(existing);
+  if (!newIds || newIds === false) return;
+  // Merge: union of existing + newly selected
+  const merged = Array.from(new Set([...existing, ...newIds]));
+  result.enabledCategories = merged;
+  // Generate askedItems for newly added categories
+  result.askedItems = result.askedItems || {};
+  for (const catId of merged) {
+    if (!result.askedItems[catId]) {
+      const cat = CATEGORIES.find(c => c.id === catId);
+      if (cat) result.askedItems[catId] = { base: cat.items.slice(), custom: [] };
+    }
   }
-  const themedCategoryIds = new Set();
-  ONBOARDING_THEMES.forEach(thm => thm.categories.forEach(c => themedCategoryIds.add(c)));
-  const enabled = [];
-  for (const cat of CATEGORIES) {
-    if (!themedCategoryIds.has(cat.id) || onSet.has(cat.id)) enabled.push(cat.id);
-  }
-  return enabled;
+  Store.saveResult(result);
+  navigate(`/q-categories/${profileId}/${resultId}`);
 }
 
 function pickEmoji() {
@@ -1338,15 +1404,23 @@ function viewQuestionnaireList(profile, result) {
 
   function itemRow(cat, item, store, isCustom, SCALE) {
     const existing = store[item] || {};
-    const answered = !!existing.scale;
     const itemScale = existing.itemScale || null;
     const activeScale = itemScale || SCALE;
-    const sliderKey = itemScale
-      ? findActiveItemScaleKey(existing.scale, itemScale, SCALE)
-      : existing.scale;
+    const answered = cat.gr
+      ? !!(existing.giving || existing.receiving)
+      : !!existing.scale;
+
+    function clearAnswers() {
+      const saved = store[item] || {};
+      const kept = {};
+      if (saved.itemScale) kept.itemScale = saved.itemScale;
+      if (saved.note) kept.note = saved.note;
+      if (Object.keys(kept).length) store[item] = kept;
+      else delete store[item];
+    }
 
     const row = h("div", {
-      class: "q-item" + (answered ? " is-answered" : ""),
+      class: "q-item" + (answered ? " is-answered" : "") + (cat.gr ? " is-gr" : ""),
       tabindex: "0",
       "data-answered": answered ? "1" : null,
       "data-item-key": item,
@@ -1359,13 +1433,14 @@ function viewQuestionnaireList(profile, result) {
             e.stopPropagation();
             if (answered) {
               if (!await dlgConfirm(t("item_scale_change_warning"), { okLabel: t("btn_ok") })) return;
-              delete store[item];
+              clearAnswers();
               persist();
             }
             const newItemScale = await editItemScaleDialog(itemScale || cloneScale(SCALE), SCALE);
             if (!newItemScale) { rerender(); return; }
             store[item] = { ...(store[item] || {}), itemScale: newItemScale };
-            delete store[item].scale;
+            if (cat.gr) { delete store[item].giving; delete store[item].receiving; }
+            else delete store[item].scale;
             persist(); rerender();
           }
         }, t("item_edit_scale")),
@@ -1374,47 +1449,64 @@ function viewQuestionnaireList(profile, result) {
           delete store[item]; persist(); rerender();
         }}, "✕") : null
       ),
-      h("div", { class: "q-slider-wrap" },
-        scaleSliderEl({
-          scale: activeScale,
-          valueKey: sliderKey,
-          onChange: (key) => applyScale(key),
-          onClear: () => applyScale(null),
-        }),
-      ),
-      cat.gr ? h("div", { class: "gr-pick" },
-        ["G","R","×"].map(g => h("button", {
-          class: "gr-btn" + (existing.gr === g ? " is-active" : ""),
-          title: g === "G" ? "Giving" : g === "R" ? "Receiving" : "Both",
-          tabindex: "-1",
-          onClick: e => {
-            e.stopPropagation();
-            store[item] = { ...(store[item] || { scale: "open" }), gr: existing.gr === g ? null : g };
-            persist(); rerender();
-          }
-        }, g))
-      ) : null,
+      cat.gr
+        ? h("div", { class: "q-gr-sliders" },
+            h("div", { class: "q-gr-row" },
+              h("span", { class: "q-gr-label" }, t("lbl_giving")),
+              scaleSliderEl({
+                scale: activeScale,
+                valueKey: itemScale ? findActiveItemScaleKey(existing.giving, itemScale, SCALE) : existing.giving,
+                onChange: key => applyGrKey("giving", key),
+                onClear: () => applyGrKey("giving", null),
+              }),
+            ),
+            h("div", { class: "q-gr-row" },
+              h("span", { class: "q-gr-label" }, t("lbl_receiving")),
+              scaleSliderEl({
+                scale: activeScale,
+                valueKey: itemScale ? findActiveItemScaleKey(existing.receiving, itemScale, SCALE) : existing.receiving,
+                onChange: key => applyGrKey("receiving", key),
+                onClear: () => applyGrKey("receiving", null),
+              }),
+            ),
+          )
+        : h("div", { class: "q-slider-wrap" },
+            scaleSliderEl({
+              scale: activeScale,
+              valueKey: itemScale
+                ? findActiveItemScaleKey(existing.scale, itemScale, SCALE)
+                : existing.scale,
+              onChange: key => applyScale(key),
+              onClear: () => applyScale(null),
+            }),
+          ),
       h("input", {
         class: "q-note",
         type: "text",
         placeholder: t("note_placeholder"),
         value: existing.note || "",
-        onChange: e => { store[item] = { ...(store[item] || { scale: "open" }), note: e.target.value }; persist(); }
+        onChange: e => { store[item] = { ...(store[item] || {}), note: e.target.value }; persist(); }
       }),
     );
 
+    function applyGrKey(direction, key) {
+      const saved = { ...(store[item] || {}) };
+      if (key == null) {
+        delete saved[direction];
+      } else {
+        saved[direction] = itemScale ? resolveAnswerKey(key, itemScale, SCALE) : key;
+        if (itemScale) saved.itemScale = itemScale;
+      }
+      const hasContent = saved.giving || saved.receiving || saved.note || saved.itemScale;
+      if (hasContent) store[item] = saved;
+      else delete store[item];
+      persist();
+      rerender();
+    }
+
     function applyScale(key, { advance = true } = {}) {
       if (key == null) {
-        const saved = store[item] || {};
-        const newVal = { ...saved };
-        delete newVal.scale;
-        if (Object.keys(newVal).some(k => k !== "itemScale" && newVal[k] != null)) {
-          store[item] = newVal;
-        } else if (newVal.itemScale) {
-          store[item] = { itemScale: newVal.itemScale };
-        } else {
-          delete store[item];
-        }
+        clearAnswers();
       } else {
         const resultKey = itemScale ? resolveAnswerKey(key, itemScale, SCALE) : key;
         store[item] = { ...existing, scale: resultKey };
@@ -1580,6 +1672,27 @@ function viewQuestionnaireSingle(profile, result) {
       ? findActiveItemScaleKey(existing.scale, itemScale, SCALE)
       : existing.scale;
 
+    const answered = it.cat.gr
+      ? !!(existing.giving || existing.receiving)
+      : !!existing.scale;
+
+    function applyGrKey(direction, key) {
+      setStore(it, prev => {
+        const n = { ...(prev || {}) };
+        n[direction] = key;
+        if (itemScale) n.itemScale = itemScale;
+        return n;
+      });
+      renderCard();
+    }
+
+    const grGivingKey = itemScale
+      ? findActiveItemScaleKey(existing.giving, itemScale, SCALE)
+      : existing.giving;
+    const grReceivingKey = itemScale
+      ? findActiveItemScaleKey(existing.receiving, itemScale, SCALE)
+      : existing.receiving;
+
     const card = h("article", { class: "q-card" + (isPeek ? " is-peek" : ""), style: `--c:${it.cat.color}` },
       h("div", { class: "q-card-cat" },
         h("span", { class: "q-card-icon" }, it.cat.icon),
@@ -1588,7 +1701,7 @@ function viewQuestionnaireSingle(profile, result) {
         h("button", { class: "btn btn-ghost item-scale-btn", type: "button",
           onClick: async e => {
             e.stopPropagation();
-            if (existing.scale) {
+            if (it.cat.gr ? (existing.giving || existing.receiving) : existing.scale) {
               if (!await dlgConfirm(t("item_scale_change_warning"), { okLabel: t("btn_ok") })) return;
             }
             const newItemScale = await editItemScaleDialog(itemScale || cloneScale(SCALE), SCALE);
@@ -1597,6 +1710,8 @@ function viewQuestionnaireSingle(profile, result) {
               const n = { ...(prev || {}) };
               n.itemScale = newItemScale;
               delete n.scale;
+              delete n.giving;
+              delete n.receiving;
               return n;
             });
             renderCard();
@@ -1605,30 +1720,57 @@ function viewQuestionnaireSingle(profile, result) {
       ),
       h("h1", { class: "q-card-item" }, it.item),
       h("p", { class: "q-card-blurb muted" }, it.cat.blurb),
-      h("div", { class: "q-card-slider" },
-        scaleSliderEl({
-          scale: activeScale,
-          valueKey: sliderKey,
-          onChange: (key) => {
-            const resultKey = itemScale ? resolveAnswerKey(key, itemScale, SCALE) : key;
-            setStore(it, prev => ({ ...(prev || {}), scale: resultKey, ...(itemScale ? { itemScale } : {}) }));
-            renderCard();
-          },
-          onClear: () => {
-            setStore(it, prev => {
-              const c = { ...(prev || {}) };
-              delete c.scale;
-              return c;
-            });
-            renderCard();
-          },
-        })),
-      it.cat.gr ? h("div", { class: "q-card-gr" },
-        ["G","R","×"].map(g => h("button", {
-          class: "gr-btn" + (existing.gr === g ? " is-active" : ""),
-          onClick: e => { e.stopPropagation(); setGR(it, g); }
-        }, g))
-      ) : null,
+      it.cat.gr
+        ? h("div", { class: "q-gr-sliders" },
+            h("div", { class: "q-gr-row" },
+              h("span", { class: "q-gr-label" }, t("lbl_giving")),
+              scaleSliderEl({
+                scale: activeScale,
+                valueKey: grGivingKey,
+                onChange: key => {
+                  const rk = itemScale ? resolveAnswerKey(key, itemScale, SCALE) : key;
+                  applyGrKey("giving", rk);
+                },
+                onClear: () => {
+                  setStore(it, prev => { const n = { ...(prev || {}) }; delete n.giving; return n; });
+                  renderCard();
+                },
+              }),
+            ),
+            h("div", { class: "q-gr-row" },
+              h("span", { class: "q-gr-label" }, t("lbl_receiving")),
+              scaleSliderEl({
+                scale: activeScale,
+                valueKey: grReceivingKey,
+                onChange: key => {
+                  const rk = itemScale ? resolveAnswerKey(key, itemScale, SCALE) : key;
+                  applyGrKey("receiving", rk);
+                },
+                onClear: () => {
+                  setStore(it, prev => { const n = { ...(prev || {}) }; delete n.receiving; return n; });
+                  renderCard();
+                },
+              }),
+            ),
+          )
+        : h("div", { class: "q-card-slider" },
+            scaleSliderEl({
+              scale: activeScale,
+              valueKey: sliderKey,
+              onChange: (key) => {
+                const resultKey = itemScale ? resolveAnswerKey(key, itemScale, SCALE) : key;
+                setStore(it, prev => ({ ...(prev || {}), scale: resultKey, ...(itemScale ? { itemScale } : {}) }));
+                renderCard();
+              },
+              onClear: () => {
+                setStore(it, prev => {
+                  const c = { ...(prev || {}) };
+                  delete c.scale;
+                  return c;
+                });
+                renderCard();
+              },
+            })),
       h("input", {
         class: "q-card-note",
         type: "text",
@@ -1640,20 +1782,12 @@ function viewQuestionnaireSingle(profile, result) {
         h("button", { class: "btn", onClick: () => advance(null, "back") }, t("btn_back")),
         h("button", {
           class: "btn btn-primary",
-          onClick: () => advance(null, existing.scale ? "right" : "left"),
-        }, existing.scale ? t("btn_next") : t("btn_skip")),
+          onClick: () => advance(null, answered ? "right" : "left"),
+        }, answered ? t("btn_next") : t("btn_skip")),
       ),
       h("div", { class: "q-card-progress" }, `${cursor + 1} / ${items.length}`),
     );
     return card;
-  }
-
-  function setGR(it, g) {
-    setStore(it, prev => {
-      const cur = prev || { scale: "open" };
-      return { ...cur, gr: cur.gr === g ? null : g };
-    });
-    renderCard();
   }
   function setNote(it, note) {
     setStore(it, prev => ({ ...(prev || { scale: "open" }), note }));
@@ -1717,7 +1851,7 @@ function bindSwipe(el, { onLeft, onRight, threshold = 80 } = {}) {
   const start = e => {
     const tch = e.touches ? e.touches[0] : e;
     if (!tch) return;
-    if (e.target.closest("button, input, textarea, .scale-pill, .gr-btn")) return;
+    if (e.target.closest("button, input, textarea, .scale-pill")) return;
     startX = tch.clientX; startY = tch.clientY; dx = 0; dy = 0; dragging = true;
     el.classList.add("dragging");
   };
@@ -2020,54 +2154,95 @@ function renderEditTab(cat, result, localAnswers, onChanged) {
         ? findActiveItemScaleKey(existing.scale, itemScale, SCALE)
         : existing.scale;
 
-      const row = h("div", { class: "q-item modal-edit-item" + (existing.scale ? " is-answered" : "") },
+      const grAnswered = cat.gr ? !!(existing.giving || existing.receiving) : false;
+      const answered = cat.gr ? grAnswered : !!existing.scale;
+      const grGivingKey = itemScale
+        ? findActiveItemScaleKey(existing.giving, itemScale, SCALE)
+        : existing.giving;
+      const grReceivingKey = itemScale
+        ? findActiveItemScaleKey(existing.receiving, itemScale, SCALE)
+        : existing.receiving;
+
+      const row = h("div", { class: "q-item modal-edit-item" + (answered ? " is-answered" : "") },
         h("div", { class: "q-item-name" },
           isCustom ? h("span", { class: "q-item-tag" }, t("custom_tag")) : null,
           name,
           h("button", { class: "btn btn-ghost item-scale-btn", type: "button",
             onClick: async e => {
               e.stopPropagation();
-              if (existing.scale) {
+              if (cat.gr ? (existing.giving || existing.receiving) : existing.scale) {
                 if (!await dlgConfirm(t("item_scale_change_warning"), { okLabel: t("btn_ok") })) return;
               }
               const newItemScale = await editItemScaleDialog(itemScale || cloneScale(SCALE), SCALE);
               if (!newItemScale) return;
               store[name] = { ...(store[name] || {}), itemScale: newItemScale };
               delete store[name].scale;
+              delete store[name].giving;
+              delete store[name].receiving;
               onChanged();
               rerender();
             }
           }, t("item_edit_scale")),
         ),
-        h("div", { class: "q-slider-wrap" },
-          scaleSliderEl({
-            scale: activeScale,
-            valueKey: sliderKey,
-            onChange: (key) => {
-              const resultKey = itemScale ? resolveAnswerKey(key, itemScale, SCALE) : key;
-              store[name] = { ...(store[name] || {}), scale: resultKey };
-              if (itemScale) store[name].itemScale = itemScale;
-              onChanged();
-              rerender();
-            },
-            onClear: () => {
-              delete store[name];
-              onChanged();
-              rerender();
-            },
-          })
-        ),
-        cat.gr ? h("div", { class: "gr-pick" },
-          ["G","R","×"].map(g => h("button", {
-            class: "gr-btn" + (existing.gr === g ? " is-active" : ""),
-            title: g === "G" ? "Giving" : g === "R" ? "Receiving" : "Both",
-            onClick: () => {
-              store[name] = { ...(store[name] || { scale: "open" }), gr: existing.gr === g ? null : g };
-              onChanged();
-              rerender();
-            }
-          }, g))
-        ) : null,
+        cat.gr
+          ? h("div", { class: "q-gr-sliders" },
+              h("div", { class: "q-gr-row" },
+                h("span", { class: "q-gr-label" }, t("lbl_giving")),
+                scaleSliderEl({
+                  scale: activeScale,
+                  valueKey: grGivingKey,
+                  onChange: key => {
+                    const rk = itemScale ? resolveAnswerKey(key, itemScale, SCALE) : key;
+                    store[name] = { ...(store[name] || {}), giving: rk };
+                    if (itemScale) store[name].itemScale = itemScale;
+                    onChanged();
+                    rerender();
+                  },
+                  onClear: () => {
+                    if (store[name]) delete store[name].giving;
+                    onChanged();
+                    rerender();
+                  },
+                }),
+              ),
+              h("div", { class: "q-gr-row" },
+                h("span", { class: "q-gr-label" }, t("lbl_receiving")),
+                scaleSliderEl({
+                  scale: activeScale,
+                  valueKey: grReceivingKey,
+                  onChange: key => {
+                    const rk = itemScale ? resolveAnswerKey(key, itemScale, SCALE) : key;
+                    store[name] = { ...(store[name] || {}), receiving: rk };
+                    if (itemScale) store[name].itemScale = itemScale;
+                    onChanged();
+                    rerender();
+                  },
+                  onClear: () => {
+                    if (store[name]) delete store[name].receiving;
+                    onChanged();
+                    rerender();
+                  },
+                }),
+              ),
+            )
+          : h("div", { class: "q-slider-wrap" },
+              scaleSliderEl({
+                scale: activeScale,
+                valueKey: sliderKey,
+                onChange: (key) => {
+                  const resultKey = itemScale ? resolveAnswerKey(key, itemScale, SCALE) : key;
+                  store[name] = { ...(store[name] || {}), scale: resultKey };
+                  if (itemScale) store[name].itemScale = itemScale;
+                  onChanged();
+                  rerender();
+                },
+                onClear: () => {
+                  delete store[name];
+                  onChanged();
+                  rerender();
+                },
+              })
+            ),
         h("input", {
           class: "q-note",
           type: "text",

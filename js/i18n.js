@@ -14,7 +14,7 @@ const TRANSLATIONS = {
 
     // Home / Welcome
     welcome_title: "Relationshape",
-    welcome_sub: "A private space to map your relationships — your needs, your boundaries, your shape.",
+    welcome_sub: "A private space to map your relationships. Your needs. Your agreements. Your shape.",
     welcome_cta: "✨ Create your first profile",
     welcome_about: "What is Relationshape?",
     welcome_f1: "🔒 Stays on this device",
@@ -122,9 +122,9 @@ const TRANSLATIONS = {
     add_custom_placeholder: "e.g. astronomy",
     btn_add: "Add",
     item_already_exists: "That item already exists.",
-    q_gr_tip: "Tip: items here support a \"Giving / Receiving / Both\" marker.",
+    lbl_giving: "Giving",
+    lbl_receiving: "Receiving",
     q_keyboard_tip: "⌨️ Tip: focus a question and press 1–{n} to rate, {m} to skip, Enter to advance.",
-    q_slider_hint: "Drag the slider or tap a label to rate",
     q_slider_reset: "↺ Reset",
     custom_tag: "custom",
     note_placeholder: "Note (optional)…",
@@ -134,11 +134,18 @@ const TRANSLATIONS = {
     btn_start_over: "Start over",
     btn_see_results: "📊 See results",
 
-    // Onboarding themes
-    onboarding_title: "Quick onboarding",
-    onboarding_sub: "Toggle which broad themes apply to this relationship. You can change this later. Skip to include everything.",
+    // Onboarding category picker
+    onboarding_title: "Choose your categories",
+    onboarding_sub: "Select the topics you want to explore for this relationship. You can add more later.",
     btn_skip_onboarding: "Skip — include everything",
-    btn_use_themes: "Use these themes",
+    btn_start_map: "Start map with these categories",
+    btn_add_categories: "Add more categories",
+
+    // Age gate
+    age_gate_title: "This app is for adults",
+    age_gate_body: "Relationshape contains topics of an intimate and sexual nature. Please confirm that you are 18 years of age or older.",
+    age_gate_yes: "Yes, I am 18 or older",
+    age_gate_no: "No, I am under 18",
 
     // Result view
     result_last_edited: "last edited",
@@ -334,7 +341,7 @@ const TRANSLATIONS = {
 
     // Home / Welcome
     welcome_title: "Relationshape",
-    welcome_sub: "Ein privater Raum, um deine Beziehungen zu kartieren — deine Bedürfnisse, deine Grenzen, deine Form.",
+    welcome_sub: "Ein privater Raum, um deine Beziehungen zu kartieren. Deine Bedürfnisse. Deine Absprachen. Deine Form.",
     welcome_cta: "✨ Erstes Profil erstellen",
     welcome_about: "Was ist Relationshape?",
     welcome_f1: "🔒 Bleibt auf diesem Gerät",
@@ -442,9 +449,9 @@ const TRANSLATIONS = {
     add_custom_placeholder: "z.B. Astronomie",
     btn_add: "Hinzufügen",
     item_already_exists: "Dieses Element existiert bereits.",
-    q_gr_tip: 'Tipp: Elemente hier unterstützen eine „Geben / Empfangen / Beides"-Markierung.',
+    lbl_giving: "Geben",
+    lbl_receiving: "Empfangen",
     q_keyboard_tip: "⌨️ Tipp: Fokussiere eine Frage und drücke 1–{n} zum Bewerten, {m} zum Überspringen, Enter zum Weiter.",
-    q_slider_hint: "Schieberegler ziehen oder Label antippen zum Bewerten",
     q_slider_reset: "↺ Zurücksetzen",
     custom_tag: "eigenes",
     note_placeholder: "Notiz (optional)…",
@@ -454,11 +461,18 @@ const TRANSLATIONS = {
     btn_start_over: "Neu beginnen",
     btn_see_results: "📊 Ergebnisse ansehen",
 
-    // Onboarding themes
-    onboarding_title: "Kurzes Onboarding",
-    onboarding_sub: "Schalte ein, welche groben Themen auf diese Beziehung zutreffen. Du kannst das später ändern. Überspringen, um alles einzuschließen.",
+    // Onboarding category picker
+    onboarding_title: "Kategorien auswählen",
+    onboarding_sub: "Wähle die Themenbereiche, die du für diese Beziehung erkunden möchtest. Du kannst später weitere hinzufügen.",
     btn_skip_onboarding: "Überspringen – alles einschließen",
-    btn_use_themes: "Diese Themen verwenden",
+    btn_start_map: "Karte mit diesen Kategorien beginnen",
+    btn_add_categories: "Weitere Kategorien hinzufügen",
+
+    // Age gate
+    age_gate_title: "Diese App richtet sich an Erwachsene",
+    age_gate_body: "Relationshape enthält Themen intimer und sexueller Natur. Bitte bestätige, dass du 18 Jahre oder älter bist.",
+    age_gate_yes: "Ja, ich bin 18 Jahre oder älter",
+    age_gate_no: "Nein, ich bin unter 18",
 
     // Result view
     result_last_edited: "zuletzt bearbeitet",
