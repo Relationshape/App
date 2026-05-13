@@ -60,6 +60,29 @@ function importLabel(imp) {
   return `${imp.name} → ${imp.subject}${v}`;
 }
 
+// ----- SVG Icon library — minimal stroke icons -----
+const ICONS = {
+  // Navigation (rendered at 13×13, viewBox 24×24)
+  nav_profiles: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>`,
+  nav_import:   `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m-4-4 4 4 4-4"/><line x1="3" y1="21" x2="21" y2="21"/></svg>`,
+  nav_compare:  `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="12" r="6"/><circle cx="16" cy="12" r="6"/></svg>`,
+  nav_settings: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>`,
+  nav_about:    `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>`,
+
+  // Feature highlight cards (rendered at 26×26)
+  feat_security: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4" opacity="0.7"/></svg>`,
+  feat_share:    `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/><line x1="9" y1="18" x2="15" y2="18" opacity="0.5"/></svg>`,
+  feat_charts:   `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5"/><polygon points="12 6 18 9.5 18 14.5 12 18 6 14.5 6 9.5" stroke-opacity="0.55"/><polygon points="12 10 15 12 15 14 12 16 9 14 9 12" stroke-opacity="0.3"/></svg>`,
+  feat_profiles: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/><path d="M21 21v-2a4 4 0 0 0-3-3.85" opacity="0.7"/></svg>`,
+
+  // How-to step icons (rendered at 22×22)
+  step_create:  `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="8" r="4"/><path d="M3 21v-2a5 5 0 0 1 5-5h4a5 5 0 0 1 5 5v2"/><path d="M19 4v6M16 7h6"/></svg>`,
+  step_topics:  `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="7" height="7" rx="1"/><rect x="2" y="14" width="7" height="7" rx="1"/><line x1="13" y1="6.5" x2="22" y2="6.5"/><line x1="13" y1="11" x2="22" y2="11"/><line x1="13" y1="17.5" x2="22" y2="17.5"/></svg>`,
+  step_answer:  `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="7" x2="21" y2="7"/><circle cx="8" cy="7" r="2.5" fill="currentColor" stroke="none" opacity="0.85"/><line x1="3" y1="13" x2="21" y2="13"/><circle cx="15" cy="13" r="2.5" fill="currentColor" stroke="none" opacity="0.85"/><line x1="3" y1="19" x2="21" y2="19"/><circle cx="10" cy="19" r="2.5" fill="currentColor" stroke="none" opacity="0.85"/></svg>`,
+  step_map:     `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 22 8 22 16 12 22 2 16 2 8"/><polygon points="12 6 18 9.5 18 14.5 12 18 6 14.5 6 9.5" stroke-opacity="0.5"/><line x1="12" y1="2" x2="12" y2="22" stroke-opacity="0.3"/></svg>`,
+  step_share:   `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/><circle cx="12" cy="16" r="1.5" fill="currentColor" stroke="none"/></svg>`,
+};
+
 // ----- Emoji picker -----
 const EMOJI_BANK = [
   "🌷","🌹","🌻","🌼","🌸","🪻","🪷","🌺","🌿","🍀","🍃","🌱","🌳","🌲","🌴",
@@ -380,6 +403,52 @@ function demoSpiderSVG() {
   </svg>`;
 }
 
+function heroConstellationSVG() {
+  const W = 840, H = 340;
+  // [x, y, radius]
+  const nodes = [
+    [130, 52, 4.5], [295, 28, 3],   [565, 36, 4.2], [720, 62, 3.5],
+    [22,  138, 3],  [818, 118, 3.5],
+    [38,  220, 2.8],[802, 202, 3.2],
+    [158, 278, 3.8],[362, 304, 3],  [502, 314, 2.6],[682, 272, 4.2],[832, 258, 3],
+  ];
+  const edges = [
+    [0,1],[1,2],[2,3],
+    [0,4],[3,5],
+    [4,6],[5,7],
+    [6,8],[7,12],
+    [8,9],[9,10],[10,11],[11,12],
+    [1,9],[2,11],
+    [0,6],[3,7],
+  ];
+
+  const lines = edges.map(([a,b]) => {
+    const [ax,ay] = nodes[a], [bx,by] = nodes[b];
+    const dist = Math.hypot(bx-ax, by-ay);
+    const op = Math.max(0.04, (0.18 - dist * 0.00017)).toFixed(2);
+    return `<line x1="${ax}" y1="${ay}" x2="${bx}" y2="${by}" stroke="var(--primary)" stroke-opacity="${op}" stroke-width="0.8"/>`;
+  }).join("");
+
+  const pts = nodes.map(([x,y,r], i) => {
+    const d1 = (2.4 + (i * 0.31) % 1.6).toFixed(1);
+    const d2 = (3.5 + (i * 0.47) % 2.2).toFixed(1);
+    return `<g>
+      <circle cx="${x}" cy="${y}" r="${(r*4.5).toFixed(1)}" fill="var(--primary)" opacity="0.05">
+        <animate attributeName="opacity" values="0.05;0.13;0.05" dur="${d2}s" repeatCount="indefinite"/>
+        <animate attributeName="r" values="${(r*4.5).toFixed(1)};${(r*6).toFixed(1)};${(r*4.5).toFixed(1)}" dur="${d2}s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="${x}" cy="${y}" r="${r.toFixed(1)}" fill="var(--primary)" opacity="0.72">
+        <animate attributeName="opacity" values="0.72;1;0.72" dur="${d1}s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="${x}" cy="${y}" r="${(r*0.42).toFixed(1)}" fill="white" opacity="0.55">
+        <animate attributeName="opacity" values="0.55;0.88;0.55" dur="${d1}s" repeatCount="indefinite"/>
+      </circle>
+    </g>`;
+  }).join("");
+
+  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" aria-hidden="true">${lines}${pts}</svg>`;
+}
+
 function buildWizardSteps() {
   return [
     { title: t("wizard_s1_title"), body: t("wizard_s1_body"), emoji: "🌷" },
@@ -576,6 +645,19 @@ function buildLangPicker() {
   return wrap;
 }
 
+function stripLeadingEmoji(s) {
+  try { return s.replace(/^[\p{Extended_Pictographic}\s]+/u, "").trim(); }
+  catch { return s.replace(/^[^\x00-\x7F\s]+\s*/, "").trim(); }
+}
+
+function navLink(href, icon, label) {
+  const cleanLabel = stripLeadingEmoji(label);
+  return h("a", { href, title: cleanLabel },
+    h("span", { class: "nav-icon", html: icon }),
+    h("span", { class: "nav-link-label" }, cleanLabel),
+  );
+}
+
 function bindGlobalNav() {
   $nav.innerHTML = "";
   $nav.append(
@@ -583,11 +665,11 @@ function bindGlobalNav() {
       h("span", { class: "nav-logo" }, "∞"),
       h("span", { class: "nav-title" }, "Relationshape")),
     h("div", { class: "nav-links" },
-      h("a", { href: "#/", title: t("nav_profiles") }, t("nav_profiles")),
-      h("a", { href: "#/import", title: t("nav_import") }, t("nav_import")),
-      h("a", { href: "#/compare", title: t("nav_compare") }, t("nav_compare")),
-      h("a", { href: "#/settings", title: t("nav_settings") }, t("nav_settings")),
-      h("a", { href: "#/intro", title: t("nav_about") }, t("nav_about")),
+      navLink("#/",          ICONS.nav_profiles, t("nav_profiles")),
+      navLink("#/import",    ICONS.nav_import,   t("nav_import")),
+      navLink("#/compare",   ICONS.nav_compare,  t("nav_compare")),
+      navLink("#/settings",  ICONS.nav_settings, t("nav_settings")),
+      navLink("#/intro",     ICONS.nav_about,    t("nav_about")),
     ),
     buildLangPicker(),
   );
@@ -631,12 +713,26 @@ function viewWelcome() {
     // Hero
     h("div", { class: "hero" },
       h("div", { class: "hero-blob" }),
+      h("div", { class: "hero-constellation", html: heroConstellationSVG() }),
       h("h1", { class: "hero-title" }, t("welcome_title")),
       h("p", { class: "hero-sub" }, t("welcome_sub")),
       h("div", { class: "hero-actions" },
         h("button", { class: "btn btn-primary", onClick: () => navigate("/profile/new") }, t("welcome_cta")),
         h("button", { class: "btn btn-ghost", onClick: () => navigate("/intro") }, t("welcome_about")),
         h("button", { class: "btn btn-ghost", onClick: () => showWizard() }, t("howto_wizard_btn")),
+      ),
+      // Feature highlight cards
+      h("ul", { class: "hero-features" },
+        ...[
+          [ICONS.feat_security, "Device Security",    "Stays on this device"],
+          [ICONS.feat_share,    "Encrypted Sharing",  "Share results safely"],
+          [ICONS.feat_charts,   "Spider Charts",      "Visual relationship maps"],
+          [ICONS.feat_profiles, "Multiple Profiles",  "All in one place"],
+        ].map(([icon, title, sub]) => h("li", {},
+          h("span", { class: "hero-feat-icon", html: icon }),
+          h("strong", { class: "hero-feat-title" }, title),
+          h("span", { class: "hero-feat-sub" }, sub),
+        )),
       ),
     ),
 
@@ -645,19 +741,19 @@ function viewWelcome() {
       h("header", { class: "section-head" },
         h("h2", {}, t("howto_title"))),
       h("div", { class: "howto-steps" },
-        howtoStep("1", t("howto_step1_title"), t("howto_step1_desc"), "👤"),
-        howtoStep("2", t("howto_step2_title"), t("howto_step2_desc"), "🗺️"),
-        howtoStep("3", t("howto_step3_title"), t("howto_step3_desc"), "📝"),
-        howtoStep("4", t("howto_step4_title"), t("howto_step4_desc"), "📊"),
-        howtoStep("5", t("howto_step5_title"), t("howto_step5_desc"), "🔒"),
+        howtoStep("1", t("howto_step1_title"), t("howto_step1_desc"), ICONS.step_create),
+        howtoStep("2", t("howto_step2_title"), t("howto_step2_desc"), ICONS.step_topics),
+        howtoStep("3", t("howto_step3_title"), t("howto_step3_desc"), ICONS.step_answer),
+        howtoStep("4", t("howto_step4_title"), t("howto_step4_desc"), ICONS.step_map),
+        howtoStep("5", t("howto_step5_title"), t("howto_step5_desc"), ICONS.step_share),
       ),
     ),
   );
 }
 
-function howtoStep(num, title, desc, icon) {
+function howtoStep(num, title, desc, iconSvg) {
   return h("div", { class: "howto-step" },
-    h("div", { class: "howto-step-icon" }, icon),
+    h("div", { class: "howto-step-icon", html: iconSvg }),
     h("div", { class: "howto-step-num" }, num),
     h("h3", { class: "howto-step-title" }, title),
     h("p", { class: "howto-step-desc muted small" }, desc),

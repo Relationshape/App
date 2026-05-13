@@ -321,5 +321,104 @@
 /* ---- Welcome page layout ---- */
 .page:has(.hero) { gap: 40px; }
 
+/* ---- Hero constellation ---- */
+.hero-constellation {
+  position: absolute;
+  top: 0; left: 50%;
+  transform: translateX(-50%);
+  width: min(900px, 160vw);
+  aspect-ratio: 840 / 340;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.55;
+}
+@media (prefers-color-scheme: light) {
+  :root[data-theme="auto"] .hero-constellation,
+  :root:not([data-theme]) .hero-constellation { opacity: 0.35; }
+}
+:root[data-theme="light"] .hero-constellation { opacity: 0.35; }
+
+/* Hero title / sub / actions need to sit above constellation */
+.hero-title, .hero-sub, .hero-actions, .hero-features { position: relative; z-index: 1; }
+
+/* ---- Hero feature highlight cards ---- */
+.hero-features {
+  list-style: none; padding: 0; margin: 8px 0 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  max-width: 760px; width: 100%;
+  position: relative; z-index: 1;
+}
+@media (max-width: 680px) {
+  .hero-features { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 400px) {
+  .hero-features { grid-template-columns: 1fr; }
+}
+.hero-features li {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px; padding: 18px 16px 16px;
+  text-align: center;
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  display: grid; gap: 6px; justify-items: center;
+  transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+}
+.hero-features li:hover {
+  border-color: color-mix(in oklab, var(--primary) 40%, var(--glass-border));
+  box-shadow: var(--glow-sm);
+  transform: translateY(-2px);
+}
+.hero-feat-icon {
+  display: grid; place-items: center;
+  width: 46px; height: 46px; border-radius: 12px;
+  background: color-mix(in oklab, var(--primary) 14%, var(--surface-2));
+  color: var(--primary);
+  margin-bottom: 2px;
+}
+.hero-feat-icon svg { display: block; }
+.hero-feat-title {
+  display: block;
+  font-family: var(--font-sans);
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--text);
+}
+.hero-feat-sub {
+  display: block;
+  font-size: 11.5px; color: var(--muted);
+  line-height: 1.4;
+}
+
+/* ---- Nav icon ---- */
+.nav-icon {
+  display: inline-flex; align-items: center; flex-shrink: 0;
+  opacity: 0.7;
+  transition: opacity .15s ease;
+}
+.nav-links a:hover .nav-icon,
+.nav-links a.active .nav-icon { opacity: 1; }
+.nav-links a {
+  display: inline-flex; align-items: center; gap: 5px;
+}
+/* Hide nav icons on very small screens to save space */
+@media (max-width: 460px) {
+  .nav-icon { display: none; }
+}
+/* Optionally hide text labels on narrow screens, show only icons */
+@media (max-width: 380px) {
+  .nav-link-label { display: none; }
+  .nav-icon { display: inline-flex; }
+}
+
+/* ---- Howto step icon — SVG support ---- */
+.howto-step-icon {
+  display: grid; place-items: center;
+  color: var(--primary);
+}
+.howto-step-icon svg { display: block; }
+
 /* ---- Misc ---- */
 .cat-modal-overlay .rs-modal-card { --c: var(--primary); }
