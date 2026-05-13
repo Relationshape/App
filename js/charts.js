@@ -6,7 +6,15 @@
 
 import { CATEGORIES, SPIDER_AXES } from "./data.js";
 import { Store } from "./storage.js";
-import { t } from "./i18n.js";
+import { t, getLang } from "./i18n.js";
+
+function getItemLabel(cat, itemKey, lang) {
+  if (lang === "de" && cat.deItems) {
+    const idx = cat.items.indexOf(itemKey);
+    if (idx >= 0 && cat.deItems[idx]) return cat.deItems[idx];
+  }
+  return itemKey;
+}
 
 function dsScale(ds) {
   return (ds && Array.isArray(ds.scale) && ds.scale.length >= 2)
@@ -287,8 +295,9 @@ export function renderItemSpider(datasets, catId, opts = {}) {
   });
   const customItems = Array.from(customSet).filter(k => itemHas(k, true));
 
+  const lang = getLang();
   const axes = [
-    ...baseItems.map(name => ({ key: name, title: name })),
+    ...baseItems.map(name => ({ key: name, title: getItemLabel(cat, name, lang) })),
     ...customItems.map(name => ({ key: "✶ " + name, title: "✶ " + name, _custom: true, _name: name })),
   ];
   if (axes.length < 3) {
@@ -315,6 +324,7 @@ export function renderItemSpider(datasets, catId, opts = {}) {
 export function renderCategoryBars(datasets, catId) {
   const cat = CATEGORIES.find(c => c.id === catId);
   if (!cat) return "";
+  const lang = getLang();
   const itemSet = new Set(cat.items);
   for (const ds of datasets) {
     Object.keys(ds.answers?.[catId]?.__custom || {}).forEach(k => itemSet.add("✶ " + k));
@@ -343,8 +353,10 @@ export function renderCategoryBars(datasets, catId) {
           <span class="rs-bar-val">${sc ? escape(sc.short) : "—"}</span>
         </div>`;
     }).join("");
+    const isCustom = item.startsWith("✶ ");
+    const displayLabel = isCustom ? item : getItemLabel(cat, item, lang);
     return `<div class="rs-bar-row">
-      <div class="rs-bar-label">${escape(item)}</div>
+      <div class="rs-bar-label">${escape(displayLabel)}</div>
       <div class="rs-bar-cells">${cells}</div>
     </div>`;
   }).join("");

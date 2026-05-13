@@ -235,6 +235,18 @@ function enabledCategoryList(result) {
   return CATEGORIES.filter(c => isCategoryEnabled(result, c.id));
 }
 
+function getItemLabel(cat, itemKey, lang) {
+  if (lang === "de" && cat.deItems) {
+    const idx = cat.items.indexOf(itemKey);
+    if (idx >= 0 && cat.deItems[idx]) return cat.deItems[idx];
+  }
+  return itemKey;
+}
+
+function getCatTitle(cat, lang) {
+  return lang === "de" && cat.de ? cat.de : cat.title;
+}
+
 // ---------- Modal / dialog ----------
 function dialog({ title, body, fields = [], actions, dismissable = true }) {
   return new Promise(resolve => {
@@ -774,10 +786,10 @@ function viewWelcome() {
       // Feature highlight cards
       h("ul", { class: "hero-features" },
         ...[
-          [ICONS.feat_security, "Device Security",    "Stays on this device"],
-          [ICONS.feat_share,    "Encrypted Sharing",  "Share results safely"],
-          [ICONS.feat_charts,   "Spider Charts",      "Visual relationship maps"],
-          [ICONS.feat_profiles, "Multiple Profiles",  "All in one place"],
+          [ICONS.feat_security, t("feat_security_title"), t("feat_security_sub")],
+          [ICONS.feat_share,    t("feat_share_title"),    t("feat_share_sub")],
+          [ICONS.feat_charts,   t("feat_charts_title"),   t("feat_charts_sub")],
+          [ICONS.feat_profiles, t("feat_profiles_title"), t("feat_profiles_sub")],
         ].map(([icon, title, sub]) => h("li", {},
           h("span", { class: "hero-feat-icon", html: icon }),
           h("strong", { class: "hero-feat-title" }, title),
@@ -794,8 +806,7 @@ function viewWelcome() {
         howtoStep("1", t("howto_step1_title"), t("howto_step1_desc"), ICONS.step_create),
         howtoStep("2", t("howto_step2_title"), t("howto_step2_desc"), ICONS.step_topics),
         howtoStep("3", t("howto_step3_title"), t("howto_step3_desc"), ICONS.step_answer),
-        howtoStep("4", t("howto_step4_title"), t("howto_step4_desc"), ICONS.step_map),
-        howtoStep("5", t("howto_step5_title"), t("howto_step5_desc"), ICONS.step_share),
+        howtoStep("4", t("howto_step4_title"), t("howto_step4_desc"), ICONS.step_share),
       ),
     ),
   );
@@ -978,7 +989,7 @@ function viewCategoryOverview(profileId, resultId) {
     return { answered, total };
   }
 
-  const lang = Store.getLang ? Store.getLang() : (localStorage.getItem("rs-lang") || "en");
+  const lang = getLang();
 
   $app.append(h("section", { class: "page narrow" },
     h("button", { class: "btn btn-ghost", onClick: () => navigate(`/profile/${profileId}`) }, t("btn_back")),
@@ -1309,13 +1320,9 @@ async function editItemScaleDialog(currentItemScale, resultScale) {
 // or null to use the CATEGORY_GROUPS defaults.
 // Returns array of selected category IDs, null for "include everything", or false for cancelled.
 async function runCategoryPicker(existingIds) {
-  const lang = Store.getLang ? Store.getLang() : (localStorage.getItem("rs-lang") || "en");
+  const lang = getLang();
   // Build checked state: defaultOn for new maps, all existing + defaultOn for add-more
-  const checkedIds = new Set(
-    existingIds !== null
-      ? existingIds
-      : CATEGORY_GROUPS.flatMap(g => g.categories.filter(c => c.defaultOn).map(c => c.id))
-  );
+  const checkedIds = new Set(existingIds !== null ? existingIds : []);
   const lockedIds = new Set(existingIds || []);
 
   return dialog({
@@ -1364,6 +1371,13 @@ async function runCategoryPicker(existingIds) {
     ),
     actions: [
       { label: t("btn_skip_onboarding"), kind: "ghost", value: null },
+      ...(existingIds === null ? [{
+        label: t("btn_select_all_continue"), kind: "ghost",
+        handler: () => {
+          const all = CATEGORY_GROUPS.flatMap(g => g.categories.map(c => c.id));
+          return all;
+        },
+      }] : []),
       { label: existingIds ? t("btn_add_categories") : t("btn_start_map"), kind: "primary", primary: true,
         handler: () => Array.from(checkedIds) },
     ],
@@ -1476,6 +1490,7 @@ function viewQuestionnaireList(profile, result) {
   const customNames = asked
     ? Array.from(new Set([...(asked.custom || []), ...Object.keys(answers.__custom)]))
     : Object.keys(answers.__custom);
+  const _lang = getLang();
 
   const root = h("section", { class: "page q-page" },
     qHeader({ profileId, resultId, idx, total, cat, progressPct, result, mode: "list", isItemBased: false }),
@@ -1483,8 +1498,8 @@ function viewQuestionnaireList(profile, result) {
       h("div", { class: "q-cat-head" },
         h("span", { class: "q-cat-icon" }, cat.icon),
         h("div", {},
-          h("h1", {}, cat.title),
-          h("p", { class: "muted" }, cat.blurb),
+          h("h1", {}, getCatTitle(cat, _lang)),
+          h("p", { class: "muted" }, _lang === "de" && cat.deBlurb ? cat.deBlurb : cat.blurb),
           cat.gr ? h("p", { class: "muted small" }, t("q_gr_tip")) : null,
           h("p", { class: "muted small" }, t("q_keyboard_tip", { n: SCALE.length, m: SCALE.length + 1 }))
         ),
@@ -1573,7 +1588,7 @@ function viewQuestionnaireList(profile, result) {
     },
       h("div", { class: "q-item-name" },
         isCustom ? h("span", { class: "q-item-tag" }, t("custom_tag")) : null,
-        item,
+        isCustom ? item : getItemLabel(cat, item, _lang),
         h("button", { class: "btn btn-ghost item-scale-btn", type: "button",
           onClick: async e => {
             e.stopPropagation();
@@ -1707,6 +1722,7 @@ function viewQuestionnaireList(profile, result) {
 }
 
 function qHeader({ profileId, resultId, idx, total, cat, progressPct, result, mode, isItemBased }) {
+  const _qlang = getLang();
   const stepLabel = isItemBased
     ? `${t("q_item")} ${idx + 1} ${t("q_of")} ${total}`
     : `${t("q_category")} ${idx + 1} ${t("q_of")} ${total}`;
@@ -1716,7 +1732,7 @@ function qHeader({ profileId, resultId, idx, total, cat, progressPct, result, mo
       h("div", { class: "q-progress-bar" },
         h("div", { class: "q-progress-fill", style: `width:${progressPct}%; background:${cat.color}` })),
       h("div", { class: "q-progress-text" },
-        h("span", { class: "q-cat-pip" }, cat.icon, " ", cat.title),
+        h("span", { class: "q-cat-pip" }, cat.icon, " ", getCatTitle(cat, _qlang)),
         ` · ${stepLabel} · ${result.subject}`),
     ),
     h("div", { class: "q-mode-switch" },
@@ -1839,10 +1855,11 @@ function viewQuestionnaireSingle(profile, result) {
       ? findActiveItemScaleKey(existing.receiving, itemScale, SCALE)
       : existing.receiving;
 
+    const _slang = getLang();
     const card = h("article", { class: "q-card" + (isPeek ? " is-peek" : ""), style: `--c:${it.cat.color}` },
       h("div", { class: "q-card-cat" },
         h("span", { class: "q-card-icon" }, it.cat.icon),
-        h("span", {}, it.cat.title),
+        h("span", {}, getCatTitle(it.cat, _slang)),
         it.isCustom ? h("span", { class: "q-item-tag" }, t("custom_tag")) : null,
         h("button", { class: "btn btn-ghost item-scale-btn", type: "button",
           onClick: async e => {
@@ -1864,8 +1881,8 @@ function viewQuestionnaireSingle(profile, result) {
           }
         }, t("item_edit_scale")),
       ),
-      h("h1", { class: "q-card-item" }, it.item),
-      h("p", { class: "q-card-blurb muted" }, it.cat.blurb),
+      h("h1", { class: "q-card-item" }, it.isCustom ? it.item : getItemLabel(it.cat, it.item, _slang)),
+      h("p", { class: "q-card-blurb muted" }, _slang === "de" && it.cat.deBlurb ? it.cat.deBlurb : it.cat.blurb),
       it.cat.gr
         ? h("div", { class: "q-gr-sliders" },
             h("div", { class: "q-gr-row" },
@@ -2127,6 +2144,7 @@ function openEnlargedSpiderModal(datasets) {
 // ---------- Category cards ----------
 function categoryCards(datasets, editableResult = null) {
   const fabiMode = Store.getFabiMode();
+  const _cclang = getLang();
   return CATEGORIES.map(cat => {
     const filledCount = datasets.reduce((acc, d) => {
       const slot = d.answers?.[cat.id] || {};
@@ -2147,8 +2165,8 @@ function categoryCards(datasets, editableResult = null) {
       h("div", { class: "cat-card-head" },
         h("div", { class: "cat-card-icon" }, cat.icon),
         h("div", { class: "cat-card-titles" },
-          h("h3", {}, cat.title),
-          h("p", { class: "muted small" }, cat.blurb)),
+          h("h3", {}, getCatTitle(cat, _cclang)),
+          h("p", { class: "muted small" }, _cclang === "de" && cat.deBlurb ? cat.deBlurb : cat.blurb)),
         fabiMode ? h("div", { class: "cat-card-summary", html: summaryCellsHTML(datasets, cat.id) }) : null,
         h("span", { class: "cat-card-toggle", "aria-hidden": "true" }, "→"),
       ),
@@ -2160,6 +2178,7 @@ function categoryCards(datasets, editableResult = null) {
 
 // ---------- Category modal with tabs (Spider | Item-by-Item | Edit) ----------
 function openCategoryModal(datasets, cat, editableResult = null) {
+  const _modlang = getLang();
   // Deep-clone answers for local editing so we can diff on close
   let localAnswers = editableResult
     ? JSON.parse(JSON.stringify(editableResult.answers || {}))
@@ -2208,8 +2227,8 @@ function openCategoryModal(datasets, cat, editableResult = null) {
         h("div", { class: "cat-modal-icon-wrap" },
           h("span", { class: "cat-modal-icon" }, cat.icon),
           h("div", {},
-            h("h2", { class: "cat-modal-title" }, cat.title),
-            h("p", { class: "muted small" }, cat.blurb),
+            h("h2", { class: "cat-modal-title" }, getCatTitle(cat, _modlang)),
+            h("p", { class: "muted small" }, _modlang === "de" && cat.deBlurb ? cat.deBlurb : cat.blurb),
           ),
         ),
       ));
@@ -2271,6 +2290,7 @@ function openCategoryModal(datasets, cat, editableResult = null) {
 
 // Renders the editable items tab inside the category modal
 function renderEditTab(cat, result, localAnswers, onChanged) {
+  const _etlang = getLang();
   const SCALE = getResultScale(result);
   localAnswers[cat.id] = localAnswers[cat.id] || {};
   const catAnswers = localAnswers[cat.id];
@@ -2312,7 +2332,7 @@ function renderEditTab(cat, result, localAnswers, onChanged) {
       const row = h("div", { class: "q-item modal-edit-item" + (answered ? " is-answered" : "") },
         h("div", { class: "q-item-name" },
           isCustom ? h("span", { class: "q-item-tag" }, t("custom_tag")) : null,
-          name,
+          isCustom ? name : getItemLabel(cat, name, _etlang),
           h("button", { class: "btn btn-ghost item-scale-btn", type: "button",
             onClick: async e => {
               e.stopPropagation();
@@ -2941,6 +2961,7 @@ function viewMapSettings(resultId) {
   }
   rerenderScale();
 
+  const _mslang = getLang();
   const catGrid = h("div", { class: "cat-toggle-grid" });
   function renderCats() {
     catGrid.innerHTML = "";
@@ -2958,7 +2979,7 @@ function viewMapSettings(resultId) {
         },
       },
         h("span", { class: "cat-toggle-icon" }, cat.icon),
-        h("span", { class: "cat-toggle-title" }, cat.title),
+        h("span", { class: "cat-toggle-title" }, getCatTitle(cat, _mslang)),
         h("span", { class: "cat-toggle-switch" + (enabled ? " on" : "") }),
       );
       catGrid.append(tile);

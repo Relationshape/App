@@ -136,7 +136,12 @@ export const Store = {
       save(data);
     } else {
       const migrated = migrateScale(data.scale);
-      if (JSON.stringify(migrated) !== JSON.stringify(data.scale)) {
+      const isUnmodifiedEnglish = migrated.length === DEFAULT_SCALE.length &&
+        migrated.every((s, i) => s.key === DEFAULT_SCALE[i].key && s.label === DEFAULT_SCALE[i].label);
+      if (isUnmodifiedEnglish) {
+        data.scale = cloneScale(localDefault);
+        save(data);
+      } else if (JSON.stringify(migrated) !== JSON.stringify(data.scale)) {
         data.scale = migrated; save(data);
       }
     }

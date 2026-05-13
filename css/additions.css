@@ -636,3 +636,49 @@ body::before {
     var(--glow),
     inset 0 1px 0 rgba(255,255,255,0.06);
 }
+
+/* ---- Onboarding modal — scrollable body ---- */
+.rs-modal-card:has(.onboarding-body) {
+  max-height: min(90dvh, 720px);
+  display: flex; flex-direction: column;
+}
+.rs-modal-card:has(.onboarding-body) .rs-modal-body {
+  overflow-y: auto; flex: 1; min-height: 0;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ---- Fabi-mode / display-mode toggles ---- */
+.onboard-toggles { display: flex; flex-direction: column; gap: 8px; }
+.onboard-toggle {
+  display: flex; align-items: center; gap: 14px;
+  background: var(--surface-2); border: 1px solid var(--glass-border);
+  border-radius: 14px; padding: 14px 16px;
+  cursor: pointer; font: inherit; color: var(--text); text-align: left;
+  transition: border-color .15s ease, background .15s ease;
+  width: 100%;
+}
+.onboard-toggle:hover {
+  border-color: color-mix(in oklab, var(--primary) 30%, var(--glass-border));
+  background: color-mix(in oklab, var(--primary) 4%, var(--surface-2));
+}
+.onboard-toggle.is-on {
+  border-color: color-mix(in oklab, var(--primary) 50%, var(--glass-border));
+  background: color-mix(in oklab, var(--primary) 8%, var(--surface-2));
+}
+.onboard-text { flex: 1; }
+.onboard-text strong { display: block; font-size: 14px; margin-bottom: 2px; }
+.onboard-text p { margin: 0; font-size: 13px; }
+.onboard-switch {
+  flex-shrink: 0;
+  width: 42px; height: 24px;
+  background: var(--surface-3); border-radius: 99px;
+  position: relative; transition: background .2s ease;
+}
+.onboard-switch::after {
+  content: ""; position: absolute;
+  top: 3px; left: 3px;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: white; transition: transform .2s ease;
+}
+.onboard-switch.on { background: var(--primary); }
+.onboard-switch.on::after { transform: translateX(18px); }
