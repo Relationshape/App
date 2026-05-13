@@ -817,15 +817,15 @@ body::before {
   100% { transform: translateX(-50%) scale(1.00) rotate(0deg);   opacity: 0.65; }
 }
 
-/* ---- Light mode: stronger blobs to match dark mode intensity ---- */
+/* ---- Light mode: gentle blobs, pastel iridescent (override handled below in vivid section) ---- */
 @media (prefers-color-scheme: light) {
   :root[data-theme="auto"] .hero-blob,
-  :root:not([data-theme]) .hero-blob { filter: blur(60px) saturate(2.2); opacity: 0.95; }
+  :root:not([data-theme]) .hero-blob { filter: blur(60px) saturate(1.6); opacity: 0.90; }
   :root[data-theme="auto"] .hero-blob-holo,
-  :root:not([data-theme]) .hero-blob-holo { filter: blur(72px) saturate(2.2); opacity: 0.90; }
+  :root:not([data-theme]) .hero-blob-holo { filter: blur(72px) saturate(1.6); opacity: 0.88; }
 }
-:root[data-theme="light"] .hero-blob { filter: blur(60px) saturate(2.2); opacity: 0.95; }
-:root[data-theme="light"] .hero-blob-holo { filter: blur(72px) saturate(2.2); opacity: 0.90; }
+:root[data-theme="light"] .hero-blob { filter: blur(60px) saturate(1.6); opacity: 0.90; }
+:root[data-theme="light"] .hero-blob-holo { filter: blur(72px) saturate(1.6); opacity: 0.88; }
 
 /* ---- Btn-primary iridescent sweep on hover ---- */
 .btn-primary { position: relative; overflow: hidden; }
@@ -1138,38 +1138,38 @@ body::before {
   --glow-sm: 0 0 18px rgba(109, 40, 217, 0.28);
 }
 
-/* Light mode hero blobs: very vivid, almost neon */
+/* Light mode hero blobs: soft pastel iridescent, not oversaturated */
 @media (prefers-color-scheme: light) {
   :root[data-theme="auto"] .hero-blob,
   :root:not([data-theme]) .hero-blob {
     background:
-      radial-gradient(circle at 36% 32%, rgba(255,255,255,0.20) 0%, transparent 30%),
-      radial-gradient(circle at center, color-mix(in oklab, var(--primary) 62%, transparent), transparent 62%);
-    filter: blur(55px) saturate(2.8);
-    opacity: 1.0;
+      radial-gradient(circle at 36% 32%, rgba(255,255,255,0.30) 0%, transparent 30%),
+      radial-gradient(circle at center, color-mix(in oklab, var(--primary) 55%, transparent), transparent 62%);
+    filter: blur(60px) saturate(1.6);
+    opacity: 0.9;
   }
   :root[data-theme="auto"] .hero-blob-holo,
   :root:not([data-theme]) .hero-blob-holo {
     background:
-      radial-gradient(circle at 40% 38%, color-mix(in oklab, var(--accent) 58%, transparent), transparent 55%),
-      radial-gradient(circle at 65% 60%, rgba(79,172,254,0.40), transparent 60%);
-    filter: blur(70px) saturate(2.8);
-    opacity: 1.0;
+      radial-gradient(circle at 40% 38%, color-mix(in oklab, var(--accent) 50%, transparent), transparent 55%),
+      radial-gradient(circle at 65% 60%, rgba(79,172,254,0.35), transparent 60%);
+    filter: blur(72px) saturate(1.6);
+    opacity: 0.88;
   }
 }
 :root[data-theme="light"] .hero-blob {
   background:
-    radial-gradient(circle at 36% 32%, rgba(255,255,255,0.20) 0%, transparent 30%),
-    radial-gradient(circle at center, color-mix(in oklab, var(--primary) 62%, transparent), transparent 62%);
-  filter: blur(55px) saturate(2.8);
-  opacity: 1.0;
+    radial-gradient(circle at 36% 32%, rgba(255,255,255,0.30) 0%, transparent 30%),
+    radial-gradient(circle at center, color-mix(in oklab, var(--primary) 55%, transparent), transparent 62%);
+  filter: blur(60px) saturate(1.6);
+  opacity: 0.9;
 }
 :root[data-theme="light"] .hero-blob-holo {
   background:
-    radial-gradient(circle at 40% 38%, color-mix(in oklab, var(--accent) 58%, transparent), transparent 55%),
-    radial-gradient(circle at 65% 60%, rgba(79,172,254,0.40), transparent 60%);
-  filter: blur(70px) saturate(2.8);
-  opacity: 1.0;
+    radial-gradient(circle at 40% 38%, color-mix(in oklab, var(--accent) 50%, transparent), transparent 55%),
+    radial-gradient(circle at 65% 60%, rgba(79,172,254,0.35), transparent 60%);
+  filter: blur(72px) saturate(1.6);
+  opacity: 0.88;
 }
 
 /* Light mode body: richer atmospheric gradient */
@@ -1369,3 +1369,193 @@ body::after {
 :root[data-theme="light"] body::after { display: none; }
 /* Page content sits above both pseudo-element layers */
 #app { position: relative; z-index: 1; }
+
+/* ================================================================
+   IRIDESCENT SILK — extended nav-logo effect to key elements
+   Smooth holographic rainbow sheen like silk or foil
+   ================================================================ */
+
+/* Keyframe: full rainbow sweep (silk shimmer) */
+@keyframes silkShift {
+  0%   { background-position: 0% 50%; }
+  25%  { background-position: 50% 0%; }
+  50%  { background-position: 100% 50%; }
+  75%  { background-position: 50% 100%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ---- Avatar circle — iridescent silk ring ---- */
+.li-avatar {
+  position: relative;
+}
+.li-avatar::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  background: linear-gradient(135deg,
+    rgba(192,132,252,0.7),
+    rgba(56,189,248,0.6),
+    rgba(244,114,182,0.65),
+    rgba(167,139,250,0.7),
+    rgba(79,172,254,0.55));
+  background-size: 300% 300%;
+  animation: silkShift 8s ease-in-out infinite;
+  opacity: 0;
+  z-index: -1;
+  border-radius: inherit;
+  transition: opacity .3s ease;
+}
+.list-item:hover .li-avatar::before,
+.compare-tile:hover .li-avatar::before {
+  opacity: 0.6;
+}
+
+/* ---- Profile emoji avatar — persistent silk shimmer ---- */
+.profile-card .li-avatar::before {
+  opacity: 0.25;
+}
+.profile-card:hover .li-avatar::before {
+  opacity: 0.55;
+}
+
+/* ---- Category picker icons — iridescent hover ---- */
+.cat-picker-item.is-checked .cat-picker-icon {
+  filter: drop-shadow(0 0 6px color-mix(in oklab, var(--primary) 70%, var(--accent)));
+  transition: filter .2s ease;
+}
+
+/* ---- Q-cat icon — animated silk gradient on hover ---- */
+.q-cat:hover .q-cat-icon,
+.cat-card:hover .cat-card-icon {
+  filter: drop-shadow(0 0 8px color-mix(in oklab, var(--primary) 60%, var(--accent)));
+  transition: filter .25s ease;
+}
+
+/* ---- Scale pills — silk shimmer on active ---- */
+.scale-pill.is-active::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg,
+    rgba(192,132,252,0.25),
+    rgba(56,189,248,0.2),
+    rgba(244,114,182,0.22),
+    rgba(79,172,254,0.18));
+  background-size: 300% 300%;
+  animation: silkShift 6s ease-in-out infinite;
+  pointer-events: none;
+}
+.scale-pill { position: relative; overflow: hidden; }
+
+/* ---- Modal header — silk gradient top edge ---- */
+.rs-modal-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 2px;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  background: linear-gradient(90deg,
+    var(--primary),
+    rgba(56,189,248,0.9),
+    var(--accent),
+    rgba(192,132,252,0.8),
+    var(--primary));
+  background-size: 300% 100%;
+  animation: iridShift 5s linear infinite;
+  opacity: 0.8;
+  pointer-events: none;
+}
+.rs-modal-card { position: relative; overflow: hidden; }
+
+/* ---- Card-add button — pulsing silk gradient background ---- */
+.card-add {
+  background: linear-gradient(135deg,
+    color-mix(in oklab, var(--primary) 10%, var(--surface-2)),
+    color-mix(in oklab, var(--accent) 8%, var(--surface-2)),
+    color-mix(in oklab, rgba(56,189,248,1) 8%, var(--surface-2)));
+  background-size: 300% 300%;
+  animation: silkShift 10s ease-in-out infinite;
+}
+.card-add:hover {
+  background: linear-gradient(135deg,
+    color-mix(in oklab, var(--primary) 16%, var(--surface-2)),
+    color-mix(in oklab, var(--accent) 14%, var(--surface-2)),
+    color-mix(in oklab, rgba(56,189,248,1) 14%, var(--surface-2)));
+  background-size: 300% 300%;
+}
+
+/* ---- Result/profile page head — silk gradient on avatar emoji ---- */
+.result-head .li-avatar,
+.profile-head .li-avatar {
+  box-shadow:
+    0 0 0 3px color-mix(in oklab, var(--c, var(--primary)) 25%, transparent),
+    0 0 20px color-mix(in oklab, var(--c, var(--primary)) 35%, transparent);
+}
+
+/* ---- Fab / primary action buttons — full silk flow ---- */
+.btn-primary {
+  position: relative;
+  overflow: hidden;
+}
+.btn-primary::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg,
+    rgba(255,255,255,0.12) 0%,
+    rgba(56,189,248,0.10) 25%,
+    rgba(192,132,252,0.12) 50%,
+    rgba(244,114,182,0.10) 75%,
+    rgba(255,255,255,0.08) 100%);
+  background-size: 300% 300%;
+  animation: silkShift 7s ease-in-out infinite;
+  pointer-events: none;
+  opacity: 0.6;
+}
+.btn-primary:hover::before { opacity: 1; }
+
+/* ---- Nav brand logo text — silk accent color ---- */
+.nav-title {
+  background: linear-gradient(90deg, var(--text), color-mix(in oklab, var(--primary) 60%, var(--text)));
+  background-clip: text; -webkit-background-clip: text;
+  color: transparent;
+  opacity: 1;
+}
+
+/* ---- Iridescent site-wide pastel overlay boost (light mode) ---- */
+/* Extra pastel shimmer on glass cards in light mode */
+@media (prefers-color-scheme: light) {
+  :root[data-theme="auto"] .card::after,
+  :root:not([data-theme]) .card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(135deg,
+      rgba(192,132,252,0.06) 0%,
+      rgba(56,189,248,0.05) 35%,
+      rgba(244,114,182,0.06) 65%,
+      rgba(167,139,250,0.05) 100%);
+    background-size: 300% 300%;
+    animation: silkShift 12s ease-in-out infinite;
+    pointer-events: none;
+  }
+}
+:root[data-theme="light"] .card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg,
+    rgba(192,132,252,0.06) 0%,
+    rgba(56,189,248,0.05) 35%,
+    rgba(244,114,182,0.06) 65%,
+    rgba(167,139,250,0.05) 100%);
+  background-size: 300% 300%;
+  animation: silkShift 12s ease-in-out infinite;
+  pointer-events: none;
+}
+.card { position: relative; overflow: hidden; }

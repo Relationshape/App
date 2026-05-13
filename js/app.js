@@ -33,7 +33,14 @@ const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({
   "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
 }[c]));
 const fmtDate = ts => new Date(ts).toLocaleDateString(undefined, { year:"numeric", month:"short", day:"numeric" });
-function navigate(hash) { location.hash = hash; }
+function navigate(hash) {
+  const target = "#" + (hash.startsWith("/") ? "/" + hash.replace(/^\/+/, "") : hash.replace(/^#/, ""));
+  if (location.hash === target || location.hash === hash) {
+    route(); // same-hash: hashchange won't fire, call route() directly
+  } else {
+    location.hash = hash;
+  }
+}
 function getResultScale(result) { return Store.getResultScale(result); }
 
 // ----- Theme -----
@@ -851,11 +858,6 @@ function viewHome() {
   const profiles = Store.getProfiles();
   const imports  = Store.getImports();
 
-  if (!profiles.length && !imports.length) {
-    $app.append(viewWelcome());
-    return;
-  }
-
   $app.append(h("section", { class: "page" },
     h("header", { class: "page-head" },
       h("h1", {}, t("profiles_title")),
@@ -1168,35 +1170,47 @@ async function createNewResult(profileId) {
 }
 
 async function startBlank(profileId) {
-  const subject = await dlgPrompt({
-    title: t("new_map_title"),
-    label: t("map_name_label"),
-    placeholder: "e.g. Sam, my best friend",
-    okLabel: t("btn_next"),
-  });
-  if (!subject) return;
+  let step = 0;
+  let subject = "";
+  let enabledCategories = null;
 
-  const selectedCatIds = await runCategoryPicker(null);
-  if (selectedCatIds === false) return;
-
-  const enabledCategories = selectedCatIds;
-
-  const chosenScale = await promptScaleForNewCard();
-  if (chosenScale === null) return;
-
-  const version = Store.nextResultVersion(profileId, subject);
-  const r = Store.saveResult({
-    profileId, subject: subject.trim(),
-    subjectEmoji: pickEmoji(),
-    subjectColor: pickColor(),
-    answers: {},
-    scale: chosenScale,
-    enabledCategories,
-    askedItems: null,
-    progress: { catIndex: 0 },
-    version,
-  });
-  navigate(`/q-categories/${profileId}/${r.id}`);
+  while (true) {
+    if (step === 0) {
+      const s = await dlgPrompt({
+        title: t("new_map_title"),
+        label: t("map_name_label"),
+        placeholder: "e.g. Sam, my best friend",
+        value: subject,
+        okLabel: t("btn_next"),
+      });
+      if (!s) return;
+      subject = s;
+      step = 1;
+    } else if (step === 1) {
+      const selectedCatIds = await runCategoryPicker(null, { showBack: true });
+      if (selectedCatIds === false) return;
+      if (selectedCatIds === "BACK") { step = 0; continue; }
+      enabledCategories = selectedCatIds;
+      step = 2;
+    } else {
+      const chosenScale = await promptScaleForNewCard();
+      if (chosenScale === null) return;
+      const version = Store.nextResultVersion(profileId, subject);
+      const r = Store.saveResult({
+        profileId, subject: subject.trim(),
+        subjectEmoji: pickEmoji(),
+        subjectColor: pickColor(),
+        answers: {},
+        scale: chosenScale,
+        enabledCategories,
+        askedItems: null,
+        progress: { catIndex: 0 },
+        version,
+      });
+      navigate(`/q-categories/${profileId}/${r.id}`);
+      return;
+    }
+  }
 }
 
 async function startFromImport(profileId) {
@@ -1431,7 +1445,7 @@ async function editItemScaleDialog(currentItemScale, resultScale) {
 // Pass existingIds (array) to pre-check + disable already-selected categories,
 // or null to use the CATEGORY_GROUPS defaults.
 // Returns array of selected category IDs, null for "include everything", or false for cancelled.
-async function runCategoryPicker(existingIds) {
+async function runCategoryPicker(existingIds, { showBack = false } = {}) {
   const lang = getLang();
   // Build checked state: defaultOn for new maps, all existing + defaultOn for add-more
   const checkedIds = new Set(existingIds !== null ? existingIds : []);
@@ -1482,6 +1496,7 @@ async function runCategoryPicker(existingIds) {
       )
     ),
     actions: [
+      ...(showBack ? [{ label: t("btn_back"), kind: "ghost", value: "BACK" }] : []),
       ...(existingIds === null ? [{
         label: t("btn_select_all_continue"), kind: "ghost",
         handler: () => {
