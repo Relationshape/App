@@ -422,3 +422,217 @@
 
 /* ---- Misc ---- */
 .cat-modal-overlay .rs-modal-card { --c: var(--primary); }
+
+
+/* ================================================================
+   DESIGN SYSTEM UPGRADE — Depth, texture & spatial consistency
+   ================================================================ */
+
+/* ---- Constellation opacity boost ---- */
+.hero-constellation { opacity: 0.85; }
+@media (prefers-color-scheme: light) {
+  :root[data-theme="auto"] .hero-constellation,
+  :root:not([data-theme]) .hero-constellation { opacity: 0.4; }
+}
+:root[data-theme="light"] .hero-constellation { opacity: 0.4; }
+
+/* ---- Subtle starfield in body background ---- */
+/* Tiny scattered dots reinforce the celestial theme on every page */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image:
+    radial-gradient(circle, rgba(185,110,255,0.55) 1px, transparent 1px),
+    radial-gradient(circle, rgba(255,77,166,0.42)  1px, transparent 1px),
+    radial-gradient(circle, rgba(185,110,255,0.38) 1px, transparent 1px),
+    radial-gradient(circle, rgba(255,77,166,0.32)  1px, transparent 1px);
+  background-size: 310px 250px, 420px 380px, 190px 280px, 480px 320px;
+  background-position: 60px 40px, 180px 120px, 290px 30px, 80px 200px;
+  background-attachment: fixed;
+  opacity: 0.5;
+}
+:root[data-theme="light"] body::before,
+:root[data-theme="auto"] body::before { opacity: 0.2; }
+/* Page content sits above the starfield */
+#nav, #app { position: relative; z-index: 1; }
+
+/* ---- Glass surface inner highlight (3D depth sheen) ----
+   A top-left light-catch on glass surfaces reads as a light source,
+   making flat cards look dimensional. Uses inset box-shadow to avoid
+   any position/stacking context conflicts. */
+.card,
+.panel,
+.q-cat,
+.compare-tile,
+.cat-overview-tile,
+.start-card {
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.06),
+    inset 1px 0 0 rgba(255,255,255,0.04);
+}
+.card:hover,
+.compare-tile:hover {
+  box-shadow:
+    var(--shadow), var(--glow),
+    inset 0 1px 0 rgba(255,255,255,0.08),
+    inset 1px 0 0 rgba(255,255,255,0.05);
+}
+
+/* Slightly more vibrant border tint on glass cards */
+.card,
+.panel,
+.q-cat,
+.compare-tile,
+.cat-overview-tile,
+.list-item {
+  border-color: color-mix(in oklab, var(--primary) 16%, var(--glass-border));
+}
+
+/* Dot-grid micropattern on large panels (spider chart area) */
+.panel {
+  background-image: radial-gradient(circle, rgba(185,110,255,0.06) 1px, transparent 1px);
+  background-size: 26px 26px;
+}
+
+/* ---- Page & section header accent underline ---- */
+.page-head h1,
+.section-head h2 {
+  position: relative;
+  display: inline-block;
+}
+.page-head h1::after,
+.section-head h2::after {
+  content: "";
+  display: block;
+  width: clamp(2em, 30%, 3.5em);
+  height: 2px;
+  margin-top: 9px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--primary), var(--accent), transparent);
+  opacity: 0.9;
+}
+
+/* ---- Avatar — orbital glow ring ---- */
+.avatar {
+  box-shadow:
+    0 4px 20px -6px var(--c, var(--primary)),
+    0 0 0 1px color-mix(in oklab, var(--c, var(--primary)) 22%, transparent),
+    inset 0 1px 0 rgba(255,255,255,0.18);
+}
+.avatar:hover {
+  box-shadow:
+    0 6px 28px -6px var(--c, var(--primary)),
+    0 0 0 2px color-mix(in oklab, var(--c, var(--primary)) 38%, transparent),
+    inset 0 1px 0 rgba(255,255,255,0.22);
+}
+
+/* ---- Icon containers — inner 3D highlight ---- */
+.cat-card-icon,
+.q-cat-icon,
+.cat-modal-icon,
+.li-avatar,
+.hero-feat-icon {
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.14);
+}
+.cat-card-icon::after,
+.q-cat-icon::after,
+.cat-modal-icon::after,
+.li-avatar::after,
+.hero-feat-icon::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 55%);
+  pointer-events: none;
+}
+
+/* ---- Nav logo — layered depth glow ---- */
+.nav-logo {
+  box-shadow:
+    var(--glow-sm),
+    inset 0 1px 0 rgba(255,255,255,0.3),
+    inset 0 -1px 0 rgba(0,0,0,0.18);
+}
+
+/* ---- Cat card top bar — gradient + hover pulse ---- */
+.cat-card::before {
+  height: 2px;
+  background: linear-gradient(90deg, var(--c), color-mix(in oklab, var(--c) 50%, transparent));
+  opacity: 0.85;
+}
+.cat-card:hover::before { opacity: 1; height: 3px; }
+
+/* ---- Profile head — left inset accent glow ---- */
+.profile-head {
+  box-shadow:
+    inset 4px 0 14px -4px color-mix(in oklab, var(--c, var(--primary)) 30%, transparent),
+    var(--shadow-sm);
+}
+
+/* ---- List-item — richer left accent ---- */
+.list-item {
+  position: relative;
+  border-left-color: color-mix(in oklab, var(--c, var(--primary)) 70%, var(--glass-border));
+  box-shadow:
+    inset 3px 0 10px -3px color-mix(in oklab, var(--c, var(--primary)) 20%, transparent),
+    inset 0 1px 0 rgba(255,255,255,0.04);
+}
+
+/* ---- Q-item answered — subtle left glow ---- */
+.q-item.is-answered {
+  background: color-mix(in oklab, var(--primary) 6%, var(--surface-2));
+  box-shadow: inset 3px 0 0 color-mix(in oklab, var(--primary) 50%, transparent);
+}
+
+/* ---- Scale buttons — stronger active glow ---- */
+.scale-btn.is-active {
+  box-shadow:
+    0 0 14px color-mix(in oklab, var(--c) 38%, transparent),
+    inset 0 1px 0 rgba(255,255,255,0.12);
+}
+
+/* ---- Primary button — lifted depth ---- */
+.btn-primary {
+  box-shadow:
+    0 0 22px rgba(185,110,255,0.4),
+    0 4px 22px rgba(185,110,255,0.22),
+    inset 0 1px 0 rgba(255,255,255,0.24);
+}
+.btn-primary:hover:not(:disabled) {
+  box-shadow:
+    0 0 34px rgba(185,110,255,0.62),
+    0 6px 28px rgba(185,110,255,0.35),
+    inset 0 1px 0 rgba(255,255,255,0.28);
+  transform: translateY(-1px);
+}
+.btn-primary:active:not(:disabled) { transform: translateY(1px); }
+
+/* ---- Howto step cards — accent border on hover ---- */
+.howto-step:hover {
+  border-color: color-mix(in oklab, var(--primary) 48%, var(--glass-border));
+  box-shadow: 0 4px 24px rgba(185,110,255,0.15), inset 0 1px 0 rgba(255,255,255,0.06);
+}
+
+/* ---- Cat overview tiles — depth hover glow ---- */
+.cat-overview-tile:hover {
+  box-shadow: 0 6px 20px -4px rgba(0,0,0,.35), 0 0 18px color-mix(in oklab, var(--c) 16%, transparent);
+}
+
+/* ---- Spider chart — richer ring lines ---- */
+.rs-grid-ring { opacity: 0.6; }
+.rs-grid-spoke { opacity: 0.32; }
+
+/* ---- Modal card — subtle primary tint ---- */
+.rs-modal-card {
+  border-color: color-mix(in oklab, var(--primary) 18%, var(--glass-border));
+  box-shadow:
+    0 40px 100px -20px rgba(0,0,0,.8),
+    var(--glow),
+    inset 0 1px 0 rgba(255,255,255,0.06);
+}
