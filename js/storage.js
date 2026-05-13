@@ -2,7 +2,7 @@
 // All data lives in window.localStorage; nothing is sent anywhere.
 
 import { DEFAULT_SCALE } from "./data.js";
-import { getLocalizedDefaultScale } from "./i18n.js";
+import { getLocalizedDefaultScale, DEFAULT_SCALE_DE } from "./i18n.js";
 
 const KEY = "relationshape.v1";
 
@@ -138,7 +138,9 @@ export const Store = {
       const migrated = migrateScale(data.scale);
       const isUnmodifiedEnglish = migrated.length === DEFAULT_SCALE.length &&
         migrated.every((s, i) => s.key === DEFAULT_SCALE[i].key && s.label === DEFAULT_SCALE[i].label);
-      if (isUnmodifiedEnglish) {
+      const isUnmodifiedDE = migrated.length === DEFAULT_SCALE_DE.length &&
+        migrated.every((s, i) => s.key === DEFAULT_SCALE_DE[i].key && s.label === DEFAULT_SCALE_DE[i].label);
+      if (isUnmodifiedEnglish || isUnmodifiedDE) {
         data.scale = cloneScale(localDefault);
         save(data);
       } else if (JSON.stringify(migrated) !== JSON.stringify(data.scale)) {
