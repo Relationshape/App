@@ -1330,6 +1330,8 @@ async function editItemScaleDialog(currentItemScale, resultScale) {
     body: () => listEl,
     actions: [
       { label: t("btn_cancel"), kind: "ghost", value: null },
+      { label: t("item_reset_answer"), kind: "ghost",
+        handler: () => ({ __clearAnswer: true, scale: cloneScale(scaleRef) }) },
       { label: t("new_card_scale_confirm"), kind: "primary", primary: true,
         handler: () => cloneScale(scaleRef) },
     ],
@@ -1391,7 +1393,6 @@ async function runCategoryPicker(existingIds) {
       )
     ),
     actions: [
-      { label: t("btn_skip_onboarding"), kind: "ghost", value: null },
       ...(existingIds === null ? [{
         label: t("btn_select_all_continue"), kind: "ghost",
         handler: () => {
@@ -1400,7 +1401,10 @@ async function runCategoryPicker(existingIds) {
         },
       }] : []),
       { label: existingIds ? t("btn_add_categories") : t("btn_start_map"), kind: "primary", primary: true,
-        handler: () => Array.from(checkedIds) },
+        handler: () => {
+          if (checkedIds.size === 0) throw new Error(t("onboarding_empty_warning"));
+          return Array.from(checkedIds);
+        } },
     ],
   }).catch(() => false);
 }
@@ -1748,7 +1752,7 @@ function qHeader({ profileId, resultId, idx, total, cat, progressPct, result, mo
     ? `${t("q_item")} ${idx + 1} ${t("q_of")} ${total}`
     : `${t("q_category")} ${idx + 1} ${t("q_of")} ${total}`;
   return h("header", { class: "q-head" },
-    h("button", { class: "btn btn-ghost", onClick: () => navigate(`/q-categories/${profileId}/${resultId}`) }, "← " + t("btn_categories")),
+    h("button", { class: "btn btn-cats-back", onClick: () => navigate(`/q-categories/${profileId}/${resultId}`) }, "← " + t("btn_categories")),
     h("div", { class: "q-progress" },
       h("div", { class: "q-progress-bar" },
         h("div", { class: "q-progress-fill", style: `width:${progressPct}%; background:${cat.color}` })),
@@ -1808,14 +1812,14 @@ function viewQuestionnaireSingle(profile, result) {
   $app.append(root);
   renderCard();
 
-  function renderCard() {
+  function renderCard(noAnimate = false) {
     if (cursor >= items.length) {
       stack.innerHTML = "";
       stack.append(h("div", { class: "q-done" },
         h("h1", {}, t("q_done_title")),
         h("p", { class: "muted" }, t("q_done_body")),
         h("div", { class: "form-actions" },
-          h("button", { class: "btn btn-ghost", onClick: () => navigate(`/q-categories/${profileId}/${resultId}`) }, "← " + t("btn_categories")),
+          h("button", { class: "btn btn-cats-back", onClick: () => navigate(`/q-categories/${profileId}/${resultId}`) }, "← " + t("btn_categories")),
           h("button", { class: "btn btn-primary", onClick: () => navigate(`/result/${resultId}`) }, t("btn_see_results")),
         ),
       ));
@@ -1842,7 +1846,8 @@ function viewQuestionnaireSingle(profile, result) {
       onLeft: () => advance(null, "left"),
       onRight: () => advance(null, "right"),
     });
-    requestAnimationFrame(() => card.classList.add("in"));
+    if (noAnimate) card.classList.add("in");
+    else requestAnimationFrame(() => card.classList.add("in"));
   }
 
   function makeCard(it, isPeek) {
@@ -1866,7 +1871,7 @@ function viewQuestionnaireSingle(profile, result) {
         if (itemScale) n.itemScale = itemScale;
         return n;
       });
-      renderCard();
+      renderCard(true);
     }
 
     const grGivingKey = itemScale
@@ -1892,18 +1897,17 @@ function viewQuestionnaireSingle(profile, result) {
             if (!newItemScale) return;
             setStore(it, prev => {
               const n = { ...(prev || {}) };
-              n.itemScale = newItemScale;
+              n.itemScale = newItemScale.__clearAnswer ? newItemScale.scale : newItemScale;
               delete n.scale;
               delete n.giving;
               delete n.receiving;
               return n;
             });
-            renderCard();
+            renderCard(true);
           }
         }, t("item_edit_scale")),
       ),
       h("h1", { class: "q-card-item" }, it.isCustom ? it.item : getItemLabel(it.cat, it.item, _slang)),
-      h("p", { class: "q-card-blurb muted" }, _slang === "de" && it.cat.deBlurb ? it.cat.deBlurb : it.cat.blurb),
       it.cat.gr
         ? h("div", { class: "q-gr-sliders" },
             h("div", { class: "q-gr-row" },
@@ -1917,7 +1921,7 @@ function viewQuestionnaireSingle(profile, result) {
                 },
                 onClear: () => {
                   setStore(it, prev => { const n = { ...(prev || {}) }; delete n.giving; return n; });
-                  renderCard();
+                  renderCard(true);
                 },
               }),
             ),
@@ -1932,7 +1936,7 @@ function viewQuestionnaireSingle(profile, result) {
                 },
                 onClear: () => {
                   setStore(it, prev => { const n = { ...(prev || {}) }; delete n.receiving; return n; });
-                  renderCard();
+                  renderCard(true);
                 },
               }),
             ),
@@ -1944,7 +1948,7 @@ function viewQuestionnaireSingle(profile, result) {
               onChange: (key) => {
                 const resultKey = itemScale ? resolveAnswerKey(key, itemScale, SCALE) : key;
                 setStore(it, prev => ({ ...(prev || {}), scale: resultKey, ...(itemScale ? { itemScale } : {}) }));
-                renderCard();
+                renderCard(true);
               },
               onClear: () => {
                 setStore(it, prev => {
@@ -1952,7 +1956,7 @@ function viewQuestionnaireSingle(profile, result) {
                   delete c.scale;
                   return c;
                 });
-                renderCard();
+                renderCard(true);
               },
             })),
       h("input", {
@@ -2142,7 +2146,8 @@ function viewResult(resultId) {
     h("section", { class: "page-section" },
       h("header", { class: "section-head" },
         h("h2", {}, t("by_category")),
-        h("p", { class: "muted" }, t("by_category_sub"))),
+        h("p", { class: "muted" }, t("by_category_sub")),
+        r.enabledCategories ? h("button", { class: "btn", onClick: () => openAddCategoriesDialog(r.profileId, r.id) }, t("btn_add_categories")) : null),
       h("div", { class: "cat-grid" }, ...categoryCards([dataset], r))),
   ));
 }
@@ -2166,7 +2171,9 @@ function openEnlargedSpiderModal(datasets) {
 function categoryCards(datasets, editableResult = null) {
   const fabiMode = Store.getFabiMode();
   const _cclang = getLang();
-  return CATEGORIES.map(cat => {
+  const enabledIds = editableResult?.enabledCategories;
+  const displayCats = enabledIds ? CATEGORIES.filter(c => enabledIds.includes(c.id)) : CATEGORIES;
+  return displayCats.map(cat => {
     const filledCount = datasets.reduce((acc, d) => {
       const slot = d.answers?.[cat.id] || {};
       let n = 0;
@@ -2504,25 +2511,55 @@ function compareTargetPicker(profileId, currentResultId) {
     h("span", { class: "compare-tile-arrow" }, "→"),
   );
 
-  return h("div", { class: "compare-grid" },
-    ...others.map(o => {
-      const op = Store.getProfile(o.profileId);
-      return tile({
-        id: o.id,
-        emoji: o.subjectEmoji || op?.emoji || "💞",
-        color: o.subjectColor || op?.color,
-        title: `${op?.name || "?"} → ${o.subject}`,
-        sub: `${t("updated")} ${fmtDate(o.updatedAt)}`,
-      });
-    }),
-    ...imports.map(i => tile({
-      id: "imp:" + i.id,
-      emoji: i.emoji || "📨",
-      color: i.color || "#7c3aed",
-      title: `${i.name} → ${i.subject}`,
-      sub: `${t("imported_on")} ${fmtDate(i.importedAt)}`,
-    })),
+  const sections = [];
+
+  if (others.length) {
+    sections.push(
+      h("div", { class: "compare-section" },
+        h("h3", { class: "compare-section-title" }, t("compare_own_maps")),
+        h("div", { class: "compare-grid" },
+          ...others.map(o => {
+            const op = Store.getProfile(o.profileId);
+            return tile({
+              id: o.id,
+              emoji: o.subjectEmoji || op?.emoji || "💞",
+              color: o.subjectColor || op?.color,
+              title: `${op?.name || "?"} → ${o.subject}`,
+              sub: `${t("updated")} ${fmtDate(o.updatedAt)}`,
+            });
+          }),
+        ),
+      )
+    );
+  }
+
+  sections.push(
+    h("div", { class: "compare-section" },
+      h("h3", { class: "compare-section-title" }, t("compare_imports_title")),
+      h("div", { class: "compare-grid" },
+        ...imports.map(i => tile({
+          id: "imp:" + i.id,
+          emoji: i.emoji || "📨",
+          color: i.color || "#7c3aed",
+          title: `${i.name} → ${i.subject}`,
+          sub: `${t("imported_on")} ${fmtDate(i.importedAt)}`,
+        })),
+        h("button", {
+          class: "compare-tile compare-tile-import",
+          style: "--c:#7c3aed",
+          onClick: () => navigate("/import"),
+        },
+          h("div", { class: "li-avatar" }, "📥"),
+          h("div", { class: "compare-tile-body" },
+            h("h3", {}, t("btn_import_map")),
+            h("p", { class: "muted small" }, "")),
+          h("span", { class: "compare-tile-arrow" }, "→"),
+        ),
+      ),
+    )
   );
+
+  return h("div", { class: "compare-pickers-split" }, ...sections);
 }
 
 // ---------- Share ----------

@@ -147,6 +147,7 @@ const TRANSLATIONS = {
     btn_skip_onboarding: "Skip — include everything",
     btn_start_map: "Start map with these categories",
     btn_add_categories: "Add more categories",
+    onboarding_empty_warning: "Please select at least one category to continue.",
 
     // Age gate
     age_gate_title: "This app is for adults",
@@ -161,6 +162,9 @@ const TRANSLATIONS = {
     result_category_overview: "Category overview",
     result_category_overview_sub: "Averaged per category — the further out, the more important to you on average.",
     compare_with: "Compare with someone",
+    compare_own_maps: "Overlay your own maps",
+    compare_imports_title: "Compare with imported results",
+    btn_import_map: "📥 Import...",
     by_category: "By category",
     by_category_sub: "Open a card to see a per-item radar chart and the underlying breakdown.",
     no_compare: "Create another relationship map or import a shared one to compare.",
@@ -193,6 +197,7 @@ const TRANSLATIONS = {
     // Per-item scale
     item_edit_scale: "Edit Item/Scale",
     item_scale_change_warning: "This item already has an answer. Changing the scale will clear it. Continue?",
+    item_reset_answer: "Clear answer (keep scale)",
     q_single_hint_mobile: "Swipe left/right to go to previous/next question",
     q_single_hint_desktop: "Use ← → arrow keys to navigate between questions",
     btn_categories: "Categories",
@@ -481,6 +486,7 @@ const TRANSLATIONS = {
     btn_skip_onboarding: "Überspringen – alles einschließen",
     btn_start_map: "Karte mit diesen Kategorien beginnen",
     btn_add_categories: "Weitere Kategorien hinzufügen",
+    onboarding_empty_warning: "Bitte wähle mindestens eine Kategorie aus, um fortzufahren.",
 
     // Age gate
     age_gate_title: "Diese App richtet sich an Erwachsene",
@@ -495,6 +501,9 @@ const TRANSLATIONS = {
     result_category_overview: "Kategorieübersicht",
     result_category_overview_sub: "Durchschnitt pro Kategorie — je weiter außen, desto wichtiger im Schnitt.",
     compare_with: "Mit jemandem vergleichen",
+    compare_own_maps: "Eigene Karten übereinander legen",
+    compare_imports_title: "Mit importierten Karten vergleichen",
+    btn_import_map: "📥 Importieren...",
     by_category: "Nach Kategorie",
     by_category_sub: "Öffne eine Karte, um ein Netzdiagramm der Elemente und die zugrunde liegende Aufschlüsselung zu sehen.",
     no_compare: "Erstelle eine weitere Beziehungskarte oder importiere eine geteilte, um zu vergleichen.",
@@ -527,6 +536,7 @@ const TRANSLATIONS = {
     // Per-item scale
     item_edit_scale: "Element/Skala bearbeiten",
     item_scale_change_warning: "Dieses Element hat bereits eine Antwort. Das Ändern der Skala löscht diese. Fortfahren?",
+    item_reset_answer: "Antwort löschen (Skala behalten)",
     q_single_hint_mobile: "Links/rechts wischen für vorherige/nächste Frage",
     q_single_hint_desktop: "Pfeiltasten ← → zum Navigieren zwischen den Fragen",
     btn_categories: "Kategorien",
