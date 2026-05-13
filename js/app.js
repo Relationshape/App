@@ -418,8 +418,6 @@ function demoSpiderSVG() {
 function heroConstellationSVG() {
   const W = 840, H = 340;
 
-  // Three depth layers: d=0 far (large/dim/slow), d=1 mid, d=2 near (small/bright/fast)
-  // acc=true → uses accent (magenta) color for depth variety
   const nodes = [
     // Far layer — large soft orbs, slow pulse
     { x: 118, y: 50,  r: 5.2, d: 0, acc: false },
@@ -452,7 +450,7 @@ function heroConstellationSVG() {
   const mainEdges  = [[0,1],[1,2],[2,3],[0,4],[3,5],[4,6],[5,7],[6,8],[7,12],[8,9],[9,10],[10,11],[11,12],[1,9],[2,11]];
   const crossEdges = [[13,0],[13,14],[14,2],[15,3],[15,18],[16,8],[17,9],[18,11],[13,16],[17,20],[19,14],[16,21],[22,9],[22,16]];
 
-  // Scattered micro-stars for depth/starfield
+  // Micro-stars for starfield depth
   const starData = [
     [42,18,0.6],[160,38,0.8],[380,15,0.5],[550,22,0.7],[720,40,0.6],[800,55,0.9],
     [60,90,0.5],[200,75,0.7],[330,55,0.6],[480,80,0.8],[640,60,0.5],[770,90,0.7],
@@ -461,9 +459,34 @@ function heroConstellationSVG() {
     [475,290,0.5],[640,320,0.6],[200,310,0.7],[700,330,0.5],[820,300,0.6],
   ];
   const stars = starData.map(([x,y,r], i) => {
-    const op = (0.12 + (i % 6) * 0.06).toFixed(2);
+    const op = (0.10 + (i % 6) * 0.05).toFixed(2);
     const col = i % 4 === 0 ? "var(--accent)" : "var(--primary)";
     return `<circle cx="${x}" cy="${y}" r="${r}" fill="${col}" opacity="${op}"/>`;
+  }).join("");
+
+  // Per-node gradient defs — sphere gradient + iridescent shimmer
+  const defs = nodes.map(({ d, acc }, i) => {
+    const col  = acc ? "var(--accent)" : "var(--primary)";
+    const col2 = acc ? "var(--primary)" : "var(--accent)";
+    // Vary highlight position per node for naturalistic look (30–48%, 22–38%)
+    const hx = 30 + (i * 11) % 18;
+    const hy = 22 + (i * 7)  % 16;
+    // Opacity by depth
+    const specOp     = [0.22, 0.48, 0.78][d].toFixed(2);
+    const bodyHigh   = [0.78, 0.90, 1.00][d].toFixed(2);
+    const bodyMid    = [0.50, 0.62, 0.75][d].toFixed(2);
+    const bodyLow    = [0.08, 0.14, 0.22][d].toFixed(2);
+    const iridOp     = [0.08, 0.18, 0.30][d].toFixed(2);
+    return `<radialGradient id="sg${i}" cx="${hx}%" cy="${hy}%" r="72%" fx="${hx-8}%" fy="${hy-8}%">
+        <stop offset="0%"   stop-color="white"  stop-opacity="${specOp}"/>
+        <stop offset="18%"  stop-color="${col}"  stop-opacity="${bodyHigh}"/>
+        <stop offset="68%"  stop-color="${col}"  stop-opacity="${bodyMid}"/>
+        <stop offset="100%" stop-color="${col}"  stop-opacity="${bodyLow}"/>
+      </radialGradient>
+      <radialGradient id="hg${i}" cx="72%" cy="72%" r="50%">
+        <stop offset="0%"   stop-color="${col2}" stop-opacity="${iridOp}"/>
+        <stop offset="100%" stop-color="${col2}" stop-opacity="0"/>
+      </radialGradient>`;
   }).join("");
 
   const renderEdge = (a, b) => {
@@ -471,44 +494,41 @@ function heroConstellationSVG() {
     if (!na || !nb) return "";
     const dist = Math.hypot(nb.x - na.x, nb.y - na.y);
     const depthAvg = (na.d + nb.d) / 2;
-    const baseOp   = [0.18, 0.28, 0.42][Math.round(depthAvg)] ?? 0.18;
-    const op = Math.max(0.05, baseOp - dist * 0.000065).toFixed(2);
-    const w  = (0.7 + depthAvg * 0.45).toFixed(1);
+    const baseOp   = [0.20, 0.32, 0.48][Math.round(depthAvg)] ?? 0.20;
+    const op = Math.max(0.05, baseOp - dist * 0.000055).toFixed(2);
+    const w  = (0.6 + depthAvg * 0.5).toFixed(1);
     const col = (na.acc || nb.acc) ? "var(--accent)" : "var(--primary)";
     return `<line x1="${na.x.toFixed(1)}" y1="${na.y.toFixed(1)}" x2="${nb.x.toFixed(1)}" y2="${nb.y.toFixed(1)}" stroke="${col}" stroke-opacity="${op}" stroke-width="${w}"/>`;
   };
-
   const lines = [...mainEdges, ...crossEdges].map(([a,b]) => renderEdge(a,b)).join("");
 
   const renderNode = ({ x, y, r, d, acc }, i) => {
-    const col  = acc ? "var(--accent)" : "var(--primary)";
+    const col   = acc ? "var(--accent)" : "var(--primary)";
     const speed = [3.8, 2.6, 1.8][d];
     const d1 = (speed + (i * 0.23) % 1.5).toFixed(1);
     const d2 = (speed * 1.45 + (i * 0.37) % 2).toFixed(1);
-
-    const dotOp  = [0.48, 0.72, 0.95][d];
-    const glowR  = r * [5.5, 3.8, 2.4][d];
-    const glowOp = [0.09, 0.16, 0.28][d];
-    const coreOp = d === 2 ? 0.72 : d === 1 ? 0.2 : 0;
-    const coreR  = r * 0.4;
+    const d3 = (speed * 1.9  + (i * 0.19) % 2.5).toFixed(1);
+    const glowR  = r * [5.0, 3.4, 2.1][d];
+    const glowOp = [0.07, 0.13, 0.22][d];
+    const rimOp  = [0.00, 0.14, 0.28][d];
 
     return `<g>
       <circle cx="${x}" cy="${y}" r="${glowR.toFixed(1)}" fill="${col}" opacity="${glowOp}">
-        <animate attributeName="opacity" values="${glowOp};${(glowOp*2.3).toFixed(2)};${glowOp}" dur="${d2}s" repeatCount="indefinite"/>
-        <animate attributeName="r" values="${glowR.toFixed(1)};${(glowR*1.4).toFixed(1)};${glowR.toFixed(1)}" dur="${d2}s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="${glowOp};${(glowOp*2.1).toFixed(2)};${glowOp}" dur="${d2}s" repeatCount="indefinite"/>
+        <animate attributeName="r" values="${glowR.toFixed(1)};${(glowR*1.38).toFixed(1)};${glowR.toFixed(1)}" dur="${d2}s" repeatCount="indefinite"/>
       </circle>
-      <circle cx="${x}" cy="${y}" r="${r}" fill="${col}" opacity="${dotOp}">
-        <animate attributeName="opacity" values="${dotOp};${Math.min(1,dotOp+0.3).toFixed(2)};${dotOp}" dur="${d1}s" repeatCount="indefinite"/>
+      <circle cx="${x}" cy="${y}" r="${r}" fill="url(#sg${i})">
+        <animate attributeName="opacity" values="1;0.85;1" dur="${d1}s" repeatCount="indefinite"/>
       </circle>
-      ${coreOp > 0 ? `<circle cx="${x}" cy="${y}" r="${coreR.toFixed(1)}" fill="white" opacity="${coreOp}">
-        <animate attributeName="opacity" values="${coreOp};${Math.min(1,coreOp+0.28).toFixed(2)};${coreOp}" dur="${d1}s" repeatCount="indefinite"/>
-      </circle>` : ""}
+      <circle cx="${x}" cy="${y}" r="${r}" fill="url(#hg${i})">
+        <animate attributeName="opacity" values="1;0.45;1" dur="${d3}s" repeatCount="indefinite"/>
+      </circle>
+      ${rimOp > 0 ? `<circle cx="${x}" cy="${y}" r="${(r-0.3).toFixed(1)}" fill="none" stroke="white" stroke-width="0.55" stroke-opacity="${rimOp.toFixed(2)}"/>` : ""}
     </g>`;
   };
-
   const pts = nodes.map((n, i) => renderNode(n, i)).join("");
 
-  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" aria-hidden="true">${stars}${lines}${pts}</svg>`;
+  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs>${defs}</defs>${stars}${lines}${pts}</svg>`;
 }
 
 function buildWizardSteps() {
@@ -775,6 +795,7 @@ function viewWelcome() {
     // Hero
     h("div", { class: "hero" },
       h("div", { class: "hero-blob" }),
+      h("div", { class: "hero-blob hero-blob-holo" }),
       h("div", { class: "hero-constellation", html: heroConstellationSVG() }),
       h("h1", { class: "hero-title" }, t("welcome_title")),
       h("p", { class: "hero-sub" }, t("welcome_sub")),

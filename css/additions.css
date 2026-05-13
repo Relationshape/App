@@ -325,18 +325,19 @@
 .hero-constellation {
   position: absolute;
   top: 0; left: 50%;
-  transform: translateX(-50%);
-  width: min(900px, 160vw);
+  transform: translateX(-50%) perspective(900px) rotateX(4deg);
+  transform-origin: center 80%;
+  width: min(980px, 170vw);
   aspect-ratio: 840 / 340;
   z-index: 0;
   pointer-events: none;
-  opacity: 0.55;
+  opacity: 0.65;
 }
 @media (prefers-color-scheme: light) {
   :root[data-theme="auto"] .hero-constellation,
-  :root:not([data-theme]) .hero-constellation { opacity: 0.35; }
+  :root:not([data-theme]) .hero-constellation { opacity: 0.40; }
 }
-:root[data-theme="light"] .hero-constellation { opacity: 0.35; }
+:root[data-theme="light"] .hero-constellation { opacity: 0.40; }
 
 /* Hero title / sub / actions need to sit above constellation */
 .hero-title, .hero-sub, .hero-actions, .hero-features { position: relative; z-index: 1; }
@@ -428,11 +429,11 @@
    DESIGN SYSTEM UPGRADE — Depth, texture & spatial consistency
    ================================================================ */
 
-/* ---- Constellation opacity boost ---- */
-.hero-constellation { opacity: 0.85; }
+/* ---- Constellation opacity boost (dark mode) ---- */
+.hero-constellation { opacity: 0.90; }
 @media (prefers-color-scheme: light) {
   :root[data-theme="auto"] .hero-constellation,
-  :root:not([data-theme]) .hero-constellation { opacity: 0.4; }
+  :root:not([data-theme]) .hero-constellation { opacity: 0.42; }
 }
 :root[data-theme="light"] .hero-constellation { opacity: 0.4; }
 
@@ -472,13 +473,6 @@ body::before {
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,0.06),
     inset 1px 0 0 rgba(255,255,255,0.04);
-}
-.card:hover,
-.compare-tile:hover {
-  box-shadow:
-    var(--shadow), var(--glow),
-    inset 0 1px 0 rgba(255,255,255,0.08),
-    inset 1px 0 0 rgba(255,255,255,0.05);
 }
 
 /* Slightly more vibrant border tint on glass cards */
@@ -682,3 +676,139 @@ body::before {
 }
 .onboard-switch.on { background: var(--primary); }
 .onboard-switch.on::after { transform: translateX(18px); }
+
+/* ================================================================
+   Holographic / 3D effects — elegant, artistic
+   ================================================================ */
+
+/* ---- Hero blob animations ---- */
+@keyframes heroBlobPulse {
+  0%, 100% { transform: translateX(-50%) scale(1.00); opacity: 0.90; }
+  35%       { transform: translateX(-50%) scale(1.06); opacity: 1.00; }
+  70%       { transform: translateX(-50%) scale(0.97); opacity: 0.85; }
+}
+@keyframes holoOrbDrift {
+  0%   { transform: translateX(-50%) scale(1.00) rotate(0deg);   opacity: 0.65; }
+  28%  { transform: translateX(-50%) scale(1.10) rotate(8deg);   opacity: 0.85; }
+  55%  { transform: translateX(-50%) scale(0.95) rotate(-5deg);  opacity: 0.70; }
+  80%  { transform: translateX(-50%) scale(1.05) rotate(3deg);   opacity: 0.80; }
+  100% { transform: translateX(-50%) scale(1.00) rotate(0deg);   opacity: 0.65; }
+}
+
+/* ---- Btn-primary iridescent sweep on hover ---- */
+.btn-primary { position: relative; overflow: hidden; }
+.btn-primary::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  background: conic-gradient(from 0deg at 50% 120%,
+    transparent 0deg,
+    rgba(255,255,255,0.14) 60deg,
+    transparent 120deg,
+    rgba(185,110,255,0.10) 200deg,
+    transparent 280deg);
+  opacity: 0;
+  transition: opacity .35s ease;
+  pointer-events: none;
+  animation: holoBtnSpin 5s linear infinite paused;
+}
+.btn-primary:hover::after {
+  opacity: 1;
+  animation-play-state: running;
+}
+@keyframes holoBtnSpin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* ---- Hero feature icons — holo ring on hover ---- */
+.hero-feat-icon {
+  position: relative;
+  z-index: 0;
+}
+.hero-feat-icon::before {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  background: conic-gradient(
+    var(--primary) 0%,
+    var(--accent)  35%,
+    rgba(79,172,254,0.7) 55%,
+    var(--primary) 100%);
+  filter: blur(8px);
+  opacity: 0;
+  z-index: -1;
+  transition: opacity .4s ease;
+  animation: holoIconSpin 5s linear infinite paused;
+}
+.hero-features li:hover .hero-feat-icon::before {
+  opacity: 0.35;
+  animation-play-state: running;
+}
+@keyframes holoIconSpin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* ---- Cards — iridescent border shimmer on hover ---- */
+.card:hover,
+.panel:hover,
+.compare-tile:hover {
+  box-shadow:
+    var(--shadow), var(--glow),
+    inset 0 1px 0 rgba(255,255,255,0.08),
+    inset 1px 0 0 rgba(255,255,255,0.05),
+    0 0 0 1px color-mix(in oklab, var(--accent) 22%, var(--glass-border));
+}
+.howto-step:hover {
+  box-shadow:
+    0 8px 28px -8px rgba(0,0,0,.4),
+    0 0 0 1px color-mix(in oklab, var(--accent) 24%, var(--glass-border)),
+    0 0 18px color-mix(in oklab, var(--primary) 10%, transparent);
+}
+
+/* ---- Avatar — 3D sphere gradient ---- */
+.li-avatar {
+  background: radial-gradient(circle at 35% 30%,
+    color-mix(in oklab, var(--c) 80%, white),
+    var(--c) 55%,
+    color-mix(in oklab, var(--c) 70%, black));
+}
+
+/* ---- Section head h2 — iridescent underline ---- */
+.section-head h2::after {
+  background: linear-gradient(90deg, var(--primary), var(--accent), rgba(79,172,254,0.8), var(--primary));
+  background-size: 300% 100%;
+  animation: holoUnderlineSlide 6s linear infinite;
+}
+@keyframes holoUnderlineSlide {
+  from { background-position: 0% center; }
+  to   { background-position: 300% center; }
+}
+
+/* ---- Page head h1 — iridescent underline ---- */
+.page-head h1::after {
+  background: linear-gradient(90deg, var(--primary), var(--accent), rgba(79,172,254,0.8), var(--primary));
+  background-size: 300% 100%;
+  animation: holoUnderlineSlide 7s linear infinite;
+}
+
+/* ---- How-to step icon — soft holo on hover ---- */
+.howto-step:hover .howto-step-icon {
+  filter: drop-shadow(0 0 8px color-mix(in oklab, var(--primary) 60%, var(--accent)));
+}
+
+/* ---- Nav SVG icons — holo glow on active ---- */
+.nav-link.active svg {
+  filter: drop-shadow(0 0 4px color-mix(in oklab, var(--accent) 70%, transparent));
+}
+
+/* ---- Glass surfaces — micro iridescent bottom sheen ---- */
+.card, .panel, .q-cat, .compare-tile, .cat-overview-tile, .start-card, .howto-step {
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.07),
+    inset 1px 0 0 rgba(255,255,255,0.04),
+    inset 0 -1px 0 rgba(185,110,255,0.04);
+}
