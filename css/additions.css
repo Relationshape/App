@@ -736,112 +736,29 @@ body::before {
    Holographic / 3D effects — elegant, artistic
    ================================================================ */
 
-/* ---- Hero blob shape morphing ---- */
-@keyframes blobMorph1 {
-  0%   { border-radius: 62% 38% 42% 58% / 50% 55% 45% 50%; }
-  20%  { border-radius: 40% 60% 55% 45% / 60% 42% 58% 40%; }
-  40%  { border-radius: 55% 45% 38% 62% / 42% 60% 40% 58%; }
-  60%  { border-radius: 48% 52% 60% 40% / 55% 38% 62% 45%; }
-  80%  { border-radius: 60% 40% 45% 55% / 38% 55% 42% 60%; }
-  100% { border-radius: 62% 38% 42% 58% / 50% 55% 45% 50%; }
-}
-@keyframes blobMorph2 {
-  0%   { border-radius: 50% 62% 55% 45% / 60% 40% 62% 48%; }
-  25%  { border-radius: 65% 35% 48% 52% / 45% 62% 38% 55%; }
-  50%  { border-radius: 38% 62% 62% 38% / 52% 48% 55% 45%; }
-  75%  { border-radius: 55% 45% 35% 65% / 40% 58% 60% 42%; }
-  100% { border-radius: 50% 62% 55% 45% / 60% 40% 62% 48%; }
-}
-@keyframes blobMorph3 {
-  0%   { border-radius: 55% 45% 62% 38% / 48% 58% 42% 52%; }
-  33%  { border-radius: 42% 58% 45% 55% / 60% 40% 55% 45%; }
-  66%  { border-radius: 60% 40% 50% 50% / 42% 55% 45% 58%; }
-  100% { border-radius: 55% 45% 62% 38% / 48% 58% 42% 52%; }
-}
-
-/* ---- Hero blob scale / opacity animations ---- */
+/* ---- Hero blob animations ---- */
 @keyframes heroBlobPulse {
-  0%, 100% { transform: translateX(-50%) scale(1.00); opacity: 0.95; }
-  35%       { transform: translateX(-50%) scale(1.07); opacity: 1.00; }
-  70%       { transform: translateX(-50%) scale(0.96); opacity: 0.88; }
+  0%, 100% { transform: translateX(-50%) scale(1.00); opacity: 0.90; }
+  35%       { transform: translateX(-50%) scale(1.06); opacity: 1.00; }
+  70%       { transform: translateX(-50%) scale(0.97); opacity: 0.85; }
 }
 @keyframes holoOrbDrift {
-  0%   { transform: translateX(-50%) scale(1.00) rotate(0deg);  opacity: 0.80; }
-  28%  { transform: translateX(-50%) scale(1.12) rotate(10deg); opacity: 1.00; }
-  55%  { transform: translateX(-50%) scale(0.94) rotate(-6deg); opacity: 0.82; }
-  80%  { transform: translateX(-50%) scale(1.06) rotate(4deg);  opacity: 0.95; }
-  100% { transform: translateX(-50%) scale(1.00) rotate(0deg);  opacity: 0.80; }
+  0%   { transform: translateX(-50%) scale(1.00) rotate(0deg);   opacity: 0.65; }
+  28%  { transform: translateX(-50%) scale(1.10) rotate(8deg);   opacity: 0.85; }
+  55%  { transform: translateX(-50%) scale(0.95) rotate(-5deg);  opacity: 0.70; }
+  80%  { transform: translateX(-50%) scale(1.05) rotate(3deg);   opacity: 0.80; }
+  100% { transform: translateX(-50%) scale(1.00) rotate(0deg);   opacity: 0.65; }
 }
 
-/* ---- Additional floating bubble elements ---- */
-.hero-bubble {
-  position: absolute;
-  aspect-ratio: 1 / 1;
-  z-index: -1;
-  pointer-events: none;
-}
-.hero-bubble-b {
-  top: 55%; left: 8%;
-  width: min(240px, 52vw);
-  background:
-    radial-gradient(circle at 33% 27%, rgba(255,255,255,0.60) 0%, transparent 20%),
-    radial-gradient(ellipse at 62% 68%, color-mix(in oklab, var(--accent) 55%, transparent) 0%, transparent 45%),
-    radial-gradient(ellipse at center, color-mix(in oklab, var(--primary) 45%, transparent) 0%, transparent 68%);
-  filter: blur(26px) saturate(2.0) hue-rotate(25deg);
-  animation: blobMorph3 10s ease-in-out infinite, holoOrbDrift 17s ease-in-out -6s infinite;
-  opacity: 0.82;
-}
-.hero-bubble-c {
-  top: 25%; left: 6%;
-  width: min(155px, 34vw);
-  background:
-    radial-gradient(circle at 28% 24%, rgba(255,255,255,0.65) 0%, transparent 18%),
-    radial-gradient(ellipse at 70% 65%, color-mix(in oklab, var(--accent) 45%, transparent) 0%, transparent 42%),
-    radial-gradient(ellipse at center, rgba(79,172,254,0.52) 0%, transparent 62%);
-  filter: blur(20px) saturate(2.2) hue-rotate(-22deg);
-  animation: blobMorph2 12s ease-in-out -4s infinite, heroBlobPulse 13s ease-in-out -5s infinite;
-  opacity: 0.72;
-}
-
-/* ---- Light mode: vivid blobs to match dark mode intensity ---- */
+/* ---- Light mode: stronger blobs to match dark mode intensity ---- */
 @media (prefers-color-scheme: light) {
   :root[data-theme="auto"] .hero-blob,
-  :root:not([data-theme]) .hero-blob {
-    opacity: 1.0;
-    filter: blur(30px) saturate(2.6) brightness(0.9);
-  }
+  :root:not([data-theme]) .hero-blob { filter: blur(60px) saturate(2.2); opacity: 0.95; }
   :root[data-theme="auto"] .hero-blob-holo,
-  :root:not([data-theme]) .hero-blob-holo {
-    opacity: 0.95;
-    filter: blur(34px) saturate(2.6) brightness(0.9);
-  }
-  :root[data-theme="auto"] .hero-bubble-b,
-  :root:not([data-theme]) .hero-bubble-b {
-    opacity: 1.0;
-    filter: blur(22px) saturate(2.8) hue-rotate(25deg) brightness(0.88);
-  }
-  :root[data-theme="auto"] .hero-bubble-c,
-  :root:not([data-theme]) .hero-bubble-c {
-    opacity: 0.90;
-    filter: blur(16px) saturate(2.8) hue-rotate(-22deg) brightness(0.88);
-  }
+  :root:not([data-theme]) .hero-blob-holo { filter: blur(72px) saturate(2.2); opacity: 0.90; }
 }
-:root[data-theme="light"] .hero-blob {
-  opacity: 1.0;
-  filter: blur(30px) saturate(2.6) brightness(0.9);
-}
-:root[data-theme="light"] .hero-blob-holo {
-  opacity: 0.95;
-  filter: blur(34px) saturate(2.6) brightness(0.9);
-}
-:root[data-theme="light"] .hero-bubble-b {
-  opacity: 1.0;
-  filter: blur(22px) saturate(2.8) hue-rotate(25deg) brightness(0.88);
-}
-:root[data-theme="light"] .hero-bubble-c {
-  opacity: 0.90;
-  filter: blur(16px) saturate(2.8) hue-rotate(-22deg) brightness(0.88);
-}
+:root[data-theme="light"] .hero-blob { filter: blur(60px) saturate(2.2); opacity: 0.95; }
+:root[data-theme="light"] .hero-blob-holo { filter: blur(72px) saturate(2.2); opacity: 0.90; }
 
 /* ---- Btn-primary iridescent sweep on hover ---- */
 .btn-primary { position: relative; overflow: hidden; }
