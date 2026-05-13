@@ -716,12 +716,17 @@ window.addEventListener("DOMContentLoaded", async () => {
   applyTheme();
   matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", () => applyTheme());
   bindGlobalNav();
+  const isNewVisitor = !localStorage.getItem("rs-age-confirmed");
   route();
   await checkAgeGate();
-  // Show wizard on first ever visit (only on home page)
   const hash = location.hash.replace(/^#\/?/, "");
   const seg = hash.split("?")[0].split("/")[0];
-  if (!seg) await showWizardIfFirstVisit();
+  if (isNewVisitor && localStorage.getItem("rs-age-confirmed")) {
+    // First-time visitor who just confirmed age → show landing page
+    navigate("/welcome");
+  } else if (!seg) {
+    await showWizardIfFirstVisit();
+  }
 });
 
 function route() {
