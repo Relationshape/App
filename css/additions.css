@@ -1172,22 +1172,28 @@ body::before {
   opacity: 0.88;
 }
 
-/* Light mode body: richer atmospheric gradient */
+/* Light mode body: iridescent pastel gradients spread across all four corners + centre */
 @media (prefers-color-scheme: light) {
   :root[data-theme="auto"] body, :root:not([data-theme]) body {
     background:
-      radial-gradient(ellipse 110% 70% at 15% -5%,  rgba(109, 40, 217, 0.30) 0%, transparent 55%),
-      radial-gradient(ellipse 70%  60% at 88% 105%, rgba(194, 24, 91, 0.24)  0%, transparent 55%),
-      radial-gradient(ellipse 50%  50% at 60%  80%, rgba(56, 189, 248, 0.18)  0%, transparent 60%),
+      radial-gradient(ellipse 72% 52% at 5%  8%,  rgba(109, 40, 217, 0.22) 0%, transparent 62%),
+      radial-gradient(ellipse 62% 48% at 95% 6%,  rgba(219, 39, 119, 0.18) 0%, transparent 60%),
+      radial-gradient(ellipse 58% 52% at 88% 92%, rgba(56, 189, 248, 0.22) 0%, transparent 62%),
+      radial-gradient(ellipse 55% 46% at 8%  91%, rgba(244, 114, 182, 0.18) 0%, transparent 60%),
+      radial-gradient(ellipse 48% 42% at 50% 50%, rgba(167, 139, 250, 0.12) 0%, transparent 58%),
       var(--bg);
+    background-attachment: fixed;
   }
 }
 :root[data-theme="light"] body {
   background:
-    radial-gradient(ellipse 110% 70% at 15% -5%,  rgba(109, 40, 217, 0.30) 0%, transparent 55%),
-    radial-gradient(ellipse 70%  60% at 88% 105%, rgba(194, 24, 91, 0.24)  0%, transparent 55%),
-    radial-gradient(ellipse 50%  50% at 60%  80%, rgba(56, 189, 248, 0.18)  0%, transparent 60%),
+    radial-gradient(ellipse 72% 52% at 5%  8%,  rgba(109, 40, 217, 0.22) 0%, transparent 62%),
+    radial-gradient(ellipse 62% 48% at 95% 6%,  rgba(219, 39, 119, 0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 58% 52% at 88% 92%, rgba(56, 189, 248, 0.22) 0%, transparent 62%),
+    radial-gradient(ellipse 55% 46% at 8%  91%, rgba(244, 114, 182, 0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 48% 42% at 50% 50%, rgba(167, 139, 250, 0.12) 0%, transparent 58%),
     var(--bg);
+  background-attachment: fixed;
 }
 
 /* Light mode glass surfaces: more vivid border */
@@ -1346,27 +1352,29 @@ body::before {
   box-shadow: var(--shadow), 0 0 20px rgba(185,110,255,0.14);
 }
 
-/* ---- Dark mode body: subtle animated radial overlay ---- */
+/* ---- Body: animated iridescent overlay (all modes) ---- */
 @keyframes bgPulse {
-  0%, 100% { opacity: 0.65; }
-  50%       { opacity: 0.85; }
+  0%, 100% { opacity: 0.70; }
+  50%       { opacity: 1.0; }
 }
 body::after {
   content: "";
   position: fixed; inset: 0;
   pointer-events: none; z-index: 0;
   background:
-    radial-gradient(ellipse 60% 50% at 20% 30%, rgba(192,132,252,0.08) 0%, transparent 60%),
-    radial-gradient(ellipse 50% 45% at 80% 70%, rgba(244,114,182,0.07) 0%, transparent 60%),
-    radial-gradient(ellipse 40% 40% at 55% 50%, rgba(56,189,248,0.05) 0%, transparent 60%);
-  animation: bgPulse 12s ease-in-out infinite;
+    radial-gradient(ellipse 55% 45% at 12% 18%,  rgba(192,132,252,0.11) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 42% at 88% 14%,  rgba(244,114,182,0.09) 0%, transparent 60%),
+    radial-gradient(ellipse 52% 44% at 85% 88%,  rgba(56, 189,248,0.10) 0%, transparent 60%),
+    radial-gradient(ellipse 48% 40% at 12% 88%,  rgba(167,139,250,0.09) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 35% at 50% 50%,  rgba(56, 189,248,0.06) 0%, transparent 55%);
+  animation: bgPulse 14s ease-in-out infinite;
 }
-/* Don't show this in light mode — the hero blobs do the job */
+/* In light mode, keep the overlay but at lower intensity — body background does the heavy lifting */
 @media (prefers-color-scheme: light) {
   :root[data-theme="auto"] body::after,
-  :root:not([data-theme]) body::after { display: none; }
+  :root:not([data-theme]) body::after { opacity: 0.5; }
 }
-:root[data-theme="light"] body::after { display: none; }
+:root[data-theme="light"] body::after { opacity: 0.5; }
 /* Page content sits above both pseudo-element layers */
 #app { position: relative; z-index: 1; }
 
