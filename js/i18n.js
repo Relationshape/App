@@ -145,7 +145,6 @@ const TRANSLATIONS = {
     item_already_exists: "That item already exists.",
     lbl_giving: "Giving",
     lbl_receiving: "Receiving",
-    q_keyboard_tip: "⌨️ Tip: focus a question and press 1–{n} to rate, {m} to skip, Enter to advance.",
     q_slider_reset: "↺ Reset",
     custom_tag: "custom",
     note_placeholder: "Note (optional)…",
@@ -212,7 +211,6 @@ const TRANSLATIONS = {
     // Per-item scale
     item_edit_scale: "Edit Item/Scale",
     item_scale_change_warning: "This item already has an answer. Changing the scale will clear it. Continue?",
-    item_reset_answer: "Clear answer (keep scale)",
     q_single_hint_mobile: "Swipe left/right to go to previous/next question",
     q_single_hint_desktop: "Use ← → arrow keys to navigate between questions",
     btn_categories: "Categories",
@@ -235,9 +233,10 @@ const TRANSLATIONS = {
     pass_mismatch: "The two passphrases don't match.",
 
     // Import
-    import_title: "📥 Import a shared result",
-    import_intro: "Paste the encrypted bundle below or load a",
-    import_intro2: "file. Decryption happens locally.",
+    import_title: "📥 Import a counterpart's result",
+    import_intro: "To receive a map from someone else, paste the encrypted text or upload it as a .rshape.txt file. Then enter the passphrase your counterpart used to encrypt their data.",
+    import_section2_title: "Share your data / secure export",
+    import_section2_text: "To share a map with someone else, you can export your relationship maps with all questions and answers here.",
     import_bundle_label: "Encrypted bundle",
     import_file_label: "Or load a file",
     import_pass_label: "Passphrase",
@@ -245,6 +244,9 @@ const TRANSLATIONS = {
     import_empty: "Paste an encrypted bundle first.",
     import_wrong_type: "This bundle is not a Relationshapes result.",
     import_failed_title: "Import failed",
+    import_no_results: "No results to export yet.",
+    q_keyboard_tip: "⌨️ Tip: focus a question and press 1–{n} to rate, {m} to skip, Enter to advance.",
+    q_mobile_tip: "Tip: Switch to single mode (top left) to answer questions one by one and swipe left/right to navigate.",
     imported_toast: "Imported ✔",
     imported_versioned_toast: "Imported as v{n} ✔",
 
@@ -499,7 +501,6 @@ const TRANSLATIONS = {
     item_already_exists: "Dieses Element existiert bereits.",
     lbl_giving: "Geben",
     lbl_receiving: "Empfangen",
-    q_keyboard_tip: "⌨️ Tipp: Fokussiere eine Frage und drücke 1–{n} zum Bewerten, {m} zum Überspringen, Enter zum Weiter.",
     q_slider_reset: "↺ Zurücksetzen",
     custom_tag: "eigenes",
     note_placeholder: "Notiz (optional)…",
@@ -566,7 +567,6 @@ const TRANSLATIONS = {
     // Per-item scale
     item_edit_scale: "Element/Skala bearbeiten",
     item_scale_change_warning: "Dieses Element hat bereits eine Antwort. Das Ändern der Skala löscht diese. Fortfahren?",
-    item_reset_answer: "Antwort löschen (Skala behalten)",
     q_single_hint_mobile: "Links/rechts wischen für vorherige/nächste Frage",
     q_single_hint_desktop: "Pfeiltasten ← → zum Navigieren zwischen den Fragen",
     btn_categories: "Kategorien",
@@ -589,9 +589,10 @@ const TRANSLATIONS = {
     pass_mismatch: "Die beiden Passwörter stimmen nicht überein.",
 
     // Import
-    import_title: "📥 Geteiltes Ergebnis importieren",
-    import_intro: "Füge das verschlüsselte Paket unten ein oder lade eine",
-    import_intro2: "Datei. Entschlüsselung findet lokal statt.",
+    import_title: "📥 Ergebnis eines Gegenübers importieren",
+    import_intro: "Um eine Karte von jemand anderem zu erhalten, kopiere den verschlüsselten Text und füge ihn ein, oder lade ihn als .rshape.txt Datei hoch. Gib danach das Passwort ein, mit dem dein Gegenüber seine Daten verschlüsselt hat.",
+    import_section2_title: "Eigene Daten teilen / sicherer Export",
+    import_section2_text: "Um eine Karte mit jemand anderem zu teilen, kannst du hier deine Beziehungskarten mit allen Fragen/Antworten exportieren.",
     import_bundle_label: "Verschlüsseltes Paket",
     import_file_label: "Oder Datei laden",
     import_pass_label: "Passwort",
@@ -599,6 +600,9 @@ const TRANSLATIONS = {
     import_empty: "Füge zuerst ein verschlüsseltes Paket ein.",
     import_wrong_type: "Dieses Paket ist kein Relationshapes-Ergebnis.",
     import_failed_title: "Import fehlgeschlagen",
+    import_no_results: "Noch keine Ergebnisse zum Exportieren.",
+    q_keyboard_tip: "⌨️ Tipp: Fokussiere eine Frage und drücke 1–{n} zum Bewerten, {m} zum Überspringen, Enter zum Weiter.",
+    q_mobile_tip: "Tipp: Wechsle oben links in den Single-Modus um die Fragen einzeln zu beantworten und durch Swipen hin und her zu wechseln.",
     imported_toast: "Importiert ✔",
     imported_versioned_toast: "Als v{n} importiert ✔",
 
