@@ -1,4 +1,4 @@
-// Relationshape – App shell, router and view rendering.
+// Relationshapes – App shell, router and view rendering.
 // All state lives in localStorage via Store. No network calls.
 
 import { CATEGORIES, DEFAULT_SCALE, SPIDER_AXES, CATEGORY_GROUPS } from "./data.js";
@@ -951,7 +951,7 @@ function bindGlobalNav() {
   $nav.append(
     h("a", { href: "#/welcome", class: "nav-brand", title: t("nav_home") },
       h("span", { class: "nav-logo" }, "∞"),
-      h("span", { class: "nav-title" }, "Relationshape")),
+      h("span", { class: "nav-title" }, "Relationshapes")),
     navLinks,
     buildLangPicker(),
     hamburger,

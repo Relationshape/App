@@ -1,4 +1,4 @@
-// i18n – internationalisation for Relationshape.
+// i18n – internationalisation for Relationshapes.
 // Supports EN (default) and DE. Language is auto-detected from browser
 // and can be overridden manually in Settings or via the nav language picker.
 
@@ -13,14 +13,14 @@ const TRANSLATIONS = {
     nav_home: "Home",
 
     // Home / Welcome
-    welcome_title: "Relationshape",
+    welcome_title: "Relationshapes",
     welcome_sub: "A private space to map your relationships.\nYour needs. Your agreements. Your shape.",
     welcome_cta: "✨ Start now",
     start_now_new: "✨ New profile",
     start_now_existing: "Continue with existing profile",
     start_now_title: "Start your relationship map",
     start_now_sub: "Do you want to create a new profile or continue with an existing one?",
-    welcome_about: "What is Relationshape?",
+    welcome_about: "What is Relationshapes?",
     welcome_f1: "🔒 Stays on this device",
     welcome_f2: "📤 End-to-end encrypted sharing",
     welcome_f3: "📊 Per-category & overview radar charts",
@@ -61,7 +61,7 @@ const TRANSLATIONS = {
     howto_wizard_close: "Got it, let's start!",
 
     // Wizard steps
-    wizard_s1_title: "Welcome to Relationshape 🌷",
+    wizard_s1_title: "Welcome to Relationshapes 🌷",
     wizard_s1_body: "This app helps you map the shape of your relationships across many dimensions: emotional closeness, physical intimacy, shared life, finances, and more.",
     wizard_s2_title: "Everything stays private 🔒",
     wizard_s2_body: "All data is stored only in your browser — no accounts, no servers, no analytics. You are in full control.",
@@ -155,7 +155,7 @@ const TRANSLATIONS = {
 
     // Age gate
     age_gate_title: "This app is for adults",
-    age_gate_body: "Relationshape contains topics of an intimate and sexual nature. Please confirm that you are 18 years of age or older.",
+    age_gate_body: "Relationshapes contains topics of an intimate and sexual nature. Please confirm that you are 18 years of age or older.",
     age_gate_yes: "Yes, I am 18 or older",
     age_gate_no: "No, I am under 18",
 
@@ -232,7 +232,7 @@ const TRANSLATIONS = {
     import_pass_label: "Passphrase",
     btn_decrypt: "🔓 Decrypt & import",
     import_empty: "Paste an encrypted bundle first.",
-    import_wrong_type: "This bundle is not a Relationshape result.",
+    import_wrong_type: "This bundle is not a Relationshapes result.",
     import_failed_title: "Import failed",
     imported_toast: "Imported ✔",
     imported_versioned_toast: "Imported as v{n} ✔",
@@ -285,8 +285,8 @@ const TRANSLATIONS = {
     confirm_ask_all: "Expand this map to ask all items in the enabled categories?",
 
     // About
-    about_title: "About Relationshape",
-    about_p1: "Relationshape is a communication tool to help shape relationships around the actual needs and desires of everyone involved — independently from outside norms or hierarchies.",
+    about_title: "About Relationshapes",
+    about_p1: "Relationshapes is a communication tool to help shape relationships around the actual needs and desires of everyone involved — independently from outside norms or hierarchies.",
     about_p2: "It comes from the world of relationship anarchy and was inspired by Andie Nordgren's manifesto, the Smorgasbord of relationship anarchy, and books like Polysecure (Jessica Fern) and More than Two (Eve Rickert & Franklin Veaux).",
     about_how_title: "How to use this app",
     about_how_1: "Create a profile for yourself.",
@@ -298,7 +298,7 @@ const TRANSLATIONS = {
     about_privacy_title: "Privacy",
     about_privacy: "Everything stays in your browser's local storage on this device. The app has no backend. Shared bundles are encrypted with AES-GCM (256-bit) using a key derived from your passphrase via PBKDF2 (250 000 iterations). Pick a passphrase you and the other person agree on out of band.",
     about_credits_title: "Credits",
-    about_credits: "The Relationshape questionnaire and concept are by Anne Lüscher (she/they) and Benjamin Frey (him/his), released under CC BY-NC 4.0.",
+    about_credits: "The Relationshapes questionnaire and concept are by Anne Lüscher (she/they) and Benjamin Frey (him/his), released under CC BY-NC 4.0.",
     about_credits_repo: "Original repository",
     about_credits_unofficial: "This app is an unofficial implementation built to make the tool more interactive and accessible.",
     about_ai_title: "Transparency on the Use of AI Tools",
@@ -356,14 +356,14 @@ const TRANSLATIONS = {
     nav_home: "Startseite",
 
     // Home / Welcome
-    welcome_title: "Relationshape",
+    welcome_title: "Relationshapes",
     welcome_sub: "Ein privater Raum, um deine Beziehungen zu kartieren.\nEure Bedürfnisse. Eure Abmachungen. Eure Form.",
     welcome_cta: "✨ Starte jetzt",
     start_now_new: "✨ Neues Profil",
     start_now_existing: "Mit bestehendem Profil fortfahren",
     start_now_title: "Starte deine Beziehungskarte",
     start_now_sub: "Möchtest du ein neues Profil anlegen oder mit einem bestehenden fortfahren?",
-    welcome_about: "Was ist Relationshape?",
+    welcome_about: "Was ist Relationshapes?",
     welcome_f1: "🔒 Bleibt auf diesem Gerät",
     welcome_f2: "📤 Ende-zu-Ende-verschlüsseltes Teilen",
     welcome_f3: "📊 Kategorie- & Übersichts-Netzdiagramme",
@@ -404,7 +404,7 @@ const TRANSLATIONS = {
     howto_wizard_close: "Alles klar, los geht's!",
 
     // Wizard steps
-    wizard_s1_title: "Willkommen bei Relationshape 🌷",
+    wizard_s1_title: "Willkommen bei Relationshapes 🌷",
     wizard_s1_body: "Diese App hilft dir, die Form deiner Beziehungen in vielen Dimensionen zu kartieren: emotionale Nähe, körperliche Intimität, gemeinsames Leben, Finanzen und mehr.",
     wizard_s2_title: "Alles bleibt privat 🔒",
     wizard_s2_body: "Alle Daten werden nur in deinem Browser gespeichert – keine Accounts, keine Server, keine Analyse. Du hast die volle Kontrolle.",
@@ -498,7 +498,7 @@ const TRANSLATIONS = {
 
     // Age gate
     age_gate_title: "Diese App richtet sich an Erwachsene",
-    age_gate_body: "Relationshape enthält Themen intimer und sexueller Natur. Bitte bestätige, dass du 18 Jahre oder älter bist.",
+    age_gate_body: "Relationshapes enthält Themen intimer und sexueller Natur. Bitte bestätige, dass du 18 Jahre oder älter bist.",
     age_gate_yes: "Ja, ich bin 18 Jahre oder älter",
     age_gate_no: "Nein, ich bin unter 18",
 
@@ -575,7 +575,7 @@ const TRANSLATIONS = {
     import_pass_label: "Passwort",
     btn_decrypt: "🔓 Entschlüsseln & importieren",
     import_empty: "Füge zuerst ein verschlüsseltes Paket ein.",
-    import_wrong_type: "Dieses Paket ist kein Relationshape-Ergebnis.",
+    import_wrong_type: "Dieses Paket ist kein Relationshapes-Ergebnis.",
     import_failed_title: "Import fehlgeschlagen",
     imported_toast: "Importiert ✔",
     imported_versioned_toast: "Als v{n} importiert ✔",
@@ -628,8 +628,8 @@ const TRANSLATIONS = {
     confirm_ask_all: "Diese Karte auf alle Elemente in den aktivierten Kategorien erweitern?",
 
     // About
-    about_title: "Über Relationshape",
-    about_p1: "Relationshape ist ein Kommunikationswerkzeug, das dabei hilft, Beziehungen nach den tatsächlichen Bedürfnissen und Wünschen aller Beteiligten zu gestalten – unabhängig von gesellschaftlichen Normen oder Hierarchien.",
+    about_title: "Über Relationshapes",
+    about_p1: "Relationshapes ist ein Kommunikationswerkzeug, das dabei hilft, Beziehungen nach den tatsächlichen Bedürfnissen und Wünschen aller Beteiligten zu gestalten – unabhängig von gesellschaftlichen Normen oder Hierarchien.",
     about_p2: "Es kommt aus der Welt der Beziehungsanarchie und wurde inspiriert von Andie Nordgrens Manifest, dem Smorgasbord der Beziehungsanarchie, sowie Büchern wie Polysecure (Jessica Fern) und More than Two (Eve Rickert & Franklin Veaux).",
     about_how_title: "So wird die App verwendet",
     about_how_1: "Erstelle ein Profil für dich.",
@@ -641,7 +641,7 @@ const TRANSLATIONS = {
     about_privacy_title: "Datenschutz",
     about_privacy: "Alles bleibt im lokalen Speicher deines Browsers auf diesem Gerät. Die App hat kein Backend. Geteilte Pakete werden mit AES-GCM (256-Bit) verschlüsselt, wobei der Schlüssel über PBKDF2 aus deinem Passwort abgeleitet wird (250.000 Iterationen).",
     about_credits_title: "Credits",
-    about_credits: "Der Relationshape-Fragebogen und das Konzept stammen von Anne Lüscher (sie/ihr) und Benjamin Frey (er/ihm), veröffentlicht unter CC BY-NC 4.0.",
+    about_credits: "Der Relationshapes-Fragebogen und das Konzept stammen von Anne Lüscher (sie/ihr) und Benjamin Frey (er/ihm), veröffentlicht unter CC BY-NC 4.0.",
     about_credits_repo: "Original-Repository",
     about_credits_unofficial: "Diese App ist eine inoffizielle Implementierung, um das Werkzeug interaktiver und zugänglicher zu machen.",
     about_ai_title: "Transparenz zur Verwendung von KI-Tools",

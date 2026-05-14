@@ -1,5 +1,5 @@
-// Relationshape questionnaire data model.
-// Source: Relationshape Pre-Release 1 (Anne Lüscher, Benjamin Frey, 2025)
+// Relationshapes questionnaire data model.
+// Source: Relationshapes Pre-Release 1 (Anne Lüscher, Benjamin Frey, 2025)
 // Licensed CC BY-NC 4.0. Adapted for app use.
 
 // Default scale, lowest disagreement first, strongest agreement last.
@@ -452,7 +452,7 @@ export const CATEGORIES = [
       "Quality time together",
       "Reserved time slots",
       "Regular relationship check-ins",
-      "Relationshape interval",
+      "Relationshapes interval",
       "Spontaneity",
       "Planning time together in advance",
       "Shared calendar",
@@ -461,7 +461,7 @@ export const CATEGORIES = [
       "Qualitätszeit miteinander",
       "Feste Zeitslots",
       "Regelmäßige Beziehungsgespräche",
-      "Relationshape-Intervall",
+      "Relationshapes-Intervall",
       "Spontanität",
       "Gemeinsame Zeit im Voraus planen",
       "Gemeinsamer Kalender",

@@ -1,4 +1,4 @@
-// Minimal offline cache for the Relationshape PWA shell.
+// Minimal offline cache for the Relationshapes PWA shell.
 const CACHE = "rshape-v9";
 const ASSETS = [
   "./",
