@@ -2424,6 +2424,9 @@ function categoryCards(datasets, editableResult = null, filterCatIds = null) {
       return acc + n;
     }, 0);
 
+    // In read-only context (no editable result), hide categories with no answers
+    if (filledCount === 0 && !editableResult) return null;
+
     const card = h("button", {
       class: "cat-card cat-card-btn",
       style: `--c:${cat.color}`,
@@ -2466,11 +2469,16 @@ function openCategoryModal(datasets, cat, editableResult = null, { defaultTab = 
 
     const close = async (save = false) => {
       if (hasChanges && !save) {
-        const discard = await dlgConfirm(t("confirm_discard_changes"), {
-          okLabel: t("btn_discard"),
-          danger: true,
+        const choice = await dialog({
+          body: h("p", {}, t("confirm_discard_changes")),
+          actions: [
+            { label: t("btn_cancel"),      value: "cancel",  kind: "ghost" },
+            { label: t("btn_discard"),      value: "discard", kind: "danger" },
+            { label: t("btn_save_changes"), value: "save",    kind: "primary" },
+          ],
         });
-        if (!discard) return; // stay open
+        if (!choice || choice === "cancel") return;
+        if (choice === "save") save = true;
       }
       if (save && editableResult && hasChanges) {
         editableResult.answers = localAnswers;
@@ -2486,6 +2494,21 @@ function openCategoryModal(datasets, cat, editableResult = null, { defaultTab = 
     const escKey = (e) => { if (e.key === "Escape") close(false); };
     document.addEventListener("keydown", escKey);
     overlay.addEventListener("click", e => { if (e.target === overlay) close(false); });
+
+    let actionRow = null;
+
+    function refreshActionRow() {
+      if (!actionRow) return;
+      actionRow.innerHTML = "";
+      if (editableResult && hasChanges) {
+        actionRow.append(
+          h("button", { class: "btn btn-ghost", onClick: () => close(false) }, t("btn_close")),
+          h("button", { class: "btn btn-primary", onClick: () => close(true) }, t("btn_save_changes")),
+        );
+      } else {
+        actionRow.append(h("button", { class: "btn btn-ghost", onClick: () => close(false) }, t("btn_close")));
+      }
+    }
 
     function renderTab() {
       card.innerHTML = "";
@@ -2531,21 +2554,14 @@ function openCategoryModal(datasets, cat, editableResult = null, { defaultTab = 
         ));
 
       } else if (activeTab === "edit" && editableResult) {
-        content.append(renderEditTab(cat, editableResult, localAnswers, () => { hasChanges = true; }));
+        content.append(renderEditTab(cat, editableResult, localAnswers, () => { hasChanges = true; refreshActionRow(); }));
       }
 
       card.append(content);
 
-      // Actions
-      const actionRow = h("div", { class: "rs-modal-actions" });
-      if (editableResult && hasChanges) {
-        actionRow.append(
-          h("button", { class: "btn btn-ghost", onClick: () => close(false) }, t("btn_discard")),
-          h("button", { class: "btn btn-primary", onClick: () => close(true) }, t("btn_save_changes")),
-        );
-      } else {
-        actionRow.append(h("button", { class: "btn btn-ghost", onClick: () => close(false) }, t("btn_close")));
-      }
+      // Actions — kept as persistent element so refreshActionRow() can update it without re-rendering the tab
+      actionRow = h("div", { class: "rs-modal-actions" });
+      refreshActionRow();
       card.append(actionRow);
     }
 
