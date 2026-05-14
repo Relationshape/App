@@ -850,7 +850,7 @@ function route() {
       else viewProfile(segs[1]);
       break;
     case "q":        viewQuestionnaire(segs[1], segs[2]); break;
-    case "result":   viewResult(segs[1]); break;
+    case "result":   viewResult(segs[1], segs[2]); break;
     case "share":    viewShare(segs[1]); break;
     case "import":   viewImport(); break;
     case "compare":  viewCompare(query.ids ? query.ids.split(",") : []); break;
@@ -2021,7 +2021,7 @@ function qHeader({ profileId, resultId, idx, total, cat, progressPct, result, mo
       "aria-label": "Keyboard shortcuts",
       onClick: () => showKeyboardHelpDialog(mode),
     }, "⌨️"),
-    h("button", { class: "btn", onClick: () => navigate(`/result/${resultId}`) }, t("btn_results")),
+    h("button", { class: "btn", onClick: () => navigate(`/result/${resultId}/${cat.id}`) }, t("btn_results")),
   );
 }
 
@@ -2345,7 +2345,7 @@ function showKeyboardHelpDialog(mode = "list") {
 }
 
 // ---------- Result view ----------
-function viewResult(resultId) {
+function viewResult(resultId, openCatId = null) {
   const r = Store.getResult(resultId);
   if (!r) return navigate("/");
   const profile = Store.getProfile(r.profileId);
@@ -2391,6 +2391,11 @@ function viewResult(resultId) {
         r.enabledCategories ? h("button", { class: "btn", onClick: () => openAddCategoriesDialog(r.profileId, r.id, `/result/${r.id}`) }, t("btn_add_categories")) : null),
       h("div", { class: "cat-grid" }, ...categoryCards([dataset], r))),
   ));
+
+  if (openCatId) {
+    const cat = CATEGORIES.find(c => c.id === openCatId);
+    if (cat) requestAnimationFrame(() => openCategoryModal([dataset], cat, r));
+  }
 }
 
 // ---------- Enlarged spider modal (for Compare / Result overview) ----------
@@ -2501,13 +2506,11 @@ function openCategoryModal(datasets, cat, editableResult = null, { defaultTab = 
     function refreshActionRow() {
       if (!actionRow) return;
       actionRow.innerHTML = "";
-      if (editableResult && hasChanges) {
-        actionRow.append(
-          h("button", { class: "btn btn-ghost", onClick: () => close(false) }, t("btn_close")),
-          h("button", { class: "btn btn-primary", onClick: () => close(true) }, t("btn_save_changes")),
-        );
-      } else {
-        actionRow.append(h("button", { class: "btn btn-ghost", onClick: () => close(false) }, t("btn_close")));
+      actionRow.append(h("button", { class: "btn btn-ghost", onClick: () => close(false) }, t("btn_close")));
+      if (editableResult) {
+        const saveBtn = h("button", { class: "btn btn-primary", onClick: () => close(true) }, t("btn_save_changes"));
+        if (!hasChanges) saveBtn.disabled = true;
+        actionRow.append(saveBtn);
       }
     }
 
