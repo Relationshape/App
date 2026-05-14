@@ -417,7 +417,7 @@ const TRANSLATIONS = {
     howto_step1_title: "Profil erstellen",
     howto_step1_desc: "Dein Profil ist deine Identität in der App. Wähle Name, Emoji und Akzentfarbe.",
     howto_step2_title: "Beziehungskarte starten",
-    howto_step2_desc: 'Für jede Verbindung, über die du nachdenken möchtest, legst du eine neue Karte an – z.B. „Sam, meine beste Freundin".',
+    howto_step2_desc: 'Für jede Verbindung, über die du nachdenken möchtest, legst du eine neue Karte an – z.B. „Sam, meine beste Freund*in".',
     howto_step3_title: "Fragebogen ausfüllen",
     howto_step3_desc: "Gehe durch 30 Kategorien – emotionale Nähe, körperliche Intimität, Finanzen, gemeinsames Leben u.v.m. Bewerte jedes Element von Nein bis Brauche ich.",
     howto_step4_title: "Erkunden & teilen",
@@ -590,7 +590,7 @@ const TRANSLATIONS = {
 
     // Import
     import_title: "📥 Ergebnis eines Gegenübers importieren",
-    import_intro: "Um eine Karte von jemand anderem zu erhalten, kopiere den verschlüsselten Text und füge ihn ein, oder lade ihn als .rshape.txt Datei hoch. Gib danach das Passwort ein, mit dem dein Gegenüber seine Daten verschlüsselt hat.",
+    import_intro: "Um eine Karte von jemand anderem zu erhalten, kopiere den verschlüsselten Text und füge ihn ein, oder lade ihn als .rshape.txt Datei hoch. Gib danach das Passwort ein, mit dem dein Gegenüber die Daten verschlüsselt hat.",
     import_section2_title: "Eigene Daten teilen / sicherer Export",
     import_section2_text: "Um eine Karte mit jemand anderem zu teilen, kannst du hier deine Beziehungskarten mit allen Fragen/Antworten exportieren.",
     import_bundle_label: "Verschlüsseltes Paket",
