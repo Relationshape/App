@@ -77,8 +77,11 @@ const ICONS = {
   nav_about:    `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>`,
 
   // Feature highlight cards (rendered at 26×26)
+  feat_maps:     `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5"/><polygon points="12 6 18 9.5 18 14.5 12 18 6 14.5 6 9.5" stroke-opacity="0.55"/><circle cx="12" cy="12" r="2" fill="currentColor" opacity="0.5"/></svg>`,
+  feat_personal: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20v-1a5 5 0 0 1 5-5h6a5 5 0 0 1 5 5v1" opacity="0.7"/><path d="M15.5 4.5 Q18 6 17 9" stroke-dasharray="1.5 1.5"/></svg>`,
+  feat_share:    `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>`,
+  feat_privacy:  `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4" opacity="0.7"/></svg>`,
   feat_security: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4" opacity="0.7"/></svg>`,
-  feat_share:    `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/><line x1="9" y1="18" x2="15" y2="18" opacity="0.5"/></svg>`,
   feat_charts:   `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5"/><polygon points="12 6 18 9.5 18 14.5 12 18 6 14.5 6 9.5" stroke-opacity="0.55"/><polygon points="12 10 15 12 15 14 12 16 9 14 9 12" stroke-opacity="0.3"/></svg>`,
   feat_profiles: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/><path d="M21 21v-2a4 4 0 0 0-3-3.85" opacity="0.7"/></svg>`,
 
@@ -1003,14 +1006,23 @@ function viewWelcome() {
       // Feature highlight cards
       h("ul", { class: "hero-features" },
         ...[
-          [ICONS.feat_security, t("feat_security_title"), t("feat_security_sub")],
-          [ICONS.feat_share,    t("feat_share_title"),    t("feat_share_sub")],
-          [ICONS.feat_charts,   t("feat_charts_title"),   t("feat_charts_sub")],
-          [ICONS.feat_profiles, t("feat_profiles_title"), t("feat_profiles_sub")],
-        ].map(([icon, title, sub]) => h("li", {},
-          h("span", { class: "hero-feat-icon", html: icon }),
-          h("strong", { class: "hero-feat-title" }, title),
-          h("span", { class: "hero-feat-sub" }, sub),
+          [ICONS.feat_maps,     t("feat_maps_title"),     t("feat_maps_short"),     t("feat_maps_body")],
+          [ICONS.feat_personal, t("feat_personal_title"), t("feat_personal_short"), t("feat_personal_body")],
+          [ICONS.feat_share,    t("feat_share_title"),    t("feat_share_short"),    t("feat_share_body")],
+          [ICONS.feat_privacy,  t("feat_privacy_title"),  t("feat_privacy_short"),  t("feat_privacy_body")],
+        ].map(([icon, title, short, body]) => h("li", {},
+          h("button", {
+            class: "hero-feat-btn",
+            onClick: () => dialog({
+              title,
+              body: h("p", { style: "line-height:1.6; margin:0;" }, body),
+              actions: [{ label: t("btn_close"), value: null, kind: "primary" }],
+            }),
+          },
+            h("span", { class: "hero-feat-icon", html: icon }),
+            h("strong", { class: "hero-feat-title" }, title),
+            h("span", { class: "hero-feat-sub" }, short),
+          ),
         )),
       ),
     ),

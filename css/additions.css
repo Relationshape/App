@@ -134,12 +134,6 @@
   column-gap: 10px;
   row-gap: 6px;
   align-items: center;
-  transition: border-color .18s ease, transform .18s ease, box-shadow .18s ease;
-}
-.howto-step:hover {
-  border-color: color-mix(in oklab, var(--primary) 35%, var(--glass-border));
-  transform: translateY(-2px);
-  box-shadow: 0 0 20px rgba(185, 110, 255, 0.1);
 }
 .howto-step-icon { font-size: 24px; line-height: 1; grid-row: 1; grid-column: 1; }
 .howto-step-num {
@@ -464,17 +458,25 @@
 .hero-features li {
   background: var(--glass);
   border: 1px solid var(--glass-border);
-  border-radius: 16px; padding: 18px 16px 16px;
-  text-align: center;
+  border-radius: 16px;
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
+}
+.hero-feat-btn {
+  all: unset;
+  cursor: pointer;
   display: grid; gap: 6px; justify-items: center;
+  padding: 18px 16px 16px;
+  width: 100%; box-sizing: border-box;
+  border-radius: 16px;
   transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
 }
-.hero-features li:hover {
+.hero-feat-btn:hover {
+  transform: translateY(-2px);
+}
+.hero-features li:has(.hero-feat-btn:hover) {
   border-color: color-mix(in oklab, var(--primary) 40%, var(--glass-border));
   box-shadow: var(--glow-sm);
-  transform: translateY(-2px);
 }
 .hero-feat-icon {
   display: grid; place-items: center;
@@ -729,11 +731,7 @@ body::before {
 }
 .btn-primary:active:not(:disabled) { transform: translateY(1px); }
 
-/* ---- Howto step cards — accent border on hover ---- */
-.howto-step:hover {
-  border-color: color-mix(in oklab, var(--primary) 48%, var(--glass-border));
-  box-shadow: 0 4px 24px rgba(185,110,255,0.15), inset 0 1px 0 rgba(255,255,255,0.06);
-}
+/* ---- Howto step cards — static, non-interactive ---- */
 
 /* ---- Cat overview tiles — depth hover glow ---- */
 .cat-overview-tile:hover {
@@ -875,7 +873,7 @@ body::before {
   transition: opacity .4s ease;
   animation: holoIconSpin 5s linear infinite paused;
 }
-.hero-features li:hover .hero-feat-icon::before {
+.hero-feat-btn:hover .hero-feat-icon::before {
   opacity: 0.35;
   animation-play-state: running;
 }
@@ -893,12 +891,6 @@ body::before {
     inset 0 1px 0 rgba(255,255,255,0.08),
     inset 1px 0 0 rgba(255,255,255,0.05),
     0 0 0 1px color-mix(in oklab, var(--accent) 22%, var(--glass-border));
-}
-.howto-step:hover {
-  box-shadow:
-    0 8px 28px -8px rgba(0,0,0,.4),
-    0 0 0 1px color-mix(in oklab, var(--accent) 24%, var(--glass-border)),
-    0 0 18px color-mix(in oklab, var(--primary) 10%, transparent);
 }
 
 /* ---- Avatar — 3D sphere gradient ---- */
@@ -927,10 +919,6 @@ body::before {
   animation: holoUnderlineSlide 7s linear infinite;
 }
 
-/* ---- How-to step icon — soft holo on hover ---- */
-.howto-step:hover .howto-step-icon {
-  filter: drop-shadow(0 0 8px color-mix(in oklab, var(--primary) 60%, var(--accent)));
-}
 
 /* ---- Nav SVG icons — holo glow on active ---- */
 .nav-link.active svg {
