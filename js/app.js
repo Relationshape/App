@@ -769,7 +769,7 @@ function runWizard(steps) {
           ? h("button", { class: "btn btn-ghost", onClick: () => { idx--; render(); } }, t("wizard_prev"))
           : h("span", {}),
         isLast
-          ? h("button", { class: "btn btn-primary", onClick: close }, t("wizard_finish"))
+          ? h("button", { class: "btn btn-primary", onClick: () => { close(); navigate("/"); } }, t("wizard_finish"))
           : h("button", { class: "btn btn-primary", onClick: () => { idx++; render(); } }, t("wizard_next")),
       );
 
@@ -1001,7 +1001,6 @@ function viewWelcome() {
       h("div", { class: "hero-actions" },
         h("button", { class: "btn btn-primary", onClick: () => startNowFlow() }, t("welcome_cta")),
         h("button", { class: "btn btn-ghost", onClick: () => navigate("/intro") }, t("welcome_about")),
-        h("button", { class: "btn btn-ghost", onClick: () => showWizard() }, t("howto_wizard_btn")),
       ),
       // Feature highlight cards
       h("ul", { class: "hero-features" },
