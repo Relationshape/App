@@ -28,12 +28,22 @@ function scaleMaxValue(scale) {
 }
 
 // Push scale value(s) from an answer entry into values array.
-// For gr categories (giving/receiving), both directions contribute independently.
+// Supports both discrete key-based answers and fractional positions (scaleFrac/givingFrac/receivingFrac).
 function pushAnswerValues(entry, scale, byKey, values) {
   if (!entry) return;
-  if (entry.giving !== undefined || entry.receiving !== undefined) {
-    if (entry.giving && byKey(entry.giving)) values.push(byKey(entry.giving).value);
-    if (entry.receiving && byKey(entry.receiving)) values.push(byKey(entry.receiving).value);
+  const maxV = scaleMaxValue(scale);
+  if (entry.giving !== undefined || entry.receiving !== undefined ||
+      entry.givingFrac !== undefined || entry.receivingFrac !== undefined) {
+    const gv = entry.givingFrac !== undefined
+      ? entry.givingFrac * maxV
+      : (entry.giving && byKey(entry.giving) ? byKey(entry.giving).value : null);
+    const rv = entry.receivingFrac !== undefined
+      ? entry.receivingFrac * maxV
+      : (entry.receiving && byKey(entry.receiving) ? byKey(entry.receiving).value : null);
+    if (gv != null) values.push(gv);
+    if (rv != null) values.push(rv);
+  } else if (entry.scaleFrac !== undefined) {
+    values.push(entry.scaleFrac * maxV);
   } else if (entry.scale && byKey(entry.scale)) {
     values.push(byKey(entry.scale).value);
   }
@@ -56,27 +66,38 @@ export function categoryAverage(answers, catId, scale) {
 
 function answerScaleKey(entry) {
   if (!entry) return null;
-  if (entry.giving !== undefined || entry.receiving !== undefined) {
-    // For gr items: average giving + receiving; fall back to whichever is set
+  if (entry.giving !== undefined || entry.receiving !== undefined ||
+      entry.givingFrac !== undefined || entry.receivingFrac !== undefined) {
     return entry.giving || entry.receiving || null;
   }
-  return entry.scale || null;
+  return entry.scale || (entry.scaleFrac !== undefined ? entry.scale || null : null);
 }
 
 function answerAvgValue(entry, scale) {
   if (!entry) return null;
-  if (entry.giving !== undefined || entry.receiving !== undefined) {
-    const g = entry.giving ? scale.find(s => s.key === entry.giving) : null;
-    const r = entry.receiving ? scale.find(s => s.key === entry.receiving) : null;
-    if (!g && !r) return null;
-    const avg = g && r ? (g.value + r.value) / 2 : (g || r).value;
-    const max = scaleMaxValue(scale);
-    const sc = g || r;
-    return { value: avg, norm: max ? avg / max : 0, scaleEntry: sc, entry };
-  }
-  const sc = scale.find(s => s.key === entry.scale);
-  if (!sc) return null;
   const max = scaleMaxValue(scale);
+  const byKey = k => scale.find(s => s.key === k);
+  if (entry.giving !== undefined || entry.receiving !== undefined ||
+      entry.givingFrac !== undefined || entry.receivingFrac !== undefined) {
+    const gv = entry.givingFrac !== undefined
+      ? entry.givingFrac * max
+      : (entry.giving ? byKey(entry.giving)?.value ?? null : null);
+    const rv = entry.receivingFrac !== undefined
+      ? entry.receivingFrac * max
+      : (entry.receiving ? byKey(entry.receiving)?.value ?? null : null);
+    if (gv == null && rv == null) return null;
+    const avg = (gv != null && rv != null) ? (gv + rv) / 2 : (gv ?? rv);
+    const refEntry = byKey(entry.giving || entry.receiving) ||
+      scale[Math.min(scale.length - 1, Math.round(avg / Math.max(1, max) * (scale.length - 1)))];
+    return { value: avg, norm: max ? avg / max : 0, scaleEntry: refEntry, entry };
+  }
+  if (entry.scaleFrac !== undefined) {
+    const value = entry.scaleFrac * max;
+    const idx = Math.min(scale.length - 1, Math.round(entry.scaleFrac * (scale.length - 1)));
+    return { value, norm: entry.scaleFrac, scaleEntry: scale[idx], entry };
+  }
+  const sc = byKey(entry.scale);
+  if (!sc) return null;
   return { value: sc.value, norm: max ? sc.value / max : 0, scaleEntry: sc, entry };
 }
 

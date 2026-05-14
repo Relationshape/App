@@ -521,6 +521,25 @@ a:hover { text-decoration: underline; }
 }
 .profile-head h1, .result-head h1 { margin: 0; font-size: 24px; font-family: var(--font-heading); }
 
+@media (max-width: 680px) {
+  .result-head {
+    flex-wrap: wrap;
+    padding: 12px 14px;
+    gap: 8px 12px;
+  }
+  .result-head .flex-spacer { display: none; }
+  .result-head > .btn, .result-head > .btn-primary {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-size: 12px;
+    padding: 6px 10px;
+    white-space: nowrap;
+  }
+  .result-head > .li-avatar { width: 36px; height: 36px; font-size: 20px; flex-shrink: 0; }
+  .result-head > div { flex: 1 1 0; min-width: 0; }
+  .result-head > div h1 { font-size: 17px; }
+}
+
 /* ================================================================
    Questionnaire
    ================================================================ */
@@ -1190,6 +1209,62 @@ a:hover { text-decoration: underline; }
   .rs-slider { padding-bottom: 70px; }
   .rs-slider-tick-label { transform: rotate(-30deg); transform-origin: top left; top: 22px; max-width: 100px; text-align: left; font-size: 10.5px; }
   .rs-slider-tick:first-child .rs-slider-tick-label { transform: rotate(-30deg); }
+}
+
+/* ---- Click-to-place scale control ---- */
+.rs-click-scale {
+  position: relative; padding: 8px 0 40px; user-select: none; width: 100%; outline: none;
+}
+.rs-click-scale:focus-visible { box-shadow: 0 0 0 3px rgba(185,110,255,0.3); border-radius: 8px; }
+.rs-click-scale-track {
+  position: relative; height: 24px;
+  display: flex; align-items: center;
+  margin: 0 12px; cursor: crosshair; touch-action: pan-y;
+}
+.rs-click-scale-bg {
+  position: absolute; left: 0; right: 0; top: 50%;
+  height: 6px; transform: translateY(-50%);
+  background: var(--surface-3); border-radius: 99px;
+}
+.rs-click-scale-grad {
+  position: absolute; left: 0; right: 0; top: 50%;
+  height: 6px; transform: translateY(-50%);
+  border-radius: 99px; overflow: visible;
+  opacity: 0.4; transition: opacity .15s ease;
+}
+.rs-click-scale.has-value .rs-click-scale-grad { opacity: 0.9; }
+.rs-click-scale-marker {
+  position: absolute; top: 50%;
+  transform: translate(-50%, -50%);
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--mc, var(--primary));
+  border: 3px solid var(--surface);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4), 0 0 0 3px color-mix(in oklab, var(--mc, var(--primary)) 22%, transparent);
+  z-index: 2; pointer-events: none;
+  transition: left .08s ease;
+}
+.rs-click-scale-ref {
+  position: absolute; top: 50%;
+  transform: translate(-50%, -50%);
+  display: flex; flex-direction: column; align-items: center;
+  pointer-events: none; z-index: 1;
+}
+.rs-click-scale-ref-tick {
+  width: 2px; height: 10px;
+  background: color-mix(in oklab, var(--surface) 65%, transparent);
+  border-radius: 1px;
+}
+.rs-click-scale-ref-label {
+  position: absolute; top: 22px;
+  font-size: 11px; color: var(--muted); white-space: nowrap;
+  max-width: 84px; overflow: hidden; text-overflow: ellipsis; text-align: center;
+}
+@media (max-width: 560px) {
+  .rs-click-scale { padding-bottom: 70px; }
+  .rs-click-scale-ref-label {
+    transform: rotate(-30deg); transform-origin: top left;
+    top: 22px; max-width: 100px; text-align: left; font-size: 10.5px;
+  }
 }
 
 .q-slider-wrap { grid-column: 1 / -1; padding: 4px 4px 0; }
