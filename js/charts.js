@@ -378,7 +378,15 @@ export function renderCategoryBars(datasets, catId) {
   for (const ds of datasets) {
     Object.keys(ds.answers?.[catId]?.__custom || {}).forEach(k => itemSet.add("✶ " + k));
   }
-  const items = Array.from(itemSet);
+  // Only render items that have at least one answer (hides items removed via ✕ button)
+  const items = Array.from(itemSet).filter(item => {
+    const isCustom = item.startsWith("✶ ");
+    const key = isCustom ? item.slice(2) : item;
+    return datasets.some(ds => {
+      const slot = isCustom ? ds.answers?.[catId]?.__custom?.[key] : ds.answers?.[catId]?.[key];
+      return slot && answerAvgValue(slot, dsScale(ds)) != null;
+    });
+  });
   const rows = items.map(item => {
     const cells = datasets.map(ds => {
       const scale = dsScale(ds);

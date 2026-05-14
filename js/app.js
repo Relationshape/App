@@ -774,7 +774,7 @@ function runWizard(steps) {
       );
 
       const skipRow = h("div", { class: "wizard-skip-row" },
-        h("button", { class: "wizard-skip-link", onClick: close }, t("wizard_skip")),
+        h("button", { class: "wizard-skip-link", onClick: () => { close(); navigate("/"); } }, t("wizard_skip")),
       );
 
       card.append(header, content, actions, skipRow);
@@ -1719,12 +1719,13 @@ function flatItemsForResult(result) {
   const items = [];
   enabledCats.forEach(cat => {
     const asked = askedItemsForCat(result, cat.id);
-    const baseList = asked ? asked.base : cat.items;
+    const hidden = result.answers?.[cat.id]?.__hidden || {};
+    const baseList = (asked ? asked.base : cat.items).filter(i => !hidden[i]);
     baseList.forEach(item => items.push({ catId: cat.id, item, isCustom: false, cat }));
     const cust = result.answers?.[cat.id]?.__custom || {};
-    const customNames = asked
+    const customNames = (asked
       ? Array.from(new Set([...(asked.custom || []), ...Object.keys(cust)]))
-      : Object.keys(cust);
+      : Object.keys(cust)).filter(n => !hidden[n]);
     customNames.forEach(name => items.push({ catId: cat.id, item: name, isCustom: true, cat }));
   });
   return items;
@@ -1750,10 +1751,11 @@ function viewQuestionnaireList(profile, result) {
 
   const SCALE = getResultScale(result);
   const asked = askedItemsForCat(result, cat.id);
-  const baseItems = asked ? asked.base : cat.items;
-  const customNames = asked
+  const hidden = answers.__hidden || {};
+  const baseItems = (asked ? asked.base : cat.items).filter(n => !hidden[n]);
+  const customNames = (asked
     ? Array.from(new Set([...(asked.custom || []), ...Object.keys(answers.__custom)]))
-    : Object.keys(answers.__custom);
+    : Object.keys(answers.__custom)).filter(n => !hidden[n]);
   const _lang = getLang();
 
   const root = h("section", { class: "page q-page" },
@@ -2424,6 +2426,9 @@ function categoryCards(datasets, editableResult = null, filterCatIds = null) {
       return acc + n;
     }, 0);
 
+    // In read-only context (no editable result), hide categories with no answers
+    if (filledCount === 0 && !editableResult) return null;
+
     const card = h("button", {
       class: "cat-card cat-card-btn",
       style: `--c:${cat.color}`,
@@ -2466,11 +2471,16 @@ function openCategoryModal(datasets, cat, editableResult = null, { defaultTab = 
 
     const close = async (save = false) => {
       if (hasChanges && !save) {
-        const discard = await dlgConfirm(t("confirm_discard_changes"), {
-          okLabel: t("btn_discard"),
-          danger: true,
+        const choice = await dialog({
+          body: h("p", {}, t("confirm_discard_changes")),
+          actions: [
+            { label: t("btn_cancel"),      value: "cancel",  kind: "ghost" },
+            { label: t("btn_discard"),      value: "discard", kind: "danger" },
+            { label: t("btn_save_changes"), value: "save",    kind: "primary" },
+          ],
         });
-        if (!discard) return; // stay open
+        if (!choice || choice === "cancel") return;
+        if (choice === "save") save = true;
       }
       if (save && editableResult && hasChanges) {
         editableResult.answers = localAnswers;
@@ -2486,6 +2496,21 @@ function openCategoryModal(datasets, cat, editableResult = null, { defaultTab = 
     const escKey = (e) => { if (e.key === "Escape") close(false); };
     document.addEventListener("keydown", escKey);
     overlay.addEventListener("click", e => { if (e.target === overlay) close(false); });
+
+    let actionRow = null;
+
+    function refreshActionRow() {
+      if (!actionRow) return;
+      actionRow.innerHTML = "";
+      if (editableResult && hasChanges) {
+        actionRow.append(
+          h("button", { class: "btn btn-ghost", onClick: () => close(false) }, t("btn_close")),
+          h("button", { class: "btn btn-primary", onClick: () => close(true) }, t("btn_save_changes")),
+        );
+      } else {
+        actionRow.append(h("button", { class: "btn btn-ghost", onClick: () => close(false) }, t("btn_close")));
+      }
+    }
 
     function renderTab() {
       card.innerHTML = "";
@@ -2531,21 +2556,14 @@ function openCategoryModal(datasets, cat, editableResult = null, { defaultTab = 
         ));
 
       } else if (activeTab === "edit" && editableResult) {
-        content.append(renderEditTab(cat, editableResult, localAnswers, () => { hasChanges = true; }));
+        content.append(renderEditTab(cat, editableResult, localAnswers, () => { hasChanges = true; refreshActionRow(); }));
       }
 
       card.append(content);
 
-      // Actions
-      const actionRow = h("div", { class: "rs-modal-actions" });
-      if (editableResult && hasChanges) {
-        actionRow.append(
-          h("button", { class: "btn btn-ghost", onClick: () => close(false) }, t("btn_discard")),
-          h("button", { class: "btn btn-primary", onClick: () => close(true) }, t("btn_save_changes")),
-        );
-      } else {
-        actionRow.append(h("button", { class: "btn btn-ghost", onClick: () => close(false) }, t("btn_close")));
-      }
+      // Actions — kept as persistent element so refreshActionRow() can update it without re-rendering the tab
+      actionRow = h("div", { class: "rs-modal-actions" });
+      refreshActionRow();
       card.append(actionRow);
     }
 
@@ -2565,15 +2583,17 @@ function renderEditTab(cat, result, localAnswers, onChanged) {
   catAnswers.__custom = catAnswers.__custom || {};
 
   const asked = askedItemsForCat(result, cat.id);
-  const baseItems = asked ? asked.base : cat.items;
-  const customNames = asked
-    ? Array.from(new Set([...(asked.custom || []), ...Object.keys(catAnswers.__custom)]))
-    : Object.keys(catAnswers.__custom);
+  catAnswers.__hidden = catAnswers.__hidden || {};
 
   const container = h("div", { class: "modal-edit-items" });
 
   function rerender() {
     container.innerHTML = "";
+    const hidden = catAnswers.__hidden;
+    const baseItems = (asked ? asked.base : cat.items).filter(n => !hidden[n]);
+    const customNames = (asked
+      ? Array.from(new Set([...(asked.custom || []), ...Object.keys(catAnswers.__custom)]))
+      : Object.keys(catAnswers.__custom)).filter(n => !hidden[n]);
     const items = [
       ...baseItems.map(name => ({ name, isCustom: false })),
       ...customNames.map(name => ({ name, isCustom: true })),
@@ -2595,6 +2615,17 @@ function renderEditTab(cat, result, localAnswers, onChanged) {
         h("div", { class: "q-item-name" },
           isCustom ? h("span", { class: "q-item-tag" }, t("custom_tag")) : null,
           isCustom ? name : getItemLabel(cat, name, _etlang),
+          h("button", { class: "btn btn-ghost item-remove-btn", type: "button",
+            title: t("btn_remove_item"),
+            onClick: e => {
+              e.stopPropagation();
+              catAnswers.__hidden[name] = true;
+              if (isCustom) delete catAnswers.__custom[name];
+              else delete catAnswers[name];
+              onChanged();
+              rerender();
+            }
+          }, "✕"),
           h("button", { class: "btn btn-ghost item-scale-btn", type: "button",
             onClick: async e => {
               e.stopPropagation();
