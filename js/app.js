@@ -1568,8 +1568,6 @@ async function editItemScaleDialog(currentItemScale, resultScale) {
     body: () => listEl,
     actions: [
       { label: t("btn_cancel"), kind: "ghost", value: null },
-      { label: t("item_reset_answer"), kind: "ghost",
-        handler: () => ({ __clearAnswer: true, scale: cloneScale(scaleRef) }) },
       { label: t("new_card_scale_confirm"), kind: "primary", primary: true,
         handler: () => cloneScale(scaleRef) },
     ],
@@ -1767,7 +1765,8 @@ function viewQuestionnaireList(profile, result) {
           h("h1", {}, getCatTitle(cat, _lang)),
           h("p", { class: "muted" }, _lang === "de" && cat.deBlurb ? cat.deBlurb : cat.blurb),
           cat.gr ? h("p", { class: "muted small" }, t("q_gr_tip")) : null,
-          h("p", { class: "muted small" }, t("q_keyboard_tip", { n: SCALE.length, m: SCALE.length + 1 }))
+          h("p", { class: "muted small hide-on-mobile" }, t("q_keyboard_tip", { n: SCALE.length, m: SCALE.length + 1 })),
+          h("p", { class: "muted small show-on-mobile" }, t("q_mobile_tip"))
         ),
       ),
       h("div", { class: "scale-legend" }, ...SCALE.map((s, i) =>
@@ -2136,10 +2135,10 @@ function viewQuestionnaireSingle(profile, result) {
             if (!newItemScale) return;
             setStore(it, prev => {
               const n = { ...(prev || {}) };
-              n.itemScale = newItemScale.__clearAnswer ? newItemScale.scale : newItemScale;
-              delete n.scale;
-              delete n.giving;
-              delete n.receiving;
+              n.itemScale = newItemScale;
+              delete n.scale; delete n.scaleFrac;
+              delete n.giving; delete n.givingFrac;
+              delete n.receiving; delete n.receivingFrac;
               return n;
             });
             renderCard(true);
@@ -2904,11 +2903,34 @@ function viewShare(resultId) {
 
 function slug(s) { return String(s).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 24); }
 
-// ---------- Import ----------
+// ---------- Import / Export ----------
 function viewImport() {
+  const profiles = Store.getProfiles();
+  const results  = Store.getResults();
+
+  // Build export section: profiles with results, each result as a row
+  const exportRows = profiles.flatMap(profile => {
+    const pResults = results.filter(r => r.profileId === profile.id);
+    if (!pResults.length) return [];
+    return [
+      h("div", { class: "export-profile-head" },
+        h("span", { class: "export-profile-avatar" }, profile.emoji),
+        h("strong", {}, profile.name)),
+      ...pResults.map(r =>
+        h("div", { class: "export-result-row" },
+          h("span", {}, (r.subjectEmoji || "💞") + " " + esc(r.subject) + (r.version > 1 ? ` (v${r.version})` : "")),
+          h("button", { class: "btn btn-ghost", onClick: () => navigate(`/share/${r.id}`) }, t("btn_share")),
+        )
+      ),
+    ];
+  });
+
+  const blobInput = h("textarea", { name: "blob", rows: 8, placeholder: "-----BEGIN RELATIONSHAPE BUNDLE-----\nv1\n…\n-----END RELATIONSHAPE BUNDLE-----" });
+
   const root = h("section", { class: "page narrow" },
+    // ---- Section 1: Import ----
     h("h1", {}, t("import_title")),
-    h("p", {}, t("import_intro"), " ", h("code", {}, ".rshape.txt"), " ", t("import_intro2")),
+    h("p", { class: "muted" }, t("import_intro")),
 
     h("form", { class: "form", onSubmit: async (e) => {
       e.preventDefault();
@@ -2937,20 +2959,27 @@ function viewImport() {
         dlgAlert(err.message || "Could not decrypt.", t("import_failed_title"));
       }
     }},
-      h("label", {}, t("import_bundle_label"),
-        h("textarea", { name: "blob", rows: 10, placeholder: "-----BEGIN RELATIONSHAPE BUNDLE-----\nv1\n…\n-----END RELATIONSHAPE BUNDLE-----" })),
+      h("label", {}, t("import_bundle_label"), blobInput),
       h("label", {}, t("import_file_label"),
         h("input", { type: "file", accept: ".txt,.rshape,.json", onChange: e => {
           const f = e.target.files[0]; if (!f) return;
           const reader = new FileReader();
-          reader.onload = () => { document.querySelector("[name=blob]").value = reader.result; };
+          reader.onload = () => { blobInput.value = reader.result; };
           reader.readAsText(f);
         }})),
       h("label", {}, t("import_pass_label"),
         h("input", { name: "pass", type: "password", autocomplete: "off", required: true })),
       h("div", { class: "form-actions" },
         h("button", { class: "btn btn-primary", type: "submit" }, t("btn_decrypt"))),
-    )
+    ),
+
+    // ---- Section 2: Export ----
+    h("hr", { class: "section-divider" }),
+    h("h2", {}, t("import_section2_title")),
+    h("p", { class: "muted" }, t("import_section2_text")),
+    exportRows.length
+      ? h("div", { class: "export-results-list" }, ...exportRows)
+      : h("p", { class: "muted small" }, t("import_no_results")),
   );
   $app.append(root);
 }
