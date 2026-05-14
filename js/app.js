@@ -774,7 +774,7 @@ function runWizard(steps) {
       );
 
       const skipRow = h("div", { class: "wizard-skip-row" },
-        h("button", { class: "wizard-skip-link", onClick: close }, t("wizard_skip")),
+        h("button", { class: "wizard-skip-link", onClick: () => { close(); navigate("/"); } }, t("wizard_skip")),
       );
 
       card.append(header, content, actions, skipRow);
@@ -1719,12 +1719,13 @@ function flatItemsForResult(result) {
   const items = [];
   enabledCats.forEach(cat => {
     const asked = askedItemsForCat(result, cat.id);
-    const baseList = asked ? asked.base : cat.items;
+    const hidden = result.answers?.[cat.id]?.__hidden || {};
+    const baseList = (asked ? asked.base : cat.items).filter(i => !hidden[i]);
     baseList.forEach(item => items.push({ catId: cat.id, item, isCustom: false, cat }));
     const cust = result.answers?.[cat.id]?.__custom || {};
-    const customNames = asked
+    const customNames = (asked
       ? Array.from(new Set([...(asked.custom || []), ...Object.keys(cust)]))
-      : Object.keys(cust);
+      : Object.keys(cust)).filter(n => !hidden[n]);
     customNames.forEach(name => items.push({ catId: cat.id, item: name, isCustom: true, cat }));
   });
   return items;
@@ -1750,10 +1751,11 @@ function viewQuestionnaireList(profile, result) {
 
   const SCALE = getResultScale(result);
   const asked = askedItemsForCat(result, cat.id);
-  const baseItems = asked ? asked.base : cat.items;
-  const customNames = asked
+  const hidden = answers.__hidden || {};
+  const baseItems = (asked ? asked.base : cat.items).filter(n => !hidden[n]);
+  const customNames = (asked
     ? Array.from(new Set([...(asked.custom || []), ...Object.keys(answers.__custom)]))
-    : Object.keys(answers.__custom);
+    : Object.keys(answers.__custom)).filter(n => !hidden[n]);
   const _lang = getLang();
 
   const root = h("section", { class: "page q-page" },
@@ -2581,15 +2583,17 @@ function renderEditTab(cat, result, localAnswers, onChanged) {
   catAnswers.__custom = catAnswers.__custom || {};
 
   const asked = askedItemsForCat(result, cat.id);
-  const baseItems = asked ? asked.base : cat.items;
-  const customNames = asked
-    ? Array.from(new Set([...(asked.custom || []), ...Object.keys(catAnswers.__custom)]))
-    : Object.keys(catAnswers.__custom);
+  catAnswers.__hidden = catAnswers.__hidden || {};
 
   const container = h("div", { class: "modal-edit-items" });
 
   function rerender() {
     container.innerHTML = "";
+    const hidden = catAnswers.__hidden;
+    const baseItems = (asked ? asked.base : cat.items).filter(n => !hidden[n]);
+    const customNames = (asked
+      ? Array.from(new Set([...(asked.custom || []), ...Object.keys(catAnswers.__custom)]))
+      : Object.keys(catAnswers.__custom)).filter(n => !hidden[n]);
     const items = [
       ...baseItems.map(name => ({ name, isCustom: false })),
       ...customNames.map(name => ({ name, isCustom: true })),
@@ -2611,6 +2615,17 @@ function renderEditTab(cat, result, localAnswers, onChanged) {
         h("div", { class: "q-item-name" },
           isCustom ? h("span", { class: "q-item-tag" }, t("custom_tag")) : null,
           isCustom ? name : getItemLabel(cat, name, _etlang),
+          h("button", { class: "btn btn-ghost item-remove-btn", type: "button",
+            title: t("btn_remove_item"),
+            onClick: e => {
+              e.stopPropagation();
+              catAnswers.__hidden[name] = true;
+              if (isCustom) delete catAnswers.__custom[name];
+              else delete catAnswers[name];
+              onChanged();
+              rerender();
+            }
+          }, "✕"),
           h("button", { class: "btn btn-ghost item-scale-btn", type: "button",
             onClick: async e => {
               e.stopPropagation();

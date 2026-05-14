@@ -1067,6 +1067,8 @@ a:hover { text-decoration: underline; }
 /* Per-item scale button */
 .item-scale-btn { font-size: 12px !important; padding: 4px 8px !important; opacity: 0.7; }
 .item-scale-btn:hover { opacity: 1; }
+.item-remove-btn { font-size: 11px !important; padding: 2px 6px !important; opacity: 0.45; color: var(--danger, #ef4444) !important; }
+.item-remove-btn:hover { opacity: 1; }
 
 /* ================================================================
    Single / Tinder mode
