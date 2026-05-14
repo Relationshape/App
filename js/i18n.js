@@ -6,8 +6,8 @@ const TRANSLATIONS = {
   en: {
     // Nav
     nav_profiles: "👤 Profiles",
-    nav_import: "📥 Import",
-    nav_compare: "📊 Compare",
+    nav_import: "📥 Import/Export",
+    nav_compare: "📊 Results/Compare",
     nav_settings: "⚙️ Settings",
     nav_about: "About",
     nav_home: "Home",
@@ -359,8 +359,8 @@ const TRANSLATIONS = {
   de: {
     // Nav
     nav_profiles: "👤 Profile",
-    nav_import: "📥 Importieren",
-    nav_compare: "📊 Vergleichen",
+    nav_import: "📥 Import/Export",
+    nav_compare: "📊 Ergebnisse/Vergleichen",
     nav_settings: "⚙️ Einstellungen",
     nav_about: "Über",
     nav_home: "Startseite",
