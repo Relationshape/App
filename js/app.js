@@ -925,6 +925,15 @@ function bindGlobalNav() {
   $nav.innerHTML = "";
   $nav.classList.remove("nav-open");
 
+  // Backdrop that dims page content when mobile menu is open
+  const existingBackdrop = document.querySelector(".nav-backdrop");
+  if (existingBackdrop) existingBackdrop.remove();
+  const backdrop = h("div", { class: "nav-backdrop" });
+  document.body.appendChild(backdrop);
+
+  const openMenu  = () => { $nav.classList.add("nav-open");    backdrop.classList.add("visible"); };
+  const closeMenu = () => { $nav.classList.remove("nav-open"); backdrop.classList.remove("visible"); };
+
   const navLinks = h("div", { class: "nav-links" },
     navLink("#/",         ICONS.nav_profiles, t("nav_profiles")),
     navLink("#/import",   ICONS.nav_import,   t("nav_import")),
@@ -934,22 +943,17 @@ function bindGlobalNav() {
   );
 
   // Close mobile menu when any nav link is clicked
-  navLinks.addEventListener("click", e => {
-    if (e.target.closest("a")) $nav.classList.remove("nav-open");
-  });
+  navLinks.addEventListener("click", e => { if (e.target.closest("a")) closeMenu(); });
 
   const hamburger = h("button", { class: "nav-hamburger", type: "button", "aria-label": "Menu" },
     h("span", { class: "hb-bar" }),
     h("span", { class: "hb-bar" }),
     h("span", { class: "hb-bar" }),
   );
-  hamburger.addEventListener("click", e => {
-    e.stopPropagation();
-    $nav.classList.toggle("nav-open");
-  });
-  document.addEventListener("click", e => {
-    if (!$nav.contains(e.target)) $nav.classList.remove("nav-open");
-  }, { capture: false });
+
+  hamburger.addEventListener("click", e => { e.stopPropagation(); $nav.classList.contains("nav-open") ? closeMenu() : openMenu(); });
+  backdrop.addEventListener("click", closeMenu);
+  document.addEventListener("click", e => { if (!$nav.contains(e.target)) closeMenu(); }, { capture: false });
 
   $nav.append(
     h("a", { href: "#/welcome", class: "nav-brand", title: t("nav_home") },
@@ -2424,7 +2428,7 @@ function categoryCards(datasets, editableResult = null, filterCatIds = null) {
       class: "cat-card cat-card-btn",
       style: `--c:${cat.color}`,
       type: "button",
-      onClick: () => openCategoryModal(datasets, cat, editableResult, editableResult ? { defaultTab: "edit" } : {}),
+      onClick: () => openCategoryModal(datasets, cat, editableResult),
     },
       h("div", { class: "cat-card-head" },
         h("div", { class: "cat-card-icon" }, cat.icon),
