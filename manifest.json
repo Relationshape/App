@@ -1,6 +1,6 @@
 {
-  "name": "Relationshape",
-  "short_name": "Relationshape",
+  "name": "Relationshapes",
+  "short_name": "Relationshapes",
   "description": "Privacy-friendly app to map and reflect on the shape of your relationships.",
   "start_url": "./",
   "scope": "./",

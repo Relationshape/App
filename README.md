@@ -1,4 +1,4 @@
-# Relationshape · App
+# Relationshapes · App
 
 A privacy-friendly app implementation of the [Relationshape](https://github.com/Relationshape/Relationshape-Pre-release-1) questionnaire — a communication tool from the world of relationship anarchy that helps you map and discuss the shape of your relationships across many dimensions (emotional intimacy, physical intimacy, romance, partnership, financial, domestic, …).
 
@@ -40,12 +40,12 @@ python3 -m http.server 8080
 ## Features
 
 - 🌷 **Profiles** with custom emoji + accent colour. Multiple profiles per device.
-- 📝 **Questionnaire flow** — 30 categories from the Relationshape pre-release, walked through one at a time with a 7-step scale (Need / Hell yes / Want / Open / Maybe / Not really / No), Giving/Receiving/Both notation where applicable, optional notes, custom items.
+- 📝 **Questionnaire flow** — 30 categories from the Relationshapes pre-release, walked through one at a time with a 7-step scale (Need / Hell yes / Want / Open / Maybe / Not really / No), Giving/Receiving/Both notation where applicable, optional notes, custom items.
 - 💾 **Local persistence** — answers are autosaved to `localStorage` after every click.
 - 📤 **Encrypted sharing** — passphrase-protected bundles (AES-GCM 256, PBKDF2 SHA-256, 250 000 iterations). Copy as text or download as `.rshape.txt`.
 - 📥 **Import** decrypted bundles into a separate "imports" pool.
 - 📊 **Visualisations**
-  - **Spider chart** with up to 4 datasets overlaid on the major Relationshape axes.
+  - **Spider chart** with up to 4 datasets overlaid on the major Relationshapes axes.
   - **Alignment overview** — strongest matches and biggest gaps for two profiles.
   - **Per-category bar comparison** with item-level marks.
 - 📱 **PWA** — install on iOS & Android home screen, works offline.
@@ -77,7 +77,7 @@ result = {
 
 ## Credits
 
-The Relationshape questionnaire and concept are by **Anne Lüscher** (she/they) and **Benjamin Frey** (him/his), released under CC BY-NC 4.0. The app implementation in this repository is unofficial.
+The Relationshapes questionnaire and concept are by **Anne Lüscher** (she/they) and **Benjamin Frey** (him/his), released under CC BY-NC 4.0. The app implementation in this repository is unofficial.
 
 ## License
 

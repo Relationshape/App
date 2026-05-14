@@ -1,4 +1,4 @@
-// Relationshape – App shell, router and view rendering.
+// Relationshapes – App shell, router and view rendering.
 // All state lives in localStorage via Store. No network calls.
 
 import { CATEGORIES, DEFAULT_SCALE, SPIDER_AXES, CATEGORY_GROUPS } from "./data.js";
@@ -77,8 +77,11 @@ const ICONS = {
   nav_about:    `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>`,
 
   // Feature highlight cards (rendered at 26×26)
+  feat_maps:     `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5"/><polygon points="12 6 18 9.5 18 14.5 12 18 6 14.5 6 9.5" stroke-opacity="0.55"/><circle cx="12" cy="12" r="2" fill="currentColor" opacity="0.5"/></svg>`,
+  feat_personal: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20v-1a5 5 0 0 1 5-5h6a5 5 0 0 1 5 5v1" opacity="0.7"/><path d="M15.5 4.5 Q18 6 17 9" stroke-dasharray="1.5 1.5"/></svg>`,
+  feat_share:    `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>`,
+  feat_privacy:  `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4" opacity="0.7"/></svg>`,
   feat_security: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4" opacity="0.7"/></svg>`,
-  feat_share:    `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/><line x1="9" y1="18" x2="15" y2="18" opacity="0.5"/></svg>`,
   feat_charts:   `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5"/><polygon points="12 6 18 9.5 18 14.5 12 18 6 14.5 6 9.5" stroke-opacity="0.55"/><polygon points="12 10 15 12 15 14 12 16 9 14 9 12" stroke-opacity="0.3"/></svg>`,
   feat_profiles: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/><path d="M21 21v-2a4 4 0 0 0-3-3.85" opacity="0.7"/></svg>`,
 
@@ -133,6 +136,37 @@ function isLikelyEmoji(s) {
   if (!s) return false;
   try { return /\p{Extended_Pictographic}/u.test(s) && s.length <= 12; }
   catch { return /[^\x00-\x7F]/.test(s) && s.length <= 8; }
+}
+
+// ----- Color interpolation helpers -----
+function parseHex(hex) {
+  const m = (hex || "").match(/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i);
+  return m ? [parseInt(m[1],16), parseInt(m[2],16), parseInt(m[3],16)] : null;
+}
+function lerpColor(a, b, t) {
+  const pa = parseHex(a), pb = parseHex(b);
+  if (!pa || !pb) return a;
+  return `rgb(${Math.round(pa[0]+(pb[0]-pa[0])*t)},${Math.round(pa[1]+(pb[1]-pa[1])*t)},${Math.round(pa[2]+(pb[2]-pa[2])*t)})`;
+}
+function interpolateScaleColor(scale, frac) {
+  const N = scale.length;
+  if (!N) return "#7c3aed";
+  const pos = Math.max(0, Math.min(N-1, frac * (N-1)));
+  const lo = Math.floor(pos), hi = Math.ceil(pos);
+  if (lo === hi) return scale[lo].color;
+  return lerpColor(scale[lo].color, scale[hi].color, pos - lo);
+}
+function resolveAnswerFrac(frac, itemScale, resultScale) {
+  if (frac == null) return null;
+  const iMax = Math.max(1, itemScale.length - 1);
+  const rMax = Math.max(1, resultScale.length - 1);
+  return (frac * iMax) / rMax;
+}
+function resolveDisplayFrac(storedFrac, resultScale, itemScale) {
+  if (storedFrac == null) return undefined;
+  const rMax = Math.max(1, resultScale.length - 1);
+  const iMax = Math.max(1, itemScale.length - 1);
+  return (storedFrac * rMax) / iMax;
 }
 
 // ----- Scale slider component -----
@@ -219,6 +253,75 @@ function scaleSliderEl({ scale, valueKey, onChange, onClear, compact = false }) 
       const k = parseInt(e.key, 10) - 1;
       if (k < N) { e.preventDefault(); applyIndex(k); }
     }
+  });
+
+  return root;
+}
+
+// Click-to-place scale: marker lands exactly where clicked, no automatic default position.
+function scaleClickEl({ scale, valueFrac, onChange, onClear, compact = false }) {
+  const N = scale.length;
+  const hasValue = valueFrac !== undefined && valueFrac !== null;
+
+  const root = h("div", {
+    class: "rs-click-scale" + (hasValue ? " has-value" : " no-value") + (compact ? " is-compact" : ""),
+    role: "slider", tabindex: "0",
+    "aria-valuemin": "0", "aria-valuemax": "100",
+    "aria-valuenow": hasValue ? String(Math.round(valueFrac * 100)) : null,
+  });
+
+  const trackGrad = scale.map((s, i) => `${s.color} ${(i / Math.max(1, N - 1)) * 100}%`).join(", ");
+  const trackWrap = h("div", { class: "rs-click-scale-track" });
+  const bgBar    = h("div", { class: "rs-click-scale-bg" });
+  const gradBar  = h("div", { class: "rs-click-scale-grad", style: `background: linear-gradient(90deg, ${trackGrad})` });
+
+  const marker = h("div", { class: "rs-click-scale-marker" });
+  if (hasValue) {
+    marker.style.left = `${valueFrac * 100}%`;
+    marker.style.setProperty("--mc", interpolateScaleColor(scale, valueFrac));
+  } else {
+    marker.style.display = "none";
+  }
+  gradBar.append(marker);
+
+  const refTicks = scale.map((s, i) => {
+    const pct = N === 1 ? 50 : (i / (N - 1)) * 100;
+    return h("div", { class: "rs-click-scale-ref", style: `left: ${pct}%; --c: ${s.color}` },
+      h("div", { class: "rs-click-scale-ref-tick" }),
+      h("span", { class: "rs-click-scale-ref-label" }, s.short || s.label),
+    );
+  });
+
+  trackWrap.append(bgBar, gradBar, ...refTicks);
+  root.append(trackWrap);
+
+  if (hasValue) {
+    root.append(h("button", {
+      class: "rs-slider-clear", type: "button",
+      title: t("q_slider_reset"),
+      onClick: e => { e.stopPropagation(); onClear?.(); },
+    }, t("q_slider_reset")));
+  }
+
+  function fracFromX(clientX) {
+    const rect = gradBar.getBoundingClientRect();
+    return Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+  }
+  function applyFrac(frac) {
+    const idx = Math.max(0, Math.min(N - 1, Math.round(frac * (N - 1))));
+    onChange?.(scale[idx]?.key, frac);
+  }
+
+  trackWrap.addEventListener("click", e => { applyFrac(fracFromX(e.clientX)); });
+
+  root.addEventListener("keydown", e => {
+    const step = 1 / Math.max(1, (N - 1) * 2);
+    const frac = hasValue ? valueFrac : 0.5;
+    if (e.key === "ArrowRight" || e.key === "ArrowUp")   { e.preventDefault(); applyFrac(Math.min(1, frac + step)); }
+    else if (e.key === "ArrowLeft" || e.key === "ArrowDown") { e.preventDefault(); applyFrac(Math.max(0, frac - step)); }
+    else if (e.key === "Home")   { e.preventDefault(); applyFrac(0); }
+    else if (e.key === "End")    { e.preventDefault(); applyFrac(1); }
+    else if (e.key === "Delete" || e.key === "Backspace") { e.preventDefault(); onClear?.(); }
   });
 
   return root;
@@ -851,7 +954,7 @@ function bindGlobalNav() {
   $nav.append(
     h("a", { href: "#/welcome", class: "nav-brand", title: t("nav_home") },
       h("span", { class: "nav-logo" }, "∞"),
-      h("span", { class: "nav-title" }, "Relationshape")),
+      h("span", { class: "nav-title" }, "Relationshapes")),
     navLinks,
     buildLangPicker(),
     hamburger,
@@ -896,21 +999,30 @@ function viewWelcome() {
       h("h1", { class: "hero-title" }, t("welcome_title")),
       h("p", { class: "hero-sub" }, t("welcome_sub")),
       h("div", { class: "hero-actions" },
-        h("button", { class: "btn btn-primary", onClick: () => navigate("/profile/new") }, t("welcome_cta")),
+        h("button", { class: "btn btn-primary", onClick: () => startNowFlow() }, t("welcome_cta")),
         h("button", { class: "btn btn-ghost", onClick: () => navigate("/intro") }, t("welcome_about")),
         h("button", { class: "btn btn-ghost", onClick: () => showWizard() }, t("howto_wizard_btn")),
       ),
       // Feature highlight cards
       h("ul", { class: "hero-features" },
         ...[
-          [ICONS.feat_security, t("feat_security_title"), t("feat_security_sub")],
-          [ICONS.feat_share,    t("feat_share_title"),    t("feat_share_sub")],
-          [ICONS.feat_charts,   t("feat_charts_title"),   t("feat_charts_sub")],
-          [ICONS.feat_profiles, t("feat_profiles_title"), t("feat_profiles_sub")],
-        ].map(([icon, title, sub]) => h("li", {},
-          h("span", { class: "hero-feat-icon", html: icon }),
-          h("strong", { class: "hero-feat-title" }, title),
-          h("span", { class: "hero-feat-sub" }, sub),
+          [ICONS.feat_maps,     t("feat_maps_title"),     t("feat_maps_short"),     t("feat_maps_body")],
+          [ICONS.feat_personal, t("feat_personal_title"), t("feat_personal_short"), t("feat_personal_body")],
+          [ICONS.feat_share,    t("feat_share_title"),    t("feat_share_short"),    t("feat_share_body")],
+          [ICONS.feat_privacy,  t("feat_privacy_title"),  t("feat_privacy_short"),  t("feat_privacy_body")],
+        ].map(([icon, title, short, body]) => h("li", {},
+          h("button", {
+            class: "hero-feat-btn",
+            onClick: () => dialog({
+              title,
+              body: h("p", { style: "line-height:1.6; margin:0;" }, body),
+              actions: [{ label: t("btn_close"), value: null, kind: "primary" }],
+            }),
+          },
+            h("span", { class: "hero-feat-icon", html: icon }),
+            h("strong", { class: "hero-feat-title" }, title),
+            h("span", { class: "hero-feat-sub" }, short),
+          ),
         )),
       ),
     ),
@@ -940,6 +1052,21 @@ function howtoStep(num, title, desc, iconSvg) {
 
 async function showWizard() {
   return runWizard(buildWizardSteps());
+}
+
+async function startNowFlow() {
+  const profiles = Store.getProfiles();
+  if (!profiles.length) return showWizard();
+  const choice = await dialog({
+    title: t("start_now_title"),
+    body: () => h("p", { class: "muted" }, t("start_now_sub")),
+    actions: [
+      { label: t("start_now_existing"), kind: "ghost", value: "existing" },
+      { label: t("start_now_new"), kind: "primary", primary: true, value: "new" },
+    ],
+  });
+  if (choice === "new") navigate("/profile/new");
+  else if (choice === "existing") navigate("/");
 }
 
 function profileCard(p) {
@@ -1702,8 +1829,8 @@ function viewQuestionnaireList(profile, result) {
     const itemScale = existing.itemScale || null;
     const activeScale = itemScale || SCALE;
     const answered = cat.gr
-      ? !!(existing.giving || existing.receiving)
-      : !!existing.scale;
+      ? !!(existing.giving || existing.givingFrac !== undefined || existing.receiving || existing.receivingFrac !== undefined)
+      : !!(existing.scale || existing.scaleFrac !== undefined);
 
     function clearAnswers() {
       const saved = store[item] || {};
@@ -1748,31 +1875,29 @@ function viewQuestionnaireList(profile, result) {
         ? h("div", { class: "q-gr-sliders" },
             h("div", { class: "q-gr-row" },
               h("span", { class: "q-gr-label" }, t("lbl_giving")),
-              scaleSliderEl({
+              scaleClickEl({
                 scale: activeScale,
-                valueKey: itemScale ? findActiveItemScaleKey(existing.giving, itemScale, SCALE) : existing.giving,
-                onChange: key => applyGrKey("giving", key),
-                onClear: () => applyGrKey("giving", null),
+                valueFrac: itemScale ? resolveDisplayFrac(existing.givingFrac, SCALE, itemScale) : existing.givingFrac,
+                onChange: (key, frac) => applyGrKey("giving", key, frac),
+                onClear: () => applyGrKey("giving", null, null),
               }),
             ),
             h("div", { class: "q-gr-row" },
               h("span", { class: "q-gr-label" }, t("lbl_receiving")),
-              scaleSliderEl({
+              scaleClickEl({
                 scale: activeScale,
-                valueKey: itemScale ? findActiveItemScaleKey(existing.receiving, itemScale, SCALE) : existing.receiving,
-                onChange: key => applyGrKey("receiving", key),
-                onClear: () => applyGrKey("receiving", null),
+                valueFrac: itemScale ? resolveDisplayFrac(existing.receivingFrac, SCALE, itemScale) : existing.receivingFrac,
+                onChange: (key, frac) => applyGrKey("receiving", key, frac),
+                onClear: () => applyGrKey("receiving", null, null),
               }),
             ),
           )
         : h("div", { class: "q-slider-wrap" },
-            scaleSliderEl({
+            scaleClickEl({
               scale: activeScale,
-              valueKey: itemScale
-                ? findActiveItemScaleKey(existing.scale, itemScale, SCALE)
-                : existing.scale,
-              onChange: key => applyScale(key),
-              onClear: () => applyScale(null),
+              valueFrac: itemScale ? resolveDisplayFrac(existing.scaleFrac, SCALE, itemScale) : existing.scaleFrac,
+              onChange: (key, frac) => applyScale(key, frac),
+              onClear: () => applyScale(null, null),
             }),
           ),
       h("input", {
@@ -1784,27 +1909,32 @@ function viewQuestionnaireList(profile, result) {
       }),
     );
 
-    function applyGrKey(direction, key) {
+    function applyGrKey(direction, key, frac) {
       const saved = { ...(store[item] || {}) };
       if (key == null) {
         delete saved[direction];
+        delete saved[direction + "Frac"];
       } else {
         saved[direction] = itemScale ? resolveAnswerKey(key, itemScale, SCALE) : key;
+        const rf = frac != null ? (itemScale ? resolveAnswerFrac(frac, itemScale, SCALE) : frac) : null;
+        if (rf != null) saved[direction + "Frac"] = rf; else delete saved[direction + "Frac"];
         if (itemScale) saved.itemScale = itemScale;
       }
-      const hasContent = saved.giving || saved.receiving || saved.note || saved.itemScale;
+      const hasContent = saved.giving || saved.givingFrac !== undefined || saved.receiving || saved.receivingFrac !== undefined || saved.note || saved.itemScale;
       if (hasContent) store[item] = saved;
       else delete store[item];
       persist();
       rerender();
     }
 
-    function applyScale(key, { advance = true } = {}) {
+    function applyScale(key, frac, { advance = true } = {}) {
       if (key == null) {
         clearAnswers();
       } else {
         const resultKey = itemScale ? resolveAnswerKey(key, itemScale, SCALE) : key;
+        const resultFrac = itemScale ? resolveAnswerFrac(frac, itemScale, SCALE) : frac;
         store[item] = { ...existing, scale: resultKey };
+        if (resultFrac != null) store[item].scaleFrac = resultFrac; else delete store[item].scaleFrac;
         if (itemScale) store[item].itemScale = itemScale;
       }
       persist();
@@ -1965,30 +2095,25 @@ function viewQuestionnaireSingle(profile, result) {
     const existing = store?.[it.item] || {};
     const itemScale = existing.itemScale || null;
     const activeScale = itemScale || SCALE;
-    const sliderKey = itemScale
-      ? findActiveItemScaleKey(existing.scale, itemScale, SCALE)
-      : existing.scale;
 
     const answered = it.cat.gr
-      ? !!(existing.giving || existing.receiving)
-      : !!existing.scale;
+      ? !!(existing.giving || existing.givingFrac !== undefined || existing.receiving || existing.receivingFrac !== undefined)
+      : !!(existing.scale || existing.scaleFrac !== undefined);
 
-    function applyGrKey(direction, key) {
+    function applyGrKey(direction, key, frac) {
       setStore(it, prev => {
         const n = { ...(prev || {}) };
         n[direction] = key;
+        if (frac != null) n[direction + "Frac"] = frac; else delete n[direction + "Frac"];
         if (itemScale) n.itemScale = itemScale;
         return n;
       });
       renderCard(true);
     }
 
-    const grGivingKey = itemScale
-      ? findActiveItemScaleKey(existing.giving, itemScale, SCALE)
-      : existing.giving;
-    const grReceivingKey = itemScale
-      ? findActiveItemScaleKey(existing.receiving, itemScale, SCALE)
-      : existing.receiving;
+    const givingDisplayFrac  = itemScale ? resolveDisplayFrac(existing.givingFrac, SCALE, itemScale) : existing.givingFrac;
+    const receivingDisplayFrac = itemScale ? resolveDisplayFrac(existing.receivingFrac, SCALE, itemScale) : existing.receivingFrac;
+    const scaleDisplayFrac   = itemScale ? resolveDisplayFrac(existing.scaleFrac, SCALE, itemScale) : existing.scaleFrac;
 
     const _slang = getLang();
     const card = h("article", { class: "q-card" + (isPeek ? " is-peek" : ""), style: `--c:${it.cat.color}` },
@@ -2021,48 +2146,51 @@ function viewQuestionnaireSingle(profile, result) {
         ? h("div", { class: "q-gr-sliders" },
             h("div", { class: "q-gr-row" },
               h("span", { class: "q-gr-label" }, t("lbl_giving")),
-              scaleSliderEl({
+              scaleClickEl({
                 scale: activeScale,
-                valueKey: grGivingKey,
-                onChange: key => {
+                valueFrac: givingDisplayFrac,
+                onChange: (key, frac) => {
                   const rk = itemScale ? resolveAnswerKey(key, itemScale, SCALE) : key;
-                  applyGrKey("giving", rk);
+                  const rf = itemScale ? resolveAnswerFrac(frac, itemScale, SCALE) : frac;
+                  applyGrKey("giving", rk, rf);
                 },
                 onClear: () => {
-                  setStore(it, prev => { const n = { ...(prev || {}) }; delete n.giving; return n; });
+                  setStore(it, prev => { const n = { ...(prev || {}) }; delete n.giving; delete n.givingFrac; return n; });
                   renderCard(true);
                 },
               }),
             ),
             h("div", { class: "q-gr-row" },
               h("span", { class: "q-gr-label" }, t("lbl_receiving")),
-              scaleSliderEl({
+              scaleClickEl({
                 scale: activeScale,
-                valueKey: grReceivingKey,
-                onChange: key => {
+                valueFrac: receivingDisplayFrac,
+                onChange: (key, frac) => {
                   const rk = itemScale ? resolveAnswerKey(key, itemScale, SCALE) : key;
-                  applyGrKey("receiving", rk);
+                  const rf = itemScale ? resolveAnswerFrac(frac, itemScale, SCALE) : frac;
+                  applyGrKey("receiving", rk, rf);
                 },
                 onClear: () => {
-                  setStore(it, prev => { const n = { ...(prev || {}) }; delete n.receiving; return n; });
+                  setStore(it, prev => { const n = { ...(prev || {}) }; delete n.receiving; delete n.receivingFrac; return n; });
                   renderCard(true);
                 },
               }),
             ),
           )
         : h("div", { class: "q-card-slider" },
-            scaleSliderEl({
+            scaleClickEl({
               scale: activeScale,
-              valueKey: sliderKey,
-              onChange: (key) => {
+              valueFrac: scaleDisplayFrac,
+              onChange: (key, frac) => {
                 const resultKey = itemScale ? resolveAnswerKey(key, itemScale, SCALE) : key;
-                setStore(it, prev => ({ ...(prev || {}), scale: resultKey, ...(itemScale ? { itemScale } : {}) }));
+                const resultFrac = itemScale ? resolveAnswerFrac(frac, itemScale, SCALE) : frac;
+                setStore(it, prev => ({ ...(prev || {}), scale: resultKey, scaleFrac: resultFrac, ...(itemScale ? { itemScale } : {}) }));
                 renderCard(true);
               },
               onClear: () => {
                 setStore(it, prev => {
                   const c = { ...(prev || {}) };
-                  delete c.scale;
+                  delete c.scale; delete c.scaleFrac;
                   return c;
                 });
                 renderCard(true);
@@ -2277,10 +2405,10 @@ function openEnlargedSpiderModal(datasets) {
 }
 
 // ---------- Category cards ----------
-function categoryCards(datasets, editableResult = null) {
+function categoryCards(datasets, editableResult = null, filterCatIds = null) {
   const fabiMode = Store.getFabiMode();
   const _cclang = getLang();
-  const enabledIds = editableResult?.enabledCategories;
+  const enabledIds = filterCatIds ?? editableResult?.enabledCategories;
   const displayCats = enabledIds ? CATEGORIES.filter(c => enabledIds.includes(c.id)) : CATEGORIES;
   return displayCats.map(cat => {
     const filledCount = datasets.reduce((acc, d) => {
@@ -2297,7 +2425,7 @@ function categoryCards(datasets, editableResult = null) {
       class: "cat-card cat-card-btn",
       style: `--c:${cat.color}`,
       type: "button",
-      onClick: () => openCategoryModal(datasets, cat, editableResult),
+      onClick: () => openCategoryModal(datasets, cat, editableResult, editableResult ? { defaultTab: "edit" } : {}),
     },
       h("div", { class: "cat-card-head" },
         h("div", { class: "cat-card-icon" }, cat.icon),
@@ -2314,7 +2442,7 @@ function categoryCards(datasets, editableResult = null) {
 }
 
 // ---------- Category modal with tabs (Spider | Item-by-Item | Edit) ----------
-function openCategoryModal(datasets, cat, editableResult = null) {
+function openCategoryModal(datasets, cat, editableResult = null, { defaultTab = null } = {}) {
   const _modlang = getLang();
   // Deep-clone answers for local editing so we can diff on close
   let localAnswers = editableResult
@@ -2327,7 +2455,7 @@ function openCategoryModal(datasets, cat, editableResult = null) {
     { id: "items",  label: t("tab_items") },
     ...(editableResult ? [{ id: "edit", label: t("tab_edit") }] : []),
   ];
-  let activeTab = "spider";
+  let activeTab = defaultTab || "spider";
 
   return new Promise(resolve => {
     const overlay = h("div", { class: "rs-modal-overlay cat-modal-overlay", role: "dialog", "aria-modal": "true" });
@@ -2453,18 +2581,12 @@ function renderEditTab(cat, result, localAnswers, onChanged) {
       const existing = store[name] || {};
       const itemScale = existing.itemScale || null;
       const activeScale = itemScale || SCALE;
-      const sliderKey = itemScale
-        ? findActiveItemScaleKey(existing.scale, itemScale, SCALE)
-        : existing.scale;
 
-      const grAnswered = cat.gr ? !!(existing.giving || existing.receiving) : false;
-      const answered = cat.gr ? grAnswered : !!existing.scale;
-      const grGivingKey = itemScale
-        ? findActiveItemScaleKey(existing.giving, itemScale, SCALE)
-        : existing.giving;
-      const grReceivingKey = itemScale
-        ? findActiveItemScaleKey(existing.receiving, itemScale, SCALE)
-        : existing.receiving;
+      const grAnswered = cat.gr ? !!(existing.giving || existing.givingFrac !== undefined || existing.receiving || existing.receivingFrac !== undefined) : false;
+      const answered = cat.gr ? grAnswered : !!(existing.scale || existing.scaleFrac !== undefined);
+      const givFrac  = itemScale ? resolveDisplayFrac(existing.givingFrac, SCALE, itemScale) : existing.givingFrac;
+      const recFrac  = itemScale ? resolveDisplayFrac(existing.receivingFrac, SCALE, itemScale) : existing.receivingFrac;
+      const scFrac   = itemScale ? resolveDisplayFrac(existing.scaleFrac, SCALE, itemScale) : existing.scaleFrac;
 
       const row = h("div", { class: "q-item modal-edit-item" + (answered ? " is-answered" : "") },
         h("div", { class: "q-item-name" },
@@ -2479,9 +2601,9 @@ function renderEditTab(cat, result, localAnswers, onChanged) {
               const newItemScale = await editItemScaleDialog(itemScale || cloneScale(SCALE), SCALE);
               if (!newItemScale) return;
               store[name] = { ...(store[name] || {}), itemScale: newItemScale };
-              delete store[name].scale;
-              delete store[name].giving;
-              delete store[name].receiving;
+              delete store[name].scale; delete store[name].scaleFrac;
+              delete store[name].giving; delete store[name].givingFrac;
+              delete store[name].receiving; delete store[name].receivingFrac;
               onChanged();
               rerender();
             }
@@ -2491,58 +2613,58 @@ function renderEditTab(cat, result, localAnswers, onChanged) {
           ? h("div", { class: "q-gr-sliders" },
               h("div", { class: "q-gr-row" },
                 h("span", { class: "q-gr-label" }, t("lbl_giving")),
-                scaleSliderEl({
+                scaleClickEl({
                   scale: activeScale,
-                  valueKey: grGivingKey,
-                  onChange: key => {
+                  valueFrac: givFrac,
+                  onChange: (key, frac) => {
                     const rk = itemScale ? resolveAnswerKey(key, itemScale, SCALE) : key;
+                    const rf = frac != null ? (itemScale ? resolveAnswerFrac(frac, itemScale, SCALE) : frac) : null;
                     store[name] = { ...(store[name] || {}), giving: rk };
+                    if (rf != null) store[name].givingFrac = rf; else delete store[name].givingFrac;
                     if (itemScale) store[name].itemScale = itemScale;
-                    onChanged();
-                    rerender();
+                    onChanged(); rerender();
                   },
                   onClear: () => {
-                    if (store[name]) delete store[name].giving;
-                    onChanged();
-                    rerender();
+                    if (store[name]) { delete store[name].giving; delete store[name].givingFrac; }
+                    onChanged(); rerender();
                   },
                 }),
               ),
               h("div", { class: "q-gr-row" },
                 h("span", { class: "q-gr-label" }, t("lbl_receiving")),
-                scaleSliderEl({
+                scaleClickEl({
                   scale: activeScale,
-                  valueKey: grReceivingKey,
-                  onChange: key => {
+                  valueFrac: recFrac,
+                  onChange: (key, frac) => {
                     const rk = itemScale ? resolveAnswerKey(key, itemScale, SCALE) : key;
+                    const rf = frac != null ? (itemScale ? resolveAnswerFrac(frac, itemScale, SCALE) : frac) : null;
                     store[name] = { ...(store[name] || {}), receiving: rk };
+                    if (rf != null) store[name].receivingFrac = rf; else delete store[name].receivingFrac;
                     if (itemScale) store[name].itemScale = itemScale;
-                    onChanged();
-                    rerender();
+                    onChanged(); rerender();
                   },
                   onClear: () => {
-                    if (store[name]) delete store[name].receiving;
-                    onChanged();
-                    rerender();
+                    if (store[name]) { delete store[name].receiving; delete store[name].receivingFrac; }
+                    onChanged(); rerender();
                   },
                 }),
               ),
             )
           : h("div", { class: "q-slider-wrap" },
-              scaleSliderEl({
+              scaleClickEl({
                 scale: activeScale,
-                valueKey: sliderKey,
-                onChange: (key) => {
+                valueFrac: scFrac,
+                onChange: (key, frac) => {
                   const resultKey = itemScale ? resolveAnswerKey(key, itemScale, SCALE) : key;
+                  const resultFrac = frac != null ? (itemScale ? resolveAnswerFrac(frac, itemScale, SCALE) : frac) : null;
                   store[name] = { ...(store[name] || {}), scale: resultKey };
+                  if (resultFrac != null) store[name].scaleFrac = resultFrac; else delete store[name].scaleFrac;
                   if (itemScale) store[name].itemScale = itemScale;
-                  onChanged();
-                  rerender();
+                  onChanged(); rerender();
                 },
                 onClear: () => {
                   delete store[name];
-                  onChanged();
-                  rerender();
+                  onChanged(); rerender();
                 },
               })
             ),
@@ -2831,6 +2953,22 @@ function viewCompare(ids) {
 
   const datasets = selected.map(s => ({ name: s.label, color: s.color, answers: s.answers, scale: s.scale }));
 
+  // First real editable result in compare selection
+  const firstEditableResultObj = selected.find(s => s.kind === "result");
+  const firstEditableResult = firstEditableResultObj ? Store.getResult(firstEditableResultObj.id) : null;
+
+  // Union of enabled categories from all selected items
+  const compareFilterIds = (() => {
+    const idSet = new Set();
+    let hasFilter = false;
+    for (const s of selected) {
+      const result = s.kind === "result" ? Store.getResult(s.id) : null;
+      const ec = result?.enabledCategories || null;
+      if (ec) { hasFilter = true; ec.forEach(id => idSet.add(id)); }
+    }
+    return hasFilter ? Array.from(idSet) : null;
+  })();
+
   const root = h("section", { class: "page" },
     h("header", { class: "page-head" },
       h("h1", {}, t("compare_title")),
@@ -2869,8 +3007,9 @@ function viewCompare(ids) {
     selected.length >= 1 ? h("section", { class: "page-section" },
       h("header", { class: "section-head" },
         h("h2", {}, t("cat_details_title")),
-        h("p", { class: "muted" }, t("cat_details_sub"))),
-      h("div", { class: "cat-grid" }, ...categoryCards(datasets, null))
+        h("p", { class: "muted" }, t("cat_details_sub")),
+        firstEditableResult ? h("button", { class: "btn", onClick: () => openAddCategoriesDialog(firstEditableResult.profileId, firstEditableResult.id, `/compare?ids=${ids.join(",")}`) }, t("btn_add_categories")) : null),
+      h("div", { class: "cat-grid" }, ...categoryCards(datasets, firstEditableResult, compareFilterIds))
     ) : null,
   );
   $app.append(root);

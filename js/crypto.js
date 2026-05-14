@@ -118,7 +118,7 @@ function parseArmor(armored) {
   try { return parseEnvelopeJson(text); }
   catch {}
 
-  throw new Error("This does not look like a Relationshape bundle.");
+  throw new Error("This does not look like a Relationshapes bundle.");
 }
 
 function parseEnvelopeJson(json) {
