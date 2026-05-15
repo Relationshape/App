@@ -1252,19 +1252,26 @@ a:hover { text-decoration: underline; }
   background: var(--mc, var(--primary));
   border: 3px solid var(--surface);
   box-shadow: 0 2px 8px rgba(0,0,0,0.4), 0 0 0 3px color-mix(in oklab, var(--mc, var(--primary)) 22%, transparent);
-  z-index: 2; pointer-events: none;
+  z-index: 4; pointer-events: none;
   transition: left .08s ease;
 }
 .rs-click-scale-ref {
   position: absolute; top: 50%;
   transform: translate(-50%, -50%);
   display: flex; flex-direction: column; align-items: center;
-  pointer-events: none; z-index: 1;
+  cursor: pointer; z-index: 3;
 }
 .rs-click-scale-ref-tick {
-  width: 2px; height: 10px;
-  background: color-mix(in oklab, var(--surface) 65%, transparent);
-  border-radius: 1px;
+  width: 13px; height: 13px;
+  background: #fff;
+  border: 2px solid color-mix(in oklab, var(--c) 55%, #fff);
+  border-radius: 50%;
+  box-shadow: 0 1px 4px rgba(0,0,0,.18);
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+.rs-click-scale-ref:hover .rs-click-scale-ref-tick {
+  transform: scale(1.35);
+  box-shadow: 0 2px 8px rgba(0,0,0,.28);
 }
 .rs-click-scale-ref-label {
   position: absolute; top: 22px;

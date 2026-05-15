@@ -286,7 +286,12 @@ function scaleClickEl({ scale, valueFrac, onChange, onClear, compact = false }) 
 
   const refTicks = scale.map((s, i) => {
     const pct = N === 1 ? 50 : (i / (N - 1)) * 100;
-    return h("div", { class: "rs-click-scale-ref", style: `left: ${pct}%; --c: ${s.color}` },
+    const exactFrac = N <= 1 ? 0.5 : i / (N - 1);
+    return h("div", {
+      class: "rs-click-scale-ref", style: `left: ${pct}%; --c: ${s.color}`,
+      title: s.label,
+      onClick: e => { e.stopPropagation(); onChange?.(s.key, exactFrac); },
+    },
       h("div", { class: "rs-click-scale-ref-tick" }),
       h("span", { class: "rs-click-scale-ref-label" }, s.short || s.label),
     );
@@ -309,13 +314,12 @@ function scaleClickEl({ scale, valueFrac, onChange, onClear, compact = false }) 
   }
   function applyFrac(frac) {
     const idx = Math.max(0, Math.min(N - 1, Math.round(frac * (N - 1))));
-    const snappedFrac = N <= 1 ? 0.5 : idx / (N - 1);
-    onChange?.(scale[idx]?.key, snappedFrac);
+    onChange?.(scale[idx]?.key, frac);
   }
 
   let dragging = false;
   trackWrap.addEventListener("pointerdown", e => {
-    if (e.target.closest(".rs-slider-clear")) return;
+    if (e.target.closest(".rs-slider-clear") || e.target.closest(".rs-click-scale-ref")) return;
     dragging = true;
     trackWrap.setPointerCapture(e.pointerId);
     applyFrac(fracFromX(e.clientX));
@@ -2099,8 +2103,8 @@ function viewQuestionnaireSingle(profile, result) {
     }));
 
     bindSwipe(card, {
-      onLeft: () => advance(null, "prev"),
-      onRight: () => advance(null, "right"),
+      onLeft: () => advance(null, "left"),
+      onRight: () => advance(null, "swipe-prev"),
     });
     if (noAnimate) card.classList.add("in");
     else requestAnimationFrame(() => card.classList.add("in"));
@@ -2248,7 +2252,7 @@ function viewQuestionnaireSingle(profile, result) {
   }
 
   function advance(_scaleKey, dir) {
-    if (dir === "back" || dir === "prev") {
+    if (dir === "back" || dir === "swipe-prev") {
       cursor = Math.max(0, cursor - 1);
     } else {
       cursor = Math.min(items.length, cursor + 1);
@@ -2258,7 +2262,7 @@ function viewQuestionnaireSingle(profile, result) {
     Store.saveResult(result);
     const oldCard = stack.querySelector(".q-card:not(.is-peek)");
     if (oldCard) {
-      oldCard.classList.add(dir === "left" || dir === "prev" ? "swipe-left" : dir === "right" ? "swipe-right" : "swipe-back");
+      oldCard.classList.add(dir === "left" ? "swipe-left" : dir === "right" || dir === "swipe-prev" ? "swipe-right" : "swipe-back");
       setTimeout(renderCard, 180);
     } else {
       renderCard();
