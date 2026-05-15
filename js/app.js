@@ -1001,14 +1001,419 @@ function viewHome() {
         h("div", { class: "card-add-icon" }, "+"),
         h("div", {}, t("new_profile_btn")))
     ),
-    imports.length ? h("section", { class: "page-section" },
-      h("header", { class: "section-head" },
-        h("h2", {}, t("imports_title")),
-        h("p", { class: "muted" }, t("imports_sub"))),
-      h("div", { class: "list" },
-        ...imports.map(importCard))
-    ) : null,
+    (() => {
+      const regularImports = imports.filter(i => !isTemplateImport(i));
+      const templateImports = imports.filter(i => isTemplateImport(i));
+      return h("div", {},
+        regularImports.length ? h("section", { class: "page-section" },
+          h("header", { class: "section-head" },
+            h("h2", {}, t("imports_title")),
+            h("p", { class: "muted" }, t("imports_sub"))),
+          h("div", { class: "list" },
+            ...regularImports.map(imp => importCard(imp)))
+        ) : null,
+        templateImports.length ? h("section", { class: "page-section" },
+          h("header", { class: "section-head" },
+            h("h2", {}, t("templates_title")),
+            h("p", { class: "muted" }, t("templates_sub"))),
+          h("div", { class: "list" },
+            ...templateImports.map(imp => importCard(imp, true)))
+        ) : null,
+      );
+    })(),
   ));
+}
+
+// ---------- Template import helpers ----------
+function isTemplateImport(imp) {
+  // Template: no answers, exportMode is "template", or locked restricted before unlock
+  if (imp.exportMode === "template") return true;
+  if (imp.exportMode === "restricted" && !imp.answersUnlocked) return true;
+  return false;
+}
+
+function impHasAnswers(imp) {
+  const ans = imp.answers || {};
+  for (const cat of Object.values(ans)) {
+    if (typeof cat !== "object" || !cat) continue;
+    for (const [k, v] of Object.entries(cat)) {
+      if (k === "__hidden" || k === "__custom") continue;
+      if (v?.scale) return true;
+    }
+    const custom = cat.__custom || {};
+    if (Object.values(custom).some(v => v?.scale)) return true;
+  }
+  return false;
+}
+
+async function checkTemplateWarning(result) {
+  if (!result || (!result.seededFromImportId && !result.seededFromResultId)) return true;
+  if (result.templateWarningDisabled) return true;
+  let disableForever = false;
+  const bodyEl = h("div", {},
+    h("p", {}, t("template_warning")),
+    h("label", { style: "display:flex;align-items:center;gap:8px;margin-top:12px;font-size:13px;cursor:pointer" },
+      Object.assign(h("input", { type: "checkbox" }), {
+        onchange: e => { disableForever = e.target.checked; }
+      }),
+      t("template_warning_disable")
+    )
+  );
+  const choice = await dialog({
+    title: t("template_warning_title"),
+    body: () => bodyEl,
+    actions: [
+      { label: t("btn_cancel"), value: "cancel", kind: "ghost" },
+      { label: t("btn_continue_anyway"), value: "ok", kind: "primary" },
+    ],
+  });
+  if (!choice || choice === "cancel") return false;
+  if (disableForever) {
+    result.templateWarningDisabled = true;
+    Store.saveResult(result);
+  }
+  return true;
+}
+
+async function unlockRestrictedImport(imp) {
+  const pass = await dialog({
+    title: t("unlock_answers_title"),
+    body: () => h("div", {},
+      h("p", { class: "muted" }, t("unlock_answers_intro")),
+      h("label", {}, t("unlock_answers_pass_label"),
+        h("input", { name: "unlock-pass", type: "password", autocomplete: "current-password", autofocus: true }))
+    ),
+    actions: [
+      { label: t("btn_cancel"), kind: "ghost", value: null },
+      { label: t("btn_unlock_answers"), kind: "primary",
+        handler: () => {
+          const el = document.querySelector("[name='unlock-pass']");
+          return el?.value?.trim() || false;
+        }
+      },
+    ],
+  });
+  if (!pass) return;
+  try {
+    const { answers } = await decryptResult(imp.lockedAnswers, pass);
+    Store.updateImport(imp.id, { answers, answersUnlocked: true });
+    showToast(t("btn_unlock_answers") + " ✔");
+    route();
+  } catch {
+    dlgAlert(t("unlock_failed"), t("unlock_answers_title"));
+  }
+}
+
+async function openExportModal(result, profile) {
+  function buildExportAskedItems() {
+    const out = {};
+    const enabledCats = result.enabledCategories
+      ? CATEGORIES.filter(c => result.enabledCategories.includes(c.id))
+      : CATEGORIES;
+    for (const cat of enabledCats) {
+      const asked = result.askedItems?.[cat.id];
+      const customKeys = Object.keys(result.answers?.[cat.id]?.__custom || {});
+      const base = asked ? asked.base : cat.items.slice();
+      const custom = Array.from(new Set([...(asked?.custom || []), ...customKeys]));
+      if (base.length || custom.length) out[cat.id] = { base, custom };
+    }
+    return out;
+  }
+
+  const basePayload = {
+    type: "relationshape-result",
+    name: profile.name,
+    pronouns: profile.pronouns,
+    emoji: profile.emoji,
+    color: profile.color,
+    subject: result.subject,
+    subjectEmoji: result.subjectEmoji,
+    subjectColor: result.subjectColor,
+    scale: getResultScale(result),
+    enabledCategories: result.enabledCategories || null,
+    askedItems: result.askedItems || null,
+    version: result.version || 1,
+    sharedAt: Date.now(),
+  };
+
+  // Step 1: choose mode
+  const selectedMode = await dialog({
+    title: t("export_mode_title"),
+    body: (close) => h("div", { class: "start-choices" },
+      h("button", { class: "start-card", type: "button", onClick: () => close("unrestricted") },
+        h("div", { class: "start-icon" }, "✨"),
+        h("div", { class: "start-body" },
+          h("h3", {}, t("export_unrestricted_title")),
+          h("p", { class: "muted small" }, t("export_unrestricted_desc")))),
+      h("button", { class: "start-card", type: "button", onClick: () => close("restricted") },
+        h("div", { class: "start-icon" }, "🔒"),
+        h("div", { class: "start-body" },
+          h("h3", {}, t("export_restricted_title")),
+          h("p", { class: "muted small" }, t("export_restricted_desc")))),
+      h("button", { class: "start-card", type: "button", onClick: () => close("template") },
+        h("div", { class: "start-icon" }, "📋"),
+        h("div", { class: "start-body" },
+          h("h3", {}, t("export_template_title")),
+          h("p", { class: "muted small" }, t("export_template_desc")))),
+    ),
+    actions: [{ label: t("btn_cancel"), kind: "ghost", value: null }],
+  });
+  if (!selectedMode) return;
+
+  // Step 2: passphrase entry + encrypt
+  await new Promise(resolve => {
+    const overlay = h("div", { class: "rs-modal-overlay", role: "dialog", "aria-modal": "true" });
+    const card = h("div", { class: "rs-modal-card", style: "max-width:520px" });
+    overlay.append(card);
+    document.body.append(overlay);
+
+    const close = () => { overlay.remove(); resolve(); };
+    overlay.addEventListener("click", e => { if (e.target === overlay) close(); });
+    document.addEventListener("keydown", function esc(e) {
+      if (e.key === "Escape") { document.removeEventListener("keydown", esc); close(); }
+    });
+
+    const outputWrap = h("div", { style: "display:none;margin-top:16px" });
+    const outputTA = h("textarea", { class: "share-out", readonly: "", rows: 10 });
+    const fileName = `relationshape-${slug(profile.name)}-${slug(result.subject)}.rshape.txt`;
+    outputWrap.append(
+      h("h3", { style: "margin:0 0 6px" }, t("share_bundle_title")),
+      h("p", { class: "muted small", style: "margin:0 0 8px" }, t("share_bundle_sub")),
+      outputTA,
+      h("div", { class: "form-actions" },
+        h("button", { class: "btn", onClick: async () => {
+          await navigator.clipboard.writeText(outputTA.value); showToast(t("btn_copy") + " ✔");
+        }}, t("btn_copy")),
+        h("button", { class: "btn", onClick: () => {
+          const blob = new Blob([outputTA.value], { type: "text/plain" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a"); a.href = url; a.download = fileName; a.click();
+          URL.revokeObjectURL(url);
+        }}, t("btn_download")),
+        h("button", { class: "btn btn-ghost", onClick: close }, t("btn_close")),
+      ),
+    );
+
+    const passFields = selectedMode === "restricted"
+      ? h("div", {},
+          h("label", {}, t("share_pass_label"),
+            h("input", { name: "pass", type: "password", autocomplete: "new-password", required: true, minlength: 6 })),
+          h("label", {}, t("share_pass_confirm_label"),
+            h("input", { name: "passConfirm", type: "password", autocomplete: "new-password", required: true })),
+          h("label", {}, t("export_reveal_pass_label"),
+            h("input", { name: "revealPass", type: "password", autocomplete: "new-password", required: true, minlength: 6 })),
+          h("label", {}, t("export_reveal_pass_confirm_label"),
+            h("input", { name: "revealPassConfirm", type: "password", autocomplete: "new-password", required: true })),
+        )
+      : h("div", {},
+          h("label", {}, t("share_pass_label"),
+            h("input", { name: "pass", type: "password", autocomplete: "new-password", required: true, minlength: 6 })),
+          h("label", {}, t("share_pass_confirm_label"),
+            h("input", { name: "passConfirm", type: "password", autocomplete: "new-password", required: true })),
+        );
+
+    const form = h("form", { class: "form", onSubmit: async (e) => {
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      const pass = fd.get("pass");
+      const passConfirm = fd.get("passConfirm");
+      if (pass.length < 6) return dlgAlert(t("pass_too_short"));
+      if (pass !== passConfirm) return dlgAlert(t("pass_mismatch"));
+
+      let payload;
+      if (selectedMode === "unrestricted") {
+        payload = { ...basePayload, answers: result.answers, exportMode: "unrestricted" };
+      } else if (selectedMode === "restricted") {
+        const revealPass = fd.get("revealPass");
+        const revealPassConfirm = fd.get("revealPassConfirm");
+        if (revealPass.length < 6) return dlgAlert(t("pass_too_short"));
+        if (revealPass !== revealPassConfirm) return dlgAlert(t("pass_mismatch"));
+        const lockedAnswers = await encryptResult({ answers: result.answers }, revealPass);
+        payload = { ...basePayload, answers: {}, lockedAnswers, exportMode: "restricted", askedItems: buildExportAskedItems() };
+      } else {
+        payload = { ...basePayload, answers: {}, exportMode: "template", askedItems: buildExportAskedItems() };
+      }
+
+      const blob = await encryptResult(payload, pass);
+      outputTA.value = blob;
+      outputWrap.style.display = "block";
+      outputWrap.scrollIntoView({ behavior: "smooth" });
+      form.style.display = "none";
+    }});
+
+    form.append(passFields, h("div", { class: "form-actions" },
+      h("button", { class: "btn btn-primary", type: "submit" }, t("btn_encrypt")),
+      h("button", { class: "btn btn-ghost", type: "button", onClick: close }, t("btn_cancel")),
+    ));
+
+    card.append(
+      h("h2", { class: "rs-modal-title" }, t("export_mode_title")),
+      h("p", { class: "muted", style: "margin:0 0 12px" },
+        selectedMode === "unrestricted" ? t("export_unrestricted_title") :
+        selectedMode === "restricted"   ? t("export_restricted_title") :
+                                          t("export_template_title")),
+      h("div", { class: "callout" },
+        h("strong", {}, t("share_callout_title")), " ", t("share_callout_body")),
+      form,
+      outputWrap,
+    );
+  });
+}
+
+async function openUseAsTemplateModal(templateSource, existingProfileId = null) {
+  let profileId = existingProfileId;
+
+  if (!profileId) {
+    const profiles = Store.getProfiles();
+    if (!profiles.length) {
+      await dlgAlert("Please create a profile first.");
+      navigate("/profile/new");
+      return;
+    }
+
+    const chosen = await dialog({
+      title: t("use_as_template_step1_title"),
+      body: (close) => h("div", {},
+        h("p", { class: "muted" }, t("use_as_template_step1_sub")),
+        h("div", { class: "list", style: "margin-top:12px" },
+          ...profiles.map(p => h("button", {
+            class: "compare-tile", type: "button",
+            style: `--c:${p.color}`,
+            onClick: () => close(p.id),
+          },
+            h("div", { class: "li-avatar" }, p.emoji),
+            h("div", { class: "compare-tile-body" },
+              h("h3", {}, p.name),
+              p.pronouns ? h("p", { class: "muted small" }, p.pronouns) : null),
+            h("span", { class: "compare-tile-arrow" }, "→"))),
+          h("button", {
+            class: "compare-tile", type: "button", style: "--c:#7c3aed",
+            onClick: () => close("new"),
+          },
+            h("div", { class: "li-avatar" }, "➕"),
+            h("div", { class: "compare-tile-body" },
+              h("h3", {}, t("new_profile_btn"))),
+            h("span", { class: "compare-tile-arrow" }, "→")),
+        ),
+      ),
+      actions: [{ label: t("btn_cancel"), kind: "ghost", value: null }],
+    });
+    if (!chosen) return;
+    if (chosen === "new") { navigate("/profile/new"); return; }
+    profileId = chosen;
+  }
+
+  await startFromTemplate(templateSource, profileId);
+}
+
+async function startFromTemplate(templateSource, profileId) {
+  const imp = templateSource.type === "import" ? templateSource.imp : null;
+  const srcResult = templateSource.type === "result" ? templateSource.result : null;
+  const src = imp || srcResult;
+
+  const subject = await dlgPrompt({
+    title: t("new_map_title"),
+    label: t("map_name_label"),
+    placeholder: src?.subject || "e.g. Sam",
+    value: src?.subject || "",
+    okLabel: t("btn_start_from_template"),
+  });
+  if (!subject) return;
+
+  const enabledCategories = src?.enabledCategories || null;
+  const askedItems = src?.askedItems || null;
+  const scale = cloneScale(src?.scale || Store.getScale());
+
+  const seededAnswers = {};
+  if (askedItems) {
+    for (const [catId, info] of Object.entries(askedItems)) {
+      if (info.custom?.length) {
+        seededAnswers[catId] = { __custom: Object.fromEntries(info.custom.map(n => [n, {}])) };
+      }
+    }
+  }
+
+  const version = Store.nextResultVersion(profileId, subject);
+  const r = Store.saveResult({
+    profileId,
+    subject: subject.trim(),
+    subjectEmoji: src?.subjectEmoji || pickEmoji(),
+    subjectColor: src?.subjectColor || pickColor(),
+    answers: seededAnswers,
+    scale,
+    enabledCategories,
+    askedItems,
+    progress: { catIndex: 0 },
+    version,
+    ...(imp ? { seededFromImportId: imp.id } : {}),
+    ...(srcResult ? { seededFromResultId: srcResult.id } : {}),
+  });
+  showToast(t("seeded_toast", { name: src?.subject || "?" }));
+  navigate(`/q-categories/${profileId}/${r.id}`);
+}
+
+async function startFromExistingTemplate(profileId) {
+  const allResults = Store.getResults();
+  const imports = Store.getImports();
+  const profiles = Store.getProfiles();
+
+  const chosen = await dialog({
+    title: t("pick_template_source_title"),
+    body: (close) => {
+      const sections = [];
+      if (allResults.length) {
+        sections.push(h("h3", { style: "margin:0 0 8px;font-size:14px;color:var(--muted)" }, t("pick_template_own")));
+        sections.push(h("div", { class: "compare-grid", style: "margin-bottom:16px" },
+          ...allResults.map(r => {
+            const p = profiles.find(p => p.id === r.profileId);
+            return h("button", {
+              class: "compare-tile", type: "button",
+              style: `--c:${r.subjectColor || p?.color || "#7c3aed"}`,
+              onClick: () => close({ type: "result", id: r.id }),
+            },
+              h("div", { class: "li-avatar" }, r.subjectEmoji || "💞"),
+              h("div", { class: "compare-tile-body" },
+                h("h3", {}, r.subject + (r.version > 1 ? ` (v${r.version})` : "")),
+                h("p", { class: "muted small" }, p ? `${p.emoji} ${p.name}` : "")),
+              h("span", { class: "compare-tile-arrow" }, "→"));
+          })
+        ));
+      }
+      if (imports.length) {
+        sections.push(h("h3", { style: "margin:0 0 8px;font-size:14px;color:var(--muted)" }, t("pick_template_imports")));
+        sections.push(h("div", { class: "compare-grid" },
+          ...imports.map(imp => h("button", {
+            class: "compare-tile", type: "button",
+            style: `--c:${imp.color || "#7c3aed"}`,
+            onClick: () => close({ type: "import", id: imp.id }),
+          },
+            h("div", { class: "li-avatar" }, imp.emoji || "📨"),
+            h("div", { class: "compare-tile-body" },
+              h("h3", {}, importLabel(imp)),
+              h("p", { class: "muted small" }, `${t("imported_on")} ${fmtDate(imp.importedAt)}`)),
+            h("span", { class: "compare-tile-arrow" }, "→")))
+        ));
+      }
+      return h("div", {}, ...sections);
+    },
+    actions: [{ label: t("btn_cancel"), kind: "ghost", value: null }],
+  });
+  if (!chosen) return;
+
+  const allImports = Store.getImports();
+  const allRes = Store.getResults();
+  let templateSource;
+  if (chosen.type === "result") {
+    const src = allRes.find(r => r.id === chosen.id);
+    if (!src) return;
+    templateSource = { type: "result", result: src };
+  } else {
+    const src = allImports.find(i => i.id === chosen.id);
+    if (!src) return;
+    templateSource = { type: "import", imp: src };
+  }
+
+  await startFromTemplate(templateSource, profileId);
 }
 
 function viewWelcome() {
@@ -1104,15 +1509,22 @@ function profileCard(p) {
   );
 }
 
-function importCard(imp) {
+function importCard(imp, isTemplate = false) {
   const v = imp.version > 1 ? ` (v${imp.version})` : "";
+  const isLocked = imp.exportMode === "restricted" && !imp.answersUnlocked;
   return h("div", { class: "list-item", style: `--c:${imp.color || "#7c3aed"}` },
     h("div", { class: "li-avatar" }, imp.emoji || "📨"),
     h("div", { class: "li-body" },
-      h("h3", {}, (imp.name || "Imported result") + v),
+      h("h3", {}, (imp.name || "Imported result") + v,
+        isTemplate ? h("span", { class: "badge", style: "margin-left:6px;font-size:11px" }, t("template_badge")) : null,
+        isLocked ? h("span", { class: "badge", style: "margin-left:6px;font-size:11px" }, t("locked_answers_badge")) : null),
       h("p", { class: "muted small" }, `${esc(imp.subject || "—")}${v} · ${t("imported_on")} ${fmtDate(imp.importedAt)}`)),
     h("div", { class: "li-actions" },
-      h("button", { class: "btn", onClick: () => navigate("/compare?ids=imp:" + imp.id) }, t("btn_compare")),
+      isTemplate
+        ? h("button", { class: "btn btn-primary", onClick: () => openUseAsTemplateModal({ type: "import", imp }) }, t("btn_use_as_template"))
+        : isLocked
+          ? h("button", { class: "btn btn-primary", onClick: () => unlockRestrictedImport(imp) }, t("btn_unlock_answers"))
+          : h("button", { class: "btn", onClick: () => navigate("/compare?ids=imp:" + imp.id) }, t("btn_compare")),
       h("button", { class: "btn btn-danger-ghost", onClick: async () => {
         if (await dlgConfirm(t("confirm_delete_map"), { danger: true, okLabel: t("btn_delete") })) {
           Store.deleteImport(imp.id); route();
@@ -1299,6 +1711,8 @@ function viewCategoryOverview(profileId, resultId) {
 
 async function createNewResult(profileId) {
   const imports = Store.getImports();
+  const allResults = Store.getResults();
+  const hasTemplateSource = allResults.length > 0 || imports.length > 0;
 
   const choice = await dialog({
     title: t("new_map_title"),
@@ -1313,12 +1727,18 @@ async function createNewResult(profileId) {
         h("div", { class: "start-body" },
           h("h3", {}, t("start_import_title")),
           h("p", { class: "muted small" }, `${t("start_import_desc")} ${imports.length} ${imports.length>1 ? t("start_import_desc_count_many") : t("start_import_desc_count_one")}`))) : null,
+      hasTemplateSource ? h("button", { class: "start-card", type: "button", onClick: () => close("template") },
+        h("div", { class: "start-icon" }, "📋"),
+        h("div", { class: "start-body" },
+          h("h3", {}, t("pick_template_source_title")),
+          h("p", { class: "muted small" }, t("pick_template_source_sub")))) : null,
     ),
     actions: [{ label: t("btn_cancel"), kind: "ghost", value: null }],
   });
   if (!choice) return;
 
   if (choice === "import") return startFromImport(profileId);
+  if (choice === "template") return startFromExistingTemplate(profileId);
   return startBlank(profileId);
 }
 
@@ -1667,6 +2087,7 @@ async function runCategoryPicker(existingIds, { showBack = false } = {}) {
 async function openAddCategoriesDialog(profileId, resultId, returnPath) {
   const result = Store.getResult(resultId);
   if (!result) return;
+  if (!await checkTemplateWarning(result)) return;
   const existing = result.enabledCategories || CATEGORIES.map(c => c.id);
   const newIds = await runCategoryPicker(existing);
   if (!newIds || newIds === false) return;
@@ -1795,6 +2216,7 @@ function viewQuestionnaireList(profile, result) {
         ...baseItems.map(item => itemRow(cat, item, answers, false, SCALE)),
         ...customNames.map(name => itemRow(cat, name, answers.__custom, true, SCALE)),
         h("button", { class: "q-add", onClick: async () => {
+          if (!await checkTemplateWarning(result)) return;
           const name = await dlgPrompt({
             title: t("add_custom_title"),
             label: t("add_custom_label"),
@@ -1875,6 +2297,7 @@ function viewQuestionnaireList(profile, result) {
         h("button", { class: "btn btn-ghost item-scale-btn", type: "button",
           onClick: async e => {
             e.stopPropagation();
+            if (!await checkTemplateWarning(result)) return;
             if (answered) {
               if (!await dlgConfirm(t("item_scale_change_warning"), { okLabel: t("btn_ok") })) return;
               clearAnswers();
@@ -2146,6 +2569,7 @@ function viewQuestionnaireSingle(profile, result) {
         h("button", { class: "btn btn-ghost item-scale-btn", type: "button",
           onClick: async e => {
             e.stopPropagation();
+            if (!await checkTemplateWarning(result)) return;
             if (it.cat.gr ? (existing.giving || existing.receiving) : existing.scale) {
               if (!await dlgConfirm(t("item_scale_change_warning"), { okLabel: t("btn_ok") })) return;
             }
@@ -2385,7 +2809,7 @@ function viewResult(resultId, openCatId = null) {
       h("div", { class: "flex-spacer" }),
       h("button", { class: "btn", onClick: () => navigate(`/map/${r.id}/settings`) }, t("btn_map_settings")),
       h("button", { class: "btn", onClick: () => navigate(`/q/${profile.id}/${r.id}`) }, t("btn_continue_editing")),
-      h("button", { class: "btn btn-primary", onClick: () => navigate(`/share/${r.id}`) }, t("btn_share")),
+      h("button", { class: "btn btn-primary", onClick: () => openExportModal(r, profile) }, t("btn_share")),
     ),
 
     Store.getFabiMode() ? h("section", { class: "page-section" },
@@ -2661,8 +3085,9 @@ function renderEditTab(cat, result, localAnswers, onChanged) {
           isCustom ? name : getItemLabel(cat, name, _etlang),
           h("button", { class: "btn btn-ghost item-remove-btn", type: "button",
             title: t("btn_remove_item"),
-            onClick: e => {
+            onClick: async e => {
               e.stopPropagation();
+              if (!await checkTemplateWarning(result)) return;
               catAnswers.__hidden[name] = true;
               if (isCustom) delete catAnswers.__custom[name];
               else delete catAnswers[name];
@@ -2673,6 +3098,7 @@ function renderEditTab(cat, result, localAnswers, onChanged) {
           h("button", { class: "btn btn-ghost item-scale-btn", type: "button",
             onClick: async e => {
               e.stopPropagation();
+              if (!await checkTemplateWarning(result)) return;
               if (cat.gr ? (existing.giving || existing.receiving) : existing.scale) {
                 if (!await dlgConfirm(t("item_scale_change_warning"), { okLabel: t("btn_ok") })) return;
               }
@@ -2762,6 +3188,7 @@ function renderEditTab(cat, result, localAnswers, onChanged) {
 
     // Add custom item
     container.append(h("button", { class: "q-add", onClick: async () => {
+      if (!await checkTemplateWarning(result)) return;
       const newName = await dlgPrompt({
         title: t("add_custom_title"),
         label: t("add_custom_label"),
@@ -2987,19 +3414,32 @@ function viewImport() {
         const payload = await decryptResult(blob, pass);
         if (payload.type !== "relationshape-result") throw new Error(t("import_wrong_type"));
         const version = Store.nextImportVersion(payload.name, payload.subject);
-        const imp = Store.saveImport({
+        const exportMode = payload.exportMode || "unrestricted";
+        const impData = {
           name: payload.name, pronouns: payload.pronouns,
           emoji: payload.emoji, color: payload.color,
           subject: payload.subject, subjectEmoji: payload.subjectEmoji,
-          subjectColor: payload.subjectColor, answers: payload.answers,
+          subjectColor: payload.subjectColor,
           scale: payload.scale,
           enabledCategories: payload.enabledCategories || null,
           askedItems: payload.askedItems || null,
           version,
           srcVersion: payload.version || 1,
-        });
+          exportMode,
+        };
+        if (exportMode === "restricted") {
+          impData.answers = {};
+          impData.lockedAnswers = payload.lockedAnswers;
+        } else {
+          impData.answers = payload.answers || {};
+        }
+        const imp = Store.saveImport(impData);
         showToast(version > 1 ? t("imported_versioned_toast", { n: version }) : t("imported_toast"));
-        navigate(`/compare?ids=imp:${imp.id}`);
+        if (isTemplateImport(imp)) {
+          navigate("/");
+        } else {
+          navigate(`/compare?ids=imp:${imp.id}`);
+        }
       } catch (err) {
         dlgAlert(err.message || "Could not decrypt.", t("import_failed_title"));
       }
@@ -3335,9 +3775,10 @@ async function promptRestoreBackup() {
 }
 
 // ---------- Per-map settings ----------
-function viewMapSettings(resultId) {
+async function viewMapSettings(resultId) {
   const r = Store.getResult(resultId);
   if (!r) return navigate("/");
+  if (!await checkTemplateWarning(r)) return navigate(`/result/${resultId}`);
   const profile = Store.getProfile(r.profileId);
   r.scale = r.scale || cloneScale(Store.getScale());
   r.enabledCategories = r.enabledCategories || CATEGORIES.map(c => c.id);

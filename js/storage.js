@@ -126,6 +126,14 @@ export const Store = {
     data.imports = data.imports.filter(i => i.id !== id);
     save(data);
   },
+  updateImport(id, patch) {
+    const data = load();
+    const imp = data.imports.find(i => i.id === id);
+    if (!imp) return null;
+    Object.assign(imp, patch);
+    save(data);
+    return imp;
+  },
 
   // ---- Default scale ----
   getScale() {
