@@ -1,0 +1,126 @@
+/* src/styles/animations.css
+ * Source: ported verbatim from public/legacy/css/additions.css @keyframes blocks (8 total).
+ * DESIGN-03: keyframe names preserved (heroBlobPulse, holoOrbDrift, holoBtnSpin, holoIconSpin,
+ *            holoUnderlineSlide, iridShift, bgPulse, silkShift).
+ * DESIGN-04 + D-10 + WCAG 2.1 SC 2.3.3: prefers-reduced-motion guard DISABLES all 8 animations
+ *            (Pitfall 6 — duration zeroing alone is insufficient; explicit animation: none required).
+ */
+
+/* 1. Hero blob pulse — additions.css:828 */
+@keyframes heroBlobPulse {
+  0%, 100% { transform: translateX(-50%) scale(1.00); opacity: 0.90; }
+  35%       { transform: translateX(-50%) scale(1.06); opacity: 1.00; }
+  70%       { transform: translateX(-50%) scale(0.97); opacity: 0.85; }
+}
+
+/* 2. Holo orb drift — additions.css:833 */
+@keyframes holoOrbDrift {
+  0%   { transform: translateX(-50%) scale(1.00) rotate(0deg);   opacity: 0.65; }
+  28%  { transform: translateX(-50%) scale(1.10) rotate(8deg);   opacity: 0.85; }
+  55%  { transform: translateX(-50%) scale(0.95) rotate(-5deg);  opacity: 0.70; }
+  80%  { transform: translateX(-50%) scale(1.05) rotate(3deg);   opacity: 0.80; }
+  100% { transform: translateX(-50%) scale(1.00) rotate(0deg);   opacity: 0.65; }
+}
+
+/* 3. Holo button spin — additions.css:873 */
+@keyframes holoBtnSpin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* 4. Holo icon spin — additions.css:903 */
+@keyframes holoIconSpin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* 5. Holo underline slide — additions.css:933 */
+@keyframes holoUnderlineSlide {
+  from { background-position: 0% center; }
+  to   { background-position: 300% center; }
+}
+
+/* 6. Iridescent shift — additions.css:964 */
+@keyframes iridShift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* 7. Background pulse — additions.css:1367 */
+@keyframes bgPulse {
+  0%, 100% { opacity: 0.70; }
+  50%       { opacity: 1.0; }
+}
+
+/* 8. Silk shift — additions.css:1398 */
+@keyframes silkShift {
+  0%   { background-position: 0% 50%; }
+  25%  { background-position: 50% 0%; }
+  50%  { background-position: 100% 50%; }
+  75%  { background-position: 50% 100%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ------------------------------------------------------------------
+ * Reduced-motion guard — DESIGN-04, D-10, WCAG 2.1 SC 2.3.3.
+ * Fixes v1.0's gap: v1.0 has no reduced-motion guard at all; v2.0 disables all 8 animations
+ * + transitions universally PLUS explicit per-keyframe disable on the v1.0 target selectors.
+ * Pitfall 6: duration zeroing alone is not enough for infinite animations.
+ * ------------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    transition-delay: 0ms !important;
+  }
+  /* Explicit per-keyframe disable (Pitfall 6) — selectors are the standard targets the keyframes
+   * are applied to in v1.0 (greped from additions.css). If a Phase 2 component uses a different
+   * selector for the same keyframe, the universal rule above still applies. */
+  .hero-blob,
+  .hero-blob-holo,
+  body::before,
+  body::after,
+  .btn-primary::after,
+  .btn-primary::before,
+  .hero-feat-icon::before,
+  .section-head h2::after,
+  .page-head h1::after,
+  .scale-btn.is-active::after,
+  .scale-pill.is-active::after,
+  .li-avatar::before,
+  .card::after,
+  .card-add,
+  .rs-modal-card::before {
+    animation: none !important;
+  }
+}
+
+/* In-page reduced-motion preview toggle (CONTEXT.md <specifics>): mirrors the @media block for the
+ * /design-system page so reviewers can eyeball reduced-motion without changing OS settings (plan 08). */
+body[data-prm='reduce'] *,
+body[data-prm='reduce'] *::before,
+body[data-prm='reduce'] *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  transition-delay: 0ms !important;
+}
+body[data-prm='reduce'] .hero-blob,
+body[data-prm='reduce'] .hero-blob-holo,
+body[data-prm='reduce'] body::before,
+body[data-prm='reduce'] body::after,
+body[data-prm='reduce'] .btn-primary::after,
+body[data-prm='reduce'] .btn-primary::before,
+body[data-prm='reduce'] .hero-feat-icon::before,
+body[data-prm='reduce'] .section-head h2::after,
+body[data-prm='reduce'] .page-head h1::after,
+body[data-prm='reduce'] .scale-btn.is-active::after,
+body[data-prm='reduce'] .scale-pill.is-active::after,
+body[data-prm='reduce'] .li-avatar::before,
+body[data-prm='reduce'] .card::after,
+body[data-prm='reduce'] .card-add,
+body[data-prm='reduce'] .rs-modal-card::before {
+  animation: none !important;
+}

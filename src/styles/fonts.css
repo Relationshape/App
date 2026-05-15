@@ -1,0 +1,6 @@
+/* src/styles/fonts.css
+ * Self-hosted variable fonts are loaded via @fontsource-variable/* side-effect imports in src/main.tsx.
+ * Those packages inject @font-face declarations with font-display: swap automatically (DESIGN-02).
+ * This file exists for the @import chain in globals.css and as a place for hand-rolled fallbacks
+ * if RESEARCH.md assumption A2 ever needs to invert.
+ */
