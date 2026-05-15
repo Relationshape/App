@@ -15,7 +15,8 @@
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit -p tsconfig.app.json",
     "lint": "eslint .",
-    "format": "prettier --write \"src/**/*.{ts,tsx,css}\" \"tests/**/*.{ts,tsx}\" \"*.{ts,tsx,json,md}\""
+    "format": "prettier --write \"src/**/*.{ts,tsx,css}\" \"tests/**/*.{ts,tsx}\" \"*.{ts,tsx,json,md}\"",
+    "verify": "pnpm run typecheck && pnpm run lint && pnpm run test -- --run && pnpm run build && bash scripts/check-no-google-fonts.sh"
   },
   "dependencies": {
     "@fontsource-variable/dm-sans": "5.2.8",
