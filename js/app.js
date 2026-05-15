@@ -309,10 +309,23 @@ function scaleClickEl({ scale, valueFrac, onChange, onClear, compact = false }) 
   }
   function applyFrac(frac) {
     const idx = Math.max(0, Math.min(N - 1, Math.round(frac * (N - 1))));
-    onChange?.(scale[idx]?.key, frac);
+    const snappedFrac = N <= 1 ? 0.5 : idx / (N - 1);
+    onChange?.(scale[idx]?.key, snappedFrac);
   }
 
-  trackWrap.addEventListener("click", e => { applyFrac(fracFromX(e.clientX)); });
+  let dragging = false;
+  trackWrap.addEventListener("pointerdown", e => {
+    if (e.target.closest(".rs-slider-clear")) return;
+    dragging = true;
+    trackWrap.setPointerCapture(e.pointerId);
+    applyFrac(fracFromX(e.clientX));
+  });
+  trackWrap.addEventListener("pointermove", e => {
+    if (!dragging) return;
+    applyFrac(fracFromX(e.clientX));
+  });
+  trackWrap.addEventListener("pointerup", () => { dragging = false; });
+  trackWrap.addEventListener("pointercancel", () => { dragging = false; });
 
   root.addEventListener("keydown", e => {
     const step = 1 / Math.max(1, (N - 1) * 2);
@@ -2086,7 +2099,7 @@ function viewQuestionnaireSingle(profile, result) {
     }));
 
     bindSwipe(card, {
-      onLeft: () => advance(null, "left"),
+      onLeft: () => advance(null, "prev"),
       onRight: () => advance(null, "right"),
     });
     if (noAnimate) card.classList.add("in");
@@ -2235,7 +2248,7 @@ function viewQuestionnaireSingle(profile, result) {
   }
 
   function advance(_scaleKey, dir) {
-    if (dir === "back") {
+    if (dir === "back" || dir === "prev") {
       cursor = Math.max(0, cursor - 1);
     } else {
       cursor = Math.min(items.length, cursor + 1);
@@ -2245,7 +2258,7 @@ function viewQuestionnaireSingle(profile, result) {
     Store.saveResult(result);
     const oldCard = stack.querySelector(".q-card:not(.is-peek)");
     if (oldCard) {
-      oldCard.classList.add(dir === "left" ? "swipe-left" : dir === "right" ? "swipe-right" : "swipe-back");
+      oldCard.classList.add(dir === "left" || dir === "prev" ? "swipe-left" : dir === "right" ? "swipe-right" : "swipe-back");
       setTimeout(renderCard, 180);
     } else {
       renderCard();
