@@ -287,12 +287,13 @@ function scaleClickEl({ scale, valueFrac, onChange, onClear, compact = false }) 
   const refTicks = scale.map((s, i) => {
     const pct = N === 1 ? 50 : (i / (N - 1)) * 100;
     const exactFrac = N <= 1 ? 0.5 : i / (N - 1);
-    return h("div", {
-      class: "rs-click-scale-ref", style: `left: ${pct}%; --c: ${s.color}`,
+    const dot = h("div", {
+      class: "rs-click-scale-ref-tick",
       title: s.label,
       onClick: e => { e.stopPropagation(); onChange?.(s.key, exactFrac); },
-    },
-      h("div", { class: "rs-click-scale-ref-tick" }),
+    });
+    return h("div", { class: "rs-click-scale-ref", style: `left: ${pct}%; --c: ${s.color}` },
+      dot,
       h("span", { class: "rs-click-scale-ref-label" }, s.short || s.label),
     );
   });
@@ -319,7 +320,7 @@ function scaleClickEl({ scale, valueFrac, onChange, onClear, compact = false }) 
 
   let dragging = false;
   trackWrap.addEventListener("pointerdown", e => {
-    if (e.target.closest(".rs-slider-clear") || e.target.closest(".rs-click-scale-ref")) return;
+    if (e.target.closest(".rs-slider-clear") || e.target.closest(".rs-click-scale-ref-tick")) return;
     dragging = true;
     trackWrap.setPointerCapture(e.pointerId);
     applyFrac(fracFromX(e.clientX));
@@ -2490,8 +2491,17 @@ function openCategoryModal(datasets, cat, editableResult = null, { defaultTab = 
     const overlay = h("div", { class: "rs-modal-overlay cat-modal-overlay", role: "dialog", "aria-modal": "true" });
     const card = h("div", { class: "rs-modal-card cat-modal-wrap" });
 
-    const close = async (save = false) => {
-      if (hasChanges && !save) {
+    function doSave() {
+      if (!hasChanges || !editableResult) return;
+      editableResult.answers = localAnswers;
+      Store.saveResult(editableResult);
+      hasChanges = false;
+      refreshActionRow();
+      showToast(t("btn_save_changes") + " ✔");
+    }
+
+    const close = async () => {
+      if (hasChanges) {
         const choice = await dialog({
           body: h("p", {}, t("confirm_discard_changes")),
           actions: [
@@ -2501,12 +2511,7 @@ function openCategoryModal(datasets, cat, editableResult = null, { defaultTab = 
           ],
         });
         if (!choice || choice === "cancel") return;
-        if (choice === "save") save = true;
-      }
-      if (save && editableResult && hasChanges) {
-        editableResult.answers = localAnswers;
-        Store.saveResult(editableResult);
-        showToast(t("btn_save_changes") + " ✔");
+        if (choice === "save") doSave();
       }
       overlay.classList.add("closing");
       setTimeout(() => overlay.remove(), 160);
@@ -2514,18 +2519,18 @@ function openCategoryModal(datasets, cat, editableResult = null, { defaultTab = 
       resolve();
     };
 
-    const escKey = (e) => { if (e.key === "Escape") close(false); };
+    const escKey = (e) => { if (e.key === "Escape") close(); };
     document.addEventListener("keydown", escKey);
-    overlay.addEventListener("click", e => { if (e.target === overlay) close(false); });
+    overlay.addEventListener("click", e => { if (e.target === overlay) close(); });
 
     let actionRow = null;
 
     function refreshActionRow() {
       if (!actionRow) return;
       actionRow.innerHTML = "";
-      actionRow.append(h("button", { class: "btn btn-ghost", onClick: () => close(false) }, t("btn_close")));
+      actionRow.append(h("button", { class: "btn btn-ghost", onClick: () => close() }, t("btn_close")));
       if (editableResult) {
-        const saveBtn = h("button", { class: "btn btn-primary", onClick: () => close(true) }, t("btn_save_changes"));
+        const saveBtn = h("button", { class: "btn btn-primary", onClick: () => doSave() }, t("btn_save_changes"));
         if (!hasChanges) saveBtn.disabled = true;
         actionRow.append(saveBtn);
       }
@@ -2550,7 +2555,27 @@ function openCategoryModal(datasets, cat, editableResult = null, { defaultTab = 
         ...tabs.map(tab => h("button", {
           class: "cat-modal-tab" + (activeTab === tab.id ? " active" : ""),
           type: "button",
-          onClick: () => { activeTab = tab.id; renderTab(); },
+          onClick: async () => {
+            if (hasChanges && tab.id !== activeTab && tab.id !== "edit") {
+              const choice = await dialog({
+                body: h("p", {}, t("confirm_discard_changes")),
+                actions: [
+                  { label: t("btn_cancel"),      value: "cancel",  kind: "ghost" },
+                  { label: t("btn_discard"),      value: "discard", kind: "danger" },
+                  { label: t("btn_save_changes"), value: "save",    kind: "primary" },
+                ],
+              });
+              if (!choice || choice === "cancel") return;
+              if (choice === "save") {
+                doSave();
+              } else {
+                localAnswers = JSON.parse(JSON.stringify(editableResult.answers || {}));
+                hasChanges = false;
+              }
+            }
+            activeTab = tab.id;
+            renderTab();
+          },
         }, tab.label))
       );
       card.append(tabBar);
