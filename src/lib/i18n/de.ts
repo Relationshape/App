@@ -199,6 +199,7 @@ export const DE: Record<TranslationKey, string> = {
     'Relationshapes enthält Themen intimer und sexueller Natur. Bitte bestätige, dass du 18 Jahre oder älter bist.',
   age_gate_yes: 'Ja, ich bin 18 Jahre oder älter',
   age_gate_no: 'Nein, ich bin unter 18',
+  age_gate_stop: 'Entschuldige — diese App ist für 18+. Komm bitte zurück, wenn du älter bist.',
 
   // Result view
   result_last_edited: 'zuletzt bearbeitet',

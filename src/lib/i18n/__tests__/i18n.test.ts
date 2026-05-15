@@ -8,6 +8,7 @@
 // is the source file, not the documented estimate.
 // Phase 2 plan 02-01 adds 5 shell keys (no_profiles_yet, nav_open_menu,
 // nav_close_menu, profile_picker_label, profile_picker_create_new) → 347 total.
+// Phase 2 plan 02-02 adds 1 key (age_gate_stop) → 348 total.
 
 import { describe, it, expect, beforeEach } from 'vitest'
 import { EN } from '../en'
@@ -25,9 +26,9 @@ describe('i18n (CORE-06)', () => {
     expect(deKeys).toEqual(enKeys)
   })
 
-  it('EN key count matches v1.0 baseline + Phase 2 shell additions (347 keys)', () => {
-    expect(Object.keys(EN).length).toBe(347)
-    expect(Object.keys(DE).length).toBe(347)
+  it('EN key count matches v1.0 baseline + Phase 2 additions (348 keys)', () => {
+    expect(Object.keys(EN).length).toBe(348)
+    expect(Object.keys(DE).length).toBe(348)
   })
 
   it('t() resolves an EN key in EN mode', () => {

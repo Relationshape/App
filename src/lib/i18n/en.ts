@@ -190,6 +190,7 @@ export const EN = {
     'Relationshapes contains topics of an intimate and sexual nature. Please confirm that you are 18 years of age or older.',
   age_gate_yes: 'Yes, I am 18 or older',
   age_gate_no: 'No, I am under 18',
+  age_gate_stop: 'Sorry — this app is for ages 18 and up. Please come back when you\'re older.',
 
   // Result view
   result_last_edited: 'last edited',
