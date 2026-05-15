@@ -1160,103 +1160,83 @@ async function openExportModal(result, profile) {
   });
   if (!selectedMode) return;
 
-  // Step 2: passphrase entry + encrypt
-  await new Promise(resolve => {
-    const overlay = h("div", { class: "rs-modal-overlay", role: "dialog", "aria-modal": "true" });
-    const card = h("div", { class: "rs-modal-card", style: "max-width:520px" });
-    overlay.append(card);
-    document.body.append(overlay);
+  // Step 2: passphrase entry — build body DOM node so handler can read inputs
+  const passBody = h("div", { class: "form" },
+    h("div", { class: "callout" },
+      h("strong", {}, t("share_callout_title")), " ", t("share_callout_body")),
+    h("label", {}, t("share_pass_label"),
+      h("input", { name: "pass", type: "password", autocomplete: "new-password" })),
+    h("label", {}, t("share_pass_confirm_label"),
+      h("input", { name: "passConfirm", type: "password", autocomplete: "new-password" })),
+    ...(selectedMode === "restricted" ? [
+      h("label", {}, t("export_reveal_pass_label"),
+        h("input", { name: "revealPass", type: "password", autocomplete: "new-password" })),
+      h("label", {}, t("export_reveal_pass_confirm_label"),
+        h("input", { name: "revealPassConfirm", type: "password", autocomplete: "new-password" })),
+    ] : []),
+  );
 
-    const close = () => { overlay.remove(); resolve(); };
-    overlay.addEventListener("click", e => { if (e.target === overlay) close(); });
-    document.addEventListener("keydown", function esc(e) {
-      if (e.key === "Escape") { document.removeEventListener("keydown", esc); close(); }
-    });
+  const modeTitle = selectedMode === "unrestricted" ? t("export_unrestricted_title") :
+                    selectedMode === "restricted"   ? t("export_restricted_title") :
+                                                      t("export_template_title");
 
-    const outputWrap = h("div", { style: "display:none;margin-top:16px" });
-    const outputTA = h("textarea", { class: "share-out", readonly: "", rows: 10 });
-    const fileName = `relationshape-${slug(profile.name)}-${slug(result.subject)}.rshape.txt`;
-    outputWrap.append(
-      h("h3", { style: "margin:0 0 6px" }, t("share_bundle_title")),
-      h("p", { class: "muted small", style: "margin:0 0 8px" }, t("share_bundle_sub")),
+  const blob = await dialog({
+    title: modeTitle,
+    body: passBody,
+    actions: [
+      { label: t("btn_cancel"), kind: "ghost", value: null },
+      { label: t("btn_encrypt"), kind: "primary",
+        handler: async () => {
+          const pass = passBody.querySelector("[name='pass']")?.value || "";
+          const passConfirm = passBody.querySelector("[name='passConfirm']")?.value || "";
+          if (pass.length < 6) { showToast(t("pass_too_short")); return false; }
+          if (pass !== passConfirm) { showToast(t("pass_mismatch")); return false; }
+
+          let payload;
+          if (selectedMode === "unrestricted") {
+            payload = { ...basePayload, answers: result.answers, exportMode: "unrestricted" };
+          } else if (selectedMode === "restricted") {
+            const revealPass = passBody.querySelector("[name='revealPass']")?.value || "";
+            const revealPassConfirm = passBody.querySelector("[name='revealPassConfirm']")?.value || "";
+            if (revealPass.length < 6) { showToast(t("pass_too_short")); return false; }
+            if (revealPass !== revealPassConfirm) { showToast(t("pass_mismatch")); return false; }
+            const lockedAnswers = await encryptResult({ answers: result.answers }, revealPass);
+            payload = { ...basePayload, answers: {}, lockedAnswers, exportMode: "restricted", askedItems: buildExportAskedItems() };
+          } else {
+            payload = { ...basePayload, answers: {}, exportMode: "template", askedItems: buildExportAskedItems() };
+          }
+
+          return await encryptResult(payload, pass);
+        },
+      },
+    ],
+  });
+  if (!blob) return;
+
+  // Step 3: show encrypted bundle for copy/download
+  const fileName = `relationshape-${slug(profile.name)}-${slug(result.subject)}.rshape.txt`;
+  const outputTA = h("textarea", { class: "share-out", readonly: "", rows: 10 });
+  outputTA.value = blob;
+
+  await dialog({
+    title: t("share_bundle_title"),
+    body: h("div", {},
+      h("p", { class: "muted" }, t("share_bundle_sub")),
       outputTA,
       h("div", { class: "form-actions" },
         h("button", { class: "btn", onClick: async () => {
-          await navigator.clipboard.writeText(outputTA.value); showToast(t("btn_copy") + " ✔");
+          await navigator.clipboard.writeText(outputTA.value);
+          showToast(t("btn_copy") + " ✔");
         }}, t("btn_copy")),
         h("button", { class: "btn", onClick: () => {
-          const blob = new Blob([outputTA.value], { type: "text/plain" });
-          const url = URL.createObjectURL(blob);
+          const blobObj = new Blob([outputTA.value], { type: "text/plain" });
+          const url = URL.createObjectURL(blobObj);
           const a = document.createElement("a"); a.href = url; a.download = fileName; a.click();
           URL.revokeObjectURL(url);
         }}, t("btn_download")),
-        h("button", { class: "btn btn-ghost", onClick: close }, t("btn_close")),
       ),
-    );
-
-    const passFields = selectedMode === "restricted"
-      ? h("div", {},
-          h("label", {}, t("share_pass_label"),
-            h("input", { name: "pass", type: "password", autocomplete: "new-password", required: true, minlength: 6 })),
-          h("label", {}, t("share_pass_confirm_label"),
-            h("input", { name: "passConfirm", type: "password", autocomplete: "new-password", required: true })),
-          h("label", {}, t("export_reveal_pass_label"),
-            h("input", { name: "revealPass", type: "password", autocomplete: "new-password", required: true, minlength: 6 })),
-          h("label", {}, t("export_reveal_pass_confirm_label"),
-            h("input", { name: "revealPassConfirm", type: "password", autocomplete: "new-password", required: true })),
-        )
-      : h("div", {},
-          h("label", {}, t("share_pass_label"),
-            h("input", { name: "pass", type: "password", autocomplete: "new-password", required: true, minlength: 6 })),
-          h("label", {}, t("share_pass_confirm_label"),
-            h("input", { name: "passConfirm", type: "password", autocomplete: "new-password", required: true })),
-        );
-
-    const form = h("form", { class: "form", onSubmit: async (e) => {
-      e.preventDefault();
-      const fd = new FormData(e.target);
-      const pass = fd.get("pass");
-      const passConfirm = fd.get("passConfirm");
-      if (pass.length < 6) return dlgAlert(t("pass_too_short"));
-      if (pass !== passConfirm) return dlgAlert(t("pass_mismatch"));
-
-      let payload;
-      if (selectedMode === "unrestricted") {
-        payload = { ...basePayload, answers: result.answers, exportMode: "unrestricted" };
-      } else if (selectedMode === "restricted") {
-        const revealPass = fd.get("revealPass");
-        const revealPassConfirm = fd.get("revealPassConfirm");
-        if (revealPass.length < 6) return dlgAlert(t("pass_too_short"));
-        if (revealPass !== revealPassConfirm) return dlgAlert(t("pass_mismatch"));
-        const lockedAnswers = await encryptResult({ answers: result.answers }, revealPass);
-        payload = { ...basePayload, answers: {}, lockedAnswers, exportMode: "restricted", askedItems: buildExportAskedItems() };
-      } else {
-        payload = { ...basePayload, answers: {}, exportMode: "template", askedItems: buildExportAskedItems() };
-      }
-
-      const blob = await encryptResult(payload, pass);
-      outputTA.value = blob;
-      outputWrap.style.display = "block";
-      outputWrap.scrollIntoView({ behavior: "smooth" });
-      form.style.display = "none";
-    }});
-
-    form.append(passFields, h("div", { class: "form-actions" },
-      h("button", { class: "btn btn-primary", type: "submit" }, t("btn_encrypt")),
-      h("button", { class: "btn btn-ghost", type: "button", onClick: close }, t("btn_cancel")),
-    ));
-
-    card.append(
-      h("h2", { class: "rs-modal-title" }, t("export_mode_title")),
-      h("p", { class: "muted", style: "margin:0 0 12px" },
-        selectedMode === "unrestricted" ? t("export_unrestricted_title") :
-        selectedMode === "restricted"   ? t("export_restricted_title") :
-                                          t("export_template_title")),
-      h("div", { class: "callout" },
-        h("strong", {}, t("share_callout_title")), " ", t("share_callout_body")),
-      form,
-      outputWrap,
-    );
+    ),
+    actions: [{ label: t("btn_close"), kind: "ghost", value: null }],
   });
 }
 
