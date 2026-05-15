@@ -466,6 +466,10 @@ export const EN = {
   feat_multi_short: 'Keep separate profiles per chapter of life or persona.',
   feat_multi_body: 'Create and manage multiple profiles in a single app. Each profile holds your own answers for a different life context or persona — keeping everything separate and private.',
 
+  // Scale picker (plan 02-04)
+  scale_picker_label: 'Answer scale',
+  btn_clear: 'Clear',
+
   // Nav / Profile picker (SHELL-03)
   no_profiles_yet: 'No profiles yet — create one to begin.',
   nav_close_menu: 'Close menu',

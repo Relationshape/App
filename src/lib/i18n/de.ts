@@ -482,6 +482,10 @@ export const DE: Record<TranslationKey, string> = {
   feat_multi_short: 'Führe separate Profile für verschiedene Lebensphasen oder Personas.',
   feat_multi_body: 'Erstelle und verwalte mehrere Profile in einer einzigen App. Jedes Profil enthält deine eigenen Antworten für einen anderen Lebenskontext oder eine Persona — alles getrennt und privat.',
 
+  // Scale picker (plan 02-04)
+  scale_picker_label: 'Antwortskala',
+  btn_clear: 'Löschen',
+
   // Nav / Profile picker (SHELL-03)
   no_profiles_yet: 'Noch keine Profile — leg eines an, um zu starten.',
   nav_close_menu: 'Menü schließen',

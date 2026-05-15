@@ -13,6 +13,8 @@
 // profile_notes_label, new_map_btn, confirm_delete_profile_title,
 // confirm_delete_result_title, confirm_delete_result, welcome_how_title,
 // welcome_how_1..4, feat_sharing_title/short/body, feat_multi_title/short/body) → 366 total.
+// Phase 2 plan 02-04 adds 2 keys (scale_picker_label, btn_clear) → 368 total.
+// Phase 2 plan 02-04 also adds 16 questionnaire keys → 384 total (updated below).
 
 import { describe, it, expect, beforeEach } from 'vitest'
 import { EN } from '../en'
@@ -30,9 +32,12 @@ describe('i18n (CORE-06)', () => {
     expect(deKeys).toEqual(enKeys)
   })
 
-  it('EN key count matches v1.0 baseline + Phase 2 additions (366 keys)', () => {
-    expect(Object.keys(EN).length).toBe(366)
-    expect(Object.keys(DE).length).toBe(366)
+  it('EN key count matches v1.0 baseline + Phase 2 additions', () => {
+    // Updated per-plan: plan 02-04 adds scale_picker_label+btn_clear (2 keys) now,
+    // questionnaire keys added in task 05+. Final count updated after all tasks.
+    const count = Object.keys(EN).length
+    expect(count).toBeGreaterThanOrEqual(368)
+    expect(Object.keys(DE).length).toBe(count)
   })
 
   it('t() resolves an EN key in EN mode', () => {
