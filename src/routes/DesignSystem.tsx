@@ -125,31 +125,35 @@ const KEYFRAMES: ReadonlyArray<{
     sample: 'animation: holoIconSpin 5s linear infinite (on hover)',
     v1Selector: 'additions.css .hero-feat-icon::before',
     render: () => (
-      // Mirrors v1.0 .hero-feat-icon (additions.css): primary-tinted surface tile (~14% primary),
-      // rounded square, with the conic-gradient ::before ring spinning behind it (z-index: -1).
-      <span
-        className="relative inline-flex h-14 w-14 items-center justify-center rounded-xl text-primary font-heading text-lg"
-        style={{
-          background: 'color-mix(in oklab, var(--color-primary) 14%, var(--color-surface-2))',
-          boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.14)',
-        }}
-      >
-        <span className="relative z-10">★</span>
+      // Mirrors v1.0 .hero-feat-icon (additions.css): primary-tinted surface tile (~14% primary).
+      // The conic-gradient ring is a SIBLING painted first; the icon paints on top. The ring
+      // extends ~20px beyond the icon on every side so the rotation is visible as a glowing
+      // halo around the icon (in v1.0 the ring is inside an overflow-hidden ::before, so the
+      // rotation is visible through the icon's translucent surface; here we make it explicit).
+      <span className="relative inline-block">
         <span
-          className="absolute aspect-square w-24 rounded-full opacity-70"
+          className="absolute aspect-square w-24 rounded-full opacity-80 pointer-events-none"
           style={{
             left: '50%',
             top: '50%',
             marginLeft: '-3rem',
             marginTop: '-3rem',
-            zIndex: -1,
             background:
               'conic-gradient(from 0deg, var(--color-primary), var(--color-accent), color-mix(in oklab, var(--color-primary-strong) 70%, transparent), var(--color-primary))',
-            filter: 'blur(8px)',
+            filter: 'blur(10px)',
             animation: 'holoIconSpin 5s linear infinite',
           }}
           data-keyframe="holoIconSpin"
         />
+        <span
+          className="relative inline-flex h-14 w-14 items-center justify-center rounded-xl text-primary font-heading text-lg"
+          style={{
+            background: 'color-mix(in oklab, var(--color-primary) 14%, var(--color-surface-2))',
+            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.14)',
+          }}
+        >
+          ★
+        </span>
       </span>
     ),
   },
