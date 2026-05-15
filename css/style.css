@@ -1274,9 +1274,9 @@ a:hover { text-decoration: underline; }
   transform: scale(1.35);
   box-shadow: 0 2px 8px rgba(0,0,0,.28);
 }
-@media (pointer: coarse) {
+@media (max-width: 680px) {
   .rs-click-scale-ref-tick {
-    width: 14px; height: 14px;
+    width: 9px; height: 9px;
   }
 }
 .rs-click-scale-ref-label {
