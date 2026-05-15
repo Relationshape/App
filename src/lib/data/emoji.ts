@@ -20,6 +20,8 @@ export function isLikelyEmoji(value: string): boolean {
   try {
     return /\p{Extended_Pictographic}/u.test(value)
   } catch {
-    return /[^\x00-\x7F]/.test(value)
+    // Fallback for environments without Unicode property escapes:
+    // non-ASCII characters are likely emoji
+    return value.charCodeAt(0) > 127
   }
 }

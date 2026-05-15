@@ -2,7 +2,7 @@
 // src/lib/i18n/__tests__/richText.test.ts
 // Asserts every key in RICH_TEXT_KEYS resolves to a non-empty value in both EN and DE.
 
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { RICH_TEXT_KEYS } from '../richText'
 import { t, setLang } from '../i18n'
 
