@@ -3,30 +3,7 @@
 // Plan 3 replaced: Home, Welcome, ProfileEdit, ProfileDetail, Intro.
 // Plan 4 replaced: CategoryOverview, Questionnaire.
 // Plan 5 replaced the route at /result/:id.
-
-export function Share() {
-  return (
-    <section data-route-placeholder="Share" className="page">
-      <h1>Share placeholder</h1>
-    </section>
-  )
-}
-
-export function Import() {
-  return (
-    <section data-route-placeholder="Import" className="page">
-      <h1>Import placeholder</h1>
-    </section>
-  )
-}
-
-export function Compare() {
-  return (
-    <section data-route-placeholder="Compare" className="page">
-      <h1>Compare placeholder</h1>
-    </section>
-  )
-}
+// Plan 6 replaced: the three sharing routes (now separate route files).
 
 export function Settings() {
   return (

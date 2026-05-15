@@ -11,7 +11,10 @@ import { Intro } from './routes/Intro'
 import { CategoryOverview } from './routes/CategoryOverview'
 import { Questionnaire } from './routes/Questionnaire'
 import { Result } from './routes/Result'
-import { Share, Import, Compare, Settings, MapSettings } from './routes/_placeholders'
+import { Share } from './routes/Share'
+import { Import } from './routes/Import'
+import { Compare } from './routes/Compare'
+import { Settings, MapSettings } from './routes/_placeholders'
 
 export const router = createHashRouter([
   {

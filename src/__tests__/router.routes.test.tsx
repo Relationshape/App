@@ -125,19 +125,22 @@ describe('Router routes (SHELL-01, SHELL-02)', () => {
     expect(found).not.toBeNull()
   })
 
-  it('resolves #/share/:id → Share placeholder', async () => {
+  it('resolves #/share/:id → Share (redirects to / when result not found)', async () => {
+    // Share navigates to / if result not in store — either share-page or home-page
     await mountAppAtHash('#/share/abc')
-    expect(document.querySelector('[data-route-placeholder="Share"]')).not.toBeNull()
+    const found = document.querySelector('[data-testid="share-page"]') ||
+                  document.querySelector('[data-testid="home-page"]')
+    expect(found).not.toBeNull()
   })
 
-  it('resolves #/import → Import placeholder', async () => {
+  it('resolves #/import → Import (real component)', async () => {
     await mountAppAtHash('#/import')
-    expect(document.querySelector('[data-route-placeholder="Import"]')).not.toBeNull()
+    expect(document.querySelector('[data-testid="import-page"]')).not.toBeNull()
   })
 
-  it('resolves #/compare → Compare placeholder', async () => {
+  it('resolves #/compare → Compare (real component)', async () => {
     await mountAppAtHash('#/compare')
-    expect(document.querySelector('[data-route-placeholder="Compare"]')).not.toBeNull()
+    expect(document.querySelector('[data-testid="compare-page"]')).not.toBeNull()
   })
 
   it('resolves #/settings → Settings placeholder', async () => {

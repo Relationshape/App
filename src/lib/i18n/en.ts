@@ -496,6 +496,17 @@ export const EN = {
 
   // Result charts (plan 02-05)
   result_enlarged_title: 'Map overview',
+
+  // Share / Import / Compare — plan 02-06
+  share_sub: 'Encrypt this map with a passphrase. The recipient needs the same passphrase to decrypt.',
+  share_passphrase_label: 'Passphrase',
+  share_encrypt_btn: 'Encrypt',
+  share_copy_done: 'Copied to clipboard.',
+  share_passphrase_required: 'Enter a passphrase first.',
+  import_sub: 'Paste an encrypted bundle or upload a `.rshape.txt` file.',
+  import_btn: 'Decrypt and import',
+  compare_too_many_truncated: 'Showing first 4 of {n} comparisons.',
+  compare_empty: 'Pick at least two maps to compare.',
 } as const
 
 export type TranslationKey = keyof typeof EN

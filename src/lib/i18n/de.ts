@@ -512,4 +512,15 @@ export const DE: Record<TranslationKey, string> = {
 
   // Result charts (plan 02-05)
   result_enlarged_title: 'Karten-Übersicht',
+
+  // Share / Import / Compare — plan 02-06
+  share_sub: 'Verschlüssle diese Karte mit einer Passphrase. Der Empfänger braucht die gleiche Passphrase.',
+  share_passphrase_label: 'Passphrase',
+  share_encrypt_btn: 'Verschlüsseln',
+  share_copy_done: 'In die Zwischenablage kopiert.',
+  share_passphrase_required: 'Bitte zuerst eine Passphrase eingeben.',
+  import_sub: 'Füge ein verschlüsseltes Bündel ein oder lade eine `.rshape.txt` Datei hoch.',
+  import_btn: 'Entschlüsseln & importieren',
+  compare_too_many_truncated: 'Erste 4 von {n} Vergleichen angezeigt.',
+  compare_empty: 'Wähle mindestens zwei Karten zum Vergleichen.',
 }
