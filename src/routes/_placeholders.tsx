@@ -1,22 +1,7 @@
 // SHELL-01, SHELL-02. Placeholder route components for D-24 leaf routes not yet replaced.
-// Plans 4-7 replace these placeholders with real views.
+// Plans 5-7 replace these placeholders with real views.
 // Plan 3 replaced: Home, Welcome, ProfileEdit, ProfileDetail, Intro.
-
-export function CategoryOverview() {
-  return (
-    <section data-route-placeholder="CategoryOverview" className="page">
-      <h1>CategoryOverview placeholder</h1>
-    </section>
-  )
-}
-
-export function Questionnaire() {
-  return (
-    <section data-route-placeholder="Questionnaire" className="page">
-      <h1>Questionnaire placeholder</h1>
-    </section>
-  )
-}
+// Plan 4 replaced: CategoryOverview, Questionnaire.
 
 export function Result() {
   return (
