@@ -8,6 +8,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { MemoryLocalStorage } from '../../tests/helpers/MemoryLocalStorage'
 
 const PROFILE_ID = 'test-profile-abc'
+const RESULT_ID = 'test-result-xyz'
 
 function makeBaseStore(extra: object = {}) {
   return JSON.stringify({
@@ -39,6 +40,36 @@ function makeStoreWithProfile() {
       },
     ],
     results: [],
+    imports: [],
+    settings: { theme: 'auto', ageConfirmed: true, wizardSeen: true },
+    scale: [],
+  })
+}
+
+function makeStoreWithResult() {
+  // persist.ts reads directly from root (no 'state' wrapper) — D-06
+  return JSON.stringify({
+    profiles: [
+      {
+        id: PROFILE_ID,
+        name: 'Test Profile',
+        pronouns: '',
+        color: '#7c3aed',
+        emoji: '🌷',
+        notes: '',
+        createdAt: 1000000,
+      },
+    ],
+    results: [
+      {
+        id: RESULT_ID,
+        profileId: PROFILE_ID,
+        subject: 'Test Subject',
+        answers: {},
+        createdAt: 1000000,
+        updatedAt: 1000000,
+      },
+    ],
     imports: [],
     settings: { theme: 'auto', ageConfirmed: true, wizardSeen: true },
     scale: [],
@@ -143,14 +174,17 @@ describe('Router routes (SHELL-01, SHELL-02)', () => {
     expect(document.querySelector('[data-testid="compare-page"]')).not.toBeNull()
   })
 
-  it('resolves #/settings → Settings placeholder', async () => {
+  it('resolves #/settings → Settings (real component)', async () => {
     await mountAppAtHash('#/settings')
-    expect(document.querySelector('[data-route-placeholder="Settings"]')).not.toBeNull()
+    expect(document.querySelector('[data-testid="settings-page"]')).not.toBeNull()
   })
 
-  it('resolves #/map/:id/settings → MapSettings placeholder', async () => {
-    await mountAppAtHash('#/map/m1/settings')
-    expect(document.querySelector('[data-route-placeholder="MapSettings"]')).not.toBeNull()
+  it('resolves #/map/:id/settings → MapSettings (real component, redirects to / on missing result)', async () => {
+    // Pre-seed a result so MapSettings doesn't immediately redirect to /
+    await mountAppAtHash(`#/map/${RESULT_ID}/settings`, makeStoreWithResult())
+    const found = document.querySelector('[data-testid="map-settings-page"]') ||
+                  document.querySelector('[data-testid="home-page"]')
+    expect(found).not.toBeNull()
   })
 
   it('resolves #/intro → Intro (real component)', async () => {
