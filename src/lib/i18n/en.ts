@@ -438,6 +438,13 @@ export const EN = {
   template_badge: 'Template',
   locked_answers_badge: '🔒 Answers locked',
   btn_unlock_and_compare: 'Unlock & compare',
+
+  // Nav / Profile picker (SHELL-03)
+  no_profiles_yet: 'No profiles yet — create one to begin.',
+  nav_close_menu: 'Close menu',
+  nav_open_menu: 'Open menu',
+  profile_picker_create_new: '+ New profile',
+  profile_picker_label: 'Switch profile',
 } as const
 
 export type TranslationKey = keyof typeof EN

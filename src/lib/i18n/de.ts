@@ -454,4 +454,11 @@ export const DE: Record<TranslationKey, string> = {
   template_badge: 'Vorlage',
   locked_answers_badge: '🔒 Antworten gesperrt',
   btn_unlock_and_compare: 'Entsperren & vergleichen',
+
+  // Nav / Profile picker (SHELL-03)
+  no_profiles_yet: 'Noch keine Profile — leg eines an, um zu starten.',
+  nav_close_menu: 'Menü schließen',
+  nav_open_menu: 'Menü öffnen',
+  profile_picker_create_new: '+ Neues Profil',
+  profile_picker_label: 'Profil wechseln',
 }
