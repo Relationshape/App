@@ -1,12 +1,16 @@
 // src/router.tsx
-// SHELL-01, SHELL-02, D-13, D-24. Full route table; placeholders ship in this plan, real views land in plans 3-7.
+// SHELL-01, SHELL-02, D-13, D-24. Full route table; plans 3-7 replace placeholders with real views.
 import { createHashRouter } from 'react-router-dom'
 import { RootLayout } from './routes/RootLayout'
 import { DesignSystem } from './routes/DesignSystem'
+import { Home } from './routes/Home'
+import { Welcome } from './routes/Welcome'
+import { ProfileEdit } from './routes/ProfileEdit'
+import { ProfileDetail } from './routes/ProfileDetail'
+import { Intro } from './routes/Intro'
 import {
-  Home, Welcome, ProfileEdit, ProfileDetail,
   CategoryOverview, Questionnaire, Result,
-  Share, Import, Compare, Settings, MapSettings, Intro,
+  Share, Import, Compare, Settings, MapSettings,
 } from './routes/_placeholders'
 
 export const router = createHashRouter([

@@ -1,37 +1,6 @@
-// SHELL-01, SHELL-02. Placeholder route components for every D-24 leaf route.
-// Plans 3-7 replace these placeholders with real views.
-
-export function Home() {
-  return (
-    <section data-route-placeholder="Home" className="page">
-      <h1>Home placeholder</h1>
-    </section>
-  )
-}
-
-export function Welcome() {
-  return (
-    <section data-route-placeholder="Welcome" className="page">
-      <h1>Welcome placeholder</h1>
-    </section>
-  )
-}
-
-export function ProfileEdit() {
-  return (
-    <section data-route-placeholder="ProfileEdit" className="page">
-      <h1>ProfileEdit placeholder</h1>
-    </section>
-  )
-}
-
-export function ProfileDetail() {
-  return (
-    <section data-route-placeholder="ProfileDetail" className="page">
-      <h1>ProfileDetail placeholder</h1>
-    </section>
-  )
-}
+// SHELL-01, SHELL-02. Placeholder route components for D-24 leaf routes not yet replaced.
+// Plans 4-7 replace these placeholders with real views.
+// Plan 3 replaced: Home, Welcome, ProfileEdit, ProfileDetail, Intro.
 
 export function CategoryOverview() {
   return (
@@ -93,14 +62,6 @@ export function MapSettings() {
   return (
     <section data-route-placeholder="MapSettings" className="page">
       <h1>MapSettings placeholder</h1>
-    </section>
-  )
-}
-
-export function Intro() {
-  return (
-    <section data-route-placeholder="Intro" className="page">
-      <h1>Intro placeholder</h1>
     </section>
   )
 }

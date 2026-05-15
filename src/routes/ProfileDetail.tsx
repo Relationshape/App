@@ -1,6 +1,7 @@
 // PROFILE-04. Port of public/legacy/js/app.js:1564-1589
 
 import { useParams, useNavigate, Link } from 'react-router-dom'
+import { useEffect } from 'react'
 import { useStore } from '@/lib/storage/store'
 import { dialog } from '@/lib/dialog/dialog'
 import { ResultCard } from '@/components/ResultCard'
@@ -9,12 +10,21 @@ import { t } from '@/lib/i18n/i18n'
 
 export function ProfileDetail() {
   const { id } = useParams<{ id: string }>()
-  const profile = useStore((s) => (id ? s.profiles.find((p) => p.id === id) ?? null : null))
-  const results = useStore((s) => (id ? s.results.filter((r) => r.profileId === id) : []))
+  // Select arrays then derive — avoids unstable .find()/.filter() references in useSyncExternalStore (React 19 #3099-compat)
+  const profiles = useStore((s) => s.profiles)
+  const allResults = useStore((s) => s.results)
   const deleteProfile = useStore((s) => s.deleteProfile)
   const navigate = useNavigate()
 
-  if (!profile) { navigate('/'); return null }
+  const profile = id ? (profiles.find((p) => p.id === id) ?? null) : null
+  const results = id ? allResults.filter((r) => r.profileId === id) : []
+
+  // Use useEffect to avoid setState-in-render when redirecting on not-found
+  useEffect(() => {
+    if (profile === null) navigate('/')
+  }, [profile, navigate])
+
+  if (!profile) return null
 
   async function onDelete() {
     const ok = await dialog<boolean>({

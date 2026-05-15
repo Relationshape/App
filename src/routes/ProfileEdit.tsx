@@ -11,7 +11,9 @@ const PALETTE = ['#7c3aed', '#06b6d4', '#ec4899', '#10b981', '#f59e0b', '#ef4444
 
 export function ProfileEdit() {
   const { id } = useParams<{ id?: string }>()
-  const existing = useStore((s) => (id ? s.profiles.find((p) => p.id === id) ?? null : null))
+  // Select array then derive — avoids unstable .find() reference in useSyncExternalStore (React 19)
+  const profiles = useStore((s) => s.profiles)
+  const existing = id ? (profiles.find((p) => p.id === id) ?? null) : null
   const createProfile = useStore((s) => s.createProfile)
   const updateProfile = useStore((s) => s.updateProfile)
   const navigate = useNavigate()

@@ -1,28 +1,54 @@
 // @vitest-environment jsdom
 // src/__tests__/router.routes.test.tsx
-// SHELL-01, SHELL-02: every D-24 hash route resolves to its labelled placeholder.
+// SHELL-01, SHELL-02: every D-24 hash route resolves to its expected component.
+// Plan 3 update: real routes (Home, Welcome, ProfileEdit, ProfileDetail, Intro)
+// now render their real components; placeholder routes keep data-route-placeholder.
 import { render, act, cleanup } from '@testing-library/react'
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { MemoryLocalStorage } from '../../tests/helpers/MemoryLocalStorage'
 
-async function mountAppAtHash(hash: string) {
+const PROFILE_ID = 'test-profile-abc'
+
+function makeBaseStore(extra: object = {}) {
+  return JSON.stringify({
+    state: {
+      profiles: [],
+      results: [],
+      imports: [],
+      settings: { theme: 'auto', ageConfirmed: true, wizardSeen: true },
+      scale: [],
+      lastSaveError: null,
+      ...extra,
+    },
+    version: 1,
+  })
+}
+
+function makeStoreWithProfile() {
+  // persist.ts reads directly from root (no 'state' wrapper) — D-06
+  return JSON.stringify({
+    profiles: [
+      {
+        id: PROFILE_ID,
+        name: 'Test Profile',
+        pronouns: '',
+        color: '#7c3aed',
+        emoji: '🌷',
+        notes: '',
+        createdAt: 1000000,
+      },
+    ],
+    results: [],
+    imports: [],
+    settings: { theme: 'auto', ageConfirmed: true, wizardSeen: true },
+    scale: [],
+  })
+}
+
+async function mountAppAtHash(hash: string, storeJson?: string) {
   vi.resetModules()
   const mem = new MemoryLocalStorage()
-  // Seed ageConfirmed + wizardSeen so AgeGate/WizardHost don't block route content
-  mem.setItem(
-    'relationshape.v1',
-    JSON.stringify({
-      state: {
-        profiles: [],
-        results: [],
-        imports: [],
-        settings: { theme: 'auto', ageConfirmed: true, wizardSeen: true },
-        scale: [],
-        lastSaveError: null,
-      },
-      version: 1,
-    }),
-  )
+  mem.setItem('relationshape.v1', storeJson ?? makeBaseStore())
   vi.stubGlobal('localStorage', mem)
   window.location.hash = hash
   const appMod = await import('@/App')
@@ -42,29 +68,29 @@ describe('Router routes (SHELL-01, SHELL-02)', () => {
     cleanup()
   })
 
-  it('resolves #/ → Home placeholder', async () => {
+  it('resolves #/ → Home (real component)', async () => {
     await mountAppAtHash('#/')
-    expect(document.querySelector('[data-route-placeholder="Home"]')).not.toBeNull()
+    expect(document.querySelector('[data-testid="home-page"]')).not.toBeNull()
   })
 
-  it('resolves #/welcome → Welcome placeholder', async () => {
+  it('resolves #/welcome → Welcome (real component)', async () => {
     await mountAppAtHash('#/welcome')
-    expect(document.querySelector('[data-route-placeholder="Welcome"]')).not.toBeNull()
+    expect(document.querySelector('[data-testid="welcome-page"]')).not.toBeNull()
   })
 
-  it('resolves #/profile/new → ProfileEdit placeholder', async () => {
+  it('resolves #/profile/new → ProfileEdit (real component)', async () => {
     await mountAppAtHash('#/profile/new')
-    expect(document.querySelector('[data-route-placeholder="ProfileEdit"]')).not.toBeNull()
+    expect(document.querySelector('[data-testid="profile-edit-form"]')).not.toBeNull()
   })
 
-  it('resolves #/profile/:id → ProfileDetail placeholder', async () => {
-    await mountAppAtHash('#/profile/abc')
-    expect(document.querySelector('[data-route-placeholder="ProfileDetail"]')).not.toBeNull()
+  it('resolves #/profile/:id → ProfileDetail (real component)', async () => {
+    await mountAppAtHash(`#/profile/${PROFILE_ID}`, makeStoreWithProfile())
+    expect(document.querySelector('[data-testid="profile-detail-page"]')).not.toBeNull()
   })
 
-  it('resolves #/profile/:id/edit → ProfileEdit placeholder', async () => {
-    await mountAppAtHash('#/profile/abc/edit')
-    expect(document.querySelector('[data-route-placeholder="ProfileEdit"]')).not.toBeNull()
+  it('resolves #/profile/:id/edit → ProfileEdit (real component)', async () => {
+    await mountAppAtHash(`#/profile/${PROFILE_ID}/edit`, makeStoreWithProfile())
+    expect(document.querySelector('[data-testid="profile-edit-form"]')).not.toBeNull()
   })
 
   it('resolves #/q-categories/:profileId/:resultId → CategoryOverview placeholder', async () => {
@@ -112,20 +138,19 @@ describe('Router routes (SHELL-01, SHELL-02)', () => {
     expect(document.querySelector('[data-route-placeholder="MapSettings"]')).not.toBeNull()
   })
 
-  it('resolves #/intro → Intro placeholder', async () => {
+  it('resolves #/intro → Intro (real component)', async () => {
     await mountAppAtHash('#/intro')
-    expect(document.querySelector('[data-route-placeholder="Intro"]')).not.toBeNull()
+    expect(document.querySelector('[data-testid="intro-page"]')).not.toBeNull()
   })
 
-  it('resolves #/about → Intro placeholder (alias route)', async () => {
+  it('resolves #/about → Intro (real component, alias route)', async () => {
     await mountAppAtHash('#/about')
-    expect(document.querySelector('[data-route-placeholder="Intro"]')).not.toBeNull()
+    expect(document.querySelector('[data-testid="intro-page"]')).not.toBeNull()
   })
 
   it('deep link #/result/r1/intimacy resolves to Result placeholder (SHELL-02)', async () => {
     await mountAppAtHash('#/result/r1/intimacy')
     expect(document.querySelector('[data-route-placeholder="Result"]')).not.toBeNull()
-    // Verify the URL has the correct segments (smoke check that params would be available)
     expect(window.location.hash).toBe('#/result/r1/intimacy')
   })
 })
