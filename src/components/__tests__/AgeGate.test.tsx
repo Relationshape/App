@@ -2,7 +2,7 @@
 // src/components/__tests__/AgeGate.test.tsx
 // PROFILE-06, D-29: AgeGate blocks on first visit, migrates legacy key, fires setSettings.
 import { render, screen, act, fireEvent, cleanup, waitFor } from '@testing-library/react'
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+import { describe, it, expect, afterEach, vi } from 'vitest'
 import { MemoryLocalStorage } from '../../../tests/helpers/MemoryLocalStorage'
 
 describe('<AgeGate />', () => {
