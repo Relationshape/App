@@ -669,12 +669,15 @@ body::before {
 
 /* ---- Icon containers — inner 3D highlight ---- */
 .cat-card-icon,
-.q-cat-icon,
 .cat-modal-icon,
 .li-avatar,
 .hero-feat-icon {
   position: relative;
   overflow: hidden;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.14);
+}
+.q-cat-icon {
+  position: relative;
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.14);
 }
 .cat-card-icon::after,
