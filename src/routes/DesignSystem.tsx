@@ -145,46 +145,46 @@ export function DesignSystem() {
               className="rounded-[var(--radius)] border border-line p-4 bg-surface"
             >
               <code className="block text-sm text-primary">{name}</code>
-              <div className="mt-3 relative h-24 w-full overflow-hidden rounded-md bg-bg-2">
+              {/* Uniform bar "stage" for all 8 demos. overflow-hidden clips the inner animated
+                  layer so the bar shape stays stationary while its background visibly animates. */}
+              <div className="mt-3 relative h-16 w-full overflow-hidden rounded-md bg-bg-2">
                 {mode === 'centered-blob' && (
-                  // v1.0 hero blob: absolutely positioned at left: 50%; the keyframe's
-                  // translateX(-50%) supplies the centering. transform-origin defaults to center.
+                  // Soft blob whose scale + opacity pulse via the keyframe. left:50% anchor
+                  // lets the keyframe's translateX(-50%) center it; vertical center via marginTop.
                   <div
-                    className="absolute top-1/2 h-16 w-16 rounded-full bg-gradient-to-br from-primary via-accent to-primary-strong blur-sm"
+                    className="absolute top-1/2 h-20 w-20 rounded-full blur-md opacity-90"
                     style={{
                       left: '50%',
-                      marginTop: '-2rem', // vertical centering (top: 50% would conflict with the keyframe's transform)
+                      marginTop: '-2.5rem',
+                      background:
+                        'radial-gradient(circle, var(--color-accent), var(--color-primary) 60%, transparent 80%)',
                       animation: `${name} 6s linear infinite`,
                     }}
                     data-keyframe={name}
                   />
                 )}
                 {mode === 'rotating-ring' && (
-                  // v1.0 .btn-primary::after / .hero-feat-icon::before: a circular conic-gradient
-                  // ring behind the element rotates; the element itself stays put. Demo: a
-                  // centered conic-gradient disk spins in place around its own center.
-                  <>
-                    <div
-                      className="absolute top-1/2 left-1/2 h-16 w-16 -translate-x-1/2 -translate-y-1/2 rounded-full opacity-80"
-                      style={{
-                        background: 'conic-gradient(var(--color-primary), var(--color-accent), var(--color-primary-strong), var(--color-primary))',
-                        animation: `${name} 6s linear infinite`,
-                        transformOrigin: 'center',
-                      }}
-                      data-keyframe={name}
-                    />
-                    <div
-                      className="absolute top-1/2 left-1/2 h-10 w-10 -translate-x-1/2 -translate-y-1/2 rounded-full bg-surface"
-                      aria-hidden="true"
-                    />
-                  </>
+                  // Mimics v1.0's ::before conic-gradient ring layered behind a button/icon.
+                  // The rotating layer extends beyond the bar (inset:-30%); the bar's
+                  // overflow-hidden clips it to bar shape — bar stays still, gradient swirls.
+                  <div
+                    className="absolute opacity-80"
+                    style={{
+                      inset: '-40%',
+                      background:
+                        'conic-gradient(from 0deg, var(--color-primary), var(--color-accent), var(--color-primary-strong), var(--color-accent), var(--color-primary))',
+                      animation: `${name} 6s linear infinite`,
+                    }}
+                    data-keyframe={name}
+                  />
                 )}
                 {mode === 'gradient-strip' && (
-                  // background-position animation: a horizontal gradient strip slides.
+                  // background-position animation: gradient slides horizontally within the bar.
                   <div
-                    className="absolute inset-x-2 top-1/2 h-8 -translate-y-1/2 rounded-md"
+                    className="absolute inset-0"
                     style={{
-                      background: 'linear-gradient(90deg, var(--color-primary), var(--color-accent), var(--color-primary-strong), var(--color-accent), var(--color-primary))',
+                      background:
+                        'linear-gradient(90deg, var(--color-primary), var(--color-accent), var(--color-primary-strong), var(--color-accent), var(--color-primary))',
                       backgroundSize: '300% 100%',
                       animation: `${name} 6s linear infinite`,
                     }}
@@ -192,9 +192,14 @@ export function DesignSystem() {
                   />
                 )}
                 {mode === 'opacity-pulse' && (
+                  // bgPulse: solid gradient bar that pulses opacity.
                   <div
-                    className="absolute top-1/2 left-1/2 h-16 w-16 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-r from-primary via-accent to-primary-strong"
-                    style={{ animation: `${name} 6s linear infinite` }}
+                    className="absolute inset-0"
+                    style={{
+                      background:
+                        'linear-gradient(90deg, var(--color-primary), var(--color-accent), var(--color-primary-strong))',
+                      animation: `${name} 6s linear infinite`,
+                    }}
                     data-keyframe={name}
                   />
                 )}
