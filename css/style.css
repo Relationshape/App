@@ -713,8 +713,8 @@ a:hover { text-decoration: underline; }
   filter: drop-shadow(0 4px 32px rgba(130, 60, 220, .2));
   overflow: visible;
 }
-.rs-grid-ring { fill: none; stroke: var(--line); stroke-width: 1; opacity: .4; }
-.rs-grid-spoke { stroke: var(--line); stroke-width: 1; opacity: .2; }
+.rs-grid-ring { fill: none; stroke: var(--line); stroke-width: 1.6; opacity: .45; }
+.rs-grid-spoke { stroke: var(--line); stroke-width: 1.3; opacity: .25; }
 .rs-poly {
   fill-opacity: .2; stroke-width: 2; stroke-linejoin: round;
   paint-order: stroke fill; mix-blend-mode: screen;
