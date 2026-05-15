@@ -165,18 +165,22 @@ export function DesignSystem() {
                 )}
                 {mode === 'rotating-ring' && (
                   // Mimics v1.0's ::before conic-gradient ring layered behind a button/icon.
-                  // The rotating layer extends beyond the bar (inset:-30%); the bar's
-                  // overflow-hidden clips it to bar shape — bar stays still, gradient swirls.
-                  <div
-                    className="absolute opacity-80"
-                    style={{
-                      inset: '-40%',
-                      background:
-                        'conic-gradient(from 0deg, var(--color-primary), var(--color-accent), var(--color-primary-strong), var(--color-accent), var(--color-primary))',
-                      animation: `${name} 6s linear infinite`,
-                    }}
-                    data-keyframe={name}
-                  />
+                  // The rotating layer MUST be square (width = height) so the rotation reads as
+                  // a smooth swirl rather than a parallelogram sweeping through. A flex wrapper
+                  // centers without `transform` (the keyframe `transform: rotate(...)` overrides
+                  // any translate-based centering). The square is sized to the bar's width via
+                  // aspect-square + w-full; overflow-hidden on the bar clips the vertical overflow.
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div
+                      className="aspect-square w-full shrink-0 opacity-80"
+                      style={{
+                        background:
+                          'conic-gradient(from 0deg, var(--color-primary), var(--color-accent), var(--color-primary-strong), var(--color-accent), var(--color-primary))',
+                        animation: `${name} 6s linear infinite`,
+                      }}
+                      data-keyframe={name}
+                    />
+                  </div>
                 )}
                 {mode === 'gradient-strip' && (
                   // background-position animation: gradient slides horizontally within the bar.
