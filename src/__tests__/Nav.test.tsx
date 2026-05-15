@@ -6,6 +6,26 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { MemoryLocalStorage } from '../../tests/helpers/MemoryLocalStorage'
 import { t } from '@/lib/i18n/i18n'
 
+/** Seed ageConfirmed + wizardSeen so AgeGate/WizardHost don't block Nav tests. */
+function makeSeededMemory() {
+  const mem = new MemoryLocalStorage()
+  mem.setItem(
+    'relationshape.v1',
+    JSON.stringify({
+      state: {
+        profiles: [],
+        results: [],
+        imports: [],
+        settings: { theme: 'auto', ageConfirmed: true, wizardSeen: true },
+        scale: [],
+        lastSaveError: null,
+      },
+      version: 1,
+    }),
+  )
+  return mem
+}
+
 describe('<Nav /> (SHELL-03)', () => {
   beforeEach(() => {
     window.location.hash = '#/'
@@ -19,7 +39,7 @@ describe('<Nav /> (SHELL-03)', () => {
 
   it('renders profile picker + 4 nav links + theme + lang toggles', async () => {
     vi.resetModules()
-    vi.stubGlobal('localStorage', new MemoryLocalStorage())
+    vi.stubGlobal('localStorage', makeSeededMemory())
     const appMod = await import('@/App')
     const AppRoot = appMod.default
 
@@ -38,7 +58,7 @@ describe('<Nav /> (SHELL-03)', () => {
 
   it('shows empty-state copy when no profiles exist', async () => {
     vi.resetModules()
-    vi.stubGlobal('localStorage', new MemoryLocalStorage())
+    vi.stubGlobal('localStorage', makeSeededMemory())
     const appMod = await import('@/App')
     const AppRoot = appMod.default
 
@@ -59,7 +79,7 @@ describe('<Nav /> (SHELL-03)', () => {
 
   it('renders create-new link in ProfilePicker', async () => {
     vi.resetModules()
-    vi.stubGlobal('localStorage', new MemoryLocalStorage())
+    vi.stubGlobal('localStorage', makeSeededMemory())
     const appMod = await import('@/App')
     const AppRoot = appMod.default
 

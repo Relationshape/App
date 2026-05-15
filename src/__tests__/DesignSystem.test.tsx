@@ -86,7 +86,16 @@ describe('<DesignSystem /> route (DESIGN-05, DESIGN-06)', () => {
     // /design-system via window.location.hash BEFORE mount so createHashRouter lands there.
     window.location.hash = '#/design-system'
     vi.resetModules()
-    vi.stubGlobal('localStorage', new MemoryLocalStorage())
+    const mem = new MemoryLocalStorage()
+    // Seed ageConfirmed + wizardSeen so AgeGate/WizardHost don't block the test view
+    mem.setItem(
+      'relationshape.v1',
+      JSON.stringify({
+        state: { profiles: [], results: [], imports: [], settings: { theme: 'auto', ageConfirmed: true, wizardSeen: true }, scale: [], lastSaveError: null },
+        version: 1,
+      }),
+    )
+    vi.stubGlobal('localStorage', mem)
     const appMod = await import('@/App')
     const AppRoot = appMod.default
     await act(async () => {

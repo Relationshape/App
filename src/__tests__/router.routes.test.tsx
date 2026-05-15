@@ -7,7 +7,23 @@ import { MemoryLocalStorage } from '../../tests/helpers/MemoryLocalStorage'
 
 async function mountAppAtHash(hash: string) {
   vi.resetModules()
-  vi.stubGlobal('localStorage', new MemoryLocalStorage())
+  const mem = new MemoryLocalStorage()
+  // Seed ageConfirmed + wizardSeen so AgeGate/WizardHost don't block route content
+  mem.setItem(
+    'relationshape.v1',
+    JSON.stringify({
+      state: {
+        profiles: [],
+        results: [],
+        imports: [],
+        settings: { theme: 'auto', ageConfirmed: true, wizardSeen: true },
+        scale: [],
+        lastSaveError: null,
+      },
+      version: 1,
+    }),
+  )
+  vi.stubGlobal('localStorage', mem)
   window.location.hash = hash
   const appMod = await import('@/App')
   const AppRoot = appMod.default
