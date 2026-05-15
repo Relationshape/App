@@ -93,19 +93,26 @@ const KEYFRAMES: ReadonlyArray<{
     sample: 'animation: holoBtnSpin 5s linear infinite (on hover)',
     v1Selector: 'additions.css .btn-primary::after',
     render: () => (
-      // Button with rotating conic-gradient ::after layer (overflow-hidden clips to button shape).
-      // The button itself stays still; only the layer inside rotates.
-      <span className="relative inline-flex items-center justify-center overflow-hidden rounded-md px-5 py-2 text-sm font-medium border border-line bg-surface">
-        <span className="relative z-10 text-primary">Primary</span>
+      // Mirrors v1.0 .btn-primary (style.css): primary→accent gradient bg, white text, shadow.
+      // The ::after layer has overflow-hidden clipping to the button shape — only the conic
+      // gradient inside rotates; the button outline stays still.
+      <span
+        className="relative inline-flex items-center justify-center overflow-hidden rounded-md px-5 py-2 text-sm font-semibold text-white"
+        style={{
+          background: 'linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%)',
+          boxShadow: '0 0 20px color-mix(in oklab, var(--color-primary) 35%, transparent), 0 4px 20px color-mix(in oklab, var(--color-primary) 20%, transparent)',
+        }}
+      >
+        <span className="relative z-10">Primary</span>
         <span
-          className="absolute aspect-square w-40 opacity-70"
+          className="absolute aspect-square w-40"
           style={{
             left: '50%',
             top: '50%',
             marginLeft: '-5rem',
             marginTop: '-5rem',
             background:
-              'conic-gradient(from 0deg at 50% 120%, transparent 0deg, rgba(255,255,255,0.4) 60deg, transparent 120deg, color-mix(in oklab, var(--color-primary) 60%, transparent) 200deg, transparent 280deg)',
+              'conic-gradient(from 0deg at 50% 120%, transparent 0deg, rgba(255,255,255,0.45) 60deg, transparent 120deg, rgba(185,110,255,0.4) 200deg, transparent 280deg)',
             animation: 'holoBtnSpin 5s linear infinite',
           }}
           data-keyframe="holoBtnSpin"
@@ -118,16 +125,23 @@ const KEYFRAMES: ReadonlyArray<{
     sample: 'animation: holoIconSpin 5s linear infinite (on hover)',
     v1Selector: 'additions.css .hero-feat-icon::before',
     render: () => (
-      // Circular icon button with blurred conic-gradient ring spinning behind it.
-      <span className="relative inline-flex h-14 w-14 items-center justify-center rounded-full bg-surface border border-line text-primary">
-        <span className="relative z-10 font-heading text-lg">★</span>
+      // Mirrors v1.0 .hero-feat-icon (additions.css): primary-tinted surface tile (~14% primary),
+      // rounded square, with the conic-gradient ::before ring spinning behind it (z-index: -1).
+      <span
+        className="relative inline-flex h-14 w-14 items-center justify-center rounded-xl text-primary font-heading text-lg"
+        style={{
+          background: 'color-mix(in oklab, var(--color-primary) 14%, var(--color-surface-2))',
+          boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.14)',
+        }}
+      >
+        <span className="relative z-10">★</span>
         <span
-          className="absolute aspect-square w-20 rounded-full opacity-60"
+          className="absolute aspect-square w-24 rounded-full opacity-70"
           style={{
             left: '50%',
             top: '50%',
-            marginLeft: '-2.5rem',
-            marginTop: '-2.5rem',
+            marginLeft: '-3rem',
+            marginTop: '-3rem',
             zIndex: -1,
             background:
               'conic-gradient(from 0deg, var(--color-primary), var(--color-accent), color-mix(in oklab, var(--color-primary-strong) 70%, transparent), var(--color-primary))',
