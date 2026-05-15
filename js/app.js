@@ -2297,6 +2297,7 @@ function viewQuestionnaireList(profile, result) {
         h("button", { class: "btn btn-ghost item-scale-btn", type: "button",
           onClick: async e => {
             e.stopPropagation();
+            if (!await checkTemplateWarning(result)) return;
             if (answered) {
               if (!await dlgConfirm(t("item_scale_change_warning"), { okLabel: t("btn_ok") })) return;
               clearAnswers();
@@ -2568,6 +2569,7 @@ function viewQuestionnaireSingle(profile, result) {
         h("button", { class: "btn btn-ghost item-scale-btn", type: "button",
           onClick: async e => {
             e.stopPropagation();
+            if (!await checkTemplateWarning(result)) return;
             if (it.cat.gr ? (existing.giving || existing.receiving) : existing.scale) {
               if (!await dlgConfirm(t("item_scale_change_warning"), { okLabel: t("btn_ok") })) return;
             }
