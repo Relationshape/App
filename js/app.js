@@ -1813,7 +1813,7 @@ function viewQuestionnaireList(profile, result) {
 
     h("nav", { class: "q-nav" },
       h("button", { class: "btn", disabled: idx === 0, onClick: () => move(-1) }, t("btn_previous")),
-      h("button", { class: "btn", onClick: () => navigate(`/result/${resultId}`) }, t("btn_skip_results")),
+      h("button", { class: "btn", onClick: () => navigate(`/result/${resultId}/${cat.id}`) }, t("btn_skip_results")),
       h("button", { class: "btn btn-primary", onClick: () => move(1) }, t("btn_next")),
     )
   );
