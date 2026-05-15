@@ -46,12 +46,12 @@ Plans:
 - [x] 01-03-PLAN.md — Capture v1.0 fixtures: bundle (manual) + localStorage blob (synthetic) + setup.ts (CORE-04, CORE-08, FOUND-06)
 
 **Wave 4** *(blocked on Wave 3 completion)*
-- [ ] 01-04-PLAN.md — Port crypto.ts (CORE-04) with round-trip + envelope byte-shape test against v1.0 fixture
+- [x] 01-04-PLAN.md — Port crypto.ts (CORE-04) with round-trip + envelope byte-shape test against v1.0 fixture
 - [x] 01-05-PLAN.md — Port data.ts (CORE-05) + en/de/i18n.ts (CORE-06) with 304-key parity test
 - [x] 01-07-PLAN.md — Port theme.css (DESIGN-01) + animations.css with reduced-motion guard (DESIGN-03, DESIGN-04) + Fontsource fonts (DESIGN-02)
 
 **Wave 5** *(blocked on Wave 4 completion)*
-- [ ] 01-06-PLAN.md — Port storage.ts as Zustand store + custom relationshapePersist middleware (CORE-01, CORE-02, CORE-03, CORE-05, CORE-07, CORE-08)
+- [x] 01-06-PLAN.md — Port storage.ts as Zustand store + custom relationshapePersist middleware (CORE-01, CORE-02, CORE-03, CORE-05, CORE-07, CORE-08)
 
 **Wave 6** *(blocked on Wave 5 completion)*
 - [ ] 01-08-PLAN.md — Wire router + useTheme/useLang hooks + ThemeToggle/LangToggle + Placeholder + DesignSystem route + App smoke test (FOUND-06, DESIGN-05, DESIGN-06)
