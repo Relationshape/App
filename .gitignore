@@ -8,3 +8,4 @@ dist/
 pnpm-debug.log
 npm-debug.log
 coverage/
+*.tsbuildinfo
