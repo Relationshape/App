@@ -34,15 +34,28 @@ const PALETTE_TOKENS: ReadonlyArray<{ name: string; cssVar: string }> = [
   { name: 'glass', cssVar: '--color-glass' },
 ]
 
-const KEYFRAMES: ReadonlyArray<{ name: string; sample: string }> = [
-  { name: 'heroBlobPulse', sample: 'animation: heroBlobPulse 6s ease-in-out infinite' },
-  { name: 'holoOrbDrift', sample: 'animation: holoOrbDrift 14s linear infinite' },
-  { name: 'holoBtnSpin', sample: 'animation: holoBtnSpin 8s linear infinite' },
-  { name: 'holoIconSpin', sample: 'animation: holoIconSpin 9s linear infinite' },
-  { name: 'holoUnderlineSlide', sample: 'animation: holoUnderlineSlide 4s linear infinite' },
-  { name: 'iridShift', sample: 'animation: iridShift 7s linear infinite' },
-  { name: 'bgPulse', sample: 'animation: bgPulse 12s ease-in-out infinite' },
-  { name: 'silkShift', sample: 'animation: silkShift 6s linear infinite' },
+// Render mode per keyframe — each keyframe's transform/background-position assumes a specific
+// element setup. Misrendering them all the same way ("a bar that spans the width with the
+// keyframe applied directly") makes rotations look like the whole bar spins and makes
+// translateX(-50%) keyframes appear off-center. v1.0 reference at public/legacy/css/additions.css:
+//   - heroBlobPulse / holoOrbDrift: applied to absolutely-positioned blob at left:50% — the
+//     keyframe's translateX(-50%) centers it.
+//   - holoBtnSpin / holoIconSpin: applied to a ::before/::after conic-gradient RING layered
+//     behind the visible element; the ring rotates, the element itself stays put.
+//   - holoUnderlineSlide / iridShift / silkShift: background-position animation on a
+//     gradient-backed strip — current horizontal-bar demo is appropriate.
+//   - bgPulse: pure opacity — works on any element shape.
+type RenderMode = 'centered-blob' | 'rotating-ring' | 'gradient-strip' | 'opacity-pulse'
+
+const KEYFRAMES: ReadonlyArray<{ name: string; sample: string; mode: RenderMode }> = [
+  { name: 'heroBlobPulse', sample: 'animation: heroBlobPulse 6s ease-in-out infinite', mode: 'centered-blob' },
+  { name: 'holoOrbDrift', sample: 'animation: holoOrbDrift 14s linear infinite', mode: 'centered-blob' },
+  { name: 'holoBtnSpin', sample: 'animation: holoBtnSpin 8s linear infinite', mode: 'rotating-ring' },
+  { name: 'holoIconSpin', sample: 'animation: holoIconSpin 9s linear infinite', mode: 'rotating-ring' },
+  { name: 'holoUnderlineSlide', sample: 'animation: holoUnderlineSlide 4s linear infinite', mode: 'gradient-strip' },
+  { name: 'iridShift', sample: 'animation: iridShift 7s linear infinite', mode: 'gradient-strip' },
+  { name: 'bgPulse', sample: 'animation: bgPulse 12s ease-in-out infinite', mode: 'opacity-pulse' },
+  { name: 'silkShift', sample: 'animation: silkShift 6s linear infinite', mode: 'gradient-strip' },
 ]
 
 export function DesignSystem() {
@@ -126,17 +139,66 @@ export function DesignSystem() {
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {KEYFRAMES.map(({ name, sample }) => (
+          {KEYFRAMES.map(({ name, sample, mode }) => (
             <div
               key={name}
               className="rounded-[var(--radius)] border border-line p-4 bg-surface"
             >
               <code className="block text-sm text-primary">{name}</code>
-              <div
-                className="mt-3 h-16 w-full rounded-md bg-gradient-to-r from-primary via-accent to-primary-strong"
-                style={{ animation: `${name} 6s linear infinite` }}
-                data-keyframe={name}
-              />
+              <div className="mt-3 relative h-24 w-full overflow-hidden rounded-md bg-bg-2">
+                {mode === 'centered-blob' && (
+                  // v1.0 hero blob: absolutely positioned at left: 50%; the keyframe's
+                  // translateX(-50%) supplies the centering. transform-origin defaults to center.
+                  <div
+                    className="absolute top-1/2 h-16 w-16 rounded-full bg-gradient-to-br from-primary via-accent to-primary-strong blur-sm"
+                    style={{
+                      left: '50%',
+                      marginTop: '-2rem', // vertical centering (top: 50% would conflict with the keyframe's transform)
+                      animation: `${name} 6s linear infinite`,
+                    }}
+                    data-keyframe={name}
+                  />
+                )}
+                {mode === 'rotating-ring' && (
+                  // v1.0 .btn-primary::after / .hero-feat-icon::before: a circular conic-gradient
+                  // ring behind the element rotates; the element itself stays put. Demo: a
+                  // centered conic-gradient disk spins in place around its own center.
+                  <>
+                    <div
+                      className="absolute top-1/2 left-1/2 h-16 w-16 -translate-x-1/2 -translate-y-1/2 rounded-full opacity-80"
+                      style={{
+                        background: 'conic-gradient(var(--color-primary), var(--color-accent), var(--color-primary-strong), var(--color-primary))',
+                        animation: `${name} 6s linear infinite`,
+                        transformOrigin: 'center',
+                      }}
+                      data-keyframe={name}
+                    />
+                    <div
+                      className="absolute top-1/2 left-1/2 h-10 w-10 -translate-x-1/2 -translate-y-1/2 rounded-full bg-surface"
+                      aria-hidden="true"
+                    />
+                  </>
+                )}
+                {mode === 'gradient-strip' && (
+                  // background-position animation: a horizontal gradient strip slides.
+                  <div
+                    className="absolute inset-x-2 top-1/2 h-8 -translate-y-1/2 rounded-md"
+                    style={{
+                      background: 'linear-gradient(90deg, var(--color-primary), var(--color-accent), var(--color-primary-strong), var(--color-accent), var(--color-primary))',
+                      backgroundSize: '300% 100%',
+                      animation: `${name} 6s linear infinite`,
+                    }}
+                    data-keyframe={name}
+                  />
+                )}
+                {mode === 'opacity-pulse' && (
+                  <div
+                    className="absolute top-1/2 left-1/2 h-16 w-16 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-r from-primary via-accent to-primary-strong"
+                    style={{ animation: `${name} 6s linear infinite` }}
+                    data-keyframe={name}
+                  />
+                )}
+              </div>
               <p className="mt-2 text-xs text-muted">{sample}</p>
             </div>
           ))}
