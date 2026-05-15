@@ -11,6 +11,7 @@ interface UseSpiderInteractionReturn {
   onAxisTap: (axis: string) => void
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function useSpiderInteraction(_datasets: readonly ChartDataset[]): UseSpiderInteractionReturn {
   const [activeAxis, setActiveAxis] = useState<string | null>(null)
   const onAxisEnter = useCallback((axis: string) => { setActiveAxis(axis) }, [])
