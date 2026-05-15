@@ -8,10 +8,9 @@ import { Welcome } from './routes/Welcome'
 import { ProfileEdit } from './routes/ProfileEdit'
 import { ProfileDetail } from './routes/ProfileDetail'
 import { Intro } from './routes/Intro'
-import {
-  CategoryOverview, Questionnaire, Result,
-  Share, Import, Compare, Settings, MapSettings,
-} from './routes/_placeholders'
+import { CategoryOverview } from './routes/CategoryOverview'
+import { Questionnaire } from './routes/Questionnaire'
+import { Result, Share, Import, Compare, Settings, MapSettings } from './routes/_placeholders'
 
 export const router = createHashRouter([
   {

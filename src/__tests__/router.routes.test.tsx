@@ -93,14 +93,20 @@ describe('Router routes (SHELL-01, SHELL-02)', () => {
     expect(document.querySelector('[data-testid="profile-edit-form"]')).not.toBeNull()
   })
 
-  it('resolves #/q-categories/:profileId/:resultId → CategoryOverview placeholder', async () => {
+  it('resolves #/q-categories/:profileId/:resultId → CategoryOverview (real component, redirects to / on missing profile)', async () => {
+    // CategoryOverview redirects to / when profile/result not found; Home page renders.
     await mountAppAtHash('#/q-categories/p1/r1')
-    expect(document.querySelector('[data-route-placeholder="CategoryOverview"]')).not.toBeNull()
+    // Either category-overview-page or home-page appears (redirect on missing entity)
+    const found = document.querySelector('[data-testid="category-overview-page"]') ||
+                  document.querySelector('[data-testid="home-page"]')
+    expect(found).not.toBeNull()
   })
 
-  it('resolves #/q/:profileId/:resultId → Questionnaire placeholder', async () => {
+  it('resolves #/q/:profileId/:resultId → Questionnaire (real component, redirects to / on missing profile)', async () => {
+    // Questionnaire redirects to / when profile/result not found; Home page renders.
     await mountAppAtHash('#/q/p1/r1')
-    expect(document.querySelector('[data-route-placeholder="Questionnaire"]')).not.toBeNull()
+    const found = document.querySelector('[data-testid="home-page"]')
+    expect(found).not.toBeNull()
   })
 
   it('resolves #/result/:id → Result placeholder', async () => {
