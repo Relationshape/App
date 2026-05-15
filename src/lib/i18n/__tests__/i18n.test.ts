@@ -9,6 +9,10 @@
 // Phase 2 plan 02-01 adds 5 shell keys (no_profiles_yet, nav_open_menu,
 // nav_close_menu, profile_picker_label, profile_picker_create_new) → 347 total.
 // Phase 2 plan 02-02 adds 1 key (age_gate_stop) → 348 total.
+// Phase 2 plan 02-03 adds 18 keys (emoji_picker_label, emoji_picker_free_placeholder,
+// profile_notes_label, new_map_btn, confirm_delete_profile_title,
+// confirm_delete_result_title, confirm_delete_result, welcome_how_title,
+// welcome_how_1..4, feat_sharing_title/short/body, feat_multi_title/short/body) → 366 total.
 
 import { describe, it, expect, beforeEach } from 'vitest'
 import { EN } from '../en'
@@ -26,9 +30,9 @@ describe('i18n (CORE-06)', () => {
     expect(deKeys).toEqual(enKeys)
   })
 
-  it('EN key count matches v1.0 baseline + Phase 2 additions (348 keys)', () => {
-    expect(Object.keys(EN).length).toBe(348)
-    expect(Object.keys(DE).length).toBe(348)
+  it('EN key count matches v1.0 baseline + Phase 2 additions (366 keys)', () => {
+    expect(Object.keys(EN).length).toBe(366)
+    expect(Object.keys(DE).length).toBe(366)
   })
 
   it('t() resolves an EN key in EN mode', () => {

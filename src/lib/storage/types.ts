@@ -70,6 +70,10 @@ export interface Import {
   version?: number
   srcVersion?: number
   importedAt: number
+  // Share export modes (v1.0 parity, D-36 / D-37)
+  exportMode?: 'unrestricted' | 'restricted' | 'template'
+  answersUnlocked?: boolean
+  templateWarningDisabled?: boolean
 }
 
 export interface Settings {

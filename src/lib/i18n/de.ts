@@ -456,6 +456,32 @@ export const DE: Record<TranslationKey, string> = {
   locked_answers_badge: '🔒 Antworten gesperrt',
   btn_unlock_and_compare: 'Entsperren & vergleichen',
 
+  // Emoji picker (plan 02-03)
+  emoji_picker_label: 'Wähle ein Emoji',
+  emoji_picker_free_placeholder: 'oder gib eines ein…',
+
+  // Profile form (plan 02-03 — extras)
+  profile_notes_label: 'Notizen',
+  new_map_btn: '+ Neue Karte',
+  confirm_delete_profile_title: 'Profil löschen?',
+  confirm_delete_result_title: 'Karte löschen?',
+  confirm_delete_result: 'Das löscht die Karte und alle ihre Antworten.',
+
+  // Welcome how-to steps (plan 02-03)
+  welcome_how_title: 'So funktioniert\'s',
+  welcome_how_1: 'Erstelle ein Profil für dich.',
+  welcome_how_2: 'Starte für jede Beziehung, über die du nachdenken möchtest, eine Beziehungskarte.',
+  welcome_how_3: 'Gehe die Kategorien in deinem eigenen Tempo durch.',
+  welcome_how_4: 'Tausche optional dein verschlüsseltes Paket mit der anderen Person aus und vergleiche.',
+
+  // Feature cards for Welcome (plan 02-03)
+  feat_sharing_title: 'Teilen',
+  feat_sharing_short: 'Tausche deine Ergebnisse aus, um ins Gespräch zu kommen und Gemeinsamkeiten zu entdecken.',
+  feat_sharing_body: 'Tausche deine Ergebnisse mit deinem Gegenüber aus um ins Gespräch zu kommen, Bedürfnisse, Wünsche und Grenzen zu kommunizieren und Abmachungen zu treffen. Das grafische Übereinanderlegen mittels Netzdiagramm zeigt intuitiv, wo ihr aligned seid und wo mögliche Differenzen bestehen.',
+  feat_multi_title: 'Mehrere Profile',
+  feat_multi_short: 'Führe separate Profile für verschiedene Lebensphasen oder Personas.',
+  feat_multi_body: 'Erstelle und verwalte mehrere Profile in einer einzigen App. Jedes Profil enthält deine eigenen Antworten für einen anderen Lebenskontext oder eine Persona — alles getrennt und privat.',
+
   // Nav / Profile picker (SHELL-03)
   no_profiles_yet: 'Noch keine Profile — leg eines an, um zu starten.',
   nav_close_menu: 'Menü schließen',

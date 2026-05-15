@@ -440,6 +440,32 @@ export const EN = {
   locked_answers_badge: '🔒 Answers locked',
   btn_unlock_and_compare: 'Unlock & compare',
 
+  // Emoji picker (plan 02-03)
+  emoji_picker_label: 'Pick an emoji',
+  emoji_picker_free_placeholder: 'or type your own…',
+
+  // Profile form (plan 02-03 — extras not already in v1.0)
+  profile_notes_label: 'Notes',
+  new_map_btn: '+ New map',
+  confirm_delete_profile_title: 'Delete profile?',
+  confirm_delete_result_title: 'Delete map?',
+  confirm_delete_result: 'This removes the map and all its answers.',
+
+  // Welcome how-to steps (plan 02-03)
+  welcome_how_title: 'How it works',
+  welcome_how_1: 'Create a profile for yourself.',
+  welcome_how_2: 'Start a relationship map for each connection you want to reflect on.',
+  welcome_how_3: 'Walk through the categories at your own pace.',
+  welcome_how_4: 'Optionally exchange your encrypted bundle with the other person and compare.',
+
+  // Feature cards for Welcome (plan 02-03 — keys matching FEATURES array keys)
+  feat_sharing_title: 'Sharing',
+  feat_sharing_short: 'Exchange your results to open conversations and find where you are aligned.',
+  feat_sharing_body: 'Exchange your results with your counterpart to start a conversation, communicate needs, wishes, and boundaries, and make agreements. Overlaying both maps on a spider chart intuitively shows where you are aligned and where differences may exist.',
+  feat_multi_title: 'Multiple Profiles',
+  feat_multi_short: 'Keep separate profiles per chapter of life or persona.',
+  feat_multi_body: 'Create and manage multiple profiles in a single app. Each profile holds your own answers for a different life context or persona — keeping everything separate and private.',
+
   // Nav / Profile picker (SHELL-03)
   no_profiles_yet: 'No profiles yet — create one to begin.',
   nav_close_menu: 'Close menu',
