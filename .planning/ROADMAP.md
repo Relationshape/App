@@ -40,7 +40,7 @@ Plans:
 - [x] 01-01-PLAN.md — Move v1.0 sources into public/legacy/, duplicate icons to public/icons/ (CORE-07)
 
 **Wave 2** *(blocked on Wave 1 completion)*
-- [ ] 01-02-PLAN.md — Scaffold Vite + React 19 + TS + Tailwind v4 + shadcn + vite-plugin-pwa + ESLint + Prettier + Vitest baseline (FOUND-01..07)
+- [x] 01-02-PLAN.md — Scaffold Vite + React 19 + TS + Tailwind v4 + shadcn + vite-plugin-pwa + ESLint + Prettier + Vitest baseline (FOUND-01..07)
 
 **Wave 3** *(blocked on Wave 2 completion)*
 - [ ] 01-03-PLAN.md — Capture v1.0 fixtures: bundle (manual) + localStorage blob (synthetic) + setup.ts (CORE-04, CORE-08, FOUND-06)
