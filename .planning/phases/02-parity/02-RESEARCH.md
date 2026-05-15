@@ -1358,27 +1358,19 @@ export function DataManagement() {
 
 **If this table is non-empty:** the planner should treat A2 and A9 as the items most likely to surface during execution. A2 is a "smoke test in plan 2 task 1" mitigation; A9 is a "measure-after-each-plan" mitigation (manual `du -sh dist/assets` per Phase-2 specifics).
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **How does the Phase 1 store expose `getImports()` for the imports list on Home?**
-   - What we know: `useStore` from Phase 1 has `saveImport`, `getImport(id)`, `deleteImport`. The full list selector would be `useStore(s => s.imports)`.
-   - What's unclear: Whether there's a sort order expected; v1.0 doesn't enforce one.
-   - Recommendation: Sort by `importedAt` descending in the Home view component.
+   - **RESOLVED:** Sort by `importedAt` descending in the Home view component. `useStore` from Phase 1 has `saveImport`, `getImport(id)`, `deleteImport`. Full list selector is `useStore(s => s.imports)`. v1.0 doesn't enforce a sort; descending by `importedAt` matches user expectation (most recent first). Implemented in plan 3 `<Home />`.
 
 2. **Is the `<Toaster />` mount point load-bearing for `useToast` from `<RootLayout />`?**
-   - What we know: Sonner's `toast()` is a module-level function; any caller can invoke it as long as `<Toaster />` is somewhere in the tree.
-   - What's unclear: Whether early subscribers (e.g., the `lastSaveError` watcher in `<RootLayout />`) fire before `<Toaster />` mounts.
-   - Recommendation: Mount `<Toaster />` as the FIRST child of `<RootLayout />` — before `<Outlet />` — so it's available immediately. Sonner queues calls anyway, so this is belt-and-braces.
+   - **RESOLVED:** Mount `<Toaster />` as the FIRST child of `<RootLayout />` — before `<Outlet />` — so it's available immediately for early subscribers (e.g. the `lastSaveError` watcher). Sonner's `toast()` is module-level and queues calls anyway, so first-child placement is belt-and-braces. Implemented in plan 2 task 02-02-08.
 
 3. **Should `<AgeGate />` route the under-18 hard-stop, or render a blocking `<AlertDialog />` forever?**
-   - What we know: v1.0 overwrites `document.body.innerHTML` with a static stop message (`public/legacy/js/app.js:822`).
-   - What's unclear: Whether Phase 2 should route to `/under-18` (a dedicated route) or render the stop message inline.
-   - Recommendation: Inline stop message (matches v1.0 exactly; no new route needed; no nav surface to escape).
+   - **RESOLVED:** Inline stop message — matches v1.0 (`public/legacy/js/app.js:822` overwrites `document.body.innerHTML`). No new `/under-18` route needed; no nav surface to escape. Implemented in plan 2's `AgeGate.tsx` via `setDenied(true)` rendering the inline stop view.
 
 4. **Where does the legacy `<Compare />` "tip" copy (visible when no datasets selected) live?**
-   - What we know: v1.0 has a tip about Fabi mode at `public/legacy/js/app.js:3525–3528`. The string is in JS (not i18n).
-   - What's unclear: Whether Phase 2 keeps Fabi mode at all.
-   - Recommendation: Port Fabi-mode toggle since the v1.0 settings page exposes it (`public/legacy/js/app.js:3659`). It's a one-line `Store.setFabiMode` toggle. Already in Phase 1's `Settings` type (`fabiMode?: boolean` — line 79).
+   - **RESOLVED:** Keep `fabiMode` from Phase 1's `Settings` type (`fabiMode?: boolean` — line 79). Port the Fabi-mode toggle UI in plan 7 Settings (v1.0 settings page exposes it at `public/legacy/js/app.js:3659` as a one-line `Store.setFabiMode` toggle). The empty-state Compare tip becomes a generic `compare_empty` i18n key (already keyed in plan 6's Compare.tsx) — no v1.0 hardcoded JS string survives.
 
 ## Environment Availability
 
