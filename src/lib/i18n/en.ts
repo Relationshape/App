@@ -493,6 +493,9 @@ export const EN = {
   nav_open_menu: 'Open menu',
   profile_picker_create_new: '+ New profile',
   profile_picker_label: 'Switch profile',
+
+  // Result charts (plan 02-05)
+  result_enlarged_title: 'Map overview',
 } as const
 
 export type TranslationKey = keyof typeof EN
