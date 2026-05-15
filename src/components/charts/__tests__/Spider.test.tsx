@@ -81,13 +81,19 @@ describe('Spider (RESULT-02)', () => {
     expect(svg.outerHTML).toContain('&lt;script&gt;')
   })
 
-  it('RESULT-07: img onerror payload renders inert — no onerror= in outerHTML', () => {
+  it('RESULT-07: img onerror payload renders inert — < is encoded, no HTML injection', () => {
+    // The payload has < which React encodes to &lt; in text nodes.
+    // "onerror=alert" still appears in text content (inert) but NOT as an HTML attribute.
+    // We verify that <img is encoded (structural XSS safety), not merely string-absent.
     const xssImg = '"><img onerror=alert(1) src=x>'
     const datasets: ChartDataset[] = [
       { id: 'b', name: xssImg, color: '#e63946', answers: {}, scale: DEFAULT_SCALE },
     ]
     const { container } = render(<Spider datasets={datasets} />)
     const svg = container.querySelector('svg')!
-    expect(svg.outerHTML).not.toContain('onerror=alert')
+    // < is encoded → no literal <img tag injected
+    expect(svg.outerHTML).not.toContain('<img ')
+    // The encoded form is present (React text-node escaping)
+    expect(svg.outerHTML).toContain('&lt;img')
   })
 })
