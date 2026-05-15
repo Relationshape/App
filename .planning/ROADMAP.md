@@ -33,7 +33,19 @@ Decimal phases appear between their surrounding integers in numeric order.
   6. Every `:root` token from `css/style.css` (`--bg`, `--surface`, `--primary`, `--accent`, `--glass`, `--glow`, radii, shadows) is expressed in `tailwind.config.ts`; light and dark variants resolve through `data-theme` on `<html>`. Production build contains no `fonts.googleapis.com` / `fonts.gstatic.com` references — DM Sans and Playfair Display load from `public/fonts/` via `@font-face`.
   7. All eight `@keyframes` from `additions.css` (`heroBlobPulse`, `holoOrbDrift`, `holoBtnSpin`, `holoIconSpin`, `holoUnderlineSlide`, `iridShift`, `bgPulse`, `silkShift`) are reproducible as Tailwind utilities or component styles and side-by-side match the v1.0 reference. With `prefers-reduced-motion: reduce` set in DevTools, every non-essential animation stops or simplifies; the design-system reference page confirms this.
   8. A `/design-system` route renders the colour, typography, and animation scale — designers can flip between auto / light / dark via the theme toggle and the change is reactive across the tree.
-**Plans**: TBD
+**Plans:** 9 plans
+
+Plans:
+- [ ] 01-01-PLAN.md — Move v1.0 sources into public/legacy/, duplicate icons to public/icons/ (CORE-07)
+- [ ] 01-02-PLAN.md — Scaffold Vite + React 19 + TS + Tailwind v4 + shadcn + vite-plugin-pwa + ESLint + Prettier + Vitest baseline (FOUND-01..07)
+- [ ] 01-03-PLAN.md — Capture v1.0 fixtures: bundle (manual) + localStorage blob (synthetic) + setup.ts (CORE-04, CORE-08, FOUND-06)
+- [ ] 01-04-PLAN.md — Port crypto.ts (CORE-04) with round-trip + envelope byte-shape test against v1.0 fixture
+- [ ] 01-05-PLAN.md — Port data.ts (CORE-05) + en/de/i18n.ts (CORE-06) with 304-key parity test
+- [ ] 01-06-PLAN.md — Port storage.ts as Zustand store + custom relationshapePersist middleware (CORE-01, CORE-02, CORE-03, CORE-05, CORE-07, CORE-08)
+- [ ] 01-07-PLAN.md — Port theme.css (DESIGN-01) + animations.css with reduced-motion guard (DESIGN-03, DESIGN-04) + Fontsource fonts (DESIGN-02)
+- [ ] 01-08-PLAN.md — Wire router + useTheme/useLang hooks + ThemeToggle/LangToggle + Placeholder + DesignSystem route + App smoke test (FOUND-06, DESIGN-05, DESIGN-06)
+- [ ] 01-09-PLAN.md — Phase-final verify gate + DESIGN-02 grep guard + manual eyeball checklist
+
 
 ### Phase 2: Parity
 **Goal**: Build the React app shell (typed providers, persistent nav, full route table, hash-deep-link compatibility, shadcn-based toast + dialog primitives) and ship every v1.0 view as React components with full feature parity — profile lifecycle, questionnaire (list + swipe modes), results & charts, share/import/compare, and settings — including EN/DE strings, encrypted bundle round-trip, and accessible dialogs.
@@ -92,6 +104,6 @@ Phases execute in numeric order: 1 → 2 → 3
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Skeleton | 0/TBD | Not started | - |
+| 1. Skeleton | 0/9 | Not started | - |
 | 2. Parity | 0/TBD | Not started | - |
 | 3. Cutover | 0/TBD | Not started | - |
