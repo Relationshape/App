@@ -94,21 +94,21 @@ describe('<DesignSystem /> route (DESIGN-05, DESIGN-06)', () => {
     })
 
     // Nav + DesignSystem both render ThemeToggle; click the first occurrence.
-    const darkBtns = await screen.findAllByTestId('theme-toggle-dark')
+    const [darkBtn] = await screen.findAllByTestId('theme-toggle-dark')
     await act(async () => {
-      fireEvent.click(darkBtns[0])
+      fireEvent.click(darkBtn!)
     })
     expect(document.documentElement.dataset.theme).toBe('dark')
 
-    const lightBtns = await screen.findAllByTestId('theme-toggle-light')
+    const [lightBtn] = await screen.findAllByTestId('theme-toggle-light')
     await act(async () => {
-      fireEvent.click(lightBtns[0])
+      fireEvent.click(lightBtn!)
     })
     expect(document.documentElement.dataset.theme).toBe('light')
 
-    const autoBtns = await screen.findAllByTestId('theme-toggle-auto')
+    const [autoBtn] = await screen.findAllByTestId('theme-toggle-auto')
     await act(async () => {
-      fireEvent.click(autoBtns[0])
+      fireEvent.click(autoBtn!)
     })
     expect(document.documentElement.dataset.theme).toBe('auto')
   })
