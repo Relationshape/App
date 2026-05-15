@@ -5,8 +5,9 @@
 // RESEARCH.md's estimate; the actual v1.0 baseline (verified by `node -e ...
 // Object.keys(TRANSLATIONS.en).length` against public/legacy/js/i18n.js) is 342.
 // CORE-06 requires "EN+DE translation maps preserved key-for-key" — the truth
-// is the source file, not the documented estimate. Test asserts the verified
-// v1.0 count of 342.
+// is the source file, not the documented estimate.
+// Phase 2 plan 02-01 adds 5 shell keys (no_profiles_yet, nav_open_menu,
+// nav_close_menu, profile_picker_label, profile_picker_create_new) → 347 total.
 
 import { describe, it, expect, beforeEach } from 'vitest'
 import { EN } from '../en'
@@ -24,9 +25,9 @@ describe('i18n (CORE-06)', () => {
     expect(deKeys).toEqual(enKeys)
   })
 
-  it('EN key count matches verified v1.0 baseline (342 keys)', () => {
-    expect(Object.keys(EN).length).toBe(342)
-    expect(Object.keys(DE).length).toBe(342)
+  it('EN key count matches v1.0 baseline + Phase 2 shell additions (347 keys)', () => {
+    expect(Object.keys(EN).length).toBe(347)
+    expect(Object.keys(DE).length).toBe(347)
   })
 
   it('t() resolves an EN key in EN mode', () => {
