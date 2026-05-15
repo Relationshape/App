@@ -33,15 +33,18 @@ export function MapSettings() {
     setEnabledCategories((prev) => prev.includes(catId) ? prev.filter((c) => c !== catId) : [...prev, catId])
   }
   function onSave() {
+    const r = result
+    if (!r) return
+    const trimmedSubject = subject.trim()
     saveResult({
-      ...result,
-      subject: subject.trim() || undefined,
+      ...r,
+      ...(trimmedSubject ? { subject: trimmedSubject } : {}),
       subjectEmoji,
       subjectColor,
       enabledCategories,
-      scale,
+      ...(scale !== undefined ? { scale } : {}),
     })
-    void navigate(`/result/${result.id}`)
+    void navigate(`/result/${r.id}`)
   }
   function clearScaleOverride() {
     setScale(undefined)

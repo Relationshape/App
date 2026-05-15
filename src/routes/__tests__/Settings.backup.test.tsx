@@ -159,7 +159,8 @@ describe('DataManagement: export / import / clear-all (SETTINGS-04, SHARE-06)', 
     await act(async () => { fireEvent.click(exportBtn) })
     expect(capturedBlob).not.toBeNull()
     const exportedJson = await capturedBlob!.text()
-    const exported = JSON.parse(exportedJson) as { profiles: unknown[]; results: unknown[]; imports: unknown[]; scale: unknown[]; settings: unknown }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const exported = JSON.parse(exportedJson) as any
 
     // Assert the exported JSON has the key fields
     expect(exported.profiles).toBeDefined()

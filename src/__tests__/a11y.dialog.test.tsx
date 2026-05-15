@@ -2,7 +2,7 @@
 // src/__tests__/a11y.dialog.test.tsx
 // SETTINGS-05: Radix Dialog + AlertDialog — focus trap, focus return, ESC dismiss, ARIA role/modal.
 
-import { render, act, fireEvent, cleanup, waitFor } from '@testing-library/react'
+import { act, fireEvent, cleanup, waitFor } from '@testing-library/react'
 import { describe, it, expect, afterEach, vi } from 'vitest'
 import { MemoryLocalStorage } from '../../tests/helpers/MemoryLocalStorage'
 
@@ -48,7 +48,6 @@ async function mountDialogProbe() {
 
 async function mountAlertDialogProbe() {
   vi.resetModules()
-  const React = await import('react')
   const { render: rnd } = await import('@testing-library/react')
   const {
     AlertDialog, AlertDialogTrigger, AlertDialogContent,

@@ -519,7 +519,6 @@ export const EN = {
   backup_imported: 'Backup imported.',
   backup_restore_confirm_title: 'Restore from backup?',
   backup_restore_confirm_body: 'This will replace ALL current data with the backup contents. This cannot be undone.',
-  btn_restore: 'Restore',
   cleared_all_data: 'All data cleared.',
   clear_all_title: 'Clear all data?',
   clear_all_body: 'This deletes every profile, map, import, and setting. Type DELETE below to confirm.',

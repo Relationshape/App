@@ -535,7 +535,6 @@ export const DE: Record<TranslationKey, string> = {
   backup_imported: 'Backup importiert.',
   backup_restore_confirm_title: 'Backup wiederherstellen?',
   backup_restore_confirm_body: 'Das ersetzt ALLE aktuellen Daten durch den Backup-Inhalt. Das ist nicht rückgängig zu machen.',
-  btn_restore: 'Wiederherstellen',
   cleared_all_data: 'Alle Daten gelöscht.',
   clear_all_title: 'Alle Daten löschen?',
   clear_all_body: 'Das löscht alle Profile, Karten, Importe und Einstellungen. Gib DELETE ein, um zu bestätigen.',
