@@ -10,5 +10,8 @@ export default defineConfig({
     globals: false,
     include: ['tests/**/*.test.{ts,tsx}', 'src/**/__tests__/**/*.test.{ts,tsx}'],
     setupFiles: ['./tests/setup.ts'],
+    // pool: 'forks' prevents vi.stubGlobal/vi.resetModules conflicts between
+    // jsdom test files running in parallel (plan 02-03 fix — all 115 tests pass).
+    pool: 'forks',
   },
 })
