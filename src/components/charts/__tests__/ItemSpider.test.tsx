@@ -72,7 +72,7 @@ describe('ItemSpider (RESULT-04)', () => {
             __custom: {
               [maliciousItem]: { scale: 'need' },
             },
-          },
+          } as never, // CategoryAnswers intersection narrows __custom to AnswerCell — fixture intentionally bypasses for XSS test
         },
         scale: DEFAULT_SCALE,
       },

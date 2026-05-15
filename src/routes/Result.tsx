@@ -49,7 +49,7 @@ export function Result() {
         { label: t('btn_delete'), kind: 'danger', value: true },
       ],
     })
-    if (ok && result) { deleteResult(result.id); navigate(`/profile/${profile.id}`) }
+    if (ok && result && profile) { deleteResult(result.id); navigate(`/profile/${profile.id}`) }
   }
 
   return (

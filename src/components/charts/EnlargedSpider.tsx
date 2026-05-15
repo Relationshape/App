@@ -25,10 +25,10 @@ export function EnlargedSpider(props: Props) {
         <Spider
           datasets={props.datasets}
           size={900}
-          activeAxis={props.activeAxis}
-          onAxisEnter={props.onAxisEnter}
-          onAxisLeave={props.onAxisLeave}
-          onAxisTap={props.onAxisTap}
+          activeAxis={props.activeAxis ?? null}
+          {...(props.onAxisEnter && { onAxisEnter: props.onAxisEnter })}
+          {...(props.onAxisLeave && { onAxisLeave: props.onAxisLeave })}
+          {...(props.onAxisTap && { onAxisTap: props.onAxisTap })}
         />
       </DialogContent>
     </Dialog>

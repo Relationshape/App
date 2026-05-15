@@ -30,3 +30,8 @@ if (typeof window !== 'undefined' && typeof window.ResizeObserver === 'undefined
     disconnect() {}
   }
 }
+
+// scrollIntoView stub — jsdom doesn't implement Element.scrollIntoView (RESULT-01 deep-link path)
+if (typeof window !== 'undefined' && !Element.prototype.scrollIntoView) {
+  Element.prototype.scrollIntoView = function () {}
+}
