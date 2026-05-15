@@ -1,1 +1,7 @@
+/* src/styles/globals.css
+ * Root stylesheet aggregator. Imported as a side effect from src/main.tsx.
+ * Order matters: tailwindcss must be imported first (via theme.css), then fonts, then animations.
+ */
 @import './theme.css';
+@import './fonts.css';
+@import './animations.css';
