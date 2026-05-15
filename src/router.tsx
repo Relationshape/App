@@ -14,7 +14,8 @@ import { Result } from './routes/Result'
 import { Share } from './routes/Share'
 import { Import } from './routes/Import'
 import { Compare } from './routes/Compare'
-import { Settings, MapSettings } from './routes/_placeholders'
+import { Settings } from './routes/Settings'
+import { MapSettings } from './routes/MapSettings'
 
 export const router = createHashRouter([
   {

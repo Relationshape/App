@@ -507,6 +507,31 @@ export const EN = {
   import_btn: 'Decrypt and import',
   compare_too_many_truncated: 'Showing first 4 of {n} comparisons.',
   compare_empty: 'Pick at least two maps to compare.',
+
+  // Settings — plan 02-07 (SETTINGS-01..05)
+  settings_theme_title: 'Theme',
+  settings_lang_title: 'Language',
+  settings_data_title: 'Data management',
+  btn_export_backup: 'Export backup (JSON)',
+  btn_import_backup: 'Import backup',
+  btn_clear_all_data: 'Clear all data',
+  backup_exported: 'Backup downloaded.',
+  backup_imported: 'Backup imported.',
+  backup_restore_confirm_title: 'Restore from backup?',
+  backup_restore_confirm_body: 'This will replace ALL current data with the backup contents. This cannot be undone.',
+  cleared_all_data: 'All data cleared.',
+  clear_all_title: 'Clear all data?',
+  clear_all_body: 'This deletes every profile, map, import, and setting. Type DELETE below to confirm.',
+  btn_confirm_delete: 'Delete everything',
+  scale_step_value: 'Value',
+  scale_step_color: 'Colour',
+  scale_step_description: 'Description',
+  scale_step_add: '+ Add step',
+  scale_step_min: 'A scale needs at least 2 steps.',
+  map_settings_subject_title: 'Subject',
+  map_settings_subject_label: 'Subject label',
+  map_settings_cat_title: 'Categories',
+  map_settings_cat_sub: 'Toggle categories on or off for this map only.',
 } as const
 
 export type TranslationKey = keyof typeof EN
