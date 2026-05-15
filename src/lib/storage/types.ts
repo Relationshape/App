@@ -36,6 +36,9 @@ export interface ResultProgress {
   catIndex?: number
   flatIndex?: number
   focusItem?: string
+  // Phase 2 (D-26 deep-link). Plan 4 sets this from useParams when arriving via #/result/:id/:catId;
+  // plan 5's <Result /> reads it to scroll-into-view + open the per-category drill-down.
+  openCatId?: string
 }
 
 export interface Result {
@@ -49,6 +52,11 @@ export interface Result {
   askedItems?: Record<string, string[]>
   scale?: MutableScaleStep[]
   progress?: ResultProgress
+  // Phase 2 (D-30). v1.0 marks results seeded from a template/import so the first edit
+  // prompts a confirmation. templateWarningDisabled suppresses the dialog forever.
+  seededFromImportId?: string
+  seededFromResultId?: string
+  templateWarningDisabled?: boolean
   version?: number
   createdAt: number
   updatedAt: number
