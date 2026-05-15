@@ -509,4 +509,7 @@ export const DE: Record<TranslationKey, string> = {
   nav_open_menu: 'Menü öffnen',
   profile_picker_create_new: '+ Neues Profil',
   profile_picker_label: 'Profil wechseln',
+
+  // Result charts (plan 02-05)
+  result_enlarged_title: 'Karten-Übersicht',
 }

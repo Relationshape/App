@@ -2,14 +2,7 @@
 // Plans 5-7 replace these placeholders with real views.
 // Plan 3 replaced: Home, Welcome, ProfileEdit, ProfileDetail, Intro.
 // Plan 4 replaced: CategoryOverview, Questionnaire.
-
-export function Result() {
-  return (
-    <section data-route-placeholder="Result" className="page">
-      <h1>Result placeholder</h1>
-    </section>
-  )
-}
+// Plan 5 replaced the route at /result/:id.
 
 export function Share() {
   return (
