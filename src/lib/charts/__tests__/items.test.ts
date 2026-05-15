@@ -3,12 +3,7 @@
 
 import { describe, it, expect } from 'vitest'
 import { enabledItemsForCat, flatItemsForResult } from '../items'
-import type { Result } from '@/lib/storage/types'
-import type { MutableScaleStep } from '@/lib/data/types'
-
-const SCALE: readonly MutableScaleStep[] = [
-  { key: 'open', label: 'Open', short: 'Open', value: 3, color: '#888', description: '' },
-]
+import type { Result, AnswersBlob } from '@/lib/storage/types'
 
 function makeResult(overrides: Partial<Result> = {}): Result {
   return {
@@ -23,15 +18,11 @@ function makeResult(overrides: Partial<Result> = {}): Result {
 
 describe('enabledItemsForCat', () => {
   it('filters hidden items + lists custom names', () => {
-    const answers = {
-      connection: {
-        'Shared activities / interests': { scale: 'open' },
-        __hidden: { Playfulness: true as const, Companionship: true as const },
-        __custom: {
-          'My item': { scale: 'open' },
-        },
-      },
+    const answers: AnswersBlob = {
+      connection: { 'Shared activities / interests': { scale: 'open' } } as unknown as AnswersBlob[string],
     }
+    ;(answers['connection'] as unknown as Record<string, unknown>).__hidden = { Playfulness: true, Companionship: true }
+    ;(answers['connection'] as unknown as Record<string, unknown>).__custom = { 'My item': { scale: 'open' } }
     const result = enabledItemsForCat(answers, 'connection')
     expect(result.base).not.toContain('Playfulness')
     expect(result.base).not.toContain('Companionship')
@@ -42,14 +33,14 @@ describe('enabledItemsForCat', () => {
 
 describe('flatItemsForResult', () => {
   it('iterates enabledCategories in order, concatenating base then custom per category', () => {
+    const answers: AnswersBlob = {
+      connection: {} as unknown as AnswersBlob[string],
+      creative: {} as unknown as AnswersBlob[string],
+    }
+    ;(answers['connection'] as unknown as Record<string, unknown>).__custom = { 'extra connection item': { scale: 'open' } }
     const result = makeResult({
       enabledCategories: ['connection', 'creative'],
-      answers: {
-        connection: {
-          __custom: { 'extra connection item': { scale: 'open' } },
-        },
-        creative: {},
-      },
+      answers,
     })
     const flat = flatItemsForResult(result)
     // First items should come from connection (base first, then custom)

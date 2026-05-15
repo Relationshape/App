@@ -46,7 +46,7 @@ export function pushAnswerValues(
 ): void {
   if (!entry) return
   const maxV = scaleMaxValue(scale)
-  const e = entry as Record<string, unknown>
+  const e = entry as unknown as Record<string, unknown>
   if (e['giving'] !== undefined || e['receiving'] !== undefined ||
       e['givingFrac'] !== undefined || e['receivingFrac'] !== undefined) {
     const gv = e['givingFrac'] !== undefined
@@ -95,7 +95,7 @@ export function categoryAverage(
  */
 export function answerScaleKey(entry: AnswerEntry | undefined): string | null {
   if (!entry) return null
-  const e = entry as Record<string, unknown>
+  const e = entry as unknown as Record<string, unknown>
   if (e['giving'] !== undefined || e['receiving'] !== undefined ||
       e['givingFrac'] !== undefined || e['receivingFrac'] !== undefined) {
     return (e['giving'] as string | undefined) ?? (e['receiving'] as string | undefined) ?? null
@@ -114,7 +114,7 @@ export function answerAvgValue(
   if (!entry) return null
   const max = scaleMaxValue(scale)
   const byKey = (k: string) => scale.find((s) => s.key === k)
-  const e = entry as Record<string, unknown>
+  const e = entry as unknown as Record<string, unknown>
   if (e['giving'] !== undefined || e['receiving'] !== undefined ||
       e['givingFrac'] !== undefined || e['receivingFrac'] !== undefined) {
     const gv = e['givingFrac'] !== undefined

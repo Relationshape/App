@@ -82,11 +82,11 @@ describe('catProgress', () => {
       connection: {
         'Shared activities / interests': { scale: 'open' },
         'Intellectual / philosophical discussions': { scale: 'no' },
-        __hidden: { Playfulness: true },
-        __custom: {
-          'My custom item': { scale: 'need' },
-        },
-      },
+      } as unknown as AnswersBlob[string],
+    }
+    ;(answers['connection'] as unknown as Record<string, unknown>).__hidden = { Playfulness: true }
+    ;(answers['connection'] as unknown as Record<string, unknown>).__custom = {
+      'My custom item': { scale: 'need' },
     }
     const result = catProgress(answers, 'connection')
     // connection has 10 items total; 1 hidden (Playfulness) → 9 base + 1 custom = 10 total
