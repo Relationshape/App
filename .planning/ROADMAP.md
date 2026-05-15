@@ -54,7 +54,7 @@ Plans:
 - [x] 01-06-PLAN.md — Port storage.ts as Zustand store + custom relationshapePersist middleware (CORE-01, CORE-02, CORE-03, CORE-05, CORE-07, CORE-08)
 
 **Wave 6** *(blocked on Wave 5 completion)*
-- [ ] 01-08-PLAN.md — Wire router + useTheme/useLang hooks + ThemeToggle/LangToggle + Placeholder + DesignSystem route + App smoke test (FOUND-06, DESIGN-05, DESIGN-06)
+- [x] 01-08-PLAN.md — Wire router + useTheme/useLang hooks + ThemeToggle/LangToggle + Placeholder + DesignSystem route + App smoke test (FOUND-06, DESIGN-05, DESIGN-06)
 
 **Wave 7** *(blocked on Wave 6 completion)*
 - [ ] 01-09-PLAN.md — Phase-final verify gate + DESIGN-02 grep guard + manual eyeball checklist
