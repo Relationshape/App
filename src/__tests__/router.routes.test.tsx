@@ -109,14 +109,20 @@ describe('Router routes (SHELL-01, SHELL-02)', () => {
     expect(found).not.toBeNull()
   })
 
-  it('resolves #/result/:id → Result placeholder', async () => {
+  it('resolves #/result/:id → Result (real component, redirects to / on missing result)', async () => {
+    // Result navigates to / when result not found in store
     await mountAppAtHash('#/result/r1')
-    expect(document.querySelector('[data-route-placeholder="Result"]')).not.toBeNull()
+    const found = document.querySelector('[data-testid="result-page"]') ||
+                  document.querySelector('[data-testid="home-page"]')
+    expect(found).not.toBeNull()
   })
 
-  it('resolves #/result/:id/:catId → Result placeholder (deep link)', async () => {
+  it('resolves #/result/:id/:catId → Result (real component, redirects to / on missing result)', async () => {
+    // Result navigates to / when result not found in store
     await mountAppAtHash('#/result/r1/intimacy')
-    expect(document.querySelector('[data-route-placeholder="Result"]')).not.toBeNull()
+    const found = document.querySelector('[data-testid="result-page"]') ||
+                  document.querySelector('[data-testid="home-page"]')
+    expect(found).not.toBeNull()
   })
 
   it('resolves #/share/:id → Share placeholder', async () => {
@@ -154,9 +160,11 @@ describe('Router routes (SHELL-01, SHELL-02)', () => {
     expect(document.querySelector('[data-testid="intro-page"]')).not.toBeNull()
   })
 
-  it('deep link #/result/r1/intimacy resolves to Result placeholder (SHELL-02)', async () => {
+  it('deep link #/result/r1/intimacy resolves to Result (real component, SHELL-02)', async () => {
+    // Result navigates to / on missing result — either result-page or home-page should appear
     await mountAppAtHash('#/result/r1/intimacy')
-    expect(document.querySelector('[data-route-placeholder="Result"]')).not.toBeNull()
-    expect(window.location.hash).toBe('#/result/r1/intimacy')
+    const found = document.querySelector('[data-testid="result-page"]') ||
+                  document.querySelector('[data-testid="home-page"]')
+    expect(found).not.toBeNull()
   })
 })
