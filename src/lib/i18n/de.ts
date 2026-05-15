@@ -486,6 +486,23 @@ export const DE: Record<TranslationKey, string> = {
   scale_picker_label: 'Antwortskala',
   btn_clear: 'Löschen',
 
+  // Questionnaire components (plan 02-04)
+  item_note_placeholder: 'Notiz (optional)',
+  btn_hide_item: 'Diesen Punkt ausblenden',
+  q_back_to_categories: '← Kategorien',
+  q_mode_list: 'Listenmodus',
+  q_mode_single: 'Kartenmodus',
+  q_nav_see_results: 'Ergebnisse anzeigen',
+  q_add_custom: '+ Eigenen Punkt hinzufügen',
+  q_add_custom_title: 'Eigenen Punkt hinzufügen',
+  q_add_custom_placeholder: 'Name des Punkts…',
+  q_item_already_exists: 'Ein Punkt mit diesem Namen existiert bereits',
+  q_edit_item_scale: 'Skala für diesen Punkt anpassen',
+  q_edit_item_scale_warning: 'Eine neue Skala setzt die Antwort dieses Punkts zurück.',
+  q_overview_title: 'Kategorien auswählen',
+  q_overview_sub: 'Schalte die Dimensionen ein, die du für diese Person abbilden willst.',
+  q_overview_start: 'Fragebogen starten →',
+
   // Nav / Profile picker (SHELL-03)
   no_profiles_yet: 'Noch keine Profile — leg eines an, um zu starten.',
   nav_close_menu: 'Menü schließen',

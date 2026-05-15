@@ -470,6 +470,23 @@ export const EN = {
   scale_picker_label: 'Answer scale',
   btn_clear: 'Clear',
 
+  // Questionnaire components (plan 02-04)
+  item_note_placeholder: 'Note (optional)',
+  btn_hide_item: 'Hide this item',
+  q_back_to_categories: '← Categories',
+  q_mode_list: 'List mode',
+  q_mode_single: 'Card mode',
+  q_nav_see_results: 'See results',
+  q_add_custom: '+ Add custom item',
+  q_add_custom_title: 'Add a custom item',
+  q_add_custom_placeholder: 'Item name…',
+  q_item_already_exists: 'An item with that name already exists',
+  q_edit_item_scale: 'Edit scale for this item',
+  q_edit_item_scale_warning: 'Changing the scale resets this item\'s answer.',
+  q_overview_title: 'Select categories',
+  q_overview_sub: 'Toggle on the dimensions you want to map for this person.',
+  q_overview_start: 'Start questionnaire →',
+
   // Nav / Profile picker (SHELL-03)
   no_profiles_yet: 'No profiles yet — create one to begin.',
   nav_close_menu: 'Close menu',
