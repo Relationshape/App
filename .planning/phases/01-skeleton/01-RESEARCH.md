@@ -1197,22 +1197,25 @@ describe('i18n (CORE-06)', () => {
 
 If this table is empty: all claims in this research were verified or cited. **Six assumptions remain.** None are blockers; all have low-effort fallbacks. Recommend the planner surface A1 (shadcn-vite template flag) to the user for explicit confirmation if planning is paused for any reason — it's the one assumption that, if wrong, changes the plan structure (extra manual setup step instead of one-command seed).
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **What's the canonical command flow if `shadcn@latest init -t vite` is renamed/removed before execution?**
    - What we know: As of 2026-05-15 the `-t vite` template flag is the documented quick-start path.
    - What's unclear: Future shadcn releases may move flags.
    - Recommendation: Plan should pin `shadcn@4.7.0` (the version verified today) for the init step, OR document a manual fallback (pnpm create vite@latest react-ts → install tailwind → init shadcn with no template flag) as a backup task.
+   - **RESOLVED:** Pin `shadcn@4.7.0` in plan 02 tasks 2.1 + 2.3; if the `-t vite` template flag is renamed/removed before execution, fall back to manual Vite scaffold + manual shadcn init per Assumption A1 fallback.
 
 2. **Does the legacy SW's `clients.claim()` (in `sw.js:24`) need explicit scope tightening after the move to `/legacy/`?**
    - What we know: SW scope defaults to its location (`/legacy/`); `clients.claim()` claims clients within scope only.
    - What's unclear: Whether v1.0 users with a prior `/` registration of the legacy SW will see odd behaviour.
    - Recommendation: Verification task — DevTools → Application → Service Workers should show exactly one SW per scope after migration. If a stale `/` SW shows up, the new SW's `clientsClaim: true` overrides it.
+   - **RESOLVED:** Plan 09 task 9.2 Check 1 verifies SW scope via DevTools → Application → Service Workers; expects exactly one SW per scope (`/` and `/legacy/`).
 
 3. **Are there any v1.0 translation keys that already differ between EN and DE in semantics (not just translation)?**
    - What we know: 304 keys in both; structural parity confirmed.
    - What's unclear: Whether any DE key intentionally returns a different *placeholder set* than its EN counterpart (e.g., `{name}` in EN but `{Name}` in DE).
    - Recommendation: Phase 1's i18n.test.ts should add a placeholder-set parity assertion. If a mismatch surfaces, fix the DE source — it's a pre-existing bug, not new work.
+   - **RESOLVED:** Deferred to v2.1 (per Phase 1 scope). Plan 05 asserts key-for-key parity only; placeholder-set parity is documented as a future quality enhancement in CONTEXT.md `<deferred>`.
 
 ## Environment Availability
 

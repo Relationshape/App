@@ -36,14 +36,27 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans:** 9 plans
 
 Plans:
+**Wave 1**
 - [ ] 01-01-PLAN.md — Move v1.0 sources into public/legacy/, duplicate icons to public/icons/ (CORE-07)
+
+**Wave 2** *(blocked on Wave 1 completion)*
 - [ ] 01-02-PLAN.md — Scaffold Vite + React 19 + TS + Tailwind v4 + shadcn + vite-plugin-pwa + ESLint + Prettier + Vitest baseline (FOUND-01..07)
+
+**Wave 3** *(blocked on Wave 2 completion)*
 - [ ] 01-03-PLAN.md — Capture v1.0 fixtures: bundle (manual) + localStorage blob (synthetic) + setup.ts (CORE-04, CORE-08, FOUND-06)
+
+**Wave 4** *(blocked on Wave 3 completion)*
 - [ ] 01-04-PLAN.md — Port crypto.ts (CORE-04) with round-trip + envelope byte-shape test against v1.0 fixture
 - [ ] 01-05-PLAN.md — Port data.ts (CORE-05) + en/de/i18n.ts (CORE-06) with 304-key parity test
-- [ ] 01-06-PLAN.md — Port storage.ts as Zustand store + custom relationshapePersist middleware (CORE-01, CORE-02, CORE-03, CORE-05, CORE-07, CORE-08)
 - [ ] 01-07-PLAN.md — Port theme.css (DESIGN-01) + animations.css with reduced-motion guard (DESIGN-03, DESIGN-04) + Fontsource fonts (DESIGN-02)
+
+**Wave 5** *(blocked on Wave 4 completion)*
+- [ ] 01-06-PLAN.md — Port storage.ts as Zustand store + custom relationshapePersist middleware (CORE-01, CORE-02, CORE-03, CORE-05, CORE-07, CORE-08)
+
+**Wave 6** *(blocked on Wave 5 completion)*
 - [ ] 01-08-PLAN.md — Wire router + useTheme/useLang hooks + ThemeToggle/LangToggle + Placeholder + DesignSystem route + App smoke test (FOUND-06, DESIGN-05, DESIGN-06)
+
+**Wave 7** *(blocked on Wave 6 completion)*
 - [ ] 01-09-PLAN.md — Phase-final verify gate + DESIGN-02 grep guard + manual eyeball checklist
 
 
