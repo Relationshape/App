@@ -231,5 +231,5 @@ export const EXPECTED_PAYLOAD = {
     ],
     "askedItems": null,
     "version": 1,
-    "sharedAt": 1778859126814
+    "sharedAt": 1778858833990
 } as const
