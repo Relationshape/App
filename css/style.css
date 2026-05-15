@@ -342,7 +342,7 @@ a:hover { text-decoration: underline; }
   /* Questionnaire header — compact layout */
   .q-head > .icon-only { display: none; }
   .q-mode-switch .btn { padding: 5px 8px; font-size: 12px; }
-  .q-cat-icon { width: 40px; height: 40px; font-size: 22px; }
+  .q-cat-icon { width: 40px; height: 40px; font-size: 26px; border-radius: 10px; line-height: 1; }
   .q-cat h1 { font-size: 18px; }
   .q-progress-text { font-size: 11.5px; }
   .cat-overview-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
@@ -1276,7 +1276,7 @@ a:hover { text-decoration: underline; }
 }
 @media (pointer: coarse) {
   .rs-click-scale-ref-tick {
-    width: 20px; height: 20px;
+    width: 14px; height: 14px;
   }
 }
 .rs-click-scale-ref-label {
