@@ -153,6 +153,11 @@ export const useStore = create<AppState>()(
       set((state) => ({ settings: { ...state.settings, lang } }))
     },
 
+    // Settings (Phase 2 extensions)
+    setSettings: (patch) => {
+      set((state) => ({ settings: { ...state.settings, ...patch } }))
+    },
+
     // Scale
     setScale: (scale) => {
       set({ scale: migrateScale(scale) })

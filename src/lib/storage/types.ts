@@ -77,6 +77,8 @@ export interface Settings {
   lang?: 'en' | 'de'
   fabiMode?: boolean
   wizardSeen?: boolean
+  // Phase 2 (PROFILE-06, D-29). Persisted age-gate confirmation; superseded the legacy `rs-age-confirmed` localStorage key.
+  ageConfirmed?: boolean
 }
 
 export interface LastSaveError {
@@ -126,6 +128,8 @@ export interface AppState extends PersistedShape {
   // Theme + lang
   setTheme: (theme: Settings['theme']) => void
   setLang: (lang: NonNullable<Settings['lang']>) => void
+  // Settings (Phase 2 extensions) — sets ageConfirmed, wizardSeen, etc. via Partial<Settings>
+  setSettings: (patch: Partial<Settings>) => void
 
   // Scale
   setScale: (scale: MutableScaleStep[]) => void
