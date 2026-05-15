@@ -6,7 +6,7 @@ status: planning
 last_updated: "2026-05-15T14:30:00.000Z"
 last_activity: 2026-05-15
 progress:
-  total_phases: 10
+  total_phases: 3
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-05-15)
 
 **Core value:** Your data never leaves your device — preserved across the stack migration.
-**Current focus:** Phase 1 (Foundation) — ready to plan
+**Current focus:** Phase 1 (Skeleton) — ready to plan
 
 ## Current Position
 
-Phase: 1 of 10 (Foundation)
+Phase: 1 of 3 (Skeleton)
 Plan: — (planning not started)
 Status: Ready to plan
-Last activity: 2026-05-15 — Roadmap created; 68 requirements mapped across 10 phases
+Last activity: 2026-05-15 — Roadmap consolidated from 10 → 3 phases (Skeleton / Parity / Cutover); 68 requirements remapped
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -57,7 +57,7 @@ Progress: [░░░░░░░░░░] 0%
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
-- Greenfield rewrite alongside legacy code with a single cutover at Phase 10 (not a strangler pattern)
+- Greenfield rewrite alongside legacy code with a single cutover at Phase 3 (not a strangler pattern)
 - Preserve `localStorage["relationshape.v1"]` key + v1 bundle format unchanged for zero-friction upgrade
 - Self-host DM Sans + Playfair Display to close the only remaining external-network gap
 
@@ -80,5 +80,5 @@ Items acknowledged and carried forward from previous milestone close:
 ## Session Continuity
 
 Last session: 2026-05-15 14:30
-Stopped at: Roadmap created — 10 phases, 68/68 requirements mapped
+Stopped at: Roadmap consolidated to 3 phases (Skeleton / Parity / Cutover); 68/68 requirements remapped
 Resume file: None

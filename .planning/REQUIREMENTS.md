@@ -146,80 +146,81 @@ Acknowledged but not in this milestone.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| FOUND-01 | Phase 1 | Pending |
-| FOUND-02 | Phase 1 | Pending |
-| FOUND-03 | Phase 1 | Pending |
-| FOUND-04 | Phase 1 | Pending |
-| FOUND-05 | Phase 1 | Pending |
-| FOUND-06 | Phase 1 | Pending |
-| FOUND-07 | Phase 1 | Pending |
-| CORE-01 | Phase 2 | Pending |
-| CORE-02 | Phase 2 | Pending |
-| CORE-03 | Phase 2 | Pending |
-| CORE-04 | Phase 2 | Pending |
-| CORE-05 | Phase 2 | Pending |
-| CORE-06 | Phase 2 | Pending |
-| CORE-07 | Phase 2 | Pending |
-| CORE-08 | Phase 2 | Pending |
-| DESIGN-01 | Phase 3 | Pending |
-| DESIGN-02 | Phase 3 | Pending |
-| DESIGN-03 | Phase 3 | Pending |
-| DESIGN-04 | Phase 3 | Pending |
-| DESIGN-05 | Phase 3 | Pending |
-| DESIGN-06 | Phase 3 | Pending |
-| SHELL-01 | Phase 4 | Pending |
-| SHELL-02 | Phase 4 | Pending |
-| SHELL-03 | Phase 4 | Pending |
-| SHELL-04 | Phase 4 | Pending |
-| SHELL-05 | Phase 4 | Pending |
-| SHELL-06 | Phase 4 | Pending |
-| PROFILE-01 | Phase 5 | Pending |
-| PROFILE-02 | Phase 5 | Pending |
-| PROFILE-03 | Phase 5 | Pending |
-| PROFILE-04 | Phase 5 | Pending |
-| PROFILE-05 | Phase 5 | Pending |
-| PROFILE-06 | Phase 5 | Pending |
-| PROFILE-07 | Phase 5 | Pending |
-| QUEST-01 | Phase 6 | Pending |
-| QUEST-02 | Phase 6 | Pending |
-| QUEST-03 | Phase 6 | Pending |
-| QUEST-04 | Phase 6 | Pending |
-| QUEST-05 | Phase 6 | Pending |
-| QUEST-06 | Phase 6 | Pending |
-| QUEST-07 | Phase 6 | Pending |
-| QUEST-08 | Phase 6 | Pending |
-| RESULT-01 | Phase 7 | Pending |
-| RESULT-02 | Phase 7 | Pending |
-| RESULT-03 | Phase 7 | Pending |
-| RESULT-04 | Phase 7 | Pending |
-| RESULT-05 | Phase 7 | Pending |
-| RESULT-06 | Phase 7 | Pending |
-| RESULT-07 | Phase 7 | Pending |
-| SHARE-01 | Phase 8 | Pending |
-| SHARE-02 | Phase 8 | Pending |
-| SHARE-03 | Phase 8 | Pending |
-| SHARE-04 | Phase 8 | Pending |
-| SHARE-05 | Phase 8 | Pending |
-| SHARE-06 | Phase 8 | Pending |
-| SETTINGS-01 | Phase 9 | Pending |
-| SETTINGS-02 | Phase 9 | Pending |
-| SETTINGS-03 | Phase 9 | Pending |
-| SETTINGS-04 | Phase 9 | Pending |
-| SETTINGS-05 | Phase 9 | Pending |
-| PWA-01 | Phase 10 | Pending |
-| PWA-02 | Phase 10 | Pending |
-| PWA-03 | Phase 10 | Pending |
-| PWA-04 | Phase 10 | Pending |
-| PWA-05 | Phase 10 | Pending |
-| PWA-06 | Phase 10 | Pending |
-| PWA-07 | Phase 10 | Pending |
-| PWA-08 | Phase 10 | Pending |
+| FOUND-01 | Phase 1 (Skeleton) | Pending |
+| FOUND-02 | Phase 1 (Skeleton) | Pending |
+| FOUND-03 | Phase 1 (Skeleton) | Pending |
+| FOUND-04 | Phase 1 (Skeleton) | Pending |
+| FOUND-05 | Phase 1 (Skeleton) | Pending |
+| FOUND-06 | Phase 1 (Skeleton) | Pending |
+| FOUND-07 | Phase 1 (Skeleton) | Pending |
+| CORE-01 | Phase 1 (Skeleton) | Pending |
+| CORE-02 | Phase 1 (Skeleton) | Pending |
+| CORE-03 | Phase 1 (Skeleton) | Pending |
+| CORE-04 | Phase 1 (Skeleton) | Pending |
+| CORE-05 | Phase 1 (Skeleton) | Pending |
+| CORE-06 | Phase 1 (Skeleton) | Pending |
+| CORE-07 | Phase 1 (Skeleton) | Pending |
+| CORE-08 | Phase 1 (Skeleton) | Pending |
+| DESIGN-01 | Phase 1 (Skeleton) | Pending |
+| DESIGN-02 | Phase 1 (Skeleton) | Pending |
+| DESIGN-03 | Phase 1 (Skeleton) | Pending |
+| DESIGN-04 | Phase 1 (Skeleton) | Pending |
+| DESIGN-05 | Phase 1 (Skeleton) | Pending |
+| DESIGN-06 | Phase 1 (Skeleton) | Pending |
+| SHELL-01 | Phase 2 (Parity) | Pending |
+| SHELL-02 | Phase 2 (Parity) | Pending |
+| SHELL-03 | Phase 2 (Parity) | Pending |
+| SHELL-04 | Phase 2 (Parity) | Pending |
+| SHELL-05 | Phase 2 (Parity) | Pending |
+| SHELL-06 | Phase 2 (Parity) | Pending |
+| PROFILE-01 | Phase 2 (Parity) | Pending |
+| PROFILE-02 | Phase 2 (Parity) | Pending |
+| PROFILE-03 | Phase 2 (Parity) | Pending |
+| PROFILE-04 | Phase 2 (Parity) | Pending |
+| PROFILE-05 | Phase 2 (Parity) | Pending |
+| PROFILE-06 | Phase 2 (Parity) | Pending |
+| PROFILE-07 | Phase 2 (Parity) | Pending |
+| QUEST-01 | Phase 2 (Parity) | Pending |
+| QUEST-02 | Phase 2 (Parity) | Pending |
+| QUEST-03 | Phase 2 (Parity) | Pending |
+| QUEST-04 | Phase 2 (Parity) | Pending |
+| QUEST-05 | Phase 2 (Parity) | Pending |
+| QUEST-06 | Phase 2 (Parity) | Pending |
+| QUEST-07 | Phase 2 (Parity) | Pending |
+| QUEST-08 | Phase 2 (Parity) | Pending |
+| RESULT-01 | Phase 2 (Parity) | Pending |
+| RESULT-02 | Phase 2 (Parity) | Pending |
+| RESULT-03 | Phase 2 (Parity) | Pending |
+| RESULT-04 | Phase 2 (Parity) | Pending |
+| RESULT-05 | Phase 2 (Parity) | Pending |
+| RESULT-06 | Phase 2 (Parity) | Pending |
+| RESULT-07 | Phase 2 (Parity) | Pending |
+| SHARE-01 | Phase 2 (Parity) | Pending |
+| SHARE-02 | Phase 2 (Parity) | Pending |
+| SHARE-03 | Phase 2 (Parity) | Pending |
+| SHARE-04 | Phase 2 (Parity) | Pending |
+| SHARE-05 | Phase 2 (Parity) | Pending |
+| SHARE-06 | Phase 2 (Parity) | Pending |
+| SETTINGS-01 | Phase 2 (Parity) | Pending |
+| SETTINGS-02 | Phase 2 (Parity) | Pending |
+| SETTINGS-03 | Phase 2 (Parity) | Pending |
+| SETTINGS-04 | Phase 2 (Parity) | Pending |
+| SETTINGS-05 | Phase 2 (Parity) | Pending |
+| PWA-01 | Phase 3 (Cutover) | Pending |
+| PWA-02 | Phase 3 (Cutover) | Pending |
+| PWA-03 | Phase 3 (Cutover) | Pending |
+| PWA-04 | Phase 3 (Cutover) | Pending |
+| PWA-05 | Phase 3 (Cutover) | Pending |
+| PWA-06 | Phase 3 (Cutover) | Pending |
+| PWA-07 | Phase 3 (Cutover) | Pending |
+| PWA-08 | Phase 3 (Cutover) | Pending |
 
 **Coverage:**
 - v2.0 requirements: 68 total
 - Mapped to phases: 68 (100%)
 - Unmapped: 0
+- Distribution: Phase 1 = 21 (FOUND+CORE+DESIGN), Phase 2 = 39 (SHELL+PROFILE+QUEST+RESULT+SHARE+SETTINGS), Phase 3 = 8 (PWA)
 
 ---
 *Requirements defined: 2026-05-15*
-*Last updated: 2026-05-15 after roadmap creation*
+*Last updated: 2026-05-15 — phase mapping consolidated from 10 → 3 (Skeleton / Parity / Cutover)*
