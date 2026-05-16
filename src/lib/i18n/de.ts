@@ -199,6 +199,7 @@ export const DE: Record<TranslationKey, string> = {
     'Relationshapes enthält Themen intimer und sexueller Natur. Bitte bestätige, dass du 18 Jahre oder älter bist.',
   age_gate_yes: 'Ja, ich bin 18 Jahre oder älter',
   age_gate_no: 'Nein, ich bin unter 18',
+  age_gate_stop: 'Entschuldige — diese App ist für 18+. Komm bitte zurück, wenn du älter bist.',
 
   // Result view
   result_last_edited: 'zuletzt bearbeitet',
@@ -454,4 +455,97 @@ export const DE: Record<TranslationKey, string> = {
   template_badge: 'Vorlage',
   locked_answers_badge: '🔒 Antworten gesperrt',
   btn_unlock_and_compare: 'Entsperren & vergleichen',
+
+  // Emoji picker (plan 02-03)
+  emoji_picker_label: 'Wähle ein Emoji',
+  emoji_picker_free_placeholder: 'oder gib eines ein…',
+
+  // Profile form (plan 02-03 — extras)
+  profile_notes_label: 'Notizen',
+  new_map_btn: '+ Neue Karte',
+  confirm_delete_profile_title: 'Profil löschen?',
+  confirm_delete_result_title: 'Karte löschen?',
+  confirm_delete_result: 'Das löscht die Karte und alle ihre Antworten.',
+
+  // Welcome how-to steps (plan 02-03)
+  welcome_how_title: 'So funktioniert\'s',
+  welcome_how_1: 'Erstelle ein Profil für dich.',
+  welcome_how_2: 'Starte für jede Beziehung, über die du nachdenken möchtest, eine Beziehungskarte.',
+  welcome_how_3: 'Gehe die Kategorien in deinem eigenen Tempo durch.',
+  welcome_how_4: 'Tausche optional dein verschlüsseltes Paket mit der anderen Person aus und vergleiche.',
+
+  // Feature cards for Welcome (plan 02-03)
+  feat_sharing_title: 'Teilen',
+  feat_sharing_short: 'Tausche deine Ergebnisse aus, um ins Gespräch zu kommen und Gemeinsamkeiten zu entdecken.',
+  feat_sharing_body: 'Tausche deine Ergebnisse mit deinem Gegenüber aus um ins Gespräch zu kommen, Bedürfnisse, Wünsche und Grenzen zu kommunizieren und Abmachungen zu treffen. Das grafische Übereinanderlegen mittels Netzdiagramm zeigt intuitiv, wo ihr aligned seid und wo mögliche Differenzen bestehen.',
+  feat_multi_title: 'Mehrere Profile',
+  feat_multi_short: 'Führe separate Profile für verschiedene Lebensphasen oder Personas.',
+  feat_multi_body: 'Erstelle und verwalte mehrere Profile in einer einzigen App. Jedes Profil enthält deine eigenen Antworten für einen anderen Lebenskontext oder eine Persona — alles getrennt und privat.',
+
+  // Scale picker (plan 02-04)
+  scale_picker_label: 'Antwortskala',
+  btn_clear: 'Löschen',
+
+  // Questionnaire components (plan 02-04)
+  item_note_placeholder: 'Notiz (optional)',
+  btn_hide_item: 'Diesen Punkt ausblenden',
+  q_back_to_categories: '← Kategorien',
+  q_mode_list: 'Listenmodus',
+  q_mode_single: 'Kartenmodus',
+  q_nav_see_results: 'Ergebnisse anzeigen',
+  q_add_custom: '+ Eigenen Punkt hinzufügen',
+  q_add_custom_title: 'Eigenen Punkt hinzufügen',
+  q_add_custom_placeholder: 'Name des Punkts…',
+  q_item_already_exists: 'Ein Punkt mit diesem Namen existiert bereits',
+  q_edit_item_scale: 'Skala für diesen Punkt anpassen',
+  q_edit_item_scale_warning: 'Eine neue Skala setzt die Antwort dieses Punkts zurück.',
+  q_overview_title: 'Kategorien auswählen',
+  q_overview_sub: 'Schalte die Dimensionen ein, die du für diese Person abbilden willst.',
+  q_overview_start: 'Fragebogen starten →',
+
+  // Nav / Profile picker (SHELL-03)
+  no_profiles_yet: 'Noch keine Profile — leg eines an, um zu starten.',
+  nav_close_menu: 'Menü schließen',
+  nav_open_menu: 'Menü öffnen',
+  profile_picker_create_new: '+ Neues Profil',
+  profile_picker_label: 'Profil wechseln',
+
+  // Result charts (plan 02-05)
+  result_enlarged_title: 'Karten-Übersicht',
+
+  // Share / Import / Compare — plan 02-06
+  share_sub: 'Verschlüssle diese Karte mit einer Passphrase. Der Empfänger braucht die gleiche Passphrase.',
+  share_passphrase_label: 'Passphrase',
+  share_encrypt_btn: 'Verschlüsseln',
+  share_copy_done: 'In die Zwischenablage kopiert.',
+  share_passphrase_required: 'Bitte zuerst eine Passphrase eingeben.',
+  import_sub: 'Füge ein verschlüsseltes Bündel ein oder lade eine `.rshape.txt` Datei hoch.',
+  import_btn: 'Entschlüsseln & importieren',
+  compare_too_many_truncated: 'Erste 4 von {n} Vergleichen angezeigt.',
+  compare_empty: 'Wähle mindestens zwei Karten zum Vergleichen.',
+
+  // Settings — plan 02-07 (SETTINGS-01..05)
+  settings_theme_title: 'Design',
+  settings_lang_title: 'Sprache',
+  settings_data_title: 'Datenverwaltung',
+  btn_export_backup: 'Backup exportieren (JSON)',
+  btn_import_backup: 'Backup importieren',
+  btn_clear_all_data: 'Alle Daten löschen',
+  backup_exported: 'Backup heruntergeladen.',
+  backup_imported: 'Backup importiert.',
+  backup_restore_confirm_title: 'Backup wiederherstellen?',
+  backup_restore_confirm_body: 'Das ersetzt ALLE aktuellen Daten durch den Backup-Inhalt. Das ist nicht rückgängig zu machen.',
+  cleared_all_data: 'Alle Daten gelöscht.',
+  clear_all_title: 'Alle Daten löschen?',
+  clear_all_body: 'Das löscht alle Profile, Karten, Importe und Einstellungen. Gib DELETE ein, um zu bestätigen.',
+  btn_confirm_delete: 'Alles löschen',
+  scale_step_value: 'Wert',
+  scale_step_color: 'Farbe',
+  scale_step_description: 'Beschreibung',
+  scale_step_add: '+ Schritt hinzufügen',
+  scale_step_min: 'Eine Skala braucht mindestens 2 Schritte.',
+  map_settings_subject_title: 'Thema',
+  map_settings_subject_label: 'Bezeichnung',
+  map_settings_cat_title: 'Kategorien',
+  map_settings_cat_sub: 'Schalte Kategorien nur für diese Karte ein oder aus.',
 }

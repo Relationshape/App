@@ -86,28 +86,38 @@ describe('<DesignSystem /> route (DESIGN-05, DESIGN-06)', () => {
     // /design-system via window.location.hash BEFORE mount so createHashRouter lands there.
     window.location.hash = '#/design-system'
     vi.resetModules()
-    vi.stubGlobal('localStorage', new MemoryLocalStorage())
+    const mem = new MemoryLocalStorage()
+    // Seed ageConfirmed + wizardSeen so AgeGate/WizardHost don't block the test view
+    mem.setItem(
+      'relationshape.v1',
+      JSON.stringify({
+        state: { profiles: [], results: [], imports: [], settings: { theme: 'auto', ageConfirmed: true, wizardSeen: true }, scale: [], lastSaveError: null },
+        version: 1,
+      }),
+    )
+    vi.stubGlobal('localStorage', mem)
     const appMod = await import('@/App')
     const AppRoot = appMod.default
     await act(async () => {
       render(<AppRoot />)
     })
 
-    const darkBtn = await screen.findByTestId('theme-toggle-dark')
+    // Nav + DesignSystem both render ThemeToggle; click the first occurrence.
+    const [darkBtn] = await screen.findAllByTestId('theme-toggle-dark')
     await act(async () => {
-      fireEvent.click(darkBtn)
+      fireEvent.click(darkBtn!)
     })
     expect(document.documentElement.dataset.theme).toBe('dark')
 
-    const lightBtn = await screen.findByTestId('theme-toggle-light')
+    const [lightBtn] = await screen.findAllByTestId('theme-toggle-light')
     await act(async () => {
-      fireEvent.click(lightBtn)
+      fireEvent.click(lightBtn!)
     })
     expect(document.documentElement.dataset.theme).toBe('light')
 
-    const autoBtn = await screen.findByTestId('theme-toggle-auto')
+    const [autoBtn] = await screen.findAllByTestId('theme-toggle-auto')
     await act(async () => {
-      fireEvent.click(autoBtn)
+      fireEvent.click(autoBtn!)
     })
     expect(document.documentElement.dataset.theme).toBe('auto')
   })

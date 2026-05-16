@@ -190,6 +190,7 @@ export const EN = {
     'Relationshapes contains topics of an intimate and sexual nature. Please confirm that you are 18 years of age or older.',
   age_gate_yes: 'Yes, I am 18 or older',
   age_gate_no: 'No, I am under 18',
+  age_gate_stop: 'Sorry — this app is for ages 18 and up. Please come back when you\'re older.',
 
   // Result view
   result_last_edited: 'last edited',
@@ -438,6 +439,99 @@ export const EN = {
   template_badge: 'Template',
   locked_answers_badge: '🔒 Answers locked',
   btn_unlock_and_compare: 'Unlock & compare',
+
+  // Emoji picker (plan 02-03)
+  emoji_picker_label: 'Pick an emoji',
+  emoji_picker_free_placeholder: 'or type your own…',
+
+  // Profile form (plan 02-03 — extras not already in v1.0)
+  profile_notes_label: 'Notes',
+  new_map_btn: '+ New map',
+  confirm_delete_profile_title: 'Delete profile?',
+  confirm_delete_result_title: 'Delete map?',
+  confirm_delete_result: 'This removes the map and all its answers.',
+
+  // Welcome how-to steps (plan 02-03)
+  welcome_how_title: 'How it works',
+  welcome_how_1: 'Create a profile for yourself.',
+  welcome_how_2: 'Start a relationship map for each connection you want to reflect on.',
+  welcome_how_3: 'Walk through the categories at your own pace.',
+  welcome_how_4: 'Optionally exchange your encrypted bundle with the other person and compare.',
+
+  // Feature cards for Welcome (plan 02-03 — keys matching FEATURES array keys)
+  feat_sharing_title: 'Sharing',
+  feat_sharing_short: 'Exchange your results to open conversations and find where you are aligned.',
+  feat_sharing_body: 'Exchange your results with your counterpart to start a conversation, communicate needs, wishes, and boundaries, and make agreements. Overlaying both maps on a spider chart intuitively shows where you are aligned and where differences may exist.',
+  feat_multi_title: 'Multiple Profiles',
+  feat_multi_short: 'Keep separate profiles per chapter of life or persona.',
+  feat_multi_body: 'Create and manage multiple profiles in a single app. Each profile holds your own answers for a different life context or persona — keeping everything separate and private.',
+
+  // Scale picker (plan 02-04)
+  scale_picker_label: 'Answer scale',
+  btn_clear: 'Clear',
+
+  // Questionnaire components (plan 02-04)
+  item_note_placeholder: 'Note (optional)',
+  btn_hide_item: 'Hide this item',
+  q_back_to_categories: '← Categories',
+  q_mode_list: 'List mode',
+  q_mode_single: 'Card mode',
+  q_nav_see_results: 'See results',
+  q_add_custom: '+ Add custom item',
+  q_add_custom_title: 'Add a custom item',
+  q_add_custom_placeholder: 'Item name…',
+  q_item_already_exists: 'An item with that name already exists',
+  q_edit_item_scale: 'Edit scale for this item',
+  q_edit_item_scale_warning: 'Changing the scale resets this item\'s answer.',
+  q_overview_title: 'Select categories',
+  q_overview_sub: 'Toggle on the dimensions you want to map for this person.',
+  q_overview_start: 'Start questionnaire →',
+
+  // Nav / Profile picker (SHELL-03)
+  no_profiles_yet: 'No profiles yet — create one to begin.',
+  nav_close_menu: 'Close menu',
+  nav_open_menu: 'Open menu',
+  profile_picker_create_new: '+ New profile',
+  profile_picker_label: 'Switch profile',
+
+  // Result charts (plan 02-05)
+  result_enlarged_title: 'Map overview',
+
+  // Share / Import / Compare — plan 02-06
+  share_sub: 'Encrypt this map with a passphrase. The recipient needs the same passphrase to decrypt.',
+  share_passphrase_label: 'Passphrase',
+  share_encrypt_btn: 'Encrypt',
+  share_copy_done: 'Copied to clipboard.',
+  share_passphrase_required: 'Enter a passphrase first.',
+  import_sub: 'Paste an encrypted bundle or upload a `.rshape.txt` file.',
+  import_btn: 'Decrypt and import',
+  compare_too_many_truncated: 'Showing first 4 of {n} comparisons.',
+  compare_empty: 'Pick at least two maps to compare.',
+
+  // Settings — plan 02-07 (SETTINGS-01..05)
+  settings_theme_title: 'Theme',
+  settings_lang_title: 'Language',
+  settings_data_title: 'Data management',
+  btn_export_backup: 'Export backup (JSON)',
+  btn_import_backup: 'Import backup',
+  btn_clear_all_data: 'Clear all data',
+  backup_exported: 'Backup downloaded.',
+  backup_imported: 'Backup imported.',
+  backup_restore_confirm_title: 'Restore from backup?',
+  backup_restore_confirm_body: 'This will replace ALL current data with the backup contents. This cannot be undone.',
+  cleared_all_data: 'All data cleared.',
+  clear_all_title: 'Clear all data?',
+  clear_all_body: 'This deletes every profile, map, import, and setting. Type DELETE below to confirm.',
+  btn_confirm_delete: 'Delete everything',
+  scale_step_value: 'Value',
+  scale_step_color: 'Colour',
+  scale_step_description: 'Description',
+  scale_step_add: '+ Add step',
+  scale_step_min: 'A scale needs at least 2 steps.',
+  map_settings_subject_title: 'Subject',
+  map_settings_subject_label: 'Subject label',
+  map_settings_cat_title: 'Categories',
+  map_settings_cat_sub: 'Toggle categories on or off for this map only.',
 } as const
 
 export type TranslationKey = keyof typeof EN

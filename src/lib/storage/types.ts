@@ -36,6 +36,9 @@ export interface ResultProgress {
   catIndex?: number
   flatIndex?: number
   focusItem?: string
+  // Phase 2 (D-26 deep-link). Plan 4 sets this from useParams when arriving via #/result/:id/:catId;
+  // plan 5's <Result /> reads it to scroll-into-view + open the per-category drill-down.
+  openCatId?: string
 }
 
 export interface Result {
@@ -49,6 +52,11 @@ export interface Result {
   askedItems?: Record<string, string[]>
   scale?: MutableScaleStep[]
   progress?: ResultProgress
+  // Phase 2 (D-30). v1.0 marks results seeded from a template/import so the first edit
+  // prompts a confirmation. templateWarningDisabled suppresses the dialog forever.
+  seededFromImportId?: string
+  seededFromResultId?: string
+  templateWarningDisabled?: boolean
   version?: number
   createdAt: number
   updatedAt: number
@@ -70,6 +78,10 @@ export interface Import {
   version?: number
   srcVersion?: number
   importedAt: number
+  // Share export modes (v1.0 parity, D-36 / D-37)
+  exportMode?: 'unrestricted' | 'restricted' | 'template'
+  answersUnlocked?: boolean
+  templateWarningDisabled?: boolean
 }
 
 export interface Settings {
@@ -77,6 +89,8 @@ export interface Settings {
   lang?: 'en' | 'de'
   fabiMode?: boolean
   wizardSeen?: boolean
+  // Phase 2 (PROFILE-06, D-29). Persisted age-gate confirmation; superseded the legacy `rs-age-confirmed` localStorage key.
+  ageConfirmed?: boolean
 }
 
 export interface LastSaveError {
@@ -126,6 +140,8 @@ export interface AppState extends PersistedShape {
   // Theme + lang
   setTheme: (theme: Settings['theme']) => void
   setLang: (lang: NonNullable<Settings['lang']>) => void
+  // Settings (Phase 2 extensions) — sets ageConfirmed, wizardSeen, etc. via Partial<Settings>
+  setSettings: (patch: Partial<Settings>) => void
 
   // Scale
   setScale: (scale: MutableScaleStep[]) => void

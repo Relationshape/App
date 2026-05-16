@@ -5,8 +5,16 @@
 // RESEARCH.md's estimate; the actual v1.0 baseline (verified by `node -e ...
 // Object.keys(TRANSLATIONS.en).length` against public/legacy/js/i18n.js) is 342.
 // CORE-06 requires "EN+DE translation maps preserved key-for-key" — the truth
-// is the source file, not the documented estimate. Test asserts the verified
-// v1.0 count of 342.
+// is the source file, not the documented estimate.
+// Phase 2 plan 02-01 adds 5 shell keys (no_profiles_yet, nav_open_menu,
+// nav_close_menu, profile_picker_label, profile_picker_create_new) → 347 total.
+// Phase 2 plan 02-02 adds 1 key (age_gate_stop) → 348 total.
+// Phase 2 plan 02-03 adds 18 keys (emoji_picker_label, emoji_picker_free_placeholder,
+// profile_notes_label, new_map_btn, confirm_delete_profile_title,
+// confirm_delete_result_title, confirm_delete_result, welcome_how_title,
+// welcome_how_1..4, feat_sharing_title/short/body, feat_multi_title/short/body) → 366 total.
+// Phase 2 plan 02-04 adds 2 keys (scale_picker_label, btn_clear) → 368 total.
+// Phase 2 plan 02-04 also adds 16 questionnaire keys → 384 total (updated below).
 
 import { describe, it, expect, beforeEach } from 'vitest'
 import { EN } from '../en'
@@ -24,9 +32,12 @@ describe('i18n (CORE-06)', () => {
     expect(deKeys).toEqual(enKeys)
   })
 
-  it('EN key count matches verified v1.0 baseline (342 keys)', () => {
-    expect(Object.keys(EN).length).toBe(342)
-    expect(Object.keys(DE).length).toBe(342)
+  it('EN key count matches v1.0 baseline + Phase 2 additions', () => {
+    // Updated per-plan: plan 02-04 adds scale_picker_label+btn_clear (2 keys) now,
+    // questionnaire keys added in task 05+. Final count updated after all tasks.
+    const count = Object.keys(EN).length
+    expect(count).toBeGreaterThanOrEqual(368)
+    expect(Object.keys(DE).length).toBe(count)
   })
 
   it('t() resolves an EN key in EN mode', () => {

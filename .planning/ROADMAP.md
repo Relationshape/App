@@ -14,8 +14,8 @@ The work is consolidated into three phases — **Skeleton** (toolchain + pure co
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Skeleton** - Vite + React 19 + TS + Tailwind v4 + shadcn + PWA plugin + Vitest scaffolded; pure TS port of Store / crypto / data / i18n with v1.0 fixture round-trip tests; Celestial Map design system as Tailwind tokens + self-hosted fonts + reduced-motion-guarded animations exposed via `<DesignSystem />` reference route. Skeleton works, no user-visible features yet.
-- [ ] **Phase 2: Parity** - React app shell (router covering every v1.0 hash route, providers, persistent nav, toast + dialog primitives) plus every v1.0 view ported to React with full feature parity: profile lifecycle, questionnaire (list + swipe modes), result + chart components, share / import / compare, settings. EN/DE strings preserved, encrypted bundle round-trip preserved.
+- [x] **Phase 1: Skeleton** *(completed 2026-05-15)* - Vite + React 19 + TS + Tailwind v4 + shadcn + PWA plugin + Vitest scaffolded; pure TS port of Store / crypto / data / i18n with v1.0 fixture round-trip tests; Celestial Map design system as Tailwind tokens + self-hosted fonts + reduced-motion-guarded animations exposed via `<DesignSystem />` reference route. Skeleton works, no user-visible features yet.
+- [x] **Phase 2: Parity** *(completed 2026-05-16)* - React app shell (router covering every v1.0 hash route, providers, persistent nav, toast + dialog primitives) plus every v1.0 view ported to React with full feature parity: profile lifecycle, questionnaire (list + swipe modes), result + chart components, share / import / compare, settings. EN/DE strings preserved, encrypted bundle round-trip preserved.
 - [ ] **Phase 3: Cutover** - PWA manifest + Workbox service worker, install + offline verified, v1↔v2 bundle compatibility proven, Lighthouse PWA passes, legacy `js/` + `css/` + `sw.js` removed, deploy preview smoke-walked end-to-end.
 
 ## Phase Details
@@ -60,7 +60,7 @@ Plans:
 - [ ] 01-09-PLAN.md — Phase-final verify gate + DESIGN-02 grep guard + manual eyeball checklist
 
 
-### Phase 2: Parity
+### Phase 2: Parity *(✓ Complete 2026-05-16 — 7/7 plans)*
 **Goal**: Build the React app shell (typed providers, persistent nav, full route table, hash-deep-link compatibility, shadcn-based toast + dialog primitives) and ship every v1.0 view as React components with full feature parity — profile lifecycle, questionnaire (list + swipe modes), results & charts, share/import/compare, and settings — including EN/DE strings, encrypted bundle round-trip, and accessible dialogs.
 **Depends on**: Phase 1
 **Requirements**: SHELL-01, SHELL-02, SHELL-03, SHELL-04, SHELL-05, SHELL-06, PROFILE-01, PROFILE-02, PROFILE-03, PROFILE-04, PROFILE-05, PROFILE-06, PROFILE-07, QUEST-01, QUEST-02, QUEST-03, QUEST-04, QUEST-05, QUEST-06, QUEST-07, QUEST-08, RESULT-01, RESULT-02, RESULT-03, RESULT-04, RESULT-05, RESULT-06, RESULT-07, SHARE-01, SHARE-02, SHARE-03, SHARE-04, SHARE-05, SHARE-06, SETTINGS-01, SETTINGS-02, SETTINGS-03, SETTINGS-04, SETTINGS-05
@@ -96,7 +96,14 @@ Plans:
   17. Per-map Settings can edit subject label / emoji / colour, override the scale for that map, and toggle enabled categories; saving routes through `Store.saveResult` and the result view reflects the change. Data management offers export-backup (full `relationshape.v1` JSON download), import-backup (restore from file), and "clear all data" (gated by a confirmation dialog) — all three are smoke-walked end-to-end.
   18. Every dialog and toast meets shadcn accessibility expectations: focus trap on open, ESC dismisses, correct ARIA roles, and screen-reader announcements verified manually.
 **UI hint**: yes
-**Plans**: TBD
+**Plans**:
+- [x] 02-01-PLAN.md — Router scaffold + theme/i18n providers + Nav + ProfilePicker (SHELL-01..06)
+- [x] 02-02-PLAN.md — shadcn primitives + dialog queue + hooks + AgeGate + WizardHost (PROFILE-06)
+- [x] 02-03-PLAN.md — Welcome/Home/ProfileEdit/Intro routes + EmojiPicker + ResultCard (PROFILE-01..05, PROFILE-07)
+- [x] 02-04-PLAN.md — Questionnaire (List + Single) + ScalePicker + CategoryOverview + chart math (QUEST-01..08)
+- [x] 02-05-PLAN.md — Charts (Spider/ItemSpider/CategoryBars/Alignment/EnlargedSpider) + Result route (RESULT-01..07)
+- [x] 02-06-PLAN.md — Share/Import/Compare flows + payload encoding (SHARE-01..06)
+- [x] 02-07-PLAN.md — Settings/MapSettings + ScaleEditor + DataManagement + parity smoke (SETTINGS-01..05)
 
 ### Phase 3: Cutover
 **Goal**: Ship the PWA manifest + Workbox service worker, prove v1↔v2 bundle compatibility, pass Lighthouse PWA, remove the legacy `js/` + `css/` + `sw.js`, and confirm the deployed `dist/` smoke-walks end-to-end.
@@ -117,6 +124,6 @@ Phases execute in numeric order: 1 → 2 → 3
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Skeleton | 0/9 | Not started | - |
-| 2. Parity | 0/TBD | Not started | - |
+| 1. Skeleton | 9/9 | ✓ Complete | 2026-05-15 |
+| 2. Parity | 7/7 | ✓ Complete | 2026-05-16 |
 | 3. Cutover | 0/TBD | Not started | - |
