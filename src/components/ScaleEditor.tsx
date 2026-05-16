@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import type { MutableScaleStep } from '@/lib/data/types'
 import { Button } from '@/components/ui/button'
+import { RsTile } from '@/components/RsTile'
 import { dialog } from '@/lib/dialog/dialog'
 import { t } from '@/lib/i18n/i18n'
 
@@ -67,11 +68,12 @@ export function ScaleEditor({ scale, onChange, hasData }: Props) {
   return (
     <div className="scale-editor" data-testid="scale-editor">
       {local.map((s, i) => (
-        <div
-          className="scale-row"
+        <RsTile
+          plain
           key={s.key}
-          style={{ ['--c' as 'color']: s.color } as React.CSSProperties}
-          data-testid={`scale-row-${s.key}`}
+          color={s.color}
+          className="scale-row"
+          testId={`scale-row-${s.key}`}
         >
           <span className="scale-row-rank">{local.length - i}</span>
           <input
@@ -143,7 +145,7 @@ export function ScaleEditor({ scale, onChange, hasData }: Props) {
               data-testid={`scale-remove-${s.key}`}
             >🗑</Button>
           </div>
-        </div>
+        </RsTile>
       ))}
       <Button type="button" variant="outline" onClick={addStep} data-testid="scale-add-step">
         {t('scale_step_add')}

@@ -1,50 +1,75 @@
-// RsTile — single source of truth for the "tile with colored left bar" toggle
-// pattern. Three places previously rendered the same idiom by hand:
+// RsTile — single source of truth for the "tile with colored left bar"
+// visual idiom. Three places previously rendered this idiom by hand:
 //   • CategoryOverview cat-overview-tile (questionnaire cat-on/off)
 //   • MapSettings cat-toggle              (per-map cat-on/off)
-//   • (ScaleEditor .scale-row is the same *visual* but is a data-editing row,
-//     not a toggle — it keeps the plain .scale-row class and the shared
-//     left-bar CSS rule in legacy-components.css.)
+//   • ScaleEditor scale-row               (data-editing row of inputs)
 //
-// The component renders a <button type="button"> with `aria-pressed` driving
-// a visible active/inactive state (full opacity vs .55 dim, plus colored vs
-// neutral border). The per-row "category color" is provided by the consumer
-// via the `color` prop and surfaces as the CSS variable --c.
+// Two modes:
 //
-// Layout slots:
-//   icon       — left, single visual element (emoji, lucide icon)
-//   title      — primary label (header row, alongside `trailing`)
-//   trailing   — small right-side adornment in the header row (✓ / count)
-//   children   — extras below the header row (e.g. progress bar)
+//   1. Toggle (default) — renders as <button type="button"> with
+//      aria-pressed driving the visible active/inactive state (full
+//      opacity vs .55 dim, plus colored vs neutral border on the
+//      three non-left sides). Layout: icon | (title + trailing) /
+//      children below. Required props: `active`, `onClick`.
+//
+//   2. Plain — renders as <div>. No toggle behaviour. The consumer
+//      passes a layout className (e.g. `.scale-row`) and provides its
+//      own children. RsTile only supplies the visual frame + colored
+//      left bar. Activated via `plain` prop.
+//
+// In both modes the per-row "category color" comes from the `color`
+// prop and surfaces as the CSS variable --c on the root element.
 
 import type { CSSProperties, ReactNode } from 'react'
 import { cn } from '@/lib/utils'
 
-export interface RsTileProps {
+interface RsTileBaseProps {
   color: string
+  className?: string
+  testId?: string
+  children?: ReactNode
+}
+
+interface RsTileToggleProps extends RsTileBaseProps {
+  plain?: false
   active: boolean
   onClick: () => void
   icon?: ReactNode
   title?: ReactNode
   trailing?: ReactNode
-  children?: ReactNode
-  className?: string
   ariaLabel?: string
-  testId?: string
 }
 
-export function RsTile({
-  color,
-  active,
-  onClick,
-  icon,
-  title,
-  trailing,
-  children,
-  className,
-  ariaLabel,
-  testId,
-}: RsTileProps) {
+interface RsTilePlainProps extends RsTileBaseProps {
+  plain: true
+  /** Plain mode has no toggle state; these are intentionally absent. */
+  active?: never
+  onClick?: never
+  icon?: never
+  title?: never
+  trailing?: never
+  ariaLabel?: never
+}
+
+export type RsTileProps = RsTileToggleProps | RsTilePlainProps
+
+export function RsTile(props: RsTileProps) {
+  const { color, className, testId, children } = props
+  const style = { ['--c' as 'color']: color } as CSSProperties
+
+  if (props.plain === true) {
+    return (
+      <div
+        data-testid={testId}
+        style={style}
+        className={cn('rs-tile', className)}
+      >
+        {children}
+      </div>
+    )
+  }
+
+  const { active, onClick, icon, title, trailing, ariaLabel } = props
   const hasHead = title != null || trailing != null
   return (
     <button
@@ -54,7 +79,7 @@ export function RsTile({
       aria-label={ariaLabel}
       onClick={onClick}
       data-testid={testId}
-      style={{ ['--c' as 'color']: color } as CSSProperties}
+      style={style}
       className={cn('rs-tile', className)}
     >
       {icon != null ? (

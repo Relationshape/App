@@ -909,15 +909,15 @@ a:hover { text-decoration: underline; }
   text-transform: uppercase;
 }
 .scale-legend-header span:nth-child(2) { text-align: center; }
+/* Scale-row layout: 6-column grid for the editing inputs.
+   Visual frame (background, border, border-radius, left bar) comes
+   from the .rs-tile class applied by <RsTile plain> in ScaleEditor. */
 .scale-row {
   display: grid;
   grid-template-columns: 26px 36px minmax(80px, 1.5fr) minmax(80px, 1fr) 64px auto;
   grid-template-rows: auto auto;
   column-gap: 8px; row-gap: 6px;
   align-items: center;
-  background: var(--glass);
-  border: 1px solid var(--glass-border);
-  border-radius: 12px;
   padding: 8px 10px;
 }
 .scale-row-rank    { grid-row: 1; grid-column: 1; font-weight: 700; color: var(--c); text-align: center; }
@@ -3023,40 +3023,50 @@ body::after {
 }
 
 /* ================================================================
-   RsTile component — toggle-style "tile with colored left bar".
-   Single source of truth for the two cat-tile grids (CategoryOverview
-   + MapSettings). aria-pressed / data-state="active" drives the visible
-   selected vs. unselected state — full opacity + colored border when
-   active, dim + neutral border when inactive.
+   RsTile component — "tile with colored left bar" visual idiom.
+
+   Used by:
+     • <RsTile> default (toggle)  → <button> on CategoryOverview + MapSettings
+     • <RsTile plain>             → <div>    on ScaleEditor (.scale-row)
+
+   `.rs-tile` provides the visual frame (background + border + radius)
+   that *all* call sites share. The toggle-specific behaviour — icon+body
+   grid, padding, cursor, dim-when-inactive — is scoped to `button.rs-tile`
+   so plain <div> instances are free to provide their own layout via a
+   sibling className (e.g. `.scale-row` adds its 6-column input grid).
 
    NOTE: the `border:` shorthand below resets all four sides including
-   border-left, so the shared 5px left-bar rule (see the next block) is
-   declared *after* this one to win the cascade. Do not move it back up.
+   border-left, so the shared 5px left-bar rule (last block in this file)
+   is declared *after* this one to win the cascade. Do not move it back up.
    ================================================================ */
 .rs-tile {
   background: var(--glass);
   border: 1px solid var(--glass-border);
   border-radius: 12px;
+  font: inherit;
+  color: var(--text);
+}
+
+button.rs-tile {
   padding: 10px 12px;
   display: grid;
   grid-template-columns: auto 1fr;
   gap: 10px;
   align-items: center;
   cursor: pointer;
-  font: inherit;
-  color: var(--text);
   text-align: left;
   opacity: 0.55;
   transition: opacity .15s ease, border-color .15s ease, transform .15s ease, box-shadow .15s ease;
 }
-.rs-tile[data-state="active"] {
+button.rs-tile[data-state="active"] {
   opacity: 1;
   border-color: var(--c);
 }
-.rs-tile:hover {
+button.rs-tile:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 16px rgba(0,0,0,.25);
 }
+
 .rs-tile-icon { font-size: 22px; line-height: 1; }
 .rs-tile-body { display: grid; gap: 5px; min-width: 0; }
 .rs-tile-head {
@@ -3069,15 +3079,14 @@ body::after {
 /* ================================================================
    Shared left-bar tile foundation
    ----------------------------------------------------------------
-   .scale-row and .rs-tile render the same visual idiom: a tile with a
-   5px colored strip on the left indicating a per-row "category color"
-   via var(--c). var(--c) is typically set inline by the consuming React
-   component via `style={{ '--c': cat.color }}`.
+   The 5px colored strip on the left is the unifying signature across
+   every RsTile usage (both toggle and plain). var(--c) is set inline
+   by the consuming React component via `style={{ '--c': cat.color }}`,
+   defaulting to --primary if the consumer forgets.
    Declared *last* in the file so it wins the cascade against the
-   per-tile `border` shorthand declarations above (which would otherwise
+   per-tile `border:` shorthand declarations above (which would otherwise
    reset border-left to 1px --glass-border).
    ================================================================ */
-.scale-row,
 .rs-tile {
   --c: var(--primary);
   border-left: 5px solid var(--c);
