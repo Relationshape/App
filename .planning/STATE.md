@@ -5,7 +5,7 @@ milestone_name: React + Tailwind + shadcn/ui Migration
 status: ready_to_plan
 stopped_at: Phase 2 planned — all 7 PLAN.md files committed; plan-checker round-2 PASSED
 last_updated: "2026-05-15T20:57:54.113Z"
-last_activity: 2026-05-16 -- Completed quick task 260516-ex7: Polish compare page styling + fix oversized text in spider modal
+last_activity: 2026-05-16 -- Completed quick task 260516-tile: Extract RsTile component + fix invisible aria-pressed state on cat tile grid
 progress:
   total_phases: 3
   completed_phases: 2
@@ -84,6 +84,7 @@ None yet. (Note: Router choice — TanStack Router vs React Router v7 — is a P
 | 260516-fast-lang | Settings keeps segmented LangToggle; navbar reverts to dropdown via new RsLangDropdown | 2026-05-16 | 0935d65 | *(fast — no directory)* |
 | 260516-fast-legacy-buttons | Theme + Lang + Data buttons restyled to legacy theme-picker / btn / btn-danger-ghost with icon labels (theme_auto/light/dark, btn_backup/restore/erase) | 2026-05-16 | b1bdd7a | *(fast — no directory)* |
 | 260516-h5w | Port legacy /profile: Profile pill links to / (legacy parity, no new route); ResultCard rewritten as .list-item with Continue/View/Share/Delete; Home gains Templates section; fmtDate/countAnswers helpers | 2026-05-16 | 3b43f81 | [260516-h5w-port-legacy-profile-route-and-profiledet](./quick/260516-h5w-port-legacy-profile-route-and-profiledet/) |
+| 260516-tile | Extract RsTile component from cat-toggle / cat-overview-tile; fix invisible aria-pressed state on questionnaire cat grid (opacity .55 ↔ 1 + colored border on active) | 2026-05-16 | 8cbbc7b | [260516-tile-rs-tile-active-state-component](./quick/260516-tile-rs-tile-active-state-component/) |
 
 ## Deferred Items
 
