@@ -1,13 +1,16 @@
 // QUEST-01. Port of public/legacy/js/app.js:1622-1690.
-// Category overview tile grid — toggle enabled categories + start questionnaire.
+// Category overview tile grid for the active enabledCategories list. Tile click
+// jumps into the questionnaire at that category (legacy behaviour); category
+// selection is managed through the modal RsCategoryPicker (quick task 260516-qva).
 
-import { useEffect } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useStore } from '@/lib/storage/store'
 import { CATEGORIES } from '@/lib/data/data'
 import { catProgress } from '@/lib/charts/math'
 import { Button } from '@/components/ui/button'
 import { RsTile } from '@/components/RsTile'
+import { RsCategoryPicker } from '@/components/RsCategoryPicker'
 import { t, getLang } from '@/lib/i18n/i18n'
 
 export function CategoryOverview() {
@@ -17,6 +20,7 @@ export function CategoryOverview() {
   const allResults = useStore((s) => s.results)
   const saveResult = useStore((s) => s.saveResult)
   const lang = getLang()
+  const [pickerOpen, setPickerOpen] = useState(false)
 
   const profile = profileId ? profiles.find((p) => p.id === profileId) ?? null : null
   const result = allResults.find((r) => r.id === resultId) ?? null
@@ -50,17 +54,33 @@ export function CategoryOverview() {
     if (profile && !result && resultId !== 'new') navigate(`/profile/${profile.id}`)
   }, [result, resultId, profile, navigate])
 
+  const enabledIds = useMemo(
+    () => result?.enabledCategories ?? CATEGORIES.map((c) => c.id),
+    [result?.enabledCategories],
+  )
+  const enabledCats = useMemo(
+    () =>
+      enabledIds
+        .map((id) => CATEGORIES.find((c) => c.id === id))
+        .filter((c): c is NonNullable<typeof c> => Boolean(c)),
+    [enabledIds],
+  )
+
   if (!profile) return null
   if (resultId === 'new') return null
   if (!result) return null
 
-  const enabled = new Set(result.enabledCategories ?? CATEGORIES.map((c) => c.id))
+  function openCategory(catId: string) {
+    const idx = enabledCats.findIndex((c) => c.id === catId)
+    saveResult({
+      ...result!,
+      progress: { ...(result!.progress ?? { mode: 'list' }), catIndex: idx >= 0 ? idx : 0 },
+    })
+    navigate(`/q/${profile!.id}/${result!.id}`)
+  }
 
-  function toggle(catId: string) {
-    const nextSet = new Set(enabled)
-    if (nextSet.has(catId)) nextSet.delete(catId)
-    else nextSet.add(catId)
-    saveResult({ ...result!, enabledCategories: Array.from(nextSet) })
+  function onPickerSubmit(mergedIds: string[]) {
+    saveResult({ ...result!, enabledCategories: mergedIds })
   }
 
   return (
@@ -70,17 +90,16 @@ export function CategoryOverview() {
         <p className="muted">{t('q_overview_sub')}</p>
       </header>
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3" data-testid="cat-grid">
-        {CATEGORIES.map((cat) => {
+        {enabledCats.map((cat) => {
           const { answered, total } = catProgress(result.answers, cat.id)
           const pct = total > 0 ? Math.round((answered / total) * 100) : 0
-          const isOn = enabled.has(cat.id)
           const catTitle = lang === 'de' && cat.de ? cat.de : cat.title
           return (
             <RsTile
               key={cat.id}
               color={cat.color}
-              active={isOn}
-              onClick={() => toggle(cat.id)}
+              active
+              onClick={() => openCategory(cat.id)}
               testId={`cat-tile-${cat.id}`}
               icon={<span className="text-2xl">{cat.icon}</span>}
               title={catTitle}
@@ -93,11 +112,25 @@ export function CategoryOverview() {
           )
         })}
       </div>
-      <div className="mt-6 flex justify-end">
+      <div className="mt-6 flex justify-end gap-2">
+        <Button
+          type="button"
+          variant="ghost"
+          onClick={() => setPickerOpen(true)}
+          data-testid="open-cat-picker"
+        >
+          {t('btn_add_categories')}
+        </Button>
         <Button asChild data-testid="confirm-start-questionnaire">
           <a href={`#/q/${profile.id}/${result.id}`}>{t('q_overview_start')}</a>
         </Button>
       </div>
+      <RsCategoryPicker
+        open={pickerOpen}
+        onOpenChange={setPickerOpen}
+        existingIds={enabledIds}
+        onSubmit={onPickerSubmit}
+      />
     </section>
   )
 }

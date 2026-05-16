@@ -5,7 +5,7 @@ milestone_name: React + Tailwind + shadcn/ui Migration
 status: ready_to_plan
 stopped_at: Phase 2 planned — all 7 PLAN.md files committed; plan-checker round-2 PASSED
 last_updated: "2026-05-15T20:57:54.113Z"
-last_activity: 2026-05-16 -- Completed quick task 260516-tile: Extract RsTile component + fix invisible aria-pressed state on cat tile grid
+last_activity: 2026-05-16 -- Completed quick task 260516-qva: Replace q-categories tile-toggle with legacy-parity Add-more-categories picker modal
 progress:
   total_phases: 3
   completed_phases: 2
@@ -86,6 +86,7 @@ None yet. (Note: Router choice — TanStack Router vs React Router v7 — is a P
 | 260516-h5w | Port legacy /profile: Profile pill links to / (legacy parity, no new route); ResultCard rewritten as .list-item with Continue/View/Share/Delete; Home gains Templates section; fmtDate/countAnswers helpers | 2026-05-16 | 3b43f81 | [260516-h5w-port-legacy-profile-route-and-profiledet](./quick/260516-h5w-port-legacy-profile-route-and-profiledet/) |
 | 260516-tile | Extract RsTile component from cat-toggle / cat-overview-tile; fix invisible aria-pressed state on questionnaire cat grid (opacity .55 ↔ 1 + colored border on active) | 2026-05-16 | 8cbbc7b | [260516-tile-rs-tile-active-state-component](./quick/260516-tile-rs-tile-active-state-component/) |
 | 260516-okg | Questionnaire scale: continuous gradient bar (legacy parity) — crosshair cursor, click/drag anywhere, snapped key + continuous `scaleFrac` persisted, reset button | 2026-05-16 | 0801a0b | [260516-continuous-scale-bar](./quick/260516-continuous-scale-bar/) |
+| 260516-qva | `/q-categories` route: filter tiles to enabled-only, replace tile-toggle with legacy-parity “Add more categories” picker modal (RsCategoryPicker); tile click now seeds `progress.catIndex` and opens the questionnaire | 2026-05-16 | 6a2eb36 | [260516-qva-fix-q-categories-route-replace-toggle-al](./quick/260516-qva-fix-q-categories-route-replace-toggle-al/) |
 
 ## Deferred Items
 
