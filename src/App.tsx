@@ -11,11 +11,11 @@ import { I18nProvider } from './components/providers/I18nProvider'
 
 export default function App() {
   useTheme()
-  useLang()
+  const { lang } = useLang()
   return (
     <ThemeProvider>
       <I18nProvider>
-        <RouterProvider router={router} />
+        <RouterProvider key={lang} router={router} />
       </I18nProvider>
     </ThemeProvider>
   )
