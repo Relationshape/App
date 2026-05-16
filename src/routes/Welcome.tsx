@@ -5,6 +5,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useStore } from '@/lib/storage/store'
 import { dialog } from '@/lib/dialog/dialog'
 import { t } from '@/lib/i18n/i18n'
+import { RsHeroConstellation } from '@/components/RsHeroConstellation'
 
 // ─── Feature highlight icons (26×26, viewBox 24×24, stroke="currentColor") ───
 // Verbatim port of public/legacy/js/app.js ICONS.feat_* (lines 80-83), with
@@ -139,6 +140,7 @@ export function Welcome() {
       <div className="hero">
         <div className="hero-blob" />
         <div className="hero-blob hero-blob-holo" />
+        <RsHeroConstellation />
         <h1 className="hero-title">{t('welcome_title')}</h1>
         <p className="hero-sub">{t('welcome_sub')}</p>
         <div className="hero-actions">
