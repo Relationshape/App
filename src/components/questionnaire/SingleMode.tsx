@@ -1,6 +1,8 @@
-// QUEST-03, QUEST-04 partial. Port of public/legacy/js/app.js:2450-2700.
+// QUEST-03, QUEST-04 partial. Port of public/legacy/js/app.js:2450-2698.
 // Single-card questionnaire view, filtered to the active category
-// (driven by progress.catIndex) — legacy parity (quick task 260516-rm2).
+// (driven by progress.catIndex). Hero-card layout for legacy parity
+// (.q-card / .q-card-cat / .q-card-item / .q-card-slider / .q-card-note /
+// .q-card-actions / .q-card-progress). Quick task 260516-w94.
 
 import { useReducer, useMemo, useState } from 'react'
 import { useStore } from '@/lib/storage/store'
@@ -13,13 +15,12 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
+import { ScalePicker } from '@/components/ScalePicker'
 import { QuestionnaireHeader } from './QuestionnaireHeader'
 import { QuestionnaireNav } from './QuestionnaireNav'
-import { RsQuestionCard } from './RsQuestionCard'
-import { RsScaleLegend } from './RsScaleLegend'
 import { enabledItemsForCat, type FlatItem } from '@/lib/charts/items'
 import { CATEGORIES } from '@/lib/data/data'
-import type { Result, Profile } from '@/lib/storage/types'
+import type { Result, Profile, AnswerCell } from '@/lib/storage/types'
 import { t, getLang } from '@/lib/i18n/i18n'
 
 type Dir = 'left' | 'right'
@@ -112,11 +113,61 @@ export function SingleMode({ result, profile }: Props) {
   }
   if (!cur) return null
 
-  const cell = cur.isCustom
+  const cell: AnswerCell | undefined = cur.isCustom
     ? result.answers[cur.catId]?.__custom?.[cur.item]
     : result.answers[cur.catId]?.[cur.item]
   const catTitle = lang === 'de' && cat.de ? cat.de : cat.title
-  const catBlurb = lang === 'de' && cat.deBlurb ? cat.deBlurb : cat.blurb
+
+  async function setScaleKey(key: string, frac: number) {
+    if (!cur) return
+    if (!(await confirmIfTemplate())) return
+    const next = structuredClone(result)
+    const slot = next.answers[cur.catId] ?? {}
+    if (cur.isCustom) {
+      const customs = slot.__custom ?? {}
+      customs[cur.item] = { ...(customs[cur.item] ?? {}), scale: key, scaleFrac: frac } as AnswerCell
+      slot.__custom = customs
+    } else {
+      slot[cur.item] = { ...(slot[cur.item] ?? {}), scale: key, scaleFrac: frac } as AnswerCell
+    }
+    next.answers[cur.catId] = slot
+    saveResult(next)
+  }
+
+  async function clearAnswer() {
+    if (!cur) return
+    if (!(await confirmIfTemplate())) return
+    const next = structuredClone(result)
+    const slot = next.answers[cur.catId] ?? {}
+    if (cur.isCustom) {
+      const customs = { ...(slot.__custom ?? {}) }
+      delete customs[cur.item]
+      slot.__custom = customs
+    } else {
+      delete slot[cur.item]
+    }
+    next.answers[cur.catId] = slot
+    saveResult(next)
+  }
+
+  async function setNoteValue(value: string) {
+    if (!cur) return
+    if (value === (cell?.note ?? '')) return
+    if (!(await confirmIfTemplate())) return
+    const next = structuredClone(result)
+    const slot = next.answers[cur.catId] ?? {}
+    if (cur.isCustom) {
+      const customs = slot.__custom ?? {}
+      customs[cur.item] = { ...(customs[cur.item] ?? { scale: 'open' }), note: value } as AnswerCell
+      slot.__custom = customs
+    } else {
+      slot[cur.item] = { ...(slot[cur.item] ?? { scale: 'open' }), note: value } as AnswerCell
+    }
+    next.answers[cur.catId] = slot
+    saveResult(next)
+  }
+
+  const cardStyle = { ['--c' as string]: cat.color } as React.CSSProperties
 
   return (
     <div data-testid="single-mode" className="flex flex-col min-h-screen">
@@ -127,60 +178,84 @@ export function SingleMode({ result, profile }: Props) {
         idx={state.cursor}
         total={items.length}
       />
-      <main className="mx-auto w-full max-w-[640px] px-4 py-3 relative">
-        <div className="q-cat-head mb-3" style={{ ['--c' as string]: cat.color } as React.CSSProperties}>
-          <span className="q-cat-icon" aria-hidden>{cat.icon}</span>
-          <div>
-            <h1>{catTitle}</h1>
-            <p className="muted">{catBlurb}</p>
-          </div>
-        </div>
-        <RsScaleLegend scale={scale} />
-        {peekNext && !reduced && (
-          <div className="card peek" aria-hidden data-testid="single-peek" style={{ opacity: 0.5 }}>
-            <h3>{peekNext.item}</h3>
-          </div>
-        )}
-        <div
-          className="card single-card relative"
-          data-state={reduced ? undefined : `entering-${state.dir}`}
-          data-testid="single-card"
-          {...bind()}
-          style={{ touchAction: 'pan-y', position: 'relative' }}
-        >
-          <div className="q-card-progress" data-testid="single-progress">
-            {state.cursor + 1} / {items.length}
-          </div>
-          <RsQuestionCard
-            result={result}
-            catId={cur.catId}
-            item={cur.item}
-            isCustom={cur.isCustom}
-            cell={cell}
-            scale={scale}
-            onBeforeMutate={confirmIfTemplate}
-            onEditItemScale={() => setEditScaleOpen(true)}
-            variant="single"
-          />
-          <div className="q-card-actions mt-3">
-            <Button
-              variant="ghost"
-              disabled={state.cursor === 0}
-              onClick={() => { void advance(-1, 'right') }}
-              data-testid="single-back"
+      <section className="page q-page q-single-page mx-auto w-full">
+        <p className="q-nav-hint muted small">
+          {coarse ? t('q_single_hint_mobile') : t('q_single_hint_desktop')}
+        </p>
+        <div className="q-stack">
+          {peekNext && !reduced && (
+            <article
+              className="q-card is-peek"
+              aria-hidden
+              data-testid="single-peek"
+              style={cardStyle}
             >
-              {t('btn_previous')}
-            </Button>
-            <Button
-              onClick={() => { void advance(+1, 'left') }}
-              data-testid="single-next"
-            >
-              {t('btn_next')}
-            </Button>
-          </div>
-          <p className="text-text-muted small mt-2">
-            {coarse ? t('q_single_hint_mobile') : t('q_single_hint_desktop')}
-          </p>
+              <div className="q-card-cat">
+                <span className="q-card-icon" aria-hidden>{cat.icon}</span>
+                <span>{catTitle}</span>
+              </div>
+              <h1 className="q-card-item">{peekNext.item}</h1>
+            </article>
+          )}
+          <article
+            className="q-card in single-card"
+            data-state={reduced ? undefined : `entering-${state.dir}`}
+            data-testid="single-card"
+            style={{ ...cardStyle, touchAction: 'pan-y' } as React.CSSProperties}
+            {...bind()}
+          >
+            <div className="q-card-cat">
+              <span className="q-card-icon" aria-hidden>{cat.icon}</span>
+              <span>{catTitle}</span>
+              {cur.isCustom && <span className="q-item-tag">{t('custom_tag')}</span>}
+              <Button
+                variant="ghost"
+                size="sm"
+                className="item-scale-btn"
+                onClick={() => setEditScaleOpen(true)}
+                data-testid={`item-edit-scale-${cur.catId}-${cur.item}`}
+              >
+                {t('item_edit_scale')}
+              </Button>
+            </div>
+            <h1 className="q-card-item">{cur.item}</h1>
+            <div className="q-card-slider">
+              <ScalePicker
+                scale={scale}
+                value={cell?.scale ?? null}
+                valueFrac={cell?.scaleFrac ?? null}
+                onChange={setScaleKey}
+                onClear={clearAnswer}
+              />
+            </div>
+            <input
+              type="text"
+              className="q-card-note"
+              placeholder={t('note_placeholder')}
+              defaultValue={cell?.note ?? ''}
+              onBlur={(e) => { void setNoteValue(e.currentTarget.value) }}
+              data-testid={`single-note-${cur.catId}-${cur.item}`}
+            />
+            <div className="q-card-actions">
+              <Button
+                variant="ghost"
+                disabled={state.cursor === 0}
+                onClick={() => { void advance(-1, 'right') }}
+                data-testid="single-back"
+              >
+                {t('btn_previous')}
+              </Button>
+              <Button
+                onClick={() => { void advance(+1, 'left') }}
+                data-testid="single-next"
+              >
+                {t('btn_next')}
+              </Button>
+            </div>
+            <div className="q-card-progress" data-testid="single-progress">
+              {state.cursor + 1} / {items.length}
+            </div>
+          </article>
         </div>
         {editScaleOpen && (
           <Dialog open={true} onOpenChange={setEditScaleOpen}>
@@ -195,7 +270,7 @@ export function SingleMode({ result, profile }: Props) {
             </DialogContent>
           </Dialog>
         )}
-      </main>
+      </section>
       <QuestionnaireNav result={result} profileId={profile.id} activeCat={cat} />
     </div>
   )

@@ -74,18 +74,25 @@ async function renderSingleMode(result: Result, profile: Profile) {
 describe('<SingleMode />', () => {
   afterEach(() => { cleanup() })
 
-  it('renders the current item\'s name + ScalePicker + nav header', async () => {
+  it('renders the current item as a hero h1.q-card-item + ScalePicker + nav header', async () => {
     const { mockReduced } = await getMocks()
     mockReduced.mockReturnValue(false)
     const result = makeResult()
     await renderSingleMode(result, makeProfile())
     expect(screen.getByTestId('single-mode')).toBeTruthy()
-    expect(screen.getByTestId('single-card')).toBeTruthy()
+    const card = screen.getByTestId('single-card')
+    expect(card.classList.contains('q-card')).toBe(true)
     expect(screen.getByTestId('q-back-to-categories')).toBeTruthy()
     expect(screen.queryByTestId('scale-step-open')).not.toBeNull()
-    const card = screen.getByTestId('single-card')
-    // The card body is an RsQuestionCard with the item name as <strong>
-    expect(card.querySelector('strong')?.textContent).toBeTruthy()
+    // Legacy parity: item name lives in <h1 class="q-card-item">
+    const h1 = card.querySelector('h1.q-card-item')
+    expect(h1).not.toBeNull()
+    expect(h1?.textContent ?? '').toBeTruthy()
+    // Note is a single-line <input type="text"> with class .q-card-note
+    const note = card.querySelector<HTMLInputElement>('input.q-card-note[type="text"]')
+    expect(note).not.toBeNull()
+    // Cat header is INSIDE the card, not a sibling
+    expect(card.querySelector('.q-card-cat')).not.toBeNull()
   })
 
   it('with progress.catIndex=1 the rendered item belongs to the SECOND category', async () => {
@@ -98,10 +105,10 @@ describe('<SingleMode />', () => {
     await renderSingleMode(result, makeProfile())
     const firstItemOfCat2 = CAT2.items[0]!
     const card = screen.getByTestId('single-card')
-    const strong = card.querySelector('strong')?.textContent ?? ''
-    expect(strong).toBe(firstItemOfCat2)
+    const title = card.querySelector('h1.q-card-item')?.textContent ?? ''
+    expect(title).toBe(firstItemOfCat2)
     // First category's first item is NOT shown in the card body
-    expect(strong).not.toBe(CAT.items[0]!)
+    expect(title).not.toBe(CAT.items[0]!)
   })
 
   it('renders single-back + single-next + n/total counter; clicking Next advances flatIndex', async () => {
