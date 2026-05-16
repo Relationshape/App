@@ -91,6 +91,8 @@
   --accent:           var(--color-accent);
   --green:            var(--color-green);
   --red:              var(--color-red);
+  --red-soft:         color-mix(in oklab, var(--color-red) 18%, transparent);
+  --red-soft-hover:   color-mix(in oklab, var(--color-red) 30%, transparent);
   --glass:            var(--color-glass);
   --glass-border:     var(--color-glass-border);
   --glow:             var(--shadow-glow);
