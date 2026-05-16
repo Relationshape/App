@@ -47,6 +47,54 @@
   /* Radii */
   --radius:    18px;
   --radius-lg: 28px;
+
+  /* shadcn semantic tokens — vendored primitives (Dialog/Popover/Sheet/Tabs/AlertDialog) reference
+   * `bg-popover`, `bg-card`, `bg-background`, `text-foreground`, `border-input`, `ring-ring`, etc.
+   * Without these the primitives render with transparent backgrounds. Map each to the closest
+   * Celestial Map token so the elevation feels right (popover/card = surface; bg = bg).
+   */
+  --color-background:            var(--color-bg);
+  --color-foreground:            var(--color-text);
+  --color-card:                  var(--color-surface);
+  --color-card-foreground:       var(--color-text);
+  --color-popover:               var(--color-surface);
+  --color-popover-foreground:    var(--color-text);
+  --color-primary-foreground:    #ffffff;
+  --color-secondary:             var(--color-surface-2);
+  --color-secondary-foreground:  var(--color-text);
+  --color-muted-foreground:      var(--color-muted);
+  --color-accent-foreground:     #ffffff;
+  --color-destructive:           var(--color-red);
+  --color-destructive-foreground: #ffffff;
+  --color-border:                var(--color-line);
+  --color-input:                 var(--color-surface-2);
+  --color-ring:                  var(--color-primary);
+}
+
+/* Legacy-name aliases — bridge un-prefixed v1.0 variables to the Tailwind v4 `--color-*` namespace.
+ * The legacy component stylesheet (src/styles/legacy-components.css) references `var(--bg)`,
+ * `var(--primary)`, etc.; these aliases make those references resolve without a 3000-line rewrite.
+ * Aliases live at :root so they pick up theme-switching automatically (they reference the prefixed
+ * vars, which switch via [data-theme=light]/dark/auto).
+ */
+:root {
+  --bg:               var(--color-bg);
+  --bg-2:             var(--color-bg-2);
+  --surface:          var(--color-surface);
+  --surface-2:        var(--color-surface-2);
+  --surface-3:        var(--color-surface-3);
+  --text:             var(--color-text);
+  --muted:            var(--color-muted);
+  --line:             var(--color-line);
+  --primary:          var(--color-primary);
+  --primary-strong:   var(--color-primary-strong);
+  --accent:           var(--color-accent);
+  --green:            var(--color-green);
+  --red:              var(--color-red);
+  --glass:            var(--color-glass);
+  --glass-border:     var(--color-glass-border);
+  --glow:             var(--shadow-glow);
+  --glow-sm:          var(--shadow-glow-sm);
 }
 
 /* Light theme override — applied via [data-theme="light"] selector on <html> (D-19) */
