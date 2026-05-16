@@ -81,6 +81,7 @@ None yet. (Note: Router choice — TanStack Router vs React Router v7 — is a P
 | 260516-f7f | Welcome page: add icons to top 4 boxes, style How it works section, fix translations to match legacy | 2026-05-16 | 4f13821 | [260516-f7f-welcome-page-add-icons-to-top-4-boxes-st](./quick/260516-f7f-welcome-page-add-icons-to-top-4-boxes-st/) |
 | 260516-fj5 | Settings page legacy parity: restore Anzeigemodi → Fabi-Modus toggle card + section-head wrappers + legacy section ordering | 2026-05-16 | 4d14d46 | [260516-fj5-ensure-the-new-settings-page-has-the-sam](./quick/260516-fj5-ensure-the-new-settings-page-has-the-sam/) |
 | 260516-ex7 | Polish compare page styling to match legacy app (cat-grid + chip toggles) + fix oversized text in spider diagram modal | 2026-05-16 | a5ca512 | [260516-ex7-polish-compare-page-styling-to-match-leg](./quick/260516-ex7-polish-compare-page-styling-to-match-leg/) |
+| 260516-fast-lang | Settings keeps segmented LangToggle; navbar reverts to dropdown via new RsLangDropdown | 2026-05-16 | 0935d65 | *(fast — no directory)* |
 
 ## Deferred Items
 
