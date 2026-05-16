@@ -82,6 +82,8 @@ export interface Import {
   // Share export modes (v1.0 parity, D-36 / D-37)
   exportMode?: 'unrestricted' | 'restricted' | 'template'
   answersUnlocked?: boolean
+  /** Restricted export: AES-armored answers blob, unlocked with a second passphrase. */
+  lockedAnswers?: string
   templateWarningDisabled?: boolean
 }
 

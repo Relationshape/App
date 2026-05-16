@@ -7,6 +7,7 @@ import { decryptResult } from '@/lib/crypto/crypto'
 import { parseImportPayload, payloadToImport } from '@/lib/share/payload'
 import { dialog } from '@/lib/dialog/dialog'
 import { useToast } from '@/lib/hooks/useToast'
+import { useShareData } from '@/components/providers/ShareDataProvider'
 import { t } from '@/lib/i18n/i18n'
 
 function uid(): string {
@@ -22,6 +23,7 @@ export function Import() {
   const profiles = useStore((s) => s.profiles)
   const results = useStore((s) => s.results)
   const { toast } = useToast()
+  const { openShare } = useShareData()
   const [blob, setBlob] = useState('')
   const [pass, setPass] = useState('')
   const [busy, setBusy] = useState(false)
@@ -130,7 +132,7 @@ export function Import() {
                 </span>
                 <Button
                   variant="ghost"
-                  onClick={() => navigate(`/share/${r.id}`)}
+                  onClick={() => openShare(r.id)}
                   data-testid={`export-share-${r.id}`}
                 >
                   {t('btn_share')}

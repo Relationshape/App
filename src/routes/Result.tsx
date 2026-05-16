@@ -11,6 +11,7 @@ import { EnlargedSpider } from '@/components/charts/EnlargedSpider'
 import { Button } from '@/components/ui/button'
 import { dialog } from '@/lib/dialog/dialog'
 import { CATEGORIES } from '@/lib/data/data'
+import { useShareData } from '@/components/providers/ShareDataProvider'
 import { t } from '@/lib/i18n/i18n'
 
 export function Result() {
@@ -19,6 +20,7 @@ export function Result() {
   const result = useStore((s) => (id ? s.results.find((r) => r.id === id) ?? null : null))
   const profile = useStore((s) => (result ? s.profiles.find((p) => p.id === result.profileId) ?? null : null))
   const deleteResult = useStore((s) => s.deleteResult)
+  const { openShare } = useShareData()
 
   // Initialize activeAxis from catId (deep-link support, QUEST-06)
   const [activeAxis, setActiveAxis] = useState<string | null>(catId ?? null)
@@ -72,8 +74,8 @@ export function Result() {
         <Button asChild data-testid="result-edit">
           <Link to={`/q/${profile.id}/${result.id}`}>{t('btn_continue_editing')}</Link>
         </Button>
-        <Button asChild variant="outline" data-testid="result-share">
-          <Link to={`/share/${result.id}`}>{t('btn_share')}</Link>
+        <Button variant="outline" onClick={() => openShare(result.id)} data-testid="result-share">
+          {t('btn_share')}
         </Button>
         <Button asChild variant="outline" data-testid="result-settings">
           <Link to={`/map/${result.id}/settings`}>{t('btn_map_settings')}</Link>

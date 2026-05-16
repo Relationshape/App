@@ -8,6 +8,7 @@ import type { Result, Profile } from '@/lib/storage/types'
 import { useStore } from '@/lib/storage/store'
 import { dialog } from '@/lib/dialog/dialog'
 import { fmtDate, countAnswers } from '@/lib/format/date'
+import { useShareData } from '@/components/providers/ShareDataProvider'
 import { t } from '@/lib/i18n/i18n'
 
 export function ResultCard({ result, profile }: { result: Result; profile: Profile }) {
@@ -16,6 +17,7 @@ export function ResultCard({ result, profile }: { result: Result; profile: Profi
     (result.subject || 'Untitled') + ((result.version ?? 1) > 1 ? ` (v${result.version})` : '')
   const deleteResult = useStore((s) => s.deleteResult)
   const navigate = useNavigate()
+  const { openShare } = useShareData()
 
   async function onDelete() {
     const ok = await dialog<boolean>({
@@ -62,7 +64,7 @@ export function ResultCard({ result, profile }: { result: Result; profile: Profi
         <button
           type="button"
           className="btn"
-          onClick={() => navigate(`/share/${result.id}`)}
+          onClick={() => openShare(result.id)}
           data-testid={`result-share-${result.id}`}
         >
           {t('btn_share')}

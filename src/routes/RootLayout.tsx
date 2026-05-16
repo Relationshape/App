@@ -6,6 +6,7 @@ import { Toaster } from '@/components/ui/sonner'
 import { DialogHost } from '@/components/DialogHost'
 import { AgeGate } from '@/components/AgeGate'
 import { WizardHost } from '@/components/WizardHost'
+import { ShareDataProvider } from '@/components/providers/ShareDataProvider'
 import { useScrollToTop } from '@/hooks/useScrollToTop'
 import { useStore } from '@/lib/storage/store'
 import { useToast } from '@/lib/hooks/useToast'
@@ -22,7 +23,7 @@ export function RootLayout() {
   }, [lastSaveError, toast, clearLastSaveError])
 
   return (
-    <>
+    <ShareDataProvider>
       <Toaster richColors position="bottom-center" duration={1900} />
       <Nav />
       <main id="app" className="min-h-screen">
@@ -31,6 +32,6 @@ export function RootLayout() {
       <DialogHost />
       <AgeGate />
       <WizardHost />
-    </>
+    </ShareDataProvider>
   )
 }
