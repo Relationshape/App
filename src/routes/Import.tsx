@@ -19,10 +19,16 @@ function uid(): string {
 export function Import() {
   const navigate = useNavigate()
   const saveImport = useStore((s) => s.saveImport)
+  const profiles = useStore((s) => s.profiles)
+  const results = useStore((s) => s.results)
   const { toast } = useToast()
   const [blob, setBlob] = useState('')
   const [pass, setPass] = useState('')
   const [busy, setBusy] = useState(false)
+
+  const exportGroups = profiles
+    .map((p) => ({ profile: p, results: results.filter((r) => r.profileId === p.id) }))
+    .filter((g) => g.results.length > 0)
 
   async function onFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -105,6 +111,37 @@ export function Import() {
           {busy ? '…' : t('import_btn')}
         </Button>
       </form>
+
+      <hr className="section-divider" />
+      <h2>{t('import_section2_title')}</h2>
+      <p className="muted">{t('import_section2_text')}</p>
+      {exportGroups.length > 0 ? (
+        <div className="export-results-list" data-testid="export-results-list">
+          {exportGroups.flatMap(({ profile, results: pResults }) => [
+            <div key={`head-${profile.id}`} className="export-profile-head">
+              <span className="export-profile-avatar">{profile.emoji}</span>
+              <strong>{profile.name}</strong>
+            </div>,
+            ...pResults.map((r) => (
+              <div key={r.id} className="export-result-row" data-testid={`export-row-${r.id}`}>
+                <span>
+                  {(r.subjectEmoji || '💞') + ' ' + (r.subject ?? '')}
+                  {(r.version ?? 1) > 1 ? ` (v${r.version})` : ''}
+                </span>
+                <Button
+                  variant="ghost"
+                  onClick={() => navigate(`/share/${r.id}`)}
+                  data-testid={`export-share-${r.id}`}
+                >
+                  {t('btn_share')}
+                </Button>
+              </div>
+            )),
+          ])}
+        </div>
+      ) : (
+        <p className="muted small">{t('import_no_results')}</p>
+      )}
     </section>
   )
 }
