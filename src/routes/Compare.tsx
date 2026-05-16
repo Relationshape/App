@@ -10,6 +10,7 @@ import { useStore } from '@/lib/storage/store'
 import { Spider } from '@/components/charts/Spider'
 import { Alignment } from '@/components/charts/Alignment'
 import { CategoryModal } from '@/components/charts/CategoryModal'
+import { RsTile } from '@/components/RsTile'
 import { mapResultToDataset, mapImportToDataset } from '@/lib/charts/datasets'
 import { CATEGORIES } from '@/lib/data/data'
 import { useToast } from '@/lib/hooks/useToast'
@@ -153,23 +154,19 @@ export function Compare() {
               out of scope for this quick task — multi-screen flow tracked separately. */}
           <div className="cat-grid">
             {CATEGORIES.map((cat) => (
-              <button
+              <RsTile
                 key={cat.id}
-                type="button"
-                className="cat-card cat-card-btn"
-                style={{ ['--c' as 'color']: cat.color } as React.CSSProperties}
+                color={cat.color}
+                active
                 onClick={() => setModalCat(cat)}
-                data-testid={`compare-cat-card-${cat.id}`}
+                testId={`compare-cat-card-${cat.id}`}
+                icon={<span className="text-2xl">{cat.icon}</span>}
+                title={catTitle(cat)}
+                trailing={<span aria-hidden>→</span>}
+                ariaLabel={catTitle(cat)}
               >
-                <div className="cat-card-head">
-                  <div className="cat-card-icon">{cat.icon}</div>
-                  <div className="cat-card-titles">
-                    <h3>{catTitle(cat)}</h3>
-                    <p className="muted small">{catBlurb(cat)}</p>
-                  </div>
-                  <span className="cat-card-toggle" aria-hidden="true">→</span>
-                </div>
-              </button>
+                <p className="muted small">{catBlurb(cat)}</p>
+              </RsTile>
             ))}
           </div>
         </section>
