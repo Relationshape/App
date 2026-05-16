@@ -1,31 +1,54 @@
-// Sticky header for ListMode/SingleMode. Mode toggle + back-to-overview.
+// Sticky header for ListMode/SingleMode. Ghost back button + segmented
+// emoji-labelled mode toggle (legacy q-mode-switch styling).
 
 import { Link } from 'react-router-dom'
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Button } from '@/components/ui/button'
 import type { Result } from '@/lib/storage/types'
 import { useStore } from '@/lib/storage/store'
 import { t } from '@/lib/i18n/i18n'
+import { cn } from '@/lib/utils'
 
 interface Props { result: Result; profileId: string }
 
 export function QuestionnaireHeader({ result, profileId }: Props) {
   const saveResult = useStore((s) => s.saveResult)
   const mode = result.progress?.mode ?? 'list'
+
+  function setMode(next: 'list' | 'single') {
+    saveResult({ ...result, progress: { ...result.progress, mode: next } })
+  }
+
   return (
-    <header className="q-header sticky top-0 z-10 bg-surface border-b border-line px-4 py-2 flex items-center gap-3">
-      <Link to={`/q-categories/${profileId}/${result.id}`} data-testid="q-back-to-categories">
-        {t('q_back_to_categories')}
-      </Link>
-      <Tabs
-        value={mode}
-        onValueChange={(v) => saveResult({ ...result, progress: { ...result.progress, mode: v as 'list' | 'single' } })}
-        data-testid="q-mode-tabs"
-      >
-        <TabsList>
-          <TabsTrigger value="list" data-testid="q-mode-list">{t('q_mode_list')}</TabsTrigger>
-          <TabsTrigger value="single" data-testid="q-mode-single">{t('q_mode_single')}</TabsTrigger>
-        </TabsList>
-      </Tabs>
+    <header className="q-header sticky top-0 z-10 bg-surface border-b border-line">
+      <div className="mx-auto w-full max-w-[920px] px-4 py-2 flex items-center gap-3 flex-wrap">
+        <Button asChild variant="ghost" size="sm" data-testid="q-back-to-categories">
+          <Link to={`/q-categories/${profileId}/${result.id}`}>
+            {t('q_back_to_categories')}
+          </Link>
+        </Button>
+        <div
+          role="group"
+          aria-label={t('q_mode_list') + ' / ' + t('q_mode_single')}
+          className="q-mode-switch ml-auto"
+          data-testid="q-mode-tabs"
+        >
+          {(['list', 'single'] as const).map((m) => {
+            const on = mode === m
+            return (
+              <button
+                key={m}
+                type="button"
+                className={cn('btn', on && 'is-active')}
+                aria-pressed={on}
+                onClick={() => setMode(m)}
+                data-testid={`q-mode-${m}`}
+              >
+                {t(m === 'list' ? 'q_mode_list' : 'q_mode_single')}
+              </button>
+            )
+          })}
+        </div>
+      </div>
     </header>
   )
 }

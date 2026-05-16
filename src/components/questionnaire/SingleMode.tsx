@@ -124,7 +124,7 @@ export function SingleMode({ result, profile }: Props) {
   return (
     <div data-testid="single-mode" className="flex flex-col min-h-screen">
       <QuestionnaireHeader result={result} profileId={profile.id} />
-      <main className="px-4 py-3 relative">
+      <main className="mx-auto w-full max-w-[560px] px-4 py-3 relative">
         {peekNext && !reduced && (
           <div className="card peek" aria-hidden data-testid="single-peek" style={{ opacity: 0.5 }}>
             <h3>{peekNext.item}</h3>

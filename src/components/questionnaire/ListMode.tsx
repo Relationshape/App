@@ -77,7 +77,7 @@ export function ListMode({ result, profile }: Props) {
   return (
     <div data-testid="list-mode" className="flex flex-col">
       <QuestionnaireHeader result={result} profileId={profile.id} />
-      <main className="px-4 py-3">
+      <main className="mx-auto w-full max-w-[920px] px-4 py-3">
         {enabledCats.map((cat) => {
           const { base, custom } = enabledItemsForCat(result.answers, cat.id)
           const catTitle = lang === 'de' && cat.de ? cat.de : cat.title
