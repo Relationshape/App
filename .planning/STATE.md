@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-05-15)
 Phase: 3
 Plan: Not started
 Status: Ready to plan
-Last activity: 2026-05-16
+Last activity: 2026-05-16 - Completed quick task 260516-f7f: Welcome page legacy parity (icons + how-it-works)
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -78,6 +78,7 @@ None yet. (Note: Router choice — TanStack Router vs React Router v7 — is a P
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
 | 260516-eqn | Move light/dark toggle out of menu bar; compact LangToggle as segmented button | 2026-05-16 | f6c89c8 | [260516-eqn-move-light-dark-toggle-from-menu-bar-to-](./quick/260516-eqn-move-light-dark-toggle-from-menu-bar-to-/) |
+| 260516-f7f | Welcome page: add icons to top 4 boxes, style How it works section, fix translations to match legacy | 2026-05-16 | 4f13821 | [260516-f7f-welcome-page-add-icons-to-top-4-boxes-st](./quick/260516-f7f-welcome-page-add-icons-to-top-4-boxes-st/) |
 
 ## Deferred Items
 
