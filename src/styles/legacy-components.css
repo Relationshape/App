@@ -1315,6 +1315,38 @@ a:hover { text-decoration: underline; }
 .theme-pick.is-on { background: linear-gradient(135deg, var(--primary), var(--accent)); color: white; border-color: transparent; }
 
 /* ================================================================
+   RsSegmented — joined segmented control (Settings: theme + lang)
+   ================================================================ */
+.rs-segmented {
+  display: inline-flex;
+  padding: 4px;
+  gap: 2px;
+  background: var(--surface-2);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  flex-wrap: wrap;
+}
+.rs-segmented-item {
+  background: transparent;
+  border: 0;
+  color: var(--muted);
+  padding: 6px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font: inherit;
+  font-size: 13.5px;
+  transition: background .15s ease, color .15s ease;
+}
+.rs-segmented-item:hover:not(.is-on) {
+  background: color-mix(in oklab, var(--surface-3) 60%, transparent);
+  color: var(--text);
+}
+.rs-segmented-item.is-on {
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  color: white;
+}
+
+/* ================================================================
    Cat card as button + modal
    ================================================================ */
 .cat-card.cat-card-btn { text-align: left; font: inherit; color: var(--text); cursor: pointer; padding: 0; }
