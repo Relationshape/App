@@ -3,7 +3,7 @@ import { NavLink, useLocation } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet'
 import { ProfilePicker } from './ProfilePicker'
-import { LangToggle } from './LangToggle'
+import { RsLangDropdown } from './RsLangDropdown'
 import { t } from '@/lib/i18n/i18n'
 
 export function Nav() {
@@ -18,7 +18,7 @@ export function Nav() {
       <NavLink to="/compare" data-testid="nav-link-compare">{t('nav_compare')}</NavLink>
       <NavLink to="/settings" data-testid="nav-link-settings">{t('nav_settings')}</NavLink>
       <NavLink to="/intro" data-testid="nav-link-about">{t('nav_about')}</NavLink>
-      <LangToggle />
+      <RsLangDropdown />
     </>
   )
 
