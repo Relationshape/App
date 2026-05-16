@@ -77,7 +77,7 @@ None yet. (Note: Router choice — TanStack Router vs React Router v7 — is a P
 
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
-| 260516-eqn | Move light/dark toggle out of menu bar; compact LangToggle as segmented button | 2026-05-16 | _pending_ | [260516-eqn-move-light-dark-toggle-from-menu-bar-to-](./quick/260516-eqn-move-light-dark-toggle-from-menu-bar-to-/) |
+| 260516-eqn | Move light/dark toggle out of menu bar; compact LangToggle as segmented button | 2026-05-16 | f6c89c8 | [260516-eqn-move-light-dark-toggle-from-menu-bar-to-](./quick/260516-eqn-move-light-dark-toggle-from-menu-bar-to-/) |
 
 ## Deferred Items
 
