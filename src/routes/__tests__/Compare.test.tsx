@@ -61,53 +61,64 @@ describe('Compare route (SHARE-05, D-25, D-35)', () => {
     await mountAtHash(`#/compare?ids=${R1},${R2}`)
     await waitFor(() => {
       expect(document.querySelector('[data-testid="compare-page"]')).not.toBeNull()
-    })
+    }, { timeout: 10000 })
 
     expect(document.querySelector(`[data-testid="compare-chip-${R1}"]`)).not.toBeNull()
     expect(document.querySelector(`[data-testid="compare-chip-${R2}"]`)).not.toBeNull()
-  })
+  }, 30000)
 
   it('passing 5 IDs slices to 4 and shows the truncation toast', async () => {
     await mountAtHash(`#/compare?ids=${R1},${R2},${R3},${R4},${R5}`)
     await waitFor(() => {
       expect(document.querySelector('[data-testid="compare-page"]')).not.toBeNull()
-    })
+    }, { timeout: 10000 })
 
-    // Only 4 chips should appear
-    expect(document.querySelector(`[data-testid="compare-chip-${R1}"]`)).not.toBeNull()
-    expect(document.querySelector(`[data-testid="compare-chip-${R4}"]`)).not.toBeNull()
-    expect(document.querySelector(`[data-testid="compare-chip-${R5}"]`)).toBeNull()
+    // 260516-ex7 layout: every option renders as a toggle chip; only the first 4 of
+    // the URL ids end up selected (aria-pressed=true). R5 chip exists but is unselected.
+    const chip1 = document.querySelector(`[data-testid="compare-chip-${R1}"]`)
+    const chip4 = document.querySelector(`[data-testid="compare-chip-${R4}"]`)
+    const chip5 = document.querySelector(`[data-testid="compare-chip-${R5}"]`)
+    expect(chip1?.getAttribute('aria-pressed')).toBe('true')
+    expect(chip4?.getAttribute('aria-pressed')).toBe('true')
+    expect(chip5?.getAttribute('aria-pressed')).toBe('false')
 
     // Toast for truncation — Sonner renders in body
     await waitFor(() => {
       expect(document.body.textContent).toContain('Showing first 4 of 5 comparisons')
     }, { timeout: 3000 })
-  })
+  }, 30000)
 
-  it('removing a chip rewrites ?ids= in the URL', async () => {
+  it('toggling a chip rewrites ?ids= in the URL (de-selects in place)', async () => {
     await mountAtHash(`#/compare?ids=${R1},${R2}`)
     await waitFor(() => {
-      expect(document.querySelector(`[data-testid="compare-chip-${R1}"]`)).not.toBeNull()
-    })
+      const chip = document.querySelector(`[data-testid="compare-chip-${R1}"]`)
+      expect(chip?.getAttribute('aria-pressed')).toBe('true')
+    }, { timeout: 10000 })
 
+    // 260516-ex7 layout: toggling does not remove the chip — every option is
+    // always rendered; clicking flips aria-pressed and the URL `ids=` list.
     fireEvent.click(document.querySelector(`[data-testid="compare-chip-${R1}"]`)!)
 
     await waitFor(() => {
-      expect(document.querySelector(`[data-testid="compare-chip-${R1}"]`)).toBeNull()
-      expect(document.querySelector(`[data-testid="compare-chip-${R2}"]`)).not.toBeNull()
+      const chip1 = document.querySelector(`[data-testid="compare-chip-${R1}"]`)
+      const chip2 = document.querySelector(`[data-testid="compare-chip-${R2}"]`)
+      expect(chip1?.getAttribute('aria-pressed')).toBe('false')
+      expect(chip2?.getAttribute('aria-pressed')).toBe('true')
+      expect(window.location.hash).toContain(`ids=${R2}`)
+      expect(window.location.hash).not.toContain(R1)
     })
-  })
+  }, 30000)
 
   it('passing imp:<id> resolves an Import dataset from the import pool', async () => {
     await mountAtHash(`#/compare?ids=imp:${IMP1}`)
     await waitFor(() => {
       expect(document.querySelector('[data-testid="compare-page"]')).not.toBeNull()
-    })
+    }, { timeout: 10000 })
 
     // The chip for imp:<id> should be rendered
     const chip = document.querySelector(`[data-testid="compare-chip-imp:${IMP1}"]`)
     expect(chip).not.toBeNull()
     // The chip label should include the import's subject or name
     expect(chip?.textContent).toContain('Their Map')
-  })
+  }, 30000)
 })

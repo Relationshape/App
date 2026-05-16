@@ -225,6 +225,8 @@ export const EN = {
   alignment_title: 'Alignment overview',
   cat_details_title: 'Category details',
   cat_details_sub: 'Each card opens a radar chart of the items inside it.',
+  compare_fabi_tip:
+    'Tip: Enable "Fabi mode" in Settings to see a category overview spider chart here. Or pick a category below to compare item by item.',
 
   // New card scale dialog
   new_card_scale_title: 'Scale for this map',

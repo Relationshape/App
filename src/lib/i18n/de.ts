@@ -237,6 +237,8 @@ export const DE: Record<TranslationKey, string> = {
   alignment_title: 'Übereinstimmungsübersicht',
   cat_details_title: 'Kategorie-Details',
   cat_details_sub: 'Jede Karte öffnet ein Netzdiagramm der enthaltenen Elemente.',
+  compare_fabi_tip:
+    'Tipp: Aktiviere den „Fabi-Modus" in den Einstellungen für ein Übersichts-Spinnendiagramm. Wähle unten eine Kategorie für einen detaillierten Item-Vergleich.',
 
   // New card scale dialog
   new_card_scale_title: 'Skala für diese Karte',
