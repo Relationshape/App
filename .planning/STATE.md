@@ -85,7 +85,7 @@ None yet. (Note: Router choice — TanStack Router vs React Router v7 — is a P
 | 260516-fast-legacy-buttons | Theme + Lang + Data buttons restyled to legacy theme-picker / btn / btn-danger-ghost with icon labels (theme_auto/light/dark, btn_backup/restore/erase) | 2026-05-16 | b1bdd7a | *(fast — no directory)* |
 | 260516-h5w | Port legacy /profile: Profile pill links to / (legacy parity, no new route); ResultCard rewritten as .list-item with Continue/View/Share/Delete; Home gains Templates section; fmtDate/countAnswers helpers | 2026-05-16 | 3b43f81 | [260516-h5w-port-legacy-profile-route-and-profiledet](./quick/260516-h5w-port-legacy-profile-route-and-profiledet/) |
 | 260516-tile | Extract RsTile component from cat-toggle / cat-overview-tile; fix invisible aria-pressed state on questionnaire cat grid (opacity .55 ↔ 1 + colored border on active) | 2026-05-16 | 8cbbc7b | [260516-tile-rs-tile-active-state-component](./quick/260516-tile-rs-tile-active-state-component/) |
-| 260516-okg | Questionnaire scale: continuous gradient bar (legacy parity) — crosshair cursor, click/drag anywhere, snapped key + continuous `scaleFrac` persisted, reset button | 2026-05-16 | f144390 | [260516-continuous-scale-bar](./quick/260516-continuous-scale-bar/) |
+| 260516-okg | Questionnaire scale: continuous gradient bar (legacy parity) — crosshair cursor, click/drag anywhere, snapped key + continuous `scaleFrac` persisted, reset button | 2026-05-16 | 0801a0b | [260516-continuous-scale-bar](./quick/260516-continuous-scale-bar/) |
 
 ## Deferred Items
 
