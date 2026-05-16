@@ -1,5 +1,6 @@
-// QUEST-03, QUEST-04 partial. Port of public/legacy/js/app.js:2450-2700. Pattern 8 in 02-RESEARCH.md.
-// Single-card swipe-mode questionnaire view.
+// QUEST-03, QUEST-04 partial. Port of public/legacy/js/app.js:2450-2700.
+// Single-card questionnaire view, filtered to the active category
+// (driven by progress.catIndex) — legacy parity (quick task 260516-rm2).
 
 import { useReducer, useMemo, useState } from 'react'
 import { useStore } from '@/lib/storage/store'
@@ -8,17 +9,18 @@ import { useSwipe } from '@/lib/hooks/useSwipe'
 import { useKeydown } from '@/lib/hooks/useKeydown'
 import { useReducedMotion } from '@/lib/hooks/useReducedMotion'
 import { useIsCoarsePointer } from '@/lib/hooks/useIsCoarsePointer'
-import { ScalePicker } from '@/components/ScalePicker'
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { QuestionnaireHeader } from './QuestionnaireHeader'
 import { QuestionnaireNav } from './QuestionnaireNav'
-import { flatItemsForResult } from '@/lib/charts/items'
+import { RsQuestionCard } from './RsQuestionCard'
+import { RsScaleLegend } from './RsScaleLegend'
+import { enabledItemsForCat, type FlatItem } from '@/lib/charts/items'
 import { CATEGORIES } from '@/lib/data/data'
 import type { Result, Profile } from '@/lib/storage/types'
-import { t } from '@/lib/i18n/i18n'
+import { t, getLang } from '@/lib/i18n/i18n'
 
 type Dir = 'left' | 'right'
 interface State { cursor: number; dir: Dir }
@@ -40,7 +42,26 @@ export function SingleMode({ result, profile }: Props) {
   const { confirmIfTemplate } = useTemplateWarning(result)
   const reduced = useReducedMotion()
   const coarse = useIsCoarsePointer()
-  const items = useMemo(() => flatItemsForResult(result), [result])
+  const lang = getLang()
+
+  const enabledCats = useMemo(() => (
+    (result.enabledCategories ?? CATEGORIES.map((c) => c.id))
+      .map((cid) => CATEGORIES.find((c) => c.id === cid))
+      .filter((c): c is NonNullable<typeof c> => Boolean(c))
+  ), [result.enabledCategories])
+
+  const safeIdx = Math.min(Math.max(0, result.progress?.catIndex ?? 0), Math.max(0, enabledCats.length - 1))
+  const cat = enabledCats[safeIdx]
+
+  const items = useMemo<FlatItem[]>(() => {
+    if (!cat) return []
+    const { base, custom } = enabledItemsForCat(result.answers, cat.id)
+    return [
+      ...base.map((item) => ({ catId: cat.id, item, isCustom: false })),
+      ...custom.map((item) => ({ catId: cat.id, item, isCustom: true })),
+    ]
+  }, [cat, result.answers])
+
   const initial = result.progress?.flatIndex ?? 0
   const [state, dispatch] = useReducer(reducer, { cursor: initial, dir: 'right' as Dir })
   const [editScaleOpen, setEditScaleOpen] = useState(false)
@@ -51,7 +72,6 @@ export function SingleMode({ result, profile }: Props) {
 
   async function advance(delta: 1 | -1, dir: Dir) {
     if (!await confirmIfTemplate()) return
-    // Persist progress
     const newCursor = Math.max(0, Math.min(items.length, state.cursor + delta))
     saveResult({ ...result, progress: { ...result.progress, mode: 'single', flatIndex: newCursor } })
     if (delta > 0) dispatch({ type: 'next', dir })
@@ -67,86 +87,97 @@ export function SingleMode({ result, profile }: Props) {
   const keyHandlers = useMemo(() => ({
     ArrowRight: () => { void advance(+1, 'right') },
     ArrowLeft: () => { void advance(-1, 'left') },
-    ' ': () => { void advance(+1, 'left') },  // skip
+    ' ': () => { void advance(+1, 'left') },
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }), [state.cursor, result, items])
 
   useKeydown(keyHandlers, !isDone)
 
-  async function setAnswer(key: string, frac: number) {
-    if (!cur) return
-    if (!await confirmIfTemplate()) return
-    const next = structuredClone(result)
-    const slot = next.answers[cur.catId] ?? {}
-    if (cur.isCustom) {
-      const customs = slot.__custom ?? {}
-      customs[cur.item] = { ...(customs[cur.item] ?? {}), scale: key, scaleFrac: frac }
-      slot.__custom = customs
-    } else {
-      slot[cur.item] = { ...(slot[cur.item] ?? {}), scale: key, scaleFrac: frac }
-    }
-    next.answers[cur.catId] = slot
-    saveResult(next)
-  }
-
-  async function clearAnswer() {
-    if (!cur) return
-    if (!await confirmIfTemplate()) return
-    const next = structuredClone(result)
-    const slot = next.answers[cur.catId] ?? {}
-    if (cur.isCustom) {
-      const customs = { ...(slot.__custom ?? {}) }
-      delete customs[cur.item]
-      slot.__custom = customs
-    } else {
-      delete slot[cur.item]
-    }
-    next.answers[cur.catId] = slot
-    saveResult(next)
+  if (!cat) {
+    return (
+      <div data-testid="single-mode-empty" className="p-8 text-center">
+        <p className="muted">{t('q_done_title')}</p>
+        <QuestionnaireNav result={result} profileId={profile.id} />
+      </div>
+    )
   }
 
   if (isDone) {
     return (
       <div data-testid="single-mode-done" className="p-8 text-center">
         <h2>{t('q_done_title')}</h2>
-        <QuestionnaireNav result={result} profileId={profile.id} />
+        <QuestionnaireNav result={result} profileId={profile.id} activeCat={cat} />
       </div>
     )
   }
   if (!cur) return null
-  const cat = CATEGORIES.find((c) => c.id === cur.catId)
+
   const cell = cur.isCustom
     ? result.answers[cur.catId]?.__custom?.[cur.item]
     : result.answers[cur.catId]?.[cur.item]
+  const catTitle = lang === 'de' && cat.de ? cat.de : cat.title
+  const catBlurb = lang === 'de' && cat.deBlurb ? cat.deBlurb : cat.blurb
 
   return (
     <div data-testid="single-mode" className="flex flex-col min-h-screen">
-      <QuestionnaireHeader result={result} profileId={profile.id} />
-      <main className="mx-auto w-full max-w-[560px] px-4 py-3 relative">
+      <QuestionnaireHeader
+        result={result}
+        profileId={profile.id}
+        activeCat={cat}
+        idx={state.cursor}
+        total={items.length}
+      />
+      <main className="mx-auto w-full max-w-[640px] px-4 py-3 relative">
+        <div className="q-cat-head mb-3" style={{ ['--c' as string]: cat.color } as React.CSSProperties}>
+          <span className="q-cat-icon" aria-hidden>{cat.icon}</span>
+          <div>
+            <h1>{catTitle}</h1>
+            <p className="muted">{catBlurb}</p>
+          </div>
+        </div>
+        <RsScaleLegend scale={scale} />
         {peekNext && !reduced && (
           <div className="card peek" aria-hidden data-testid="single-peek" style={{ opacity: 0.5 }}>
             <h3>{peekNext.item}</h3>
           </div>
         )}
         <div
-          className="card single-card"
+          className="card single-card relative"
           data-state={reduced ? undefined : `entering-${state.dir}`}
           data-testid="single-card"
           {...bind()}
-          style={{ touchAction: 'pan-y' }}
+          style={{ touchAction: 'pan-y', position: 'relative' }}
         >
-          <div className="muted small">{cat?.icon} {cat?.title}</div>
-          <h1>{cur.item}</h1>
-          <ScalePicker
+          <div className="q-card-progress" data-testid="single-progress">
+            {state.cursor + 1} / {items.length}
+          </div>
+          <RsQuestionCard
+            result={result}
+            catId={cur.catId}
+            item={cur.item}
+            isCustom={cur.isCustom}
+            cell={cell}
             scale={scale}
-            value={cell?.scale ?? null}
-            valueFrac={cell?.scaleFrac ?? null}
-            onChange={setAnswer}
-            onClear={clearAnswer}
+            onBeforeMutate={confirmIfTemplate}
+            onEditItemScale={() => setEditScaleOpen(true)}
+            variant="single"
           />
-          <Button variant="ghost" onClick={() => setEditScaleOpen(true)} data-testid="single-edit-scale">
-            {t('q_edit_item_scale')}
-          </Button>
+          <div className="q-card-actions mt-3">
+            <Button
+              variant="ghost"
+              disabled={state.cursor === 0}
+              onClick={() => { void advance(-1, 'right') }}
+              data-testid="single-back"
+            >
+              {t('btn_previous')}
+            </Button>
+            <Button
+              onClick={() => { void advance(+1, 'left') }}
+              data-testid="single-next"
+            >
+              {t('btn_next')}
+            </Button>
+          </div>
           <p className="text-text-muted small mt-2">
             {coarse ? t('q_single_hint_mobile') : t('q_single_hint_desktop')}
           </p>
@@ -158,7 +189,6 @@ export function SingleMode({ result, profile }: Props) {
                 <DialogTitle>{t('q_edit_item_scale')}</DialogTitle>
               </DialogHeader>
               <p className="muted">{t('q_edit_item_scale_warning')}</p>
-              {/* Future: per-item scale override editor (D-33). v1.0 shows a scale editor inline. */}
               <DialogFooter>
                 <Button variant="ghost" onClick={() => setEditScaleOpen(false)}>{t('btn_cancel')}</Button>
               </DialogFooter>
@@ -166,7 +196,7 @@ export function SingleMode({ result, profile }: Props) {
           </Dialog>
         )}
       </main>
-      <QuestionnaireNav result={result} profileId={profile.id} />
+      <QuestionnaireNav result={result} profileId={profile.id} activeCat={cat} />
     </div>
   )
 }

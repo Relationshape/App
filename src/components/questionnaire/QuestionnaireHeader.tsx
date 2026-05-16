@@ -1,22 +1,41 @@
-// Sticky header for ListMode/SingleMode. Ghost back button + segmented
-// emoji-labelled mode toggle (legacy q-mode-switch styling).
+// Sticky header for ListMode/SingleMode. Ghost ← Categories button,
+// optional active-category pip (emoji + title), segmented List/Single
+// mode toggle, and a 📊 Results shortcut (legacy parity).
 
 import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import type { Result } from '@/lib/storage/types'
 import { useStore } from '@/lib/storage/store'
-import { t } from '@/lib/i18n/i18n'
+import { t, getLang } from '@/lib/i18n/i18n'
 import { cn } from '@/lib/utils'
+import type { CATEGORIES } from '@/lib/data/data'
 
-interface Props { result: Result; profileId: string }
+type Category = (typeof CATEGORIES)[number]
 
-export function QuestionnaireHeader({ result, profileId }: Props) {
+interface Props {
+  result: Result
+  profileId: string
+  activeCat?: Category
+  idx?: number
+  total?: number
+}
+
+export function QuestionnaireHeader({ result, profileId, activeCat }: Props) {
   const saveResult = useStore((s) => s.saveResult)
   const mode = result.progress?.mode ?? 'list'
+  const lang = getLang()
 
   function setMode(next: 'list' | 'single') {
     saveResult({ ...result, progress: { ...result.progress, mode: next } })
   }
+
+  const catTitle = activeCat
+    ? (lang === 'de' && activeCat.de ? activeCat.de : activeCat.title)
+    : null
+
+  const resultsHref = activeCat
+    ? `/result/${result.id}/${activeCat.id}`
+    : `/result/${result.id}`
 
   return (
     <header className="q-header sticky top-0 z-10 bg-surface border-b border-line">
@@ -26,6 +45,15 @@ export function QuestionnaireHeader({ result, profileId }: Props) {
             {t('q_back_to_categories')}
           </Link>
         </Button>
+        {activeCat && (
+          <span
+            className="q-cat-pip"
+            style={{ ['--c' as string]: activeCat.color } as React.CSSProperties}
+            data-testid="q-active-cat-pip"
+          >
+            <span aria-hidden>{activeCat.icon}</span> {catTitle}
+          </span>
+        )}
         <div
           role="group"
           aria-label={t('q_mode_list') + ' / ' + t('q_mode_single')}
@@ -48,6 +76,9 @@ export function QuestionnaireHeader({ result, profileId }: Props) {
             )
           })}
         </div>
+        <Button asChild variant="ghost" size="sm" data-testid="q-results-shortcut">
+          <Link to={resultsHref}>{t('btn_results')}</Link>
+        </Button>
       </div>
     </header>
   )

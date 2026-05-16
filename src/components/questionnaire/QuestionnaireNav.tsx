@@ -4,11 +4,17 @@
 import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import type { Result } from '@/lib/storage/types'
+import type { CATEGORIES } from '@/lib/data/data'
 import { t } from '@/lib/i18n/i18n'
 
-interface Props { result: Result; profileId: string }
+type Category = (typeof CATEGORIES)[number]
 
-export function QuestionnaireNav({ result, profileId }: Props) {
+interface Props { result: Result; profileId: string; activeCat?: Category }
+
+export function QuestionnaireNav({ result, profileId, activeCat }: Props) {
+  const resultsHref = activeCat
+    ? `/result/${result.id}/${activeCat.id}`
+    : `/result/${result.id}`
   return (
     <nav
       className="q-nav sticky bottom-0 z-10 bg-surface border-t border-line"
@@ -20,7 +26,7 @@ export function QuestionnaireNav({ result, profileId }: Props) {
             {t('q_back_to_categories')}
           </Link>
         </Button>
-        <Link to={`/result/${result.id}`} data-testid="q-nav-see-results" className="btn btn-primary ml-auto">
+        <Link to={resultsHref} data-testid="q-nav-see-results" className="btn btn-primary ml-auto">
           {t('q_nav_see_results')} →
         </Link>
       </div>
