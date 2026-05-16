@@ -1316,14 +1316,12 @@ a:hover { text-decoration: underline; }
 .cat-toggle {
   --c: var(--primary);
   background: var(--surface-2);
-  border: 1px solid var(--glass-border);
   border-left: 3px solid var(--c);
   border-radius: 12px; padding: 10px 12px;
   display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center;
   cursor: pointer; font: inherit; color: var(--text); text-align: left;
-  opacity: .55; transition: opacity .15s ease;
+  transition: opacity .15s ease, border-color .15s ease;
 }
-.cat-toggle.is-on { opacity: 1; }
 .cat-toggle-icon { font-size: 22px; }
 .cat-toggle-title { font-size: 14px; }
 .cat-toggle-switch { width: 32px; height: 18px; background: var(--surface-3); border-radius: 99px; position: relative; }
@@ -1426,7 +1424,6 @@ a:hover { text-decoration: underline; }
 .cat-overview-tile {
   --c: var(--primary);
   background: var(--glass);
-  border: 1px solid var(--glass-border);
   border-left: 3px solid var(--c);
   border-radius: 14px;
   padding: 14px 16px;
