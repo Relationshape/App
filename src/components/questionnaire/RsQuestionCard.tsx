@@ -1,8 +1,11 @@
-// Shared question-card row used by both ListMode and SingleMode.
-// Legacy parity: rounded card with title + Edit Item/Scale link, ScalePicker
-// slider, optional Note textarea, Reset, and (List variant + GR cats) G/R/Both toggle.
+// List-mode question row (rendered inside .q-items by ListMode).
+// Legacy parity: rounded .q-item row with title + Edit Item/Scale link,
+// ScalePicker slider, optional .q-note textarea, Reset, and (when the cat has
+// GR) G/R/Both toggle. SingleMode renders its own hero card (.q-card) — do
+// NOT add the `.q-card` class here; that class is the absolute-positioned
+// single-card layout and would collapse all list rows into one stack.
 //
-// Keyboard (List variant only, when the outer .q-item is focused):
+// Keyboard (list variant only, when the outer .q-item is focused):
 //   1..N    → set scale step at i/(N-1) and call onAnswered
 //   N+1     → clear answer
 //   Enter / ArrowDown → focus next .q-item
@@ -160,7 +163,7 @@ export function RsQuestionCard({
 
   return (
     <div
-      className="q-item q-card"
+      className="q-item"
       tabIndex={variant === 'list' ? 0 : -1}
       onKeyDown={onKeyDown}
       data-testid={`item-row-${catId}-${item}`}
@@ -224,7 +227,7 @@ export function RsQuestionCard({
         value={note}
         onChange={(e) => setNote(e.target.value)}
         onBlur={commitNote}
-        className="q-card-note mt-2 w-full"
+        className="q-note mt-2 w-full"
         rows={2}
         data-testid={`item-note-${catId}-${item}`}
       />
