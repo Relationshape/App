@@ -65,17 +65,18 @@ export function ScaleEditor({ scale, onChange, hasData }: Props) {
   }
 
   return (
-    <div className="scale-editor flex flex-col gap-2" data-testid="scale-editor">
+    <div className="scale-editor" data-testid="scale-editor">
       {local.map((s, i) => (
         <div
-          className="scale-row flex flex-wrap items-center gap-2 border border-line rounded p-2"
+          className="scale-row"
           key={s.key}
           style={{ ['--c' as 'color']: s.color } as React.CSSProperties}
           data-testid={`scale-row-${s.key}`}
         >
-          <span className="muted text-sm w-8">{local.length - i}</span>
+          <span className="scale-row-rank">{local.length - i}</span>
           <input
             type="color"
+            className="scale-row-color"
             value={s.color}
             onChange={(e) => setField(i, { color: e.target.value })}
             aria-label={t('scale_step_color')}
@@ -83,37 +84,37 @@ export function ScaleEditor({ scale, onChange, hasData }: Props) {
           />
           <input
             type="text"
+            className="scale-row-label"
             value={s.label}
             onChange={(e) => setField(i, { label: e.target.value })}
             placeholder={t('scale_step_label')}
-            className="flex-1 min-w-[8rem] rounded border border-line px-2 py-1"
             data-testid={`scale-label-${s.key}`}
           />
           <input
             type="text"
+            className="scale-row-short"
             value={s.short ?? ''}
             onChange={(e) => setField(i, { short: e.target.value.slice(0, 24) })}
             placeholder={t('scale_step_short')}
             maxLength={24}
-            className="w-24 rounded border border-line px-2 py-1"
             data-testid={`scale-short-${s.key}`}
           />
           <input
             type="number"
+            className="scale-row-value"
             value={s.value}
             onChange={(e) => setField(i, { value: Number(e.target.value) })}
-            className="w-20 rounded border border-line px-2 py-1"
             data-testid={`scale-value-${s.key}`}
           />
           <input
             type="text"
+            className="scale-row-desc"
             value={s.description ?? ''}
             onChange={(e) => setField(i, { description: e.target.value })}
             placeholder={t('scale_step_description')}
-            className="flex-1 min-w-[10rem] rounded border border-line px-2 py-1"
             data-testid={`scale-desc-${s.key}`}
           />
-          <div className="ml-auto flex gap-1">
+          <div className="scale-row-actions">
             <Button
               type="button"
               size="sm"
