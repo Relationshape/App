@@ -170,34 +170,33 @@ export function RsQuestionCard({
       data-item-key={item}
       data-cat-id={catId}
     >
-      <div className="flex items-center gap-2 mb-2">
+      <div className="q-item-name">
         <strong>{item}</strong>
-        <div className="ml-auto flex items-center gap-1">
-          {onEditItemScale && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onEditItemScale}
-              data-testid={`item-edit-scale-${catId}-${item}`}
-            >
-              {t('item_edit_scale')}
-            </Button>
-          )}
-          {variant === 'list' && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={hide}
-              data-testid={`item-hide-${catId}-${item}`}
-            >
-              {t('btn_hide_item')}
-            </Button>
-          )}
-        </div>
+        {onEditItemScale && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onEditItemScale}
+            data-testid={`item-edit-scale-${catId}-${item}`}
+          >
+            {t('item_edit_scale')}
+          </Button>
+        )}
+        {variant === 'list' && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={hide}
+            data-testid={`item-hide-${catId}-${item}`}
+            className="ml-auto"
+          >
+            {t('btn_hide_item')}
+          </Button>
+        )}
       </div>
 
       {showGR && (
-        <div className="flex gap-1 mb-2" role="group" aria-label="G/R/Both">
+        <div className="q-gr-sliders" role="group" aria-label="G/R/Both">
           {(['G', 'R', 'Both'] as const).map((gr) => (
             <button
               key={gr}
@@ -213,21 +212,23 @@ export function RsQuestionCard({
         </div>
       )}
 
-      <ScalePicker
-        scale={scale}
-        value={cell?.scale ?? null}
-        valueFrac={cell?.scaleFrac ?? null}
-        onChange={setScaleKey}
-        onClear={clearAnswer}
-        compact={variant === 'list'}
-      />
+      <div className="q-slider-wrap">
+        <ScalePicker
+          scale={scale}
+          value={cell?.scale ?? null}
+          valueFrac={cell?.scaleFrac ?? null}
+          onChange={setScaleKey}
+          onClear={clearAnswer}
+          compact={variant === 'list'}
+        />
+      </div>
 
       <textarea
         placeholder={t('item_note_placeholder')}
         value={note}
         onChange={(e) => setNote(e.target.value)}
         onBlur={commitNote}
-        className="q-note mt-2 w-full"
+        className="q-note"
         rows={2}
         data-testid={`item-note-${catId}-${item}`}
       />
