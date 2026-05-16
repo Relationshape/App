@@ -8,6 +8,7 @@ import { CATEGORIES } from '@/lib/data/data'
 import { catProgress } from '@/lib/charts/math'
 import { Button } from '@/components/ui/button'
 import { t, getLang } from '@/lib/i18n/i18n'
+import { cn } from '@/lib/utils'
 
 export function CategoryOverview() {
   const { profileId, resultId } = useParams<{ profileId: string; resultId: string }>()
@@ -78,11 +79,14 @@ export function CategoryOverview() {
             <button
               key={cat.id}
               type="button"
-              data-state={isOn ? 'active' : 'inactive'}
+              aria-pressed={isOn}
               onClick={() => toggle(cat.id)}
               data-testid={`cat-tile-${cat.id}`}
               style={{ ['--c' as string]: cat.color } as React.CSSProperties}
-              className="cat-overview-tile border border-line rounded p-3 text-left data-[state=active]:border-accent"
+              className={cn(
+                'cat-overview-tile border border-line rounded p-3 text-left',
+                isOn && 'border-accent',
+              )}
             >
               <span aria-hidden className="text-2xl">{cat.icon}</span>
               <div className="font-medium">{catTitle}</div>

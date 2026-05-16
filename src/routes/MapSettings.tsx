@@ -7,6 +7,7 @@ import { ScaleEditor } from '@/components/ScaleEditor'
 import { EmojiPicker } from '@/components/EmojiPicker'
 import { CATEGORIES } from '@/lib/data/data'
 import { t } from '@/lib/i18n/i18n'
+import { cn } from '@/lib/utils'
 import type { MutableScaleStep } from '@/lib/data/types'
 
 const PALETTE = ['#7c3aed', '#06b6d4', '#ec4899', '#10b981', '#f59e0b', '#ef4444', '#3b82f6', '#a78bfa', '#22c55e', '#e11d48']
@@ -113,9 +114,12 @@ export function MapSettings() {
               <button
                 key={cat.id}
                 type="button"
-                data-state={on ? 'active' : 'inactive'}
+                aria-pressed={on}
                 onClick={() => toggleCat(cat.id)}
-                className="cat-toggle border border-line rounded p-2 data-[state=active]:border-accent"
+                className={cn(
+                  'cat-toggle border border-line rounded p-2',
+                  on && 'opacity-100 border-accent',
+                )}
                 style={{ ['--c' as 'color']: cat.color } as React.CSSProperties}
                 data-testid={`map-cat-toggle-${cat.id}`}
               >
