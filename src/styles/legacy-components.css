@@ -3023,27 +3023,15 @@ body::after {
 }
 
 /* ================================================================
-   Shared left-bar tile foundation
-   ----------------------------------------------------------------
-   .scale-row and .rs-tile render the same visual idiom: a tile with a
-   5px colored strip on the left indicating a per-row "category color"
-   via var(--c). var(--c) is typically set inline by the consuming React
-   component via `style={{ '--c': cat.color }}`.
-   Declared at the bottom so it wins the cascade against any per-tile
-   `border` shorthand declarations earlier in the file.
-   ================================================================ */
-.scale-row,
-.rs-tile {
-  --c: var(--primary);
-  border-left: 5px solid var(--c);
-}
-
-/* ================================================================
    RsTile component — toggle-style "tile with colored left bar".
    Single source of truth for the two cat-tile grids (CategoryOverview
    + MapSettings). aria-pressed / data-state="active" drives the visible
    selected vs. unselected state — full opacity + colored border when
    active, dim + neutral border when inactive.
+
+   NOTE: the `border:` shorthand below resets all four sides including
+   border-left, so the shared 5px left-bar rule (see the next block) is
+   declared *after* this one to win the cascade. Do not move it back up.
    ================================================================ */
 .rs-tile {
   background: var(--glass);
@@ -3077,3 +3065,20 @@ body::after {
 }
 .rs-tile-title { font-size: 14px; font-weight: 600; }
 .rs-tile-trailing { color: var(--muted); font-size: 13px; }
+
+/* ================================================================
+   Shared left-bar tile foundation
+   ----------------------------------------------------------------
+   .scale-row and .rs-tile render the same visual idiom: a tile with a
+   5px colored strip on the left indicating a per-row "category color"
+   via var(--c). var(--c) is typically set inline by the consuming React
+   component via `style={{ '--c': cat.color }}`.
+   Declared *last* in the file so it wins the cascade against the
+   per-tile `border` shorthand declarations above (which would otherwise
+   reset border-left to 1px --glass-border).
+   ================================================================ */
+.scale-row,
+.rs-tile {
+  --c: var(--primary);
+  border-left: 5px solid var(--c);
+}
