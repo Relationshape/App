@@ -33,12 +33,12 @@ describe('<ScalePicker />', () => {
     expect(onChange).toHaveBeenCalledWith('open', 0.5)
   })
 
-  it('ArrowRight nudges +1 (snapped key + fraction)', () => {
+  it('ArrowRight does NOT nudge the slider (lets SingleMode handle card nav)', () => {
     const onChange = vi.fn()
     render(<ScalePicker scale={SCALE} value="no" onChange={onChange} />)
     const root = screen.getByRole('slider')
     fireEvent.keyDown(root, { key: 'ArrowRight' })
-    expect(onChange).toHaveBeenCalledWith('open', 0.5)
+    expect(onChange).not.toHaveBeenCalled()
   })
 
   it('Home jumps to first step; End jumps to last', () => {

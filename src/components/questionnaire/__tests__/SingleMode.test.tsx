@@ -105,7 +105,7 @@ describe('<SingleMode />', () => {
     }, { timeout: 2000 })
   })
 
-  it('selecting a scale step persists the answer and auto-advances', async () => {
+  it('selecting a scale step persists the answer (no auto-advance — user clicks Next)', async () => {
     const { mockReduced } = await getMocks()
     mockReduced.mockReturnValue(false)
     const result = makeResult()
@@ -171,17 +171,15 @@ describe('<SingleMode />', () => {
       expect(dataState === null || dataState === undefined).toBe(true)
     }
 
-    // (c) Scale step click auto-advances (setTimeout 0 → within act tick)
+    // (c) Scale step click persists the answer; the card stays put — user
+    // must press → or click Weiter to advance.
     const scaleDot = screen.queryByTestId('scale-step-open')
     if (scaleDot) {
       await act(async () => {
         fireEvent.click(scaleDot)
       })
-      await waitFor(() => {
-        const done = document.querySelector('[data-testid="single-mode-done"]')
-        const card2 = document.querySelector('[data-testid="single-card"]')
-        expect(done || card2).toBeTruthy()
-      }, { timeout: 1000 })
+      // Card still rendered (no auto-advance).
+      expect(document.querySelector('[data-testid="single-card"]')).toBeTruthy()
     }
 
     // Reset mock for subsequent tests

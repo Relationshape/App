@@ -83,16 +83,10 @@ export function ScalePicker({ scale, value, valueFrac, onChange, onClear, compac
     draggingRef.current = false
   }
 
-  function nudge(delta: number) {
-    const baseIdx = activeIdx < 0 ? 0 : activeIdx
-    const nextIdx = Math.max(0, Math.min(N - 1, baseIdx + delta))
-    const step = scale[nextIdx]
-    if (step) onChange(step.key, nextIdx / maxIdx)
-  }
-
+  // Arrow keys intentionally NOT handled — the slider lives inside SingleMode,
+  // where ArrowLeft/Right navigate between cards. Use Home/End to jump to
+  // extremes; click the ticks or drag to set a value.
   function onKey(e: React.KeyboardEvent) {
-    if (e.key === 'ArrowRight' || e.key === 'ArrowUp')   { e.preventDefault(); nudge(+1); return }
-    if (e.key === 'ArrowLeft'  || e.key === 'ArrowDown') { e.preventDefault(); nudge(-1); return }
     if (e.key === 'Home') {
       e.preventDefault()
       const s = scale[0]

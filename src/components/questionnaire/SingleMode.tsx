@@ -87,8 +87,6 @@ export function SingleMode({ result, profile }: Props) {
     }
     next.answers[cur.catId] = slot
     saveResult(next)
-    // Auto-advance after a short delay (mirrors v1.0); reduced-motion → instant
-    setTimeout(() => { void advance(+1, 'right') }, reduced ? 0 : 420)
   }
 
   async function clearAnswer() {
