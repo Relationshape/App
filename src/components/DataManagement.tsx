@@ -3,7 +3,6 @@ import { useState } from 'react'
 import { useStore } from '@/lib/storage/store'
 import { DEFAULT_SCALE } from '@/lib/data/data'
 import type { MutableScaleStep } from '@/lib/data/types'
-import { Button } from '@/components/ui/button'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -81,11 +80,11 @@ export function DataManagement() {
 
   return (
     <section className="page-section" data-testid="data-management">
-      <h2>{t('settings_data_title')}</h2>
-      <div className="flex flex-wrap gap-2">
-        <Button type="button" onClick={exportBackup} data-testid="data-export-btn">{t('btn_export_backup')}</Button>
+      <header className="section-head"><h2>{t('settings_data_title')}</h2></header>
+      <div className="form-actions">
+        <button type="button" className="btn" onClick={exportBackup} data-testid="data-export-btn">{t('btn_backup')}</button>
         <label className="btn cursor-pointer">
-          {t('btn_import_backup')}
+          {t('btn_restore')}
           <input
             type="file"
             accept=".json"
@@ -98,9 +97,9 @@ export function DataManagement() {
             }}
           />
         </label>
-        <Button type="button" variant="destructive" onClick={() => setClearOpen(true)} data-testid="data-clear-btn">
-          {t('btn_clear_all_data')}
-        </Button>
+        <button type="button" className="btn btn-danger-ghost" onClick={() => setClearOpen(true)} data-testid="data-clear-btn">
+          {t('btn_erase')}
+        </button>
       </div>
       <AlertDialog open={clearOpen} onOpenChange={setClearOpen}>
         <AlertDialogContent data-testid="data-clear-dialog">

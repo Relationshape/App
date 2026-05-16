@@ -1,31 +1,42 @@
 // src/components/ThemeToggle.tsx
-// D-28: shadcn Button is the only primitive in Phase 1. Three-way toggle: auto / light / dark.
-// State source-of-truth = Zustand settings.theme; the useTheme() hook (called in App.tsx)
-// applies data-theme to <html> reactively.
+// Legacy parity: three-way segmented picker matching public/legacy/js/app.js
+// theme-row (.theme-picker / .theme-pick / .is-on). Labels come from i18n
+// (theme_auto / theme_light / theme_dark) so the emoji icons are localized
+// alongside the text. State source-of-truth = Zustand settings.theme; the
+// useTheme() hook (called in App.tsx) applies data-theme to <html> reactively.
 
-import { Button } from '@/components/ui/button'
 import { useStore } from '@/lib/storage/store'
 import type { Settings } from '@/lib/storage/types'
+import { t } from '@/lib/i18n/i18n'
+import type { TranslationKey } from '@/lib/i18n/en'
 
-const OPTIONS: ReadonlyArray<Settings['theme']> = ['auto', 'light', 'dark']
+type ThemeOpt = NonNullable<Settings['theme']>
+const OPTIONS: ReadonlyArray<{ value: ThemeOpt; labelKey: TranslationKey }> = [
+  { value: 'auto',  labelKey: 'theme_auto' },
+  { value: 'light', labelKey: 'theme_light' },
+  { value: 'dark',  labelKey: 'theme_dark' },
+]
 
 export function ThemeToggle() {
   const current = useStore((s) => s.settings.theme)
   const setTheme = useStore((s) => s.setTheme)
   return (
-    <div role="group" aria-label="Theme" className="inline-flex gap-2">
-      {OPTIONS.map((opt) => (
-        <Button
-          key={opt}
-          variant={current === opt ? 'default' : 'outline'}
-          size="sm"
-          aria-pressed={current === opt}
-          onClick={() => setTheme(opt)}
-          data-testid={`theme-toggle-${opt}`}
-        >
-          {opt}
-        </Button>
-      ))}
+    <div role="group" aria-label="Theme" className="theme-picker">
+      {OPTIONS.map(({ value, labelKey }) => {
+        const on = current === value
+        return (
+          <button
+            key={value}
+            type="button"
+            className={'theme-pick' + (on ? ' is-on' : '')}
+            aria-pressed={on}
+            onClick={() => setTheme(value)}
+            data-testid={`theme-toggle-${value}`}
+          >
+            {t(labelKey)}
+          </button>
+        )
+      })}
     </div>
   )
 }
