@@ -1,9 +1,7 @@
 // @vitest-environment jsdom
 // src/components/questionnaire/__tests__/SingleMode.test.tsx
 // QUEST-03/04, D-10: SingleMode swipe-card questionnaire view.
-//
-// Mocking strategy: vi.mock() at module top (hoisted by Vitest).
-// The reduced-motion mock is conditionally toggled via the mockReturnValue pattern.
+// Quick task 260516-rm2: SingleMode now filters items to the active category.
 
 import { render, screen, act, fireEvent, cleanup, waitFor } from '@testing-library/react'
 import { describe, it, expect, afterEach, vi } from 'vitest'
@@ -16,7 +14,6 @@ import type { Result, Profile } from '@/lib/storage/types'
 vi.mock('@/lib/hooks/useReducedMotion', () => ({ useReducedMotion: vi.fn().mockReturnValue(false) }))
 vi.mock('@/lib/hooks/useIsCoarsePointer', () => ({ useIsCoarsePointer: vi.fn().mockReturnValue(false) }))
 
-// Helper to get the mocks after import resolution
 async function getMocks() {
   const rm = await import('@/lib/hooks/useReducedMotion')
   const cp = await import('@/lib/hooks/useIsCoarsePointer')
@@ -27,6 +24,7 @@ async function getMocks() {
 }
 
 const CAT = CATEGORIES[0]!
+const CAT2 = CATEGORIES[1]!
 
 function makeProfile(): Profile {
   return { id: 'p1', name: 'Alice', pronouns: '', color: '#7c3aed', emoji: '🌷', createdAt: 1 }
@@ -86,7 +84,42 @@ describe('<SingleMode />', () => {
     expect(screen.getByTestId('q-back-to-categories')).toBeTruthy()
     expect(screen.queryByTestId('scale-step-open')).not.toBeNull()
     const card = screen.getByTestId('single-card')
-    expect(card.querySelector('h1')?.textContent).toBeTruthy()
+    // The card body is an RsQuestionCard with the item name as <strong>
+    expect(card.querySelector('strong')?.textContent).toBeTruthy()
+  })
+
+  it('with progress.catIndex=1 the rendered item belongs to the SECOND category', async () => {
+    const { mockReduced } = await getMocks()
+    mockReduced.mockReturnValue(false)
+    const result = makeResult({
+      enabledCategories: [CAT.id, CAT2.id],
+      progress: { mode: 'single', catIndex: 1, flatIndex: 0 },
+    })
+    await renderSingleMode(result, makeProfile())
+    const firstItemOfCat2 = CAT2.items[0]!
+    const card = screen.getByTestId('single-card')
+    const strong = card.querySelector('strong')?.textContent ?? ''
+    expect(strong).toBe(firstItemOfCat2)
+    // First category's first item is NOT shown in the card body
+    expect(strong).not.toBe(CAT.items[0]!)
+  })
+
+  it('renders single-back + single-next + n/total counter; clicking Next advances flatIndex', async () => {
+    const { mockReduced } = await getMocks()
+    mockReduced.mockReturnValue(false)
+    const result = makeResult()
+    await renderSingleMode(result, makeProfile())
+    expect(screen.getByTestId('single-back')).toBeTruthy()
+    expect(screen.getByTestId('single-next')).toBeTruthy()
+    const counter = screen.getByTestId('single-progress')
+    expect(counter.textContent ?? '').toMatch(/^\d+ \/ \d+$/)
+
+    await act(async () => { fireEvent.click(screen.getByTestId('single-next')) })
+    const { useStore } = await import('@/lib/storage/store')
+    await waitFor(() => {
+      const saved = useStore.getState().results.find((r) => r.id === result.id)
+      expect(saved?.progress?.flatIndex).toBe(1)
+    }, { timeout: 2000 })
   })
 
   it('ArrowRight key advances to the next item', async () => {
@@ -117,7 +150,6 @@ describe('<SingleMode />', () => {
       fireEvent.click(scaleDot!)
     })
     const { useStore } = await import('@/lib/storage/store')
-    // saveResult is called synchronously — check state
     const results = useStore.getState().results
     expect(results.length).toBeGreaterThan(0)
   })
@@ -129,9 +161,7 @@ describe('<SingleMode />', () => {
     await renderSingleMode(result, makeProfile())
     const card = screen.getByTestId('single-card')
     expect(card).toBeTruthy()
-    // Verify touchAction=pan-y is set (Pitfall 1 compliance, D-09)
     expect((card as HTMLElement).style.touchAction).toBe('pan-y')
-    // Dispatch pointer events (gesture pipeline truncated in jsdom — no crash is the assertion)
     await act(async () => {
       fireEvent.pointerDown(card, { pointerId: 1, clientX: 200, clientY: 200 })
       fireEvent.pointerMove(card, { pointerId: 1, clientX: 100, clientY: 200 })
@@ -144,15 +174,15 @@ describe('<SingleMode />', () => {
 
   it('D-10 reduced-motion: peek suppressed, no entering animation, instant advance', async () => {
     const { mockReduced } = await getMocks()
-    mockReduced.mockReturnValue(true)  // Enable reduced-motion for this test
+    mockReduced.mockReturnValue(true)
 
     const profile = makeProfile()
-    // Two categories so there's a peekNext candidate on first item
+    // Two items within the first category so peekNext is a candidate.
     const result: Result = {
       id: 'r1',
       profileId: 'p1',
       answers: {},
-      enabledCategories: [CATEGORIES[0]!.id, CATEGORIES[1]!.id],
+      enabledCategories: [CATEGORIES[0]!.id],
       createdAt: 1,
       updatedAt: 1,
       progress: { mode: 'single', flatIndex: 0 },
@@ -160,29 +190,25 @@ describe('<SingleMode />', () => {
 
     await renderSingleMode(result, profile)
 
-    // (a) Peek card is suppressed under reduced-motion (peekNext && !reduced → false)
+    // (a) Peek card is suppressed under reduced-motion
     expect(screen.queryByTestId('single-peek')).toBeNull()
 
     // (b) data-state on single-card is undefined (reduced ? undefined : `entering-${dir}`)
     const card = screen.queryByTestId('single-card')
     if (card) {
       const dataState = card.getAttribute('data-state')
-      // React renders undefined prop as no attribute → null
       expect(dataState === null || dataState === undefined).toBe(true)
     }
 
-    // (c) Scale step click persists the answer; the card stays put — user
-    // must press → or click Weiter to advance.
+    // (c) Scale step click persists the answer; the card stays put.
     const scaleDot = screen.queryByTestId('scale-step-open')
     if (scaleDot) {
       await act(async () => {
         fireEvent.click(scaleDot)
       })
-      // Card still rendered (no auto-advance).
       expect(document.querySelector('[data-testid="single-card"]')).toBeTruthy()
     }
 
-    // Reset mock for subsequent tests
     mockReduced.mockReturnValue(false)
   })
 })

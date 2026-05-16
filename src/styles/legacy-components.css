@@ -1319,6 +1319,9 @@ a:hover { text-decoration: underline; }
    ================================================================ */
 .rs-segmented {
   display: inline-flex;
+  width: max-content;
+  max-width: 100%;
+  justify-self: start;
   padding: 4px;
   gap: 2px;
   background: var(--surface-2);
