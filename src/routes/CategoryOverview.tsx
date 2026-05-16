@@ -7,8 +7,8 @@ import { useStore } from '@/lib/storage/store'
 import { CATEGORIES } from '@/lib/data/data'
 import { catProgress } from '@/lib/charts/math'
 import { Button } from '@/components/ui/button'
+import { RsTile } from '@/components/RsTile'
 import { t, getLang } from '@/lib/i18n/i18n'
-import { cn } from '@/lib/utils'
 
 export function CategoryOverview() {
   const { profileId, resultId } = useParams<{ profileId: string; resultId: string }>()
@@ -69,32 +69,27 @@ export function CategoryOverview() {
         <h1>{t('q_overview_title')}</h1>
         <p className="muted">{t('q_overview_sub')}</p>
       </header>
-      <div className="cat-overview-grid grid grid-cols-2 md:grid-cols-3 gap-3" data-testid="cat-grid">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3" data-testid="cat-grid">
         {CATEGORIES.map((cat) => {
           const { answered, total } = catProgress(result.answers, cat.id)
           const pct = total > 0 ? Math.round((answered / total) * 100) : 0
           const isOn = enabled.has(cat.id)
           const catTitle = lang === 'de' && cat.de ? cat.de : cat.title
           return (
-            <button
+            <RsTile
               key={cat.id}
-              type="button"
-              aria-pressed={isOn}
+              color={cat.color}
+              active={isOn}
               onClick={() => toggle(cat.id)}
-              data-testid={`cat-tile-${cat.id}`}
-              style={{ ['--c' as string]: cat.color } as React.CSSProperties}
-              className={cn(
-                'cat-overview-tile border border-line rounded p-3 text-left',
-                isOn && 'border-(--c)',
-              )}
+              testId={`cat-tile-${cat.id}`}
+              icon={<span className="text-2xl">{cat.icon}</span>}
+              title={catTitle}
+              trailing={<span className="text-xs">{`${answered}/${total}`}</span>}
             >
-              <span aria-hidden className="text-2xl">{cat.icon}</span>
-              <div className="font-medium">{catTitle}</div>
-              <div className="h-1 bg-line rounded mt-2">
+              <div className="h-1 bg-line rounded mt-1">
                 <div className="h-1 rounded" style={{ width: `${pct}%`, background: cat.color }} />
               </div>
-              <div className="muted small">{`${answered}/${total}`}</div>
-            </button>
+            </RsTile>
           )
         })}
       </div>

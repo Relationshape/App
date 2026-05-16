@@ -252,7 +252,6 @@ a:hover { text-decoration: underline; }
   .q-cat-icon { width: 40px; height: 40px; font-size: 26px; border-radius: 10px; line-height: 1; }
   .q-cat h1 { font-size: 18px; }
   .q-progress-text { font-size: 11.5px; }
-  .cat-overview-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
   /* Scale editor 3-row layout */
   .scale-legend-header { display: none; }
   .scale-row {
@@ -1305,31 +1304,6 @@ a:hover { text-decoration: underline; }
 }
 
 /* ================================================================
-   Category toggle grid (map settings)
-   ================================================================ */
-.cat-toggle-grid {
-  display: grid; gap: 8px;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-}
-.cat-toggle {
-  background: var(--surface-2);
-  border-radius: 12px; padding: 10px 12px;
-  display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center;
-  cursor: pointer; font: inherit; color: var(--text); text-align: left;
-  transition: opacity .15s ease, border-color .15s ease;
-}
-.cat-toggle-icon { font-size: 22px; }
-.cat-toggle-title { font-size: 14px; }
-.cat-toggle-switch { width: 32px; height: 18px; background: var(--surface-3); border-radius: 99px; position: relative; }
-.cat-toggle-switch::after {
-  content: ""; position: absolute; top: 2px; left: 2px;
-  width: 14px; height: 14px; border-radius: 50%; background: white;
-  transition: transform .15s ease;
-}
-.cat-toggle-switch.on { background: var(--c); }
-.cat-toggle-switch.on::after { transform: translateX(14px); }
-
-/* ================================================================
    Theme picker
    ================================================================ */
 .theme-picker { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -1399,47 +1373,10 @@ a:hover { text-decoration: underline; }
 }
 .toast.show { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
 
-/* ================================================================
-   Category overview
-   ================================================================ */
-.cat-overview-header {
-  display: flex; align-items: center; gap: 14px; padding: 4px 0 8px;
-}
-.cat-overview-header .li-avatar {
-  width: 44px; height: 44px; font-size: 24px;
-  border-radius: 12px;
-  background: color-mix(in oklab, var(--c, var(--primary)) 18%, var(--surface-2));
-  display: grid; place-items: center; flex-shrink: 0;
-}
-.cat-overview-header h1 { margin: 0; font-size: 20px; }
-.cat-overview-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 10px;
-}
-.cat-overview-tile {
-  background: var(--glass);
-  border-radius: 14px;
-  padding: 14px 16px;
-  cursor: pointer;
-  text-align: left; font: inherit; color: var(--text);
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 10px; align-items: center;
-  transition: border-color .15s ease, transform .15s ease, box-shadow .15s ease;
-}
-.cat-overview-tile:hover {
-  border-color: color-mix(in oklab, var(--c) 60%, var(--glass-border));
-  transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(0,0,0,.25);
-}
-.cat-overview-tile.is-done { opacity: .75; }
-.cat-overview-icon { font-size: 24px; line-height: 1; }
-.cat-overview-body { display: grid; gap: 5px; min-width: 0; }
-.cat-overview-title { font-size: 13.5px; font-weight: 600; }
-.cat-overview-bar-wrap { height: 4px; border-radius: 99px; background: var(--surface-3); overflow: hidden; }
-.cat-overview-bar { height: 100%; border-radius: 99px; transition: width .3s ease; }
-.cat-overview-pct { font-size: 11px; }
+/* Category overview header + grid + tile styles were previously declared
+   here; they have been collapsed into the shared RsTile component (see
+   `.rs-tile` block near the bottom of this file). The legacy header
+   sub-component was unused in the React app. */
 
 /* ================================================================
    Single-mode nav hint
@@ -2060,7 +1997,7 @@ body::before {
 .panel,
 .q-cat,
 .compare-tile,
-.cat-overview-tile,
+.rs-tile,
 .start-card {
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,0.06),
@@ -2068,9 +2005,10 @@ body::before {
 }
 
 /* Slightly more vibrant border tint on glass cards.
- * NOTE: .cat-overview-tile is intentionally excluded — its border is driven
- * by the shared left-bar-tile rule (left edge) + Tailwind utilities (top/right/bottom),
- * so a static primary-tint here would shadow the active-state border-(--c). */
+ * NOTE: .rs-tile is intentionally excluded — its border is driven by the
+ * RsTile component's own active/inactive state (border-color: var(--c) when
+ * active, default --glass-border when not), so a static primary-tint here
+ * would shadow the toggled state. */
 .card,
 .panel,
 .q-cat,
@@ -2206,8 +2144,8 @@ body::before {
 
 /* ---- Howto step cards — static, non-interactive ---- */
 
-/* ---- Cat overview tiles — depth hover glow ---- */
-.cat-overview-tile:hover {
+/* ---- RsTile — depth hover glow that picks up var(--c) ---- */
+.rs-tile:hover {
   box-shadow: 0 6px 20px -4px rgba(0,0,0,.35), 0 0 18px color-mix(in oklab, var(--c) 16%, transparent);
 }
 
@@ -2399,7 +2337,7 @@ body::before {
 }
 
 /* ---- Glass surfaces — micro iridescent bottom sheen ---- */
-.card, .panel, .q-cat, .compare-tile, .cat-overview-tile, .start-card {
+.card, .panel, .q-cat, .compare-tile, .rs-tile, .start-card {
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,0.07),
     inset 1px 0 0 rgba(255,255,255,0.04),
@@ -2793,11 +2731,6 @@ body::before {
   background: color-mix(in oklab, var(--c) 18%, var(--surface-2));
 }
 
-/* ---- Cat overview bar: gradient fill ---- */
-.cat-overview-bar {
-  background: linear-gradient(90deg, var(--c, var(--primary)), color-mix(in oklab, var(--c, var(--primary)) 70%, rgba(56,189,248,1)));
-}
-
 /* ---- Compare section headers: bolder ---- */
 .compare-section-title {
   background: linear-gradient(90deg, var(--primary), var(--accent));
@@ -3092,18 +3025,55 @@ body::after {
 /* ================================================================
    Shared left-bar tile foundation
    ----------------------------------------------------------------
-   .scale-row, .cat-toggle, and .cat-overview-tile all render the
-   same visual idiom: a tile with a 5px colored strip on the left
-   indicating a per-row "category color" via var(--c).
-   Single source of truth for both the default --c and the bar width.
-   Declared at the bottom so it wins the cascade against the per-tile
-   `border` shorthand declarations above (same specificity, later in
-   the file → later wins). var(--c) is typically set inline by the
-   consuming React component via `style={{ '--c': cat.color }}`.
+   .scale-row and .rs-tile render the same visual idiom: a tile with a
+   5px colored strip on the left indicating a per-row "category color"
+   via var(--c). var(--c) is typically set inline by the consuming React
+   component via `style={{ '--c': cat.color }}`.
+   Declared at the bottom so it wins the cascade against any per-tile
+   `border` shorthand declarations earlier in the file.
    ================================================================ */
 .scale-row,
-.cat-toggle,
-.cat-overview-tile {
+.rs-tile {
   --c: var(--primary);
   border-left: 5px solid var(--c);
 }
+
+/* ================================================================
+   RsTile component — toggle-style "tile with colored left bar".
+   Single source of truth for the two cat-tile grids (CategoryOverview
+   + MapSettings). aria-pressed / data-state="active" drives the visible
+   selected vs. unselected state — full opacity + colored border when
+   active, dim + neutral border when inactive.
+   ================================================================ */
+.rs-tile {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  padding: 10px 12px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 10px;
+  align-items: center;
+  cursor: pointer;
+  font: inherit;
+  color: var(--text);
+  text-align: left;
+  opacity: 0.55;
+  transition: opacity .15s ease, border-color .15s ease, transform .15s ease, box-shadow .15s ease;
+}
+.rs-tile[data-state="active"] {
+  opacity: 1;
+  border-color: var(--c);
+}
+.rs-tile:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0,0,0,.25);
+}
+.rs-tile-icon { font-size: 22px; line-height: 1; }
+.rs-tile-body { display: grid; gap: 5px; min-width: 0; }
+.rs-tile-head {
+  display: flex; align-items: center; gap: 10px;
+  justify-content: space-between;
+}
+.rs-tile-title { font-size: 14px; font-weight: 600; }
+.rs-tile-trailing { color: var(--muted); font-size: 13px; }

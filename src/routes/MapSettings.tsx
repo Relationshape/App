@@ -5,9 +5,9 @@ import { useStore } from '@/lib/storage/store'
 import { Button } from '@/components/ui/button'
 import { ScaleEditor } from '@/components/ScaleEditor'
 import { EmojiPicker } from '@/components/EmojiPicker'
+import { RsTile } from '@/components/RsTile'
 import { CATEGORIES } from '@/lib/data/data'
 import { t } from '@/lib/i18n/i18n'
-import { cn } from '@/lib/utils'
 import type { MutableScaleStep } from '@/lib/data/types'
 
 const PALETTE = ['#7c3aed', '#06b6d4', '#ec4899', '#10b981', '#f59e0b', '#ef4444', '#3b82f6', '#a78bfa', '#22c55e', '#e11d48']
@@ -107,25 +107,20 @@ export function MapSettings() {
       <section className="page-section" data-testid="map-settings-categories">
         <h2>{t('map_settings_cat_title')}</h2>
         <p className="muted">{t('map_settings_cat_sub')}</p>
-        <div className="cat-toggle-grid grid grid-cols-2 md:grid-cols-3 gap-2" data-testid="map-cat-grid">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-2" data-testid="map-cat-grid">
           {CATEGORIES.map((cat) => {
             const on = enabledCategories.includes(cat.id)
             return (
-              <button
+              <RsTile
                 key={cat.id}
-                type="button"
-                aria-pressed={on}
+                color={cat.color}
+                active={on}
                 onClick={() => toggleCat(cat.id)}
-                className={cn(
-                  'cat-toggle border border-line rounded p-2',
-                  on ? 'opacity-100 border-(--c)' : 'opacity-[0.55]',
-                )}
-                style={{ ['--c' as 'color']: cat.color } as React.CSSProperties}
-                data-testid={`map-cat-toggle-${cat.id}`}
-              >
-                <span aria-hidden>{cat.icon}</span>{' '}{cat.title}{' '}
-                <span className="muted text-sm">{on ? '✓' : '–'}</span>
-              </button>
+                testId={`map-cat-toggle-${cat.id}`}
+                icon={cat.icon}
+                title={cat.title}
+                trailing={<span>{on ? '✓' : '–'}</span>}
+              />
             )
           })}
         </div>
