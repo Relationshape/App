@@ -911,7 +911,6 @@ a:hover { text-decoration: underline; }
 }
 .scale-legend-header span:nth-child(2) { text-align: center; }
 .scale-row {
-  --c: var(--primary);
   display: grid;
   grid-template-columns: 26px 36px minmax(80px, 1.5fr) minmax(80px, 1fr) 64px auto;
   grid-template-rows: auto auto;
@@ -919,7 +918,6 @@ a:hover { text-decoration: underline; }
   align-items: center;
   background: var(--glass);
   border: 1px solid var(--glass-border);
-  border-left: 3px solid var(--c);
   border-radius: 12px;
   padding: 8px 10px;
 }
@@ -1314,9 +1312,7 @@ a:hover { text-decoration: underline; }
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
 }
 .cat-toggle {
-  --c: var(--primary);
   background: var(--surface-2);
-  border-left: 3px solid var(--c);
   border-radius: 12px; padding: 10px 12px;
   display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center;
   cursor: pointer; font: inherit; color: var(--text); text-align: left;
@@ -1422,9 +1418,7 @@ a:hover { text-decoration: underline; }
   gap: 10px;
 }
 .cat-overview-tile {
-  --c: var(--primary);
   background: var(--glass);
-  border-left: 3px solid var(--c);
   border-radius: 14px;
   padding: 14px 16px;
   cursor: pointer;
@@ -2073,12 +2067,14 @@ body::before {
     inset 1px 0 0 rgba(255,255,255,0.04);
 }
 
-/* Slightly more vibrant border tint on glass cards */
+/* Slightly more vibrant border tint on glass cards.
+ * NOTE: .cat-overview-tile is intentionally excluded — its border is driven
+ * by the shared left-bar-tile rule (left edge) + Tailwind utilities (top/right/bottom),
+ * so a static primary-tint here would shadow the active-state border-(--c). */
 .card,
 .panel,
 .q-cat,
 .compare-tile,
-.cat-overview-tile,
 .list-item {
   border-color: color-mix(in oklab, var(--primary) 16%, var(--glass-border));
 }
@@ -3091,4 +3087,23 @@ body::after {
   }
   #nav .nav-links .nav-link .nav-icon { display: inline-flex; }
   #nav .nav-links .nav-link .nav-link-label { display: inline; }
+}
+
+/* ================================================================
+   Shared left-bar tile foundation
+   ----------------------------------------------------------------
+   .scale-row, .cat-toggle, and .cat-overview-tile all render the
+   same visual idiom: a tile with a 5px colored strip on the left
+   indicating a per-row "category color" via var(--c).
+   Single source of truth for both the default --c and the bar width.
+   Declared at the bottom so it wins the cascade against the per-tile
+   `border` shorthand declarations above (same specificity, later in
+   the file → later wins). var(--c) is typically set inline by the
+   consuming React component via `style={{ '--c': cat.color }}`.
+   ================================================================ */
+.scale-row,
+.cat-toggle,
+.cat-overview-tile {
+  --c: var(--primary);
+  border-left: 5px solid var(--c);
 }

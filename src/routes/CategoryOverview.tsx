@@ -85,7 +85,7 @@ export function CategoryOverview() {
               style={{ ['--c' as string]: cat.color } as React.CSSProperties}
               className={cn(
                 'cat-overview-tile border border-line rounded p-3 text-left',
-                isOn && 'border-accent',
+                isOn && 'border-(--c)',
               )}
             >
               <span aria-hidden className="text-2xl">{cat.icon}</span>

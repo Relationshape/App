@@ -118,7 +118,7 @@ export function MapSettings() {
                 onClick={() => toggleCat(cat.id)}
                 className={cn(
                   'cat-toggle border border-line rounded p-2',
-                  on ? 'opacity-100 border-accent' : 'opacity-[0.55]',
+                  on ? 'opacity-100 border-(--c)' : 'opacity-[0.55]',
                 )}
                 style={{ ['--c' as 'color']: cat.color } as React.CSSProperties}
                 data-testid={`map-cat-toggle-${cat.id}`}
