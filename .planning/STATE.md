@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-05-15)
 Phase: 3
 Plan: Not started
 Status: Ready to plan
-Last activity: 2026-05-16 - Completed quick task 260516-ex7: Polish compare page styling + fix oversized text in spider modal
+Last activity: 2026-05-16 - Completed quick task 260516-h5w: Port legacy /profile (Profile pill links to /; legacy .list-item ResultCard with Continue/View/Share/Delete; Home templates section)
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -83,6 +83,7 @@ None yet. (Note: Router choice — TanStack Router vs React Router v7 — is a P
 | 260516-ex7 | Polish compare page styling to match legacy app (cat-grid + chip toggles) + fix oversized text in spider diagram modal | 2026-05-16 | a5ca512 | [260516-ex7-polish-compare-page-styling-to-match-leg](./quick/260516-ex7-polish-compare-page-styling-to-match-leg/) |
 | 260516-fast-lang | Settings keeps segmented LangToggle; navbar reverts to dropdown via new RsLangDropdown | 2026-05-16 | 0935d65 | *(fast — no directory)* |
 | 260516-fast-legacy-buttons | Theme + Lang + Data buttons restyled to legacy theme-picker / btn / btn-danger-ghost with icon labels (theme_auto/light/dark, btn_backup/restore/erase) | 2026-05-16 | b1bdd7a | *(fast — no directory)* |
+| 260516-h5w | Port legacy /profile: Profile pill links to / (legacy parity, no new route); ResultCard rewritten as .list-item with Continue/View/Share/Delete; Home gains Templates section; fmtDate/countAnswers helpers | 2026-05-16 | 3b43f81 | [260516-h5w-port-legacy-profile-route-and-profiledet](./quick/260516-h5w-port-legacy-profile-route-and-profiledet/) |
 
 ## Deferred Items
 
