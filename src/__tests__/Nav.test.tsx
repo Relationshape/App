@@ -69,11 +69,13 @@ describe('<Nav /> (SHELL-03)', () => {
       render(<AppRoot />)
     })
 
-    // Open the Popover trigger to reveal the menu content
-    const trigger = document.querySelector('[data-testid="profile-picker"]')
-    expect(trigger).not.toBeNull()
+    // Open the Popover via the caret affordance — the "profile-picker" element itself
+    // is now a NavLink to / (legacy parity, navLink("#/", …) at app.js:956), and the
+    // adjacent caret button is the popover trigger.
+    const caret = document.querySelector('[data-testid="profile-picker-caret"]')
+    expect(caret).not.toBeNull()
     await act(async () => {
-      fireEvent.click(trigger!)
+      fireEvent.click(caret!)
     })
     // The no_profiles_yet text is in the PopoverContent - check it's in the DOM
     const noProfiles = screen.queryAllByText(t('no_profiles_yet'))
@@ -90,11 +92,11 @@ describe('<Nav /> (SHELL-03)', () => {
       render(<AppRoot />)
     })
 
-    // Open the Popover trigger to reveal menu content
-    const trigger = document.querySelector('[data-testid="profile-picker"]')
-    expect(trigger).not.toBeNull()
+    // Open the Popover via the caret affordance (see split-trigger note above).
+    const caret = document.querySelector('[data-testid="profile-picker-caret"]')
+    expect(caret).not.toBeNull()
     await act(async () => {
-      fireEvent.click(trigger!)
+      fireEvent.click(caret!)
     })
     expect(document.querySelector('[data-testid="profile-picker-create"]')).not.toBeNull()
   })

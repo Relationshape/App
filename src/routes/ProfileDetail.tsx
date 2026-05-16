@@ -64,9 +64,14 @@ export function ProfileDetail() {
           {results.map((r) => (
             <ResultCard key={r.id} result={r} profile={profile} />
           ))}
-          <Button asChild data-testid="new-map-btn">
-            <Link to={`/q-categories/${profile.id}/new`}>{t('new_map_btn')}</Link>
-          </Button>
+          <button
+            type="button"
+            className="list-add"
+            onClick={() => navigate(`/q-categories/${profile.id}/new`)}
+            data-testid="new-map-btn"
+          >
+            {t('btn_new_map')}
+          </button>
         </div>
       </section>
     </section>
