@@ -32,23 +32,34 @@ export function ListMode({ result, profile }: Props) {
       title: t('q_add_custom_title'),
       body: (close) => {
         let value = ''
+        const submit = () => close(value.trim() || null)
         return (
-          <input
-            autoFocus
-            data-testid="add-custom-input"
-            placeholder={t('q_add_custom_placeholder')}
-            onChange={(e) => { value = e.target.value }}
-            onKeyDown={(e) => { if (e.key === 'Enter') close(value.trim() || null) }}
-            className="w-full rounded border border-line px-2 py-1"
-          />
+          <div className="flex flex-col gap-2">
+            <input
+              autoFocus
+              data-testid="add-custom-input"
+              placeholder={t('q_add_custom_placeholder')}
+              onChange={(e) => { value = e.target.value }}
+              onKeyDown={(e) => { if (e.key === 'Enter') submit() }}
+              className="w-full rounded border border-line px-2 py-1"
+            />
+            <button
+              type="button"
+              data-testid="add-custom-ok"
+              onClick={submit}
+              className="self-end px-3 py-1 rounded bg-accent text-on-accent"
+            >
+              {t('btn_ok')}
+            </button>
+          </div>
         )
       },
+      // OK lives in the body so it can read the typed input. Actions only hold Cancel.
       actions: [
         { label: t('btn_cancel'), kind: 'ghost', value: null },
-        { label: t('btn_ok'), kind: 'primary', value: '__placeholder__' },
       ],
     })
-    if (!name || name === '__placeholder__') return
+    if (!name) return
     const slot = result.answers[catId] ?? {}
     const cat = CATEGORIES.find((c) => c.id === catId)!
     // Duplicate-id guard (CONCERNS Pitfall 4 — port of public/legacy/js/app.js:2207)

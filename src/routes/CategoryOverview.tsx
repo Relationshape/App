@@ -18,8 +18,11 @@ export function CategoryOverview() {
   const lang = getLang()
 
   const profile = profileId ? profiles.find((p) => p.id === profileId) ?? null : null
+  const result = allResults.find((r) => r.id === resultId) ?? null
 
-  // If resultId === 'new', create a fresh result on first mount
+  // All hooks MUST be declared before any early returns (Rules of Hooks).
+  // Otherwise the new-result path renders 2 hooks on the first pass and 3 on the next,
+  // crashing with "Rendered more hooks than during the previous render".
   useEffect(() => {
     if (resultId !== 'new' || !profile) return
     const id = (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : `r-${Date.now()}`
@@ -42,15 +45,12 @@ export function CategoryOverview() {
     if (!profile) navigate('/')
   }, [profile, navigate])
 
-  if (!profile) return null
-  if (resultId === 'new') return null  // useEffect will redirect
-
-  const result = allResults.find((r) => r.id === resultId) ?? null
-
   useEffect(() => {
-    if (!result && resultId !== 'new') navigate(`/profile/${profile.id}`)
+    if (profile && !result && resultId !== 'new') navigate(`/profile/${profile.id}`)
   }, [result, resultId, profile, navigate])
 
+  if (!profile) return null
+  if (resultId === 'new') return null
   if (!result) return null
 
   const enabled = new Set(result.enabledCategories ?? CATEGORIES.map((c) => c.id))
