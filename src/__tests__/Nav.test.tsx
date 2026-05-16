@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 // src/__tests__/Nav.test.tsx
-// SHELL-03: Nav renders profile picker + nav links + theme/lang toggles on every leaf route.
+// SHELL-03: Nav renders profile picker + nav links + lang toggle on every leaf route.
+// (Theme toggle was moved out of the nav into Settings — only the lang segmented control stays here.)
 import { render, screen, act, fireEvent, cleanup } from '@testing-library/react'
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { MemoryLocalStorage } from '../../tests/helpers/MemoryLocalStorage'
@@ -37,7 +38,7 @@ describe('<Nav /> (SHELL-03)', () => {
     cleanup()
   })
 
-  it('renders profile picker + 4 nav links + theme + lang toggles', async () => {
+  it('renders profile picker + 4 nav links + lang toggle', async () => {
     vi.resetModules()
     vi.stubGlobal('localStorage', makeSeededMemory())
     const appMod = await import('@/App')
@@ -52,7 +53,8 @@ describe('<Nav /> (SHELL-03)', () => {
     expect(document.querySelector('[data-testid="nav-link-compare"]')).not.toBeNull()
     expect(document.querySelector('[data-testid="nav-link-settings"]')).not.toBeNull()
     expect(document.querySelector('[data-testid="nav-link-about"]')).not.toBeNull()
-    expect(document.querySelector('[data-testid="theme-toggle-auto"]')).not.toBeNull()
+    // Theme toggle now lives only in Settings — assert it's NOT in the nav.
+    expect(document.querySelector('[data-testid="theme-toggle-auto"]')).toBeNull()
     expect(document.querySelector('[data-testid="lang-toggle"]')).not.toBeNull()
   })
 

@@ -5,7 +5,7 @@ milestone_name: React + Tailwind + shadcn/ui Migration
 status: ready_to_plan
 stopped_at: Phase 2 planned — all 7 PLAN.md files committed; plan-checker round-2 PASSED
 last_updated: "2026-05-15T20:57:54.113Z"
-last_activity: 2026-05-15 -- Phase 02 execution started
+last_activity: 2026-05-16 -- Completed quick task 260516-eqn: nav cleanup (theme→settings, compact lang toggle)
 progress:
   total_phases: 3
   completed_phases: 2
@@ -72,6 +72,12 @@ None yet.
 ### Blockers/Concerns
 
 None yet. (Note: Router choice — TanStack Router vs React Router v7 — is a Phase 1 decision per PROJECT.md.)
+
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 260516-eqn | Move light/dark toggle out of menu bar; compact LangToggle as segmented button | 2026-05-16 | _pending_ | [260516-eqn-move-light-dark-toggle-from-menu-bar-to-](./quick/260516-eqn-move-light-dark-toggle-from-menu-bar-to-/) |
 
 ## Deferred Items
 

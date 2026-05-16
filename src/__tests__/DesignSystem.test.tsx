@@ -102,7 +102,8 @@ describe('<DesignSystem /> route (DESIGN-05, DESIGN-06)', () => {
       render(<AppRoot />)
     })
 
-    // Nav + DesignSystem both render ThemeToggle; click the first occurrence.
+    // DesignSystem renders ThemeToggle (Nav no longer does — it was moved to Settings).
+    // Keep findAllByTestId to stay resilient if a future surface re-renders the toggle.
     const [darkBtn] = await screen.findAllByTestId('theme-toggle-dark')
     await act(async () => {
       fireEvent.click(darkBtn!)
