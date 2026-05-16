@@ -103,16 +103,16 @@ A privacy-friendly Progressive Web App for mapping and sharing the shape of rela
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| React 19 + Vite + TypeScript over Next.js / Remix | App is a single-page client-only PWA with zero SSR/RSC needs — Vite is the simplest fit | — Pending |
-| shadcn/ui over Ant Design | Components live in the repo (no vendored theme to fight); native Tailwind; preserves the bespoke Celestial Map aesthetic | — Pending |
-| Tailwind CSS v4 over CSS-modules / styled-components | Single design-token surface in a config file; replaces the dual style.css/additions.css cascade problem | — Pending |
-| `vite-plugin-pwa` (Workbox) over hand-rolled service worker | Generates the asset list automatically, eliminates the "forgot to bump CACHE name" failure mode | — Pending |
-| Greenfield rewrite alongside legacy code, single cutover | Migration scope is total — strangler pattern adds routing complexity without payoff for a personal-data PWA | — Pending |
-| Preserve `localStorage["relationshape.v1"]` key and bundle format unchanged | Zero-friction upgrade for existing users; old shared bundles must still decrypt | — Pending |
-| Self-host DM Sans + Playfair Display | Closes the only remaining external-network gap and satisfies the privacy claim literally | — Pending |
-| TanStack Router or React Router v7 (TBD in FOUND phase) | Hash-routing remains an option for static hosts; decide during scaffolding | — Pending |
-| Vitest + Testing Library for new test coverage | Vite-native, fast, minimal config; covers crypto round-trip and scale migration | — Pending |
-| Migrate charts as React components (not a charting library) | Bespoke SVG shapes are part of the visual identity | — Pending |
+| React 19 + Vite + TypeScript over Next.js / Remix | App is a single-page client-only PWA with zero SSR/RSC needs — Vite is the simplest fit | ✓ Validated (Phase 01) |
+| shadcn/ui over Ant Design | Components live in the repo (no vendored theme to fight); native Tailwind; preserves the bespoke Celestial Map aesthetic | ✓ Validated (Phase 02 — 6 primitives vendored: Dialog/AlertDialog/Sheet/Popover/Tabs/Sonner) |
+| Tailwind CSS v4 over CSS-modules / styled-components | Single design-token surface in a config file; replaces the dual style.css/additions.css cascade problem | ✓ Validated (Phase 01) |
+| `vite-plugin-pwa` (Workbox) over hand-rolled service worker | Generates the asset list automatically, eliminates the "forgot to bump CACHE name" failure mode | ✓ Validated (Phase 01 baseline; full PWA install + offline verification in Phase 03) |
+| Greenfield rewrite alongside legacy code, single cutover | Migration scope is total — strangler pattern adds routing complexity without payoff for a personal-data PWA | ✓ Validated (Phases 01-02 — legacy untouched until Phase 03 cutover) |
+| Preserve `localStorage["relationshape.v1"]` key and bundle format unchanged | Zero-friction upgrade for existing users; old shared bundles must still decrypt | ✓ Validated (Phase 02 — SHARE-04 fixture regression test passes) |
+| Self-host DM Sans + Playfair Display | Closes the only remaining external-network gap and satisfies the privacy claim literally | ✓ Validated (Phase 01) |
+| React Router v6 (hash router) | Hash-routing required for static hosts and v1.0 deep-link compatibility (D-24); preserves bookmarks across migration | ✓ Validated (Phase 02 — full 16-route table + parity smoke test) |
+| Vitest + Testing Library for new test coverage | Vite-native, fast, minimal config; covers crypto round-trip and scale migration | ✓ Validated (Phases 01-02 — 226 tests across 43 files) |
+| Migrate charts as React components (not a charting library) | Bespoke SVG shapes are part of the visual identity | ✓ Validated (Phase 02 — 5 chart components, XSS-safe declarative SVG) |
 
 ## Evolution
 
@@ -131,5 +131,13 @@ This document evolves at phase transitions and milestone boundaries.
 3. Audit Out of Scope — reasons still valid?
 4. Update Context with current state
 
+## Current State
+
+**Phase 01 (skeleton)** ✓ Complete — Vite + React 19 + TS + Tailwind v4 + shadcn baseline + vite-plugin-pwa scaffolded, v1.0 fixtures captured for migration testing.
+
+**Phase 02 (parity)** ✓ Complete — React app shell with React Router v6 hash router (16-route table, deep-link parity), 6 shadcn primitives, dialog queue, theme/i18n providers, every v1.0 view ported as React components: profile lifecycle, questionnaire (List + Single swipe modes), 5 SVG chart components (XSS-safe by construction), Share/Import/Compare flows with v1.0 bundle round-trip parity, Settings/MapSettings/ScaleEditor/DataManagement. 226 tests, typecheck clean, production build 188.77 KB gzip. 5 human-verification items outstanding (visual parity check, touch swipe, AgeGate first-load, file-upload import, focus return).
+
+**Phase 03 (cutover)** — Up next. PWA install + offline verification, Lighthouse pass, legacy `js/`/`css/`/`sw.js` removal, deploy preview smoke-walked.
+
 ---
-*Last updated: 2026-05-15 after bootstrap for milestone v2.0*
+*Last updated: 2026-05-16 after Phase 02 (parity) completion.*
