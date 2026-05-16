@@ -1323,7 +1323,8 @@ a:hover { text-decoration: underline; }
   cursor: pointer; font: inherit; color: var(--text); text-align: left;
   opacity: .55; transition: opacity .15s ease;
 }
-.cat-toggle.is-on { opacity: 1; }
+.cat-toggle.is-on,
+.cat-toggle[data-state="active"] { opacity: 1; }
 .cat-toggle-icon { font-size: 22px; }
 .cat-toggle-title { font-size: 14px; }
 .cat-toggle-switch { width: 32px; height: 18px; background: var(--surface-3); border-radius: 99px; position: relative; }
