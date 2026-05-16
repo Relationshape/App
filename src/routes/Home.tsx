@@ -11,6 +11,9 @@ export function Home() {
   const visibleImports = imports
     .filter((i) => !isTemplateImport(i))
     .sort((a, b) => (b.importedAt ?? 0) - (a.importedAt ?? 0))
+  const templateImports = imports
+    .filter((i) => isTemplateImport(i))
+    .sort((a, b) => (b.importedAt ?? 0) - (a.importedAt ?? 0))
 
   return (
     <section className="page" data-testid="home-page">
@@ -47,6 +50,23 @@ export function Home() {
             {visibleImports.map((i) => (
               <li key={i.id}>
                 <Link to={`/compare?ids=imp:${i.id}`} data-testid={`home-import-${i.id}`}>
+                  {importLabel(i)}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+      {templateImports.length > 0 && (
+        <section className="page-section" data-testid="home-templates">
+          <header className="section-head">
+            <h2>{t('templates_title')}</h2>
+            <p className="muted">{t('templates_sub')}</p>
+          </header>
+          <ul>
+            {templateImports.map((i) => (
+              <li key={i.id}>
+                <Link to={`/compare?ids=imp:${i.id}`} data-testid={`home-template-${i.id}`}>
                   {importLabel(i)}
                 </Link>
               </li>

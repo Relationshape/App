@@ -162,6 +162,34 @@ describe('Profile lifecycle (PROFILE-01..04)', () => {
     expect(document.querySelector(`[data-testid="result-card-${RESULT_B}"]`)).not.toBeNull()
   })
 
+  it('ProfileDetail result row exposes Continue/View/Share/Delete buttons (PROFILE-04 parity)', async () => {
+    await mountAtHash(`#/profile/${PROFILE_A}`, makeStore({
+      profiles: [profile(PROFILE_A, 'Alice')],
+      results: [result(RESULT_A, PROFILE_A, 'Map One')],
+    }))
+    expect(document.querySelector(`[data-testid="result-card-${RESULT_A}"]`)).not.toBeNull()
+    expect(document.querySelector(`[data-testid="result-continue-${RESULT_A}"]`)).not.toBeNull()
+    expect(document.querySelector(`[data-testid="result-view-${RESULT_A}"]`)).not.toBeNull()
+    expect(document.querySelector(`[data-testid="result-share-${RESULT_A}"]`)).not.toBeNull()
+    expect(document.querySelector(`[data-testid="result-delete-${RESULT_A}"]`)).not.toBeNull()
+  })
+
+  it('Home renders templates section when a template import exists (PROFILE-01 parity)', async () => {
+    await mountAtHash('#/', makeStore({
+      imports: [
+        imp(IMPORT_REG, 'Regular Import'),
+        imp(IMPORT_TPL, '__template__foo', 'template'),
+      ],
+    }))
+    // Templates section is its own block, separate from imports
+    expect(document.querySelector('[data-testid="home-templates"]')).not.toBeNull()
+    expect(document.querySelector(`[data-testid="home-template-${IMPORT_TPL}"]`)).not.toBeNull()
+    // Existing imports section co-exists and still excludes the template
+    expect(document.querySelector('[data-testid="home-imports"]')).not.toBeNull()
+    expect(document.querySelector(`[data-testid="home-import-${IMPORT_REG}"]`)).not.toBeNull()
+    expect(document.querySelector(`[data-testid="home-import-${IMPORT_TPL}"]`)).toBeNull()
+  })
+
   it('Welcome CTA navigates to /profile/new when no profiles exist (PROFILE-02)', async () => {
     await mountAtHash('#/welcome', makeStore())
     const cta = document.querySelector('[data-testid="welcome-cta"]') as HTMLButtonElement
