@@ -73,22 +73,38 @@ export function SingleMode({ result, profile }: Props) {
 
   useKeydown(keyHandlers, !isDone)
 
-  async function setAnswer(key: string) {
+  async function setAnswer(key: string, frac: number) {
     if (!cur) return
     if (!await confirmIfTemplate()) return
     const next = structuredClone(result)
     const slot = next.answers[cur.catId] ?? {}
     if (cur.isCustom) {
       const customs = slot.__custom ?? {}
-      customs[cur.item] = { ...(customs[cur.item] ?? {}), scale: key }
+      customs[cur.item] = { ...(customs[cur.item] ?? {}), scale: key, scaleFrac: frac }
       slot.__custom = customs
     } else {
-      slot[cur.item] = { ...(slot[cur.item] ?? {}), scale: key }
+      slot[cur.item] = { ...(slot[cur.item] ?? {}), scale: key, scaleFrac: frac }
     }
     next.answers[cur.catId] = slot
     saveResult(next)
     // Auto-advance after a short delay (mirrors v1.0); reduced-motion → instant
     setTimeout(() => { void advance(+1, 'right') }, reduced ? 0 : 420)
+  }
+
+  async function clearAnswer() {
+    if (!cur) return
+    if (!await confirmIfTemplate()) return
+    const next = structuredClone(result)
+    const slot = next.answers[cur.catId] ?? {}
+    if (cur.isCustom) {
+      const customs = { ...(slot.__custom ?? {}) }
+      delete customs[cur.item]
+      slot.__custom = customs
+    } else {
+      delete slot[cur.item]
+    }
+    next.answers[cur.catId] = slot
+    saveResult(next)
   }
 
   if (isDone) {
@@ -123,7 +139,13 @@ export function SingleMode({ result, profile }: Props) {
         >
           <div className="muted small">{cat?.icon} {cat?.title}</div>
           <h1>{cur.item}</h1>
-          <ScalePicker scale={scale} value={cell?.scale ?? null} onChange={setAnswer} />
+          <ScalePicker
+            scale={scale}
+            value={cell?.scale ?? null}
+            valueFrac={cell?.scaleFrac ?? null}
+            onChange={setAnswer}
+            onClear={clearAnswer}
+          />
           <Button variant="ghost" onClick={() => setEditScaleOpen(true)} data-testid="single-edit-scale">
             {t('q_edit_item_scale')}
           </Button>

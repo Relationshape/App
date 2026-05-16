@@ -23,16 +23,31 @@ export function ItemRow({ result, catId, item, isCustom, cell, onBeforeMutate }:
   const scale = result.scale ?? storeScale
   const [note, setNote] = useState(cell?.note ?? '')
 
-  async function setScaleKey(key: string) {
+  async function setScaleKey(key: string, frac: number) {
     if (!await onBeforeMutate()) return
     const next = structuredClone(result)
     const slot = next.answers[catId] ?? {}
     if (isCustom) {
       const customs = slot.__custom ?? {}
-      customs[item] = { ...(customs[item] ?? {}), scale: key } as AnswerCell
+      customs[item] = { ...(customs[item] ?? {}), scale: key, scaleFrac: frac } as AnswerCell
       slot.__custom = customs
     } else {
-      slot[item] = { ...(slot[item] ?? {}), scale: key } as AnswerCell
+      slot[item] = { ...(slot[item] ?? {}), scale: key, scaleFrac: frac } as AnswerCell
+    }
+    next.answers[catId] = slot
+    saveResult(next)
+  }
+
+  async function clearAnswer() {
+    if (!await onBeforeMutate()) return
+    const next = structuredClone(result)
+    const slot = next.answers[catId] ?? {}
+    if (isCustom) {
+      const customs = { ...(slot.__custom ?? {}) }
+      delete customs[item]
+      slot.__custom = customs
+    } else {
+      delete slot[item]
     }
     next.answers[catId] = slot
     saveResult(next)
@@ -95,7 +110,14 @@ export function ItemRow({ result, catId, item, isCustom, cell, onBeforeMutate }:
           ))}
         </div>
       </div>
-      <ScalePicker scale={scale} value={cell?.scale ?? null} onChange={setScaleKey} compact />
+      <ScalePicker
+        scale={scale}
+        value={cell?.scale ?? null}
+        valueFrac={cell?.scaleFrac ?? null}
+        onChange={setScaleKey}
+        onClear={clearAnswer}
+        compact
+      />
       <input
         type="text"
         placeholder={t('item_note_placeholder')}

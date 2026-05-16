@@ -19,6 +19,7 @@ export type GROfBoth = 'G' | 'R' | 'Both'
 
 export interface AnswerCell {
   scale: string
+  scaleFrac?: number
   gr?: GROfBoth
   note?: string
 }
