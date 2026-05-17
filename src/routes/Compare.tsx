@@ -7,8 +7,6 @@ import { Spider } from '@/components/charts/Spider'
 import { Alignment } from '@/components/charts/Alignment'
 import { CategoryModal } from '@/components/charts/CategoryModal'
 import { RsCategoryCard } from '@/components/RsCategoryCard'
-import { RsCategoryPicker } from '@/components/RsCategoryPicker'
-import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { ImportForm } from '@/components/ImportForm'
 import { mapResultToDataset, mapImportToDataset } from '@/lib/charts/datasets'
@@ -35,7 +33,6 @@ export function Compare() {
   const results = useStore((s) => s.results)
   const imports = useStore((s) => s.imports)
   const fabiMode = useStore((s) => s.settings.fabiMode ?? false)
-  const saveResult = useStore((s) => s.saveResult)
 
   // Separate own-result options and imported options for grouped display.
   const ownOptions = useMemo(
@@ -108,7 +105,6 @@ export function Compare() {
 
   const [activeAxis, setActiveAxis] = useState<string | null>(null)
   const [modalCat, setModalCat] = useState<CategoryDef | null>(null)
-  const [pickerOpen, setPickerOpen] = useState(false)
   const [importOpen, setImportOpen] = useState(false)
 
   function handleImportSuccess(imp: Import) {
@@ -274,11 +270,7 @@ export function Compare() {
           <header className="section-head">
             <h2>{t('cat_details_title')}</h2>
             <p className="muted">{t('cat_details_sub')}</p>
-            {firstEditableResult && (
-              <Button onClick={() => setPickerOpen(true)} data-testid="compare-add-cats">
-                {t('btn_add_categories')}
-              </Button>
-            )}
+            <p className="muted small">{t('cat_details_filter_hint')}</p>
           </header>
           <div className="cat-grid">
             {visibleCategories.map((cat) => (
@@ -302,15 +294,6 @@ export function Compare() {
         datasets={datasets}
         cat={modalCat}
         result={firstEditableResult}
-      />
-      <RsCategoryPicker
-        open={pickerOpen}
-        onOpenChange={setPickerOpen}
-        existingIds={firstEditableResult?.enabledCategories ?? CATEGORIES.map((c) => c.id)}
-        onSubmit={(mergedIds) => {
-          if (!firstEditableResult) return
-          saveResult({ ...firstEditableResult, enabledCategories: mergedIds })
-        }}
       />
 
       <Dialog open={importOpen} onOpenChange={setImportOpen}>

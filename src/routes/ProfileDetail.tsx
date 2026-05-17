@@ -1,23 +1,107 @@
 // PROFILE-04. Port of public/legacy/js/app.js:1564-1589
 
+import { useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { useEffect } from 'react'
 import { useStore } from '@/lib/storage/store'
 import { dialog } from '@/lib/dialog/dialog'
 import { ResultCard } from '@/components/ResultCard'
 import { Button } from '@/components/ui/button'
+import {
+  Dialog, DialogContent, DialogTitle, DialogFooter,
+} from '@/components/ui/dialog'
+import { UnlockAnswersBody } from '@/components/UnlockAnswersDialog'
+import { ImportListRow } from '@/components/ImportListRow'
+import { CATEGORIES } from '@/lib/data/data'
 import { t } from '@/lib/i18n/i18n'
+import type { Import } from '@/lib/storage/types'
+
+function hasNoAnswers(imp: Import): boolean {
+  return Object.values(imp.answers).every((cat) =>
+    Object.entries(cat).every(([k, v]) =>
+      k === '__hidden' || k === '__custom' || !v || !('scale' in (v as object))
+    ) && !Object.keys(cat.__custom ?? {}).length
+  )
+}
 
 export function ProfileDetail() {
   const { id } = useParams<{ id: string }>()
   // Select arrays then derive — avoids unstable .find()/.filter() references in useSyncExternalStore (React 19 #3099-compat)
   const profiles = useStore((s) => s.profiles)
   const allResults = useStore((s) => s.results)
+  const allImports = useStore((s) => s.imports)
   const deleteProfile = useStore((s) => s.deleteProfile)
+  const saveResult = useStore((s) => s.saveResult)
+  const unlockImport = useStore((s) => s.unlockImport)
   const navigate = useNavigate()
 
   const profile = id ? (profiles.find((p) => p.id === id) ?? null) : null
   const results = id ? allResults.filter((r) => r.profileId === id) : []
+
+  const byDate = (a: Import, b: Import) => (b.importedAt ?? 0) - (a.importedAt ?? 0)
+  const withAnswers = allImports
+    .filter((i) => {
+      if (i.exportMode === 'restricted' && !i.answersUnlocked) return false
+      if (i.exportMode === 'template') return false
+      if (i.exportMode !== 'restricted' && hasNoAnswers(i)) return false
+      return true
+    })
+    .sort(byDate)
+  const lockedImports = allImports
+    .filter((i) => i.exportMode === 'restricted' && !i.answersUnlocked)
+    .sort(byDate)
+  const templateImports = allImports
+    .filter((i) => i.exportMode === 'template' || (i.exportMode !== 'restricted' && hasNoAnswers(i)))
+    .sort(byDate)
+
+  // "Use as template" dialog — single step (profile already known)
+  const [templateImp, setTemplateImp] = useState<Import | null>(null)
+  const [templateSubject, setTemplateSubject] = useState('')
+
+  function openTemplateWizard(imp: Import) {
+    setTemplateSubject(imp.subject?.trim() ?? '')
+    setTemplateImp(imp)
+  }
+
+  function closeTemplateWizard() {
+    setTemplateImp(null)
+    setTemplateSubject('')
+  }
+
+  function confirmUseAsTemplate() {
+    if (!templateImp || !profile) return
+    const newId = crypto.randomUUID()
+    saveResult({
+      id: newId,
+      profileId: profile.id,
+      subject: templateSubject.trim() || profile.name,
+      subjectEmoji: templateImp.subjectEmoji || profile.emoji,
+      subjectColor: templateImp.subjectColor || profile.color,
+      enabledCategories: templateImp.enabledCategories ?? CATEGORIES.map((c) => c.id),
+      ...(templateImp.scale ? { scale: templateImp.scale } : {}),
+      answers: {},
+      seededFromImportId: templateImp.id,
+      progress: { mode: 'list' },
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    })
+    closeTemplateWizard()
+    navigate(`/q-categories/${profile.id}/${newId}`)
+  }
+
+  function handleUnlockImport(imp: Import) {
+    void dialog<boolean>({
+      title: t('unlock_answers_title'),
+      body: (close) => (
+        <UnlockAnswersBody
+          imp={imp}
+          onUnlock={(answers) => { unlockImport(imp.id, answers); close(true) }}
+          onCancel={() => close(false)}
+        />
+      ),
+      actions: [],
+    })
+  }
 
   // Use useEffect to avoid setState-in-render when redirecting on not-found
   useEffect(() => {
@@ -74,6 +158,93 @@ export function ProfileDetail() {
           </button>
         </div>
       </section>
+
+      {withAnswers.length > 0 && (
+        <section className="page-section" data-testid="profile-imports">
+          <header className="section-head">
+            <h2>{t('imports_with_answers_title')}</h2>
+            <p className="muted">{t('imports_with_answers_sub')}</p>
+          </header>
+          <div className="list">
+            {withAnswers.map((i) => (
+              <ImportListRow
+                key={i.id}
+                imp={i}
+                category="answers"
+                testIdBase={`profile-import-${i.id}`}
+                onUseTemplate={openTemplateWizard}
+                onUnlock={handleUnlockImport}
+              />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {lockedImports.length > 0 && (
+        <section className="page-section" data-testid="profile-locked-imports">
+          <header className="section-head">
+            <h2>{t('imports_locked_title')}</h2>
+            <p className="muted">{t('imports_locked_sub')}</p>
+          </header>
+          <div className="list">
+            {lockedImports.map((i) => (
+              <ImportListRow
+                key={i.id}
+                imp={i}
+                category="locked"
+                testIdBase={`profile-locked-${i.id}`}
+                onUseTemplate={openTemplateWizard}
+                onUnlock={handleUnlockImport}
+              />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {templateImports.length > 0 && (
+        <section className="page-section" data-testid="profile-templates">
+          <header className="section-head">
+            <h2>{t('templates_title')}</h2>
+            <p className="muted">{t('templates_sub')}</p>
+          </header>
+          <div className="list">
+            {templateImports.map((i) => (
+              <ImportListRow
+                key={i.id}
+                imp={i}
+                category="template"
+                testIdBase={`profile-template-${i.id}`}
+                onUseTemplate={openTemplateWizard}
+                onUnlock={handleUnlockImport}
+              />
+            ))}
+          </div>
+        </section>
+      )}
+
+      <Dialog open={!!templateImp} onOpenChange={(o) => { if (!o) closeTemplateWizard() }}>
+        <DialogContent className="max-w-sm" data-testid="profile-use-template-dialog">
+          <DialogTitle>{t('use_template_step2_title')}</DialogTitle>
+          <div className="flex flex-col gap-2 py-1">
+            <input
+              type="text"
+              className="w-full rounded border border-line px-3 py-2 text-sm bg-surface"
+              value={templateSubject}
+              onChange={(e) => setTemplateSubject(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') confirmUseAsTemplate() }}
+              placeholder={t('map_name_label')}
+              autoFocus
+              data-testid="profile-use-template-subject"
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={closeTemplateWizard}>{t('btn_cancel')}</Button>
+            <Button onClick={confirmUseAsTemplate} data-testid="profile-use-template-confirm">
+              {t('use_template_start_btn')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </section>
   )
 }

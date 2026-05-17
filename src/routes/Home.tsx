@@ -6,7 +6,6 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useStore } from '@/lib/storage/store'
 import { dialog } from '@/lib/dialog/dialog'
-import { fmtDate } from '@/lib/format/date'
 import { t } from '@/lib/i18n/i18n'
 import { CATEGORIES } from '@/lib/data/data'
 import {
@@ -14,6 +13,7 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { UnlockAnswersBody } from '@/components/UnlockAnswersDialog'
+import { ImportListRow } from '@/components/ImportListRow'
 import type { Import, Profile } from '@/lib/storage/types'
 
 function hasNoAnswers(imp: Import): boolean {
@@ -139,7 +139,7 @@ export function Home() {
           </header>
           <div className="list">
             {withAnswers.map((i) => (
-              <ImportRow key={i.id} imp={i} category="answers" onUseTemplate={openTemplateWizard} onUnlock={handleUnlockImport} />
+              <ImportListRow key={i.id} imp={i} category="answers" onUseTemplate={openTemplateWizard} onUnlock={handleUnlockImport} />
             ))}
           </div>
         </section>
@@ -152,7 +152,7 @@ export function Home() {
           </header>
           <div className="list">
             {lockedImports.map((i) => (
-              <ImportRow key={i.id} imp={i} category="locked" onUseTemplate={openTemplateWizard} onUnlock={handleUnlockImport} />
+              <ImportListRow key={i.id} imp={i} category="locked" onUseTemplate={openTemplateWizard} onUnlock={handleUnlockImport} />
             ))}
           </div>
         </section>
@@ -165,7 +165,7 @@ export function Home() {
           </header>
           <div className="list">
             {templateImports.map((i) => (
-              <ImportRow key={i.id} imp={i} category="template" onUseTemplate={openTemplateWizard} onUnlock={handleUnlockImport} />
+              <ImportListRow key={i.id} imp={i} category="template" onUseTemplate={openTemplateWizard} onUnlock={handleUnlockImport} />
             ))}
           </div>
         </section>
@@ -262,102 +262,3 @@ function ProfilePickerRow({ profile, selected, onSelect }: { profile: Profile; s
   )
 }
 
-type ImportCategory = 'answers' | 'locked' | 'template'
-
-function ImportRow({
-  imp,
-  category,
-  onUseTemplate,
-  onUnlock,
-}: {
-  imp: Import
-  category: ImportCategory
-  onUseTemplate: (imp: Import) => void
-  onUnlock: (imp: Import) => void
-}) {
-  const navigate = useNavigate()
-  const deleteImport = useStore((s) => s.deleteImport)
-  const v = (imp.version ?? 1) > 1 ? ` (v${imp.version})` : ''
-  const color = imp.color || '#7c3aed'
-  const subject = imp.subject?.trim() || '—'
-  const title = (imp.name?.trim() || 'Imported result') + v
-  const testIdBase = category === 'template' ? `home-template-${imp.id}` : `home-import-${imp.id}`
-
-  async function onDelete() {
-    const ok = await dialog<boolean>({
-      title: t('confirm_delete_map'),
-      body: <p>{t('confirm_delete_map')}</p>,
-      actions: [
-        { label: t('btn_cancel'), kind: 'ghost', value: false },
-        { label: t('btn_delete'), kind: 'danger', value: true },
-      ],
-    })
-    if (ok) deleteImport(imp.id)
-  }
-
-  return (
-    <div
-      className="list-item"
-      style={{ ['--c' as 'color']: color } as React.CSSProperties}
-      data-testid={testIdBase}
-    >
-      <div className="li-avatar">{imp.emoji || '📨'}</div>
-      <div className="li-body">
-        <h3>
-          {title}
-          {category === 'template' && (
-            <span className="badge" style={{ marginLeft: 6, fontSize: 11 }}>
-              {t('template_badge')}
-            </span>
-          )}
-          {category === 'locked' && (
-            <span className="badge" style={{ marginLeft: 6, fontSize: 11 }}>
-              {t('locked_answers_badge')}
-            </span>
-          )}
-        </h3>
-        <p className="muted small">
-          {`${subject}${v} · ${t('imported_on')} ${fmtDate(imp.importedAt)}`}
-        </p>
-      </div>
-      <div className="li-actions">
-        {category === 'answers' && (
-          <button
-            type="button"
-            className="btn"
-            onClick={() => navigate(`/compare?ids=imp:${imp.id}`)}
-            data-testid={`${testIdBase}-compare`}
-          >
-            {t('btn_compare')}
-          </button>
-        )}
-        {category === 'locked' && imp.lockedAnswers && (
-          <button
-            type="button"
-            className="btn"
-            onClick={() => onUnlock(imp)}
-            data-testid={`${testIdBase}-unlock`}
-          >
-            {t('unlock_answers_btn')}
-          </button>
-        )}
-        <button
-          type="button"
-          className="btn"
-          onClick={() => onUseTemplate(imp)}
-          data-testid={`${testIdBase}-use-template`}
-        >
-          {t('btn_use_as_template')}
-        </button>
-        <button
-          type="button"
-          className="btn btn-danger-outline"
-          onClick={onDelete}
-          data-testid={`${testIdBase}-delete`}
-        >
-          {t('btn_delete')}
-        </button>
-      </div>
-    </div>
-  )
-}
