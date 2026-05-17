@@ -16,6 +16,8 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { ScalePicker } from '@/components/ScalePicker'
+import { ScaleEditor } from '@/components/ScaleEditor'
+import type { MutableScaleStep } from '@/lib/data/types'
 import { QuestionnaireHeader } from './QuestionnaireHeader'
 import { QuestionnaireNav } from './QuestionnaireNav'
 import { enabledItemsForCat, type FlatItem } from '@/lib/charts/items'
@@ -64,6 +66,8 @@ export function SingleMode({ result, profile }: Props) {
   const initial = result.progress?.flatIndex ?? 0
   const [state, dispatch] = useReducer(reducer, { cursor: initial, dir: 'right' as Dir })
   const [editScaleOpen, setEditScaleOpen] = useState(false)
+  const [pendingLabel, setPendingLabel] = useState('')
+  const [pendingScale, setPendingScale] = useState<MutableScaleStep[] | null>(null)
   const [dragX, setDragX] = useState(0)
   const [swipeClass, setSwipeClass] = useState<string | null>(null)
   const swipingRef = useRef(false)
@@ -195,6 +199,34 @@ export function SingleMode({ result, profile }: Props) {
     saveResult(next)
   }
 
+  function openEditScaleDialog() {
+    setPendingLabel(cell?.customLabel ?? '')
+    setPendingScale(cell?.itemScale ? cell.itemScale.map((s) => ({ ...s })) : null)
+    setEditScaleOpen(true)
+  }
+
+  async function saveItemEdit() {
+    if (!cur) return
+    if (!(await confirmIfTemplate())) return
+    const next = structuredClone(result)
+    const slot = next.answers[cur.catId] ?? {}
+    function patchCell(existing: AnswerCell | undefined): AnswerCell {
+      const c: AnswerCell = existing ? { ...existing } : { scale: 'open' }
+      const label = pendingLabel.trim()
+      if (label) c.customLabel = label; else delete c.customLabel
+      if (pendingScale) c.itemScale = pendingScale; else delete c.itemScale
+      return c
+    }
+    if (cur.isCustom) {
+      slot.__custom = { ...(slot.__custom ?? {}), [cur.item]: patchCell(slot.__custom?.[cur.item]) }
+    } else {
+      slot[cur.item] = patchCell(slot[cur.item])
+    }
+    next.answers[cur.catId] = slot
+    saveResult(next)
+    setEditScaleOpen(false)
+  }
+
   const cardStyle = { ['--c' as string]: cat.color } as React.CSSProperties
 
   return (
@@ -240,16 +272,16 @@ export function SingleMode({ result, profile }: Props) {
                 variant="ghost"
                 size="sm"
                 className="item-scale-btn"
-                onClick={() => setEditScaleOpen(true)}
+                onClick={openEditScaleDialog}
                 data-testid={`item-edit-scale-${cur.catId}-${cur.item}`}
               >
                 {t('item_edit_scale')}
               </Button>
             </div>
-            <h1 className="q-card-item">{cur.item}</h1>
+            <h1 className="q-card-item">{cell?.customLabel || cur.item}</h1>
             <div className="q-card-slider">
               <ScalePicker
-                scale={scale}
+                scale={cell?.itemScale ?? scale}
                 value={cell?.scale ?? null}
                 valueFrac={cell?.scaleFrac ?? null}
                 onChange={setScaleKey}
@@ -287,13 +319,45 @@ export function SingleMode({ result, profile }: Props) {
         </div>
         {editScaleOpen && (
           <Dialog open={true} onOpenChange={setEditScaleOpen}>
-            <DialogContent>
+            <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>{t('q_edit_item_scale')}</DialogTitle>
+                <DialogTitle>{t('q_edit_item_scale')}: {cur.item}</DialogTitle>
               </DialogHeader>
-              <p className="muted">{t('q_edit_item_scale_warning')}</p>
+              <div className="flex flex-col gap-4 py-2">
+                <label className="flex flex-col gap-1">
+                  <span className="text-sm font-medium">{t('q_item_rename_label')}</span>
+                  <input
+                    type="text"
+                    className="rounded border border-line px-2 py-1"
+                    placeholder={cur.item}
+                    value={pendingLabel}
+                    onChange={(e) => setPendingLabel(e.target.value)}
+                    data-testid="item-edit-label"
+                  />
+                </label>
+                <div className="flex flex-col gap-2">
+                  <p className="muted text-sm">{t('q_edit_item_scale_warning')}</p>
+                  <ScaleEditor
+                    key={`${cur.catId}-${cur.item}`}
+                    scale={pendingScale ?? scale}
+                    onChange={setPendingScale}
+                  />
+                  {pendingScale && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="self-start"
+                      onClick={() => setPendingScale(null)}
+                      data-testid="item-scale-reset"
+                    >
+                      {t('q_item_scale_reset')}
+                    </Button>
+                  )}
+                </div>
+              </div>
               <DialogFooter>
                 <Button variant="ghost" onClick={() => setEditScaleOpen(false)}>{t('btn_cancel')}</Button>
+                <Button onClick={() => { void saveItemEdit() }} data-testid="item-edit-save">{t('btn_save_changes')}</Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>

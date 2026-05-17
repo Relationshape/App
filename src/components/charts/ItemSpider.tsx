@@ -6,6 +6,7 @@
 // onto multiple lines via `<tspan>` so titles like "Gemeinsamen Kommunikationsstil
 // finden" don't overflow the SVG bounds.
 
+import { useState } from 'react'
 import { polarToCartesian, scaleMaxValue, wrapLabel } from '@/lib/charts/math'
 import { enabledItemsForCat } from '@/lib/charts/items'
 import { CATEGORIES } from '@/lib/data/data'
@@ -24,6 +25,7 @@ function itemLabelFontSize(itemCount: number): number {
 }
 
 export function ItemSpider({ datasets, catId, size = 480 }: Props) {
+  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null)
   const cat = CATEGORIES.find((c) => c.id === catId)
   if (!cat) return null
   const truncated = datasets.slice(0, 4)
@@ -89,26 +91,73 @@ export function ItemSpider({ datasets, catId, size = 480 }: Props) {
         })}
         {items.map((displayItem, i) => {
           const [lx, ly] = polarToCartesian(i, items.length, r + fs * 1.6, cx, cy)
+          const [nx, ny] = polarToCartesian(i, items.length, r, cx, cy)
           const anchor = Math.abs(lx - cx) < 4 ? 'middle' : lx > cx ? 'start' : 'end'
           const lines = wrapLabel(displayItem, maxCharsPerLine)
-          // Center the multi-line block vertically around the original ly anchor.
           const yOffset = ((lines.length - 1) * lineHeight) / 2
+          const isHovered = hoveredIdx === i
           return (
-            <text
+            <g
               key={`label-${i}`}
-              x={lx}
-              y={ly - yOffset}
-              textAnchor={anchor}
-              fontSize={fs}
+              onPointerEnter={() => setHoveredIdx(i)}
+              onPointerLeave={() => setHoveredIdx(null)}
+              style={{ cursor: 'default' }}
             >
-              {lines.map((line, li) => (
-                <tspan key={li} x={lx} dy={li === 0 ? 0 : lineHeight}>
-                  {line}{/* React text node — XSS-safe */}
-                </tspan>
-              ))}
-            </text>
+              {/* Invisible hit circle at axis tip */}
+              <circle cx={nx} cy={ny} r={Math.max(14, fs * 1.2)} fill="transparent" />
+              <text
+                x={lx}
+                y={ly - yOffset}
+                textAnchor={anchor}
+                fontSize={isHovered ? fs * 1.4 : fs}
+                fontWeight={isHovered ? 700 : undefined}
+                fill={isHovered ? 'currentColor' : undefined}
+                style={{ transition: 'font-size .15s ease' }}
+              >
+                {lines.map((line, li) => (
+                  <tspan key={li} x={lx} dy={li === 0 ? 0 : lineHeight}>
+                    {line}
+                  </tspan>
+                ))}
+              </text>
+            </g>
           )
         })}
+        {/* Centered tooltip when a node is hovered */}
+        {hoveredIdx !== null && (() => {
+          const label = items[hoveredIdx] ?? ''
+          const tooltipFs = Math.round(Math.max(14, Math.min(22, size / 20)))
+          const tooltipLines = wrapLabel(label, 20)
+          const boxW = size * 0.55
+          const boxH = tooltipLines.length * tooltipFs * 1.4 + 12
+          return (
+            <g pointerEvents="none">
+              <rect
+                x={cx - boxW / 2}
+                y={cy - boxH / 2}
+                width={boxW}
+                height={boxH}
+                rx={6}
+                fill="var(--surface-1, #fff)"
+                fillOpacity={0.92}
+                stroke="currentColor"
+                strokeOpacity={0.12}
+              />
+              {tooltipLines.map((line, li) => (
+                <text
+                  key={li}
+                  x={cx}
+                  y={cy - boxH / 2 + 8 + tooltipFs * (li + 0.85)}
+                  textAnchor="middle"
+                  fontSize={tooltipFs}
+                  fontWeight={600}
+                >
+                  {line}
+                </text>
+              ))}
+            </g>
+          )
+        })()}
       </svg>
     </div>
   )
