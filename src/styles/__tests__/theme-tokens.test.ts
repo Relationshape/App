@@ -11,6 +11,12 @@ import { fileURLToPath } from 'node:url'
 // ESM-safe __dirname (project is "type": "module" + tsconfig "module": "ESNext")
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
+// Intentional deviations from v1.0 values — accessibility or design improvements.
+// These tokens are excluded from the byte-for-byte parity check.
+const KNOWN_DEVIATIONS = new Set([
+  '--color-muted', // lightened ~30% for dark-mode readability (was #8880b8, now #aca6cd)
+])
+
 // Map from v1.0 unprefixed token name → v2.0 prefixed token name
 const TOKEN_RENAME: Record<string, string> = {
   '--bg':              '--color-bg',
@@ -147,7 +153,7 @@ describe('design tokens — v1.0 → v2.0 parity (DESIGN-01, Pitfall 1)', () => 
       // For color tokens, compare normalised values byte-for-byte. For typography (font family lists),
       // skip the byte compare because Fontsource variant names legitimately rename the family
       // (e.g. "DM Sans" → "DM Sans Variable").
-      if (!v2Name.startsWith('--font-')) {
+      if (!v2Name.startsWith('--font-') && !KNOWN_DEVIATIONS.has(v2Name)) {
         expect(normalise(v2Value as string), `dark-mode ${v2Name} value drift from v1.0 (expected ${v1Value}, got ${v2Value})`).toBe(normalise(v1Value))
       }
     }
@@ -199,6 +205,7 @@ describe('design tokens — v1.0 → v2.0 parity (DESIGN-01, Pitfall 1)', () => 
       const v1Value = legacyDark.get(v1Name)
       if (v1Value === undefined) continue
       if (v2Name.startsWith('--font-')) continue
+      if (KNOWN_DEVIATIONS.has(v2Name)) continue
       const v2Value = themeDarkExplicit.get(v2Name)
       expect(v2Value, `[data-theme=dark] ${v2Name} missing (v1.0 was ${v1Name}: ${v1Value})`).toBeTruthy()
       expect(normalise(v2Value as string), `[data-theme=dark] ${v2Name} value drift from v1.0 (expected ${v1Value}, got ${v2Value})`).toBe(normalise(v1Value))

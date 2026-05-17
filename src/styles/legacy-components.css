@@ -330,6 +330,10 @@ a:hover { text-decoration: underline; }
   --c: var(--primary);
 }
 .list-item.slim { padding: 10px 14px; }
+.list-item--selectable { cursor: pointer; transition: background .15s, border-color .15s; text-align: left; width: 100%; }
+.list-item--selectable:hover { background: color-mix(in oklab, var(--c) 10%, var(--surface)); }
+.list-item--selectable.is-selected { border-left-width: 4px; background: color-mix(in oklab, var(--c) 14%, var(--surface)); }
+.li-check { font-size: 18px; color: var(--c); font-weight: 700; }
 .li-avatar {
   width: 46px; height: 46px; border-radius: 14px;
   background: color-mix(in oklab, var(--c) 18%, var(--surface-2));
@@ -853,8 +857,14 @@ a:hover { text-decoration: underline; }
    ================================================================ */
 .share-out, .form textarea {
   background: var(--surface-2);
+  color: var(--text);
   font-family: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, monospace;
   font-size: 12px; resize: vertical;
+}
+.share-out {
+  background: var(--bg);
+  color: var(--text);
+  opacity: 0.95;
 }
 .share-result { display: grid; gap: 12px; margin-top: 18px; }
 .callout {

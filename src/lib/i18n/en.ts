@@ -537,6 +537,12 @@ export const EN = {
   map_settings_subject_label: 'Subject label',
   map_settings_cat_title: 'Categories',
   map_settings_cat_sub: 'Toggle categories on or off for this map only.',
+  map_settings_cat_hidden_info: 'Hiding a category preserves all its answers — nothing is deleted. You can re-enable any category here at any time.',
+  wizard_scale_hint: 'This scale is the default for every item in this map. During answering you can adjust the scale individually per item. The default scale for future maps can be changed any time in Settings.',
+  imports_with_answers_title: '📥 Maps with Answers',
+  imports_with_answers_sub: 'Imported maps whose answers are visible.',
+  imports_locked_title: '🔒 Maps with Locked Answers',
+  imports_locked_sub: 'The answers in these maps are encrypted with a second passphrase. Re-import the file with the reveal passphrase to unlock them.',
 } as const
 
 export type TranslationKey = keyof typeof EN

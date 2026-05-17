@@ -553,4 +553,10 @@ export const DE: Record<TranslationKey, string> = {
   map_settings_subject_label: 'Bezeichnung',
   map_settings_cat_title: 'Kategorien',
   map_settings_cat_sub: 'Schalte Kategorien nur für diese Karte ein oder aus.',
+  map_settings_cat_hidden_info: 'Ausgeblendete Kategorien behalten alle ihre Antworten — es wird nichts gelöscht. Du kannst jede Kategorie hier jederzeit wieder einschalten.',
+  wizard_scale_hint: 'Diese Skala gilt standardmässig für alle Elemente dieser Karte. Beim Beantworten kannst du die Skala für jedes Element individuell anpassen. Die Standard-Skala für zukünftige Karten kannst du jederzeit in den Einstellungen ändern.',
+  imports_with_answers_title: '📥 Karten mit Antworten',
+  imports_with_answers_sub: 'Importierte Karten, deren Antworten sichtbar sind.',
+  imports_locked_title: '🔒 Karten mit gesperrten Antworten',
+  imports_locked_sub: 'Die Antworten in diesen Karten sind mit einem zweiten Passwort verschlüsselt. Importiere die Datei erneut mit dem Freigabe-Passwort, um sie zu entsperren.',
 }
