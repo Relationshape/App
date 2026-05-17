@@ -2,16 +2,25 @@
 // app.js:1492-1514 (importCard) — full `.list-item` rows for imported results
 // and templates, including Delete action.
 
+import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useStore } from '@/lib/storage/store'
 import { dialog } from '@/lib/dialog/dialog'
 import { fmtDate } from '@/lib/format/date'
 import { t } from '@/lib/i18n/i18n'
-import type { Import } from '@/lib/storage/types'
+import { CATEGORIES } from '@/lib/data/data'
+import {
+  Dialog, DialogContent, DialogTitle, DialogFooter,
+} from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
+import type { Import, Profile } from '@/lib/storage/types'
 
 export function Home() {
+  const navigate = useNavigate()
   const profiles = useStore((s) => s.profiles)
   const imports = useStore((s) => s.imports)
+  const saveResult = useStore((s) => s.saveResult)
+
   const byDate = (a: Import, b: Import) => (b.importedAt ?? 0) - (a.importedAt ?? 0)
   const withAnswers = imports
     .filter((i) => i.exportMode !== 'template' && !(i.exportMode === 'restricted' && !i.answersUnlocked))
@@ -22,6 +31,38 @@ export function Home() {
   const templateImports = imports
     .filter((i) => i.exportMode === 'template')
     .sort(byDate)
+
+  // "Use as template" dialog state
+  const [templateImp, setTemplateImp] = useState<Import | null>(null)
+  const [templateProfileId, setTemplateProfileId] = useState<string>('')
+
+  function openTemplateWizard(imp: Import) {
+    setTemplateProfileId(profiles[0]?.id ?? '')
+    setTemplateImp(imp)
+  }
+
+  function confirmUseAsTemplate() {
+    if (!templateImp || !templateProfileId) return
+    const profile = profiles.find((p) => p.id === templateProfileId)
+    if (!profile) return
+    const id = crypto.randomUUID()
+    saveResult({
+      id,
+      profileId: templateProfileId,
+      subject: templateImp.subject?.trim() || profile.name,
+      subjectEmoji: templateImp.subjectEmoji || profile.emoji,
+      subjectColor: templateImp.subjectColor || profile.color,
+      enabledCategories: templateImp.enabledCategories ?? CATEGORIES.map((c) => c.id),
+      ...(templateImp.scale ? { scale: templateImp.scale } : {}),
+      answers: {},
+      seededFromImportId: templateImp.id,
+      progress: { mode: 'list' },
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    })
+    setTemplateImp(null)
+    navigate(`/q-categories/${templateProfileId}/${id}`)
+  }
 
   return (
     <section className="page" data-testid="home-page">
@@ -56,7 +97,7 @@ export function Home() {
           </header>
           <div className="list">
             {withAnswers.map((i) => (
-              <ImportRow key={i.id} imp={i} category="answers" />
+              <ImportRow key={i.id} imp={i} category="answers" onUseTemplate={openTemplateWizard} />
             ))}
           </div>
         </section>
@@ -69,7 +110,7 @@ export function Home() {
           </header>
           <div className="list">
             {lockedImports.map((i) => (
-              <ImportRow key={i.id} imp={i} category="locked" />
+              <ImportRow key={i.id} imp={i} category="locked" onUseTemplate={openTemplateWizard} />
             ))}
           </div>
         </section>
@@ -82,18 +123,76 @@ export function Home() {
           </header>
           <div className="list">
             {templateImports.map((i) => (
-              <ImportRow key={i.id} imp={i} category="template" />
+              <ImportRow key={i.id} imp={i} category="template" onUseTemplate={openTemplateWizard} />
             ))}
           </div>
         </section>
       )}
+
+      {/* Profile picker dialog for "Use as template" */}
+      <Dialog open={!!templateImp} onOpenChange={(o) => { if (!o) setTemplateImp(null) }}>
+        <DialogContent className="max-w-sm" data-testid="use-template-dialog">
+          <DialogTitle>{t('use_as_template_step1_title')}</DialogTitle>
+          <p className="muted small">{t('use_as_template_step1_sub')}</p>
+          <div className="flex flex-col gap-2 py-1">
+            {profiles.map((p) => (
+              <ProfilePickerRow
+                key={p.id}
+                profile={p}
+                selected={p.id === templateProfileId}
+                onSelect={() => setTemplateProfileId(p.id)}
+              />
+            ))}
+            {profiles.length === 0 && (
+              <p className="muted small">{t('no_profiles_yet')}</p>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setTemplateImp(null)}>{t('btn_cancel')}</Button>
+            <Button
+              disabled={!templateProfileId || profiles.length === 0}
+              onClick={confirmUseAsTemplate}
+              data-testid="use-template-confirm"
+            >
+              {t('btn_start_map')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </section>
+  )
+}
+
+function ProfilePickerRow({ profile, selected, onSelect }: { profile: Profile; selected: boolean; onSelect: () => void }) {
+  return (
+    <button
+      type="button"
+      className={`list-item list-item--selectable${selected ? ' is-selected' : ''}`}
+      style={{ ['--c' as 'color']: profile.color } as React.CSSProperties}
+      onClick={onSelect}
+      data-testid={`use-template-profile-${profile.id}`}
+    >
+      <div className="li-avatar" style={{ fontSize: 20 }}>{profile.emoji || '✨'}</div>
+      <div className="li-body">
+        <strong>{profile.name}</strong>
+        {profile.pronouns && <span className="muted small" style={{ marginLeft: 6 }}>{profile.pronouns}</span>}
+      </div>
+      {selected && <span aria-hidden className="li-check">✓</span>}
+    </button>
   )
 }
 
 type ImportCategory = 'answers' | 'locked' | 'template'
 
-function ImportRow({ imp, category }: { imp: Import; category: ImportCategory }) {
+function ImportRow({
+  imp,
+  category,
+  onUseTemplate,
+}: {
+  imp: Import
+  category: ImportCategory
+  onUseTemplate: (imp: Import) => void
+}) {
   const navigate = useNavigate()
   const deleteImport = useStore((s) => s.deleteImport)
   const v = (imp.version ?? 1) > 1 ? ` (v${imp.version})` : ''
@@ -153,6 +252,7 @@ function ImportRow({ imp, category }: { imp: Import; category: ImportCategory })
         <button
           type="button"
           className="btn btn-ghost"
+          onClick={() => onUseTemplate(imp)}
           data-testid={`${testIdBase}-use-template`}
         >
           {t('btn_use_as_template')}
