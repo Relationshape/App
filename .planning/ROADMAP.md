@@ -143,8 +143,8 @@ Plans:
 - [x] 04-02-PLAN.md — `RsCategoryCard` primitive + hide/dim rule + tests (D-05, D-06)
 
 **Wave 2** *(parallel — section + Compare overlay rewire; blocked on Wave 1)*
-- [ ] 04-03-PLAN.md — `CompareWithSomeone` section + tests (D-03; depends on 04-01)
-- [ ] 04-05-PLAN.md — Rewire `Compare.tsx` (Add-more-categories button + compareFilterIds union + RsCategoryCard swap) + update Compare tests (D-04, D-05, D-06, D-07; depends on 04-02)
+- [x] 04-03-PLAN.md — `CompareWithSomeone` section + tests (D-03; depends on 04-01)
+- [x] 04-05-PLAN.md — Rewire `Compare.tsx` (Add-more-categories button + compareFilterIds union + RsCategoryCard swap) + update Compare tests (D-04, D-05, D-06, D-07; depends on 04-02)
 
 **Wave 3** *(blocked on Wave 2)*
 - [ ] 04-04-PLAN.md — Rewire `Result.tsx` (legacy parity restructure + deep-link modal + CompareWithSomeone + cat-grid) + update Result tests (D-01, D-02, D-05, D-06, D-08, D-09; depends on 04-02, 04-03)
