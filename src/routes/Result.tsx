@@ -62,6 +62,12 @@ export function Result() {
   const dataset = mapResultToDataset(result, profile)
   const datasets = [dataset]
 
+  // Only show categories that are in the result's enabled list (or all if unset).
+  // Mirrors legacy app.js:2843 `enabledIds ?? editableResult?.enabledCategories`.
+  const enabledCats = result.enabledCategories
+    ? CATEGORIES.filter((c) => result.enabledCategories!.includes(c.id))
+    : CATEGORIES
+
   return (
     <section className="page" data-testid="result-page">
       {/* D-02 header — Back / avatar / title+subtitle / spacer / Map settings / Continue editing / Share. */}
@@ -134,7 +140,7 @@ export function Result() {
           ) : null}
         </header>
         <div className="cat-grid">
-          {CATEGORIES.map((cat) => (
+          {enabledCats.map((cat) => (
             <RsCategoryCard
               key={cat.id}
               cat={cat}
@@ -153,6 +159,7 @@ export function Result() {
         onOpenChange={(open) => { if (!open) setModalCat(null) }}
         datasets={datasets}
         cat={modalCat}
+        result={result}
       />
 
       <RsCategoryPicker
