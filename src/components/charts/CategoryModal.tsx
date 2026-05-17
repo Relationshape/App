@@ -333,7 +333,7 @@ function EditTabContent({ result, cat, onLocalChange, onImmediateSave }: EditTab
     const itemScale = await dialog<MutableScaleStep[] | null | false>({
       title: t('q_add_custom_scale_title'),
       body: (close) => <CustomScalePicker defaultScale={scale} onClose={close} />,
-      actions: [{ label: t('btn_cancel'), kind: 'ghost', value: false }],
+      actions: [],
     })
     // false = cancel (abort entire flow), null = use default, array = custom scale
     if (itemScale === false) return
@@ -403,7 +403,7 @@ function CustomScalePicker({
   onClose,
 }: {
   defaultScale: MutableScaleStep[]
-  onClose: (v: MutableScaleStep[] | null) => void
+  onClose: (v: MutableScaleStep[] | null | false) => void
 }) {
   const [customizing, setCustomizing] = useState(false)
   const [customScale, setCustomScale] = useState<MutableScaleStep[]>(() => defaultScale.map((s) => ({ ...s })))
@@ -423,6 +423,9 @@ function CustomScalePicker({
             ))}
           </div>
           <div className="flex gap-2 justify-end">
+            <Button variant="ghost" onClick={() => onClose(false)} data-testid="modal-add-custom-scale-cancel">
+              {t('btn_cancel')}
+            </Button>
             <Button variant="ghost" onClick={() => setCustomizing(true)}>
               {t('q_add_custom_scale_customize')}
             </Button>
@@ -433,7 +436,9 @@ function CustomScalePicker({
         </>
       ) : (
         <>
-          <ScaleEditor scale={customScale} onChange={setCustomScale} />
+          <div className="overflow-y-auto" style={{ maxHeight: '45vh' }}>
+            <ScaleEditor scale={customScale} onChange={setCustomScale} />
+          </div>
           <div className="flex gap-2 justify-end">
             <Button variant="ghost" onClick={() => { setCustomizing(false); setCustomScale(defaultScale.map((s) => ({ ...s }))) }}>
               {t('btn_back')}

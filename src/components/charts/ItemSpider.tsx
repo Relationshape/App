@@ -15,11 +15,11 @@ interface Props {
   size?: number
 }
 
-// Scales linearly with chart size.
-// size=480 (modal):      7 items → 18px,  14 items → 11px
-// size=800 (fullscreen): 7 items → 30px,  14 items → 18px  (~67% larger)
+// Scales linearly with chart size. Capped at 16px to keep labels within the SVG viewBox.
+// size=480 (modal):      7 items → 11px,  3 items → 16px (capped)
+// size=800 (fullscreen): 7 items → 15px,  3 items → 16px (capped)
 function itemLabelFontSize(itemCount: number, size: number): number {
-  return Math.round(Math.max(11, Math.min(30, (130 * size / 480) / itemCount)))
+  return Math.round(Math.max(10, Math.min(16, (100 * size / 480) / itemCount)))
 }
 
 export function ItemSpider({ datasets, catId, size = 480 }: Props) {
@@ -38,12 +38,12 @@ export function ItemSpider({ datasets, catId, size = 480 }: Props) {
   if (items.length < 3) return null
 
   const fs = itemLabelFontSize(items.length, size)
-  const pad = Math.max(90, Math.ceil(fs * 5.5))
+  const pad = Math.max(100, Math.ceil(fs * 8.5))
   const r = size / 2 - pad
   const cx = size / 2
   const cy = size / 2
   const lineHeight = fs * 1.15
-  const maxCharsPerLine = Math.round(16 * Math.sqrt(size / 480))
+  const maxCharsPerLine = Math.round(9 * Math.sqrt(size / 480))
 
   // Pre-compute per-dataset per-axis values so we don't repeat lookups
   const dataPoints = truncated.map((ds) => {
