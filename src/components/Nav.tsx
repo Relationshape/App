@@ -7,9 +7,9 @@
 import { Link, useLocation } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import type { ReactNode } from 'react'
-import { ProfilePicker } from './ProfilePicker'
 import { RsLangDropdown } from './RsLangDropdown'
 import { RsMenuLink } from './RsMenuButton'
+import { useStore } from '@/lib/storage/store'
 import { t } from '@/lib/i18n/i18n'
 import type { TranslationKey } from '@/lib/i18n/en'
 
@@ -21,7 +21,13 @@ export function cleanLabel(s: string): string {
 }
 
 // SVG icons copied verbatim from v1.0 (public/legacy/js/app.js ICONS).
-const ICONS: Record<'import' | 'compare' | 'settings' | 'about', ReactNode> = {
+const ICONS: Record<'profile' | 'import' | 'compare' | 'settings' | 'about', ReactNode> = {
+  profile: (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="12" cy="8" r="4" />
+      <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+    </svg>
+  ),
   import: (
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <path d="M12 3v12m-4-4 4 4 4-4" />
@@ -49,7 +55,7 @@ const ICONS: Record<'import' | 'compare' | 'settings' | 'about', ReactNode> = {
 }
 
 type NavItem = { to: string; icon: ReactNode; labelKey: TranslationKey; testId: string }
-const NAV_ITEMS: ReadonlyArray<NavItem> = [
+const STATIC_NAV_ITEMS: ReadonlyArray<NavItem> = [
   { to: '/import',   icon: ICONS.import,   labelKey: 'nav_import',   testId: 'nav-link-import' },
   { to: '/compare',  icon: ICONS.compare,  labelKey: 'nav_compare',  testId: 'nav-link-compare' },
   { to: '/settings', icon: ICONS.settings, labelKey: 'nav_settings', testId: 'nav-link-settings' },
@@ -59,6 +65,9 @@ const NAV_ITEMS: ReadonlyArray<NavItem> = [
 export function Nav() {
   const [open, setOpen] = useState(false)
   const { pathname } = useLocation()
+  const firstProfileId = useStore((s) => s.profiles[0]?.id)
+  const profileTo = firstProfileId ? `/profile/${firstProfileId}` : '/welcome'
+
   useEffect(() => { setOpen(false) }, [pathname])
 
   return (
@@ -69,8 +78,13 @@ export function Nav() {
       </Link>
 
       <div className="nav-links">
-        <ProfilePicker />
-        {NAV_ITEMS.map((item) => (
+        <RsMenuLink
+          to={profileTo}
+          icon={ICONS.profile}
+          label={cleanLabel(t('nav_profiles'))}
+          testId="nav-link-profile"
+        />
+        {STATIC_NAV_ITEMS.map((item) => (
           <RsMenuLink
             key={item.to}
             to={item.to}

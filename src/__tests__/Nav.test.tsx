@@ -1,12 +1,11 @@
 // @vitest-environment jsdom
 // src/__tests__/Nav.test.tsx
-// SHELL-03: Nav renders profile picker + nav links + lang dropdown on every leaf route.
+// SHELL-03: Nav renders profile link + nav links + lang dropdown on every leaf route.
 // (Theme toggle was moved out of the nav into Settings. The nav uses the compact
 //  RsLangDropdown; Settings uses the segmented LangToggle.)
-import { render, screen, act, fireEvent, cleanup } from '@testing-library/react'
+import { render, act, cleanup } from '@testing-library/react'
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { MemoryLocalStorage } from '../../tests/helpers/MemoryLocalStorage'
-import { t } from '@/lib/i18n/i18n'
 
 /** Seed ageConfirmed + wizardSeen so AgeGate/WizardHost don't block Nav tests. */
 function makeSeededMemory() {
@@ -14,15 +13,11 @@ function makeSeededMemory() {
   mem.setItem(
     'relationshape.v1',
     JSON.stringify({
-      state: {
-        profiles: [],
-        results: [],
-        imports: [],
-        settings: { theme: 'auto', ageConfirmed: true, wizardSeen: true },
-        scale: [],
-        lastSaveError: null,
-      },
-      version: 1,
+      profiles: [],
+      results: [],
+      imports: [],
+      settings: { theme: 'auto', ageConfirmed: true, wizardSeen: true },
+      scale: [],
     }),
   )
   return mem
@@ -39,7 +34,7 @@ describe('<Nav /> (SHELL-03)', () => {
     cleanup()
   })
 
-  it('renders profile picker + 4 nav links + lang dropdown', async () => {
+  it('renders profile link + 4 nav links + lang dropdown', async () => {
     vi.resetModules()
     vi.stubGlobal('localStorage', makeSeededMemory())
     const appMod = await import('@/App')
@@ -49,55 +44,15 @@ describe('<Nav /> (SHELL-03)', () => {
       render(<AppRoot />)
     })
 
-    expect(document.querySelector('[data-testid="profile-picker"]')).not.toBeNull()
+    expect(document.querySelector('[data-testid="nav-link-profile"]')).not.toBeNull()
     expect(document.querySelector('[data-testid="nav-link-import"]')).not.toBeNull()
     expect(document.querySelector('[data-testid="nav-link-compare"]')).not.toBeNull()
     expect(document.querySelector('[data-testid="nav-link-settings"]')).not.toBeNull()
     expect(document.querySelector('[data-testid="nav-link-about"]')).not.toBeNull()
+    // No caret / popover dropdown anymore
+    expect(document.querySelector('[data-testid="profile-picker-caret"]')).toBeNull()
     // Theme toggle now lives only in Settings — assert it's NOT in the nav.
     expect(document.querySelector('[data-testid="theme-toggle-auto"]')).toBeNull()
     expect(document.querySelector('[data-testid="lang-dropdown"]')).not.toBeNull()
-  })
-
-  it('shows empty-state copy when no profiles exist', async () => {
-    vi.resetModules()
-    vi.stubGlobal('localStorage', makeSeededMemory())
-    const appMod = await import('@/App')
-    const AppRoot = appMod.default
-
-    await act(async () => {
-      render(<AppRoot />)
-    })
-
-    // Open the Popover via the caret affordance — the "profile-picker" element itself
-    // is now a NavLink to / (legacy parity, navLink("#/", …) at app.js:956), and the
-    // adjacent caret button is the popover trigger.
-    const caret = document.querySelector('[data-testid="profile-picker-caret"]')
-    expect(caret).not.toBeNull()
-    await act(async () => {
-      fireEvent.click(caret!)
-    })
-    // The no_profiles_yet text is in the PopoverContent - check it's in the DOM
-    const noProfiles = screen.queryAllByText(t('no_profiles_yet'))
-    expect(noProfiles.length).toBeGreaterThan(0)
-  })
-
-  it('renders create-new link in ProfilePicker', async () => {
-    vi.resetModules()
-    vi.stubGlobal('localStorage', makeSeededMemory())
-    const appMod = await import('@/App')
-    const AppRoot = appMod.default
-
-    await act(async () => {
-      render(<AppRoot />)
-    })
-
-    // Open the Popover via the caret affordance (see split-trigger note above).
-    const caret = document.querySelector('[data-testid="profile-picker-caret"]')
-    expect(caret).not.toBeNull()
-    await act(async () => {
-      fireEvent.click(caret!)
-    })
-    expect(document.querySelector('[data-testid="profile-picker-create"]')).not.toBeNull()
   })
 })

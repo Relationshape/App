@@ -96,9 +96,10 @@ describe('Router routes (SHELL-01, SHELL-02)', () => {
     cleanup()
   })
 
-  it('resolves #/ → Home (real component)', async () => {
+  it('resolves #/ → redirects to Welcome when no profiles exist', async () => {
     await mountAppAtHash('#/')
-    expect(document.querySelector('[data-testid="home-page"]')).not.toBeNull()
+    // No profiles → Home redirects to Welcome
+    expect(document.querySelector('[data-testid="welcome-page"]')).not.toBeNull()
   })
 
   it('resolves #/welcome → Welcome (real component)', async () => {
@@ -126,14 +127,14 @@ describe('Router routes (SHELL-01, SHELL-02)', () => {
     await mountAppAtHash('#/q-categories/p1/r1')
     // Either category-overview-page or home-page appears (redirect on missing entity)
     const found = document.querySelector('[data-testid="category-overview-page"]') ||
-                  document.querySelector('[data-testid="home-page"]')
+                  document.querySelector('[data-testid="welcome-page"]')
     expect(found).not.toBeNull()
   })
 
   it('resolves #/q/:profileId/:resultId → Questionnaire (real component, redirects to / on missing profile)', async () => {
     // Questionnaire redirects to / when profile/result not found; Home page renders.
     await mountAppAtHash('#/q/p1/r1')
-    const found = document.querySelector('[data-testid="home-page"]')
+    const found = document.querySelector('[data-testid="welcome-page"]')
     expect(found).not.toBeNull()
   })
 
@@ -141,7 +142,7 @@ describe('Router routes (SHELL-01, SHELL-02)', () => {
     // Result navigates to / when result not found in store
     await mountAppAtHash('#/result/r1')
     const found = document.querySelector('[data-testid="result-page"]') ||
-                  document.querySelector('[data-testid="home-page"]')
+                  document.querySelector('[data-testid="welcome-page"]')
     expect(found).not.toBeNull()
   })
 
@@ -149,7 +150,7 @@ describe('Router routes (SHELL-01, SHELL-02)', () => {
     // Result navigates to / when result not found in store
     await mountAppAtHash('#/result/r1/intimacy')
     const found = document.querySelector('[data-testid="result-page"]') ||
-                  document.querySelector('[data-testid="home-page"]')
+                  document.querySelector('[data-testid="welcome-page"]')
     expect(found).not.toBeNull()
   })
 
@@ -157,7 +158,7 @@ describe('Router routes (SHELL-01, SHELL-02)', () => {
     // Share navigates to / if result not in store — either share-page or home-page
     await mountAppAtHash('#/share/abc')
     const found = document.querySelector('[data-testid="share-page"]') ||
-                  document.querySelector('[data-testid="home-page"]')
+                  document.querySelector('[data-testid="welcome-page"]')
     expect(found).not.toBeNull()
   })
 
@@ -180,7 +181,7 @@ describe('Router routes (SHELL-01, SHELL-02)', () => {
     // Pre-seed a result so MapSettings doesn't immediately redirect to /
     await mountAppAtHash(`#/map/${RESULT_ID}/settings`, makeStoreWithResult())
     const found = document.querySelector('[data-testid="map-settings-page"]') ||
-                  document.querySelector('[data-testid="home-page"]')
+                  document.querySelector('[data-testid="welcome-page"]')
     expect(found).not.toBeNull()
   })
 
@@ -198,7 +199,7 @@ describe('Router routes (SHELL-01, SHELL-02)', () => {
     // Result navigates to / on missing result — either result-page or home-page should appear
     await mountAppAtHash('#/result/r1/intimacy')
     const found = document.querySelector('[data-testid="result-page"]') ||
-                  document.querySelector('[data-testid="home-page"]')
+                  document.querySelector('[data-testid="welcome-page"]')
     expect(found).not.toBeNull()
   })
 })
