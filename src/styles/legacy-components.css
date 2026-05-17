@@ -424,7 +424,7 @@ a:hover { text-decoration: underline; }
   --c: var(--primary);
 }
 .result-head {
-  display: flex; align-items: center; gap: 16px;
+  display: flex; align-items: center; gap: 12px;
   padding: 14px 18px;
   border-radius: var(--radius-lg);
   background: var(--glass);
@@ -432,26 +432,31 @@ a:hover { text-decoration: underline; }
   -webkit-backdrop-filter: var(--glass-blur);
   border: 1px solid var(--glass-border);
   --c: var(--primary);
+  flex-wrap: wrap;
 }
 .profile-head h1, .result-head h1 { margin: 0; font-size: 24px; font-family: var(--font-heading); }
+.result-head-info { flex: 1 1 0; min-width: 0; }
+.result-head-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-left: auto; }
 
 @media (max-width: 680px) {
-  .result-head {
-    flex-wrap: wrap;
-    padding: 12px 14px;
-    gap: 8px 12px;
+  .result-head { padding: 12px 14px; gap: 8px 10px; }
+  .result-head .result-back-btn { order: -1; flex-shrink: 0; }
+  .result-head .li-avatar { width: 36px; height: 36px; font-size: 20px; flex-shrink: 0; }
+  .result-head-info { flex: 1 1 0; min-width: 0; }
+  .result-head-info h1 { font-size: 17px; }
+  .result-head-info .small { font-size: 11px; }
+  .result-head-actions {
+    width: 100%;
+    margin-left: 0;
+    justify-content: stretch;
   }
-  .result-head .flex-spacer { display: none; }
-  .result-head > .btn, .result-head > .btn-primary {
+  .result-head-actions > * {
     flex: 1 1 auto;
     min-width: 0;
     font-size: 12px;
-    padding: 6px 10px;
     white-space: nowrap;
+    justify-content: center;
   }
-  .result-head > .li-avatar { width: 36px; height: 36px; font-size: 20px; flex-shrink: 0; }
-  .result-head > div { flex: 1 1 0; min-width: 0; }
-  .result-head > div h1 { font-size: 17px; }
 }
 
 /* ================================================================
@@ -781,18 +786,38 @@ a:hover { text-decoration: underline; }
 .compare-tile-arrow { font-size: 18px; color: var(--c); opacity: .7; transition: transform .15s ease, opacity .15s ease; }
 .compare-tile:hover .compare-tile-arrow { transform: translateX(3px); opacity: 1; }
 
-.rs-bars { padding: 0 16px 16px; display: grid; gap: 10px; }
-.rs-bar-row {
-  display: grid; grid-template-columns: minmax(140px, 1fr) 2fr; gap: 12px; align-items: start;
-  padding: 6px 0; border-top: 1px dashed var(--line);
+.rs-bars { padding: 0 16px 16px; display: grid; gap: 14px; }
+
+/* Item block */
+.rs-bar-item {
+  padding: 8px 0; border-top: 1px dashed var(--line);
 }
+.rs-bar-item:first-child { border-top: 0; padding-top: 0; }
+.rs-bar-item-label { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+
+/* Dataset rows inside one item */
+.rs-bar-item-rows { display: grid; gap: 5px; }
+.rs-bar-ds-row {
+  display: grid;
+  grid-template-columns: minmax(90px, 22%) 1fr auto;
+  gap: 8px; align-items: center;
+}
+.rs-bar-ds-name {
+  font-size: 12px; font-weight: 600;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.rs-bar-track { background: var(--surface-2); border-radius: 99px; height: 8px; overflow: hidden; }
+.rs-bar-fill { display: block; height: 100%; border-radius: 99px; transition: width .4s ease; min-width: 3px; }
+.rs-bar-label-text { font-size: 11px; color: var(--muted); white-space: nowrap; }
+
+/* Legacy class aliases (kept for backward compat) */
+.rs-bar-row { display: grid; grid-template-columns: minmax(140px, 1fr) 2fr; gap: 12px; align-items: start; padding: 6px 0; border-top: 1px dashed var(--line); }
 .rs-bar-row:first-child { border-top: 0; }
 .rs-bar-label { font-size: 14px; color: var(--text); }
 .rs-bar-cells { display: grid; gap: 4px; }
 .rs-bar-cell { display: grid; grid-template-columns: minmax(80px, auto) 1fr auto; gap: 8px; align-items: center; font-size: 12px; }
 .rs-bar-name { color: var(--muted); white-space: nowrap; max-width: 140px; overflow: hidden; text-overflow: ellipsis; }
 .rs-bar { background: var(--surface-2); border-radius: 99px; height: 10px; overflow: hidden; }
-.rs-bar-fill { display: block; height: 100%; transition: width .4s ease; }
 .rs-bar-val { color: var(--muted); white-space: nowrap; }
 
 /* Alignment */

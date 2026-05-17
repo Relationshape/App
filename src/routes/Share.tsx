@@ -56,15 +56,22 @@ export function Share() {
     }
   }
 
-  function downloadFile() {
+  async function downloadFile() {
     if (!armor) return
+    const filename = `relationshape-${slug(profile!.name)}-${slug(result!.subject)}.rshape.txt`
     const blob = new Blob([armor], { type: 'text/plain' })
+    const file = new File([blob], filename, { type: 'text/plain' })
+    if (navigator.canShare?.({ files: [file] })) {
+      try { await navigator.share({ files: [file] }); return } catch { /* fallthrough */ }
+    }
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `relationshape-${slug(profile!.name)}-${slug(result!.subject)}.rshape.txt`
+    a.download = filename
+    document.body.appendChild(a)
     a.click()
-    URL.revokeObjectURL(url)
+    document.body.removeChild(a)
+    setTimeout(() => URL.revokeObjectURL(url), 100)
   }
 
   return (
@@ -108,7 +115,7 @@ export function Share() {
           />
           <div className="form-actions flex gap-2 mt-2">
             <Button type="button" onClick={copyToClipboard} data-testid="share-copy-btn">{t('btn_copy')}</Button>
-            <Button type="button" onClick={downloadFile} data-testid="share-download-btn">{t('btn_download')}</Button>
+            <Button type="button" onClick={() => { void downloadFile() }} data-testid="share-download-btn">{t('btn_download')}</Button>
           </div>
         </section>
       )}

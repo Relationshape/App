@@ -1,4 +1,7 @@
 // RESULT-03, D-04. Per-category bar diff. Port of public/legacy/js/charts.js:373-422.
+// Redesigned compare layout: each item shows a sub-row per dataset with the
+// profile name next to the bar so answers to the same question are clearly
+// stacked and attributed.
 
 import { CATEGORIES } from '@/lib/data/data'
 import { enabledItemsForCat } from '@/lib/charts/items'
@@ -34,30 +37,43 @@ export function CategoryBars({ datasets, catId }: Props) {
         const isCustom = displayItem.startsWith('✶ ')
         const key = isCustom ? displayItem.slice(2) : displayItem
         return (
-          <div className="rs-bar-row flex items-center gap-2 py-1" key={displayItem}>
-            <div className="rs-bar-label w-40 truncate" title={displayItem}>
-              {displayItem}{/* React text node — XSS-safe */}
+          <div className="rs-bar-item" key={displayItem}>
+            <div className="rs-bar-item-label" title={displayItem}>
+              {displayItem}
             </div>
-            <div className="rs-bar-cells flex-1 grid gap-1" style={{ gridTemplateColumns: `repeat(${truncated.length}, 1fr)` }}>
+            <div className="rs-bar-item-rows">
               {truncated.map((ds, di) => {
                 const cell = isCustom ? ds.answers[catId]?.__custom?.[key] : ds.answers[catId]?.[key]
-                if (!cell) {
-                  return <div key={di} className="h-3" data-testid={`bar-cell-empty-${di}-${displayItem}`} />
-                }
-                const step = closestScaleEntry(
+                const step = cell ? closestScaleEntry(
                   ds.scale.find((s) => s.key === cell.scale)?.value ?? 0,
                   ds.scale,
-                )
+                ) : null
+                if (!step) return null
                 const max = scaleMaxValue(ds.scale)
-                const width = max > 0 && step ? `${(step.value / max) * 100}%` : '0%'
+                const pct = max > 0 ? (step.value / max) * 100 : 0
                 return (
                   <div
                     key={di}
-                    className="h-3 rounded"
-                    data-testid={`bar-cell-${di}-${displayItem}`}
-                    style={{ background: step?.color, width }}
-                    title={`${ds.name}: ${step?.label ?? ''}`}
-                  />
+                    className="rs-bar-ds-row"
+                    data-testid={`bar-row-${di}-${displayItem}`}
+                  >
+                    <span
+                      className="rs-bar-ds-name"
+                      style={{ color: ds.color }}
+                    >
+                      {ds.name}
+                    </span>
+                    <div className="rs-bar-track">
+                      <div
+                        className="rs-bar-fill"
+                        style={{ width: `${pct}%`, background: ds.color }}
+                        data-testid={`bar-cell-${di}-${displayItem}`}
+                      />
+                    </div>
+                    <span className="rs-bar-label-text">
+                      {step.label}
+                    </span>
+                  </div>
                 )
               })}
             </div>
