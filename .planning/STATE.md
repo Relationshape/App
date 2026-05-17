@@ -89,6 +89,7 @@ None yet. (Note: Router choice — TanStack Router vs React Router v7 — is a P
 | 260516-qva | `/q-categories` route: filter tiles to enabled-only, replace tile-toggle with legacy-parity “Add more categories” picker modal (RsCategoryPicker); tile click now seeds `progress.catIndex` and opens the questionnaire | 2026-05-16 | 6a2eb36 | [260516-qva-fix-q-categories-route-replace-toggle-al](./quick/260516-qva-fix-q-categories-route-replace-toggle-al/) |
 | 260516-rm2 | Filter questionnaire to active category (List + Single) + extract RsQuestionCard / RsScaleLegend (shared between modes) | 2026-05-16 | 87ee39e | [260516-rm2-fix-q-categories-filter-and-legacy-ui](./quick/260516-rm2-fix-q-categories-filter-and-legacy-ui/) |
 | 260516-w94 | SingleMode hero-card layout (legacy parity): `.q-card` with `.q-card-cat` header, `<h1 class="q-card-item">` title, `.q-card-slider` ScalePicker, `.q-card-note` input, `.q-card-actions` Back/Next, `.q-card-progress` chip, colored `--c` top-bar | 2026-05-16 | 2753f9a | [260516-w94-single-mode-legacy-card-parity](./quick/260516-w94-single-mode-legacy-card-parity/) |
+| 260517-mdl | Fix Radix Dialog–induced background layout shift: add `scrollbar-gutter: stable` on `html` so opening any modal no longer reflows the page or jumps the fixed nav | 2026-05-17 | _pending_ | [260517-mdl-fix-modal-background-scroll-shift](./quick/260517-mdl-fix-modal-background-scroll-shift/) |
 
 ## Deferred Items
 
