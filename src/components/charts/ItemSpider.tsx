@@ -134,7 +134,7 @@ export function ItemSpider({ datasets, catId, size = 480 }: Props) {
                 cy={py}
                 r={active ? Math.max(6, fs * 0.52) : Math.max(4, fs * 0.36)}
                 fill={ds.color}
-                stroke="var(--bg, #07091a)"
+                stroke="var(--bg, #f2eeff)"
                 strokeWidth={active ? 2 : 1.5}
                 onPointerEnter={() => setHoveredIdx(i)}
                 onPointerLeave={() => setHoveredIdx(null)}
@@ -159,6 +159,7 @@ export function ItemSpider({ datasets, catId, size = 480 }: Props) {
               textAnchor={anchor}
               fontSize={isHovered ? Math.round(fs * 1.15) : fs}
               fontWeight={isHovered ? 700 : undefined}
+              fill="currentColor"
             >
               {lines.map((line, li) => (
                 <tspan key={li} x={lx} dy={li === 0 ? 0 : lineHeight}>
@@ -205,6 +206,7 @@ export function ItemSpider({ datasets, catId, size = 480 }: Props) {
                   textAnchor="middle"
                   fontSize={tFs}
                   fontWeight={700}
+                  fill="currentColor"
                 >
                   {line}
                 </text>
@@ -235,6 +237,7 @@ export function ItemSpider({ datasets, catId, size = 480 }: Props) {
                       y={rowY}
                       fontSize={tSmFs}
                       textAnchor="end"
+                      fill="currentColor"
                     >
                       {row.stepLabel}
                     </text>

@@ -100,10 +100,10 @@ export function Spider({
               onPointerLeave={() => onAxisLeave?.()}
               onClick={(e) => { e.stopPropagation(); onAxisTap?.(ax.key) }}
             >
-              <text x={lx} y={ly} textAnchor={anchor} fontSize={fs} className={isActive ? 'is-active font-medium' : ''}>
+              <text x={lx} y={ly} textAnchor={anchor} fontSize={fs} fill="currentColor" className={isActive ? 'is-active font-medium' : ''}>
                 {ax.title}{/* React text node — XSS-safe (D-05) */}
               </text>
-              <text x={lx} y={ly - fs * 0.9} textAnchor={anchor} fontSize={fs * 0.7} aria-hidden="true">
+              <text x={lx} y={ly - fs * 0.9} textAnchor={anchor} fontSize={fs * 0.7} fill="currentColor" fillOpacity={0.7} aria-hidden="true">
                 {ax.icon}
               </text>
             </g>
@@ -115,7 +115,7 @@ export function Spider({
             {truncatedDatasets.map((ds, di) => (
               <g key={`legend-${di}`} transform={`translate(${10}, ${10 + di * 18})`}>
                 <rect width={12} height={12} fill={ds.color} />
-                <text x={18} y={10} fontSize={12}>
+                <text x={18} y={10} fontSize={12} fill="currentColor">
                   {ds.name}{/* React text node — XSS-safe */}
                 </text>
               </g>
