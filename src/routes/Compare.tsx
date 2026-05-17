@@ -71,7 +71,7 @@ export function Compare() {
 
   // Phase-04 D-04: legacy app.js:3484-3486 — first own-result among selected
   // (used to gate the Add-more-categories button + as the editableResult for
-  // RsCategoryCard's hide-vs-dim rule).
+  // RsCategoryCard's hide-vs-dim rule, and to enable the Edit Answers tab).
   const firstEditableResult = useMemo(() => {
     const firstResultId = effectiveIds.find((id) => !id.startsWith('imp:'))
     return firstResultId ? results.find((r) => r.id === firstResultId) ?? null : null
@@ -224,6 +224,7 @@ export function Compare() {
         onOpenChange={(open) => { if (!open) setModalCat(null) }}
         datasets={datasets}
         cat={modalCat}
+        result={firstEditableResult}
       />
       <RsCategoryPicker
         open={pickerOpen}

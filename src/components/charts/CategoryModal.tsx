@@ -1,38 +1,51 @@
-// Quick task 260516-ex7. Per-category modal with Spider + Items tabs.
-// Port of public/legacy/js/app.js:2879-3050 openCategoryModal — minus the Edit-answers
-// tab (out of scope for this task; tracked separately).
-//
-// Built on shadcn Dialog (consistent with EnlargedSpider). Layered on top with the
-// legacy `cat-modal-*` classes from src/styles/legacy-components.css. The shadcn
-// default close-X is hidden because the layout uses a header row + footer button,
-// and the X would overlap the cat-modal-head-row.
+// Per-category modal with Spider | Items | Edit tabs.
+// Port of public/legacy/js/app.js:2879-3050 openCategoryModal.
+// Built on shadcn Dialog. Legacy `cat-modal-*` CSS in legacy-components.css.
 
 import { useState } from 'react'
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
 import { ItemSpider } from './ItemSpider'
 import { CategoryBars } from './CategoryBars'
+import { RsQuestionCard } from '@/components/questionnaire/RsQuestionCard'
+import { useStore } from '@/lib/storage/store'
+import { useTemplateWarning } from '@/lib/hooks/useTemplateWarning'
+import { enabledItemsForCat } from '@/lib/charts/items'
+import { dialog } from '@/lib/dialog/dialog'
+import { useToast } from '@/lib/hooks/useToast'
 import type { ChartDataset } from './types'
 import type { CATEGORIES } from '@/lib/data/data'
+import type { Result } from '@/lib/storage/types'
 import { t, getLang } from '@/lib/i18n/i18n'
+import { CATEGORIES as ALL_CATS } from '@/lib/data/data'
 
 type CategoryDef = (typeof CATEGORIES)[number]
+type Tab = 'spider' | 'items' | 'edit'
 
 interface Props {
   open: boolean
   onOpenChange: (next: boolean) => void
   datasets: readonly ChartDataset[]
   cat: CategoryDef | null
+  /** When provided, the Edit Answers tab is shown and answers are saved to this result. */
+  result?: Result | null
 }
 
-export function CategoryModal({ open, onOpenChange, datasets, cat }: Props) {
-  const [tab, setTab] = useState<'spider' | 'items'>('spider')
+export function CategoryModal({ open, onOpenChange, datasets, cat, result }: Props) {
+  const [tab, setTab] = useState<Tab>('spider')
   const lang = getLang()
+  const showEdit = Boolean(result)
 
-  // Render the Dialog regardless so Radix gets a chance to animate close,
-  // but the body short-circuits when no category is selected.
+  // Reset to spider tab whenever the modal opens on a new category
+  // (avoids landing on Edit tab when no result is provided)
+  function handleOpenChange(next: boolean) {
+    if (!next) setTab('spider')
+    onOpenChange(next)
+  }
+
   if (!cat) {
     return (
-      <Dialog open={open} onOpenChange={onOpenChange}>
+      <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogContent
           className="max-w-[min(820px,96vw)] max-h-[min(90vh,900px)] p-0 overflow-hidden flex flex-col gap-0"
           showCloseButton={false}
@@ -47,14 +60,14 @@ export function CategoryModal({ open, onOpenChange, datasets, cat }: Props) {
   const blurb = lang === 'de' && cat.deBlurb ? cat.deBlurb : cat.blurb
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent
         className="max-w-[min(820px,96vw)] max-h-[min(90vh,900px)] p-0 overflow-hidden flex flex-col gap-0"
         style={{ ['--c' as 'color']: cat.color } as React.CSSProperties}
         showCloseButton={false}
         data-testid="category-modal"
       >
-        {/* Header row — icon + title + blurb. Uses --c (cat color) for the icon tint. */}
+        {/* Header row */}
         <div className="cat-modal-head-row">
           <div className="cat-modal-icon-wrap">
             <span className="cat-modal-icon" aria-hidden="true">{cat.icon}</span>
@@ -67,7 +80,7 @@ export function CategoryModal({ open, onOpenChange, datasets, cat }: Props) {
           </div>
         </div>
 
-        {/* Tab bar — Spider | Items. Edit tab intentionally omitted (out of scope). */}
+        {/* Tab bar */}
         <div className="cat-modal-tabs" role="tablist">
           <button
             type="button"
@@ -89,9 +102,21 @@ export function CategoryModal({ open, onOpenChange, datasets, cat }: Props) {
           >
             {t('tab_items')}
           </button>
+          {showEdit && (
+            <button
+              type="button"
+              role="tab"
+              aria-selected={tab === 'edit'}
+              className={`cat-modal-tab${tab === 'edit' ? ' active' : ''}`}
+              onClick={() => setTab('edit')}
+              data-testid="cat-modal-tab-edit"
+            >
+              {t('tab_edit')}
+            </button>
+          )}
         </div>
 
-        {/* Tab content — scrolls vertically inside the modal. */}
+        {/* Tab content */}
         {tab === 'spider' ? (
           <div
             className="cat-modal-spider cat-modal-content"
@@ -100,7 +125,7 @@ export function CategoryModal({ open, onOpenChange, datasets, cat }: Props) {
           >
             <ItemSpider datasets={datasets} catId={cat.id} size={520} />
           </div>
-        ) : (
+        ) : tab === 'items' ? (
           <div
             className="cat-modal-bars-scroll cat-modal-content"
             role="tabpanel"
@@ -108,14 +133,24 @@ export function CategoryModal({ open, onOpenChange, datasets, cat }: Props) {
           >
             <CategoryBars datasets={datasets} catId={cat.id} />
           </div>
+        ) : (
+          result && (
+            <div
+              className="cat-modal-content cat-modal-bars-scroll"
+              role="tabpanel"
+              data-testid="cat-modal-panel-edit"
+            >
+              <EditTabContent result={result} cat={cat} />
+            </div>
+          )
         )}
 
-        {/* Footer actions. Save button intentionally omitted (no Edit tab). */}
+        {/* Footer */}
         <div className="rs-modal-actions">
           <button
             type="button"
             className="btn btn-ghost"
-            onClick={() => onOpenChange(false)}
+            onClick={() => handleOpenChange(false)}
             data-testid="cat-modal-close"
           >
             {t('btn_close')}
@@ -123,5 +158,111 @@ export function CategoryModal({ open, onOpenChange, datasets, cat }: Props) {
         </div>
       </DialogContent>
     </Dialog>
+  )
+}
+
+// ── Edit tab content ──────────────────────────────────────────────────────────
+// Isolated component so hooks (useStore, useTemplateWarning, useToast) are
+// always called in stable order regardless of which tab is active.
+
+interface EditTabProps {
+  result: Result
+  cat: CategoryDef
+}
+
+function EditTabContent({ result, cat }: EditTabProps) {
+  const saveResult = useStore((s) => s.saveResult)
+  const storeScale = useStore((s) => s.scale)
+  const { confirmIfTemplate } = useTemplateWarning(result)
+  const { toast } = useToast()
+  const lang = getLang()
+
+  const scale = result.scale ?? storeScale
+  const { base, custom } = enabledItemsForCat(result.answers, cat.id)
+  const slot = result.answers[cat.id] ?? {}
+
+  async function addCustom() {
+    if (!await confirmIfTemplate()) return
+    const name = await dialog<string | null>({
+      title: t('q_add_custom_title'),
+      body: (close) => {
+        let value = ''
+        const submit = () => close(value.trim() || null)
+        return (
+          <div className="flex flex-col gap-2">
+            <input
+              autoFocus
+              placeholder={t('q_add_custom_placeholder')}
+              onChange={(e) => { value = e.target.value }}
+              onKeyDown={(e) => { if (e.key === 'Enter') submit() }}
+              className="w-full rounded border border-line px-2 py-1"
+              data-testid="modal-add-custom-input"
+            />
+            <button
+              type="button"
+              onClick={submit}
+              className="self-end px-3 py-1 rounded bg-accent text-on-accent"
+              data-testid="modal-add-custom-ok"
+            >
+              {t('btn_ok')}
+            </button>
+          </div>
+        )
+      },
+      actions: [{ label: t('btn_cancel'), kind: 'ghost', value: null }],
+    })
+    if (!name) return
+    const c = ALL_CATS.find((x) => x.id === cat.id)!
+    if ((c.items as readonly string[]).includes(name) || (slot.__custom ?? {})[name]) {
+      toast.message(t('q_item_already_exists'))
+      return
+    }
+    const next = structuredClone(result)
+    const ns = next.answers[cat.id] ?? {}
+    ns.__custom = { ...(ns.__custom ?? {}), [name]: { scale: 'open' } }
+    next.answers[cat.id] = ns
+    saveResult(next)
+  }
+
+  const catLabel = lang === 'de' && cat.de ? cat.de : cat.title
+
+  return (
+    <div className="modal-edit-items q-items" data-testid={`modal-edit-cat-${cat.id}`}>
+      <p className="muted small px-1 pb-2">{catLabel}</p>
+      {base.map((item) => (
+        <RsQuestionCard
+          key={item}
+          result={result}
+          catId={cat.id}
+          item={item}
+          isCustom={false}
+          cell={slot[item]}
+          scale={scale}
+          onBeforeMutate={confirmIfTemplate}
+          variant="list"
+        />
+      ))}
+      {custom.map((item) => (
+        <RsQuestionCard
+          key={`custom-${item}`}
+          result={result}
+          catId={cat.id}
+          item={item}
+          isCustom={true}
+          cell={slot.__custom?.[item]}
+          scale={scale}
+          onBeforeMutate={confirmIfTemplate}
+          variant="list"
+        />
+      ))}
+      <Button
+        variant="ghost"
+        onClick={addCustom}
+        className="mt-2"
+        data-testid={`modal-add-custom-${cat.id}`}
+      >
+        {t('q_add_custom')}
+      </Button>
+    </div>
   )
 }
