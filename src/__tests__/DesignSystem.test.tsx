@@ -91,8 +91,7 @@ describe('<DesignSystem /> route (DESIGN-05, DESIGN-06)', () => {
     mem.setItem(
       'relationshape.v1',
       JSON.stringify({
-        state: { profiles: [], results: [], imports: [], settings: { theme: 'auto', ageConfirmed: true, wizardSeen: true }, scale: [], lastSaveError: null },
-        version: 1,
+        profiles: [], results: [], imports: [], settings: { theme: 'auto', ageConfirmed: true, wizardSeen: true }, scale: [],
       }),
     )
     vi.stubGlobal('localStorage', mem)

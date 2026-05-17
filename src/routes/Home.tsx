@@ -340,7 +340,7 @@ function ImportRow({
         )}
         <button
           type="button"
-          className="btn btn-ghost"
+          className="btn"
           onClick={() => onUseTemplate(imp)}
           data-testid={`${testIdBase}-use-template`}
         >
@@ -348,7 +348,7 @@ function ImportRow({
         </button>
         <button
           type="button"
-          className="btn btn-danger-ghost"
+          className="btn btn-danger-outline"
           onClick={onDelete}
           data-testid={`${testIdBase}-delete`}
         >
