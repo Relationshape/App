@@ -153,30 +153,16 @@ describe('Compare route (SHARE-05, D-25, D-35)', () => {
     expect(chip?.textContent).toContain('Their Map')
   }, 30000)
 
-  it('D-04: shows Add-more-categories button when an own-result is selected', async () => {
-    // Both own-results selected — firstEditableResult will be R1; both have item-level answers
-    // so the section renders.
+  it('D-04: cat-details section renders when own results are selected (no add-cats button)', async () => {
     const store = makeStoreWithAnswers([
       { id: R1, answers: { connection: { item1: { scale: 'green' } } } },
       { id: R2, answers: { connection: { item2: { scale: 'red' } } } },
     ])
     await mountAtHash(`#/compare?ids=${R1},${R2}`, store)
     await waitFor(() => {
-      expect(document.querySelector('[data-testid="compare-page"]')).not.toBeNull()
+      expect(document.querySelector('[data-testid="compare-cat-details"]')).not.toBeNull()
     }, { timeout: 10000 })
-    await waitFor(() => {
-      expect(document.querySelector('[data-testid="compare-add-cats"]')).not.toBeNull()
-    }, { timeout: 5000 })
-  }, 30000)
-
-  it('D-04: hides Add-more-categories button when only imports are selected', async () => {
-    // imp: only — firstEditableResult is null → no button.
-    await mountAtHash(`#/compare?ids=imp:${IMP1}`)
-    await waitFor(() => {
-      expect(document.querySelector('[data-testid="compare-page"]')).not.toBeNull()
-    }, { timeout: 10000 })
-    // Even if cat-details section is empty (no item-level data on the import),
-    // the button must NOT appear.
+    // Add-categories button is removed
     expect(document.querySelector('[data-testid="compare-add-cats"]')).toBeNull()
   }, 30000)
 
@@ -244,19 +230,18 @@ describe('Compare route (SHARE-05, D-25, D-35)', () => {
     }, { timeout: 5000 })
   }, 30000)
 
-  it('D-04: clicking Add-more-categories opens the RsCategoryPicker dialog', async () => {
+  it('D-04: cat-details section shows filter hint text and no add-categories button', async () => {
     const store = makeStoreWithAnswers([
       { id: R1, answers: { connection: { item1: { scale: 'green' } } } },
       { id: R2, answers: { connection: { item1: { scale: 'red' } } } },
     ])
     await mountAtHash(`#/compare?ids=${R1},${R2}`, store)
     await waitFor(() => {
-      expect(document.querySelector('[data-testid="compare-add-cats"]')).not.toBeNull()
+      expect(document.querySelector('[data-testid="compare-cat-details"]')).not.toBeNull()
     }, { timeout: 10000 })
-    fireEvent.click(document.querySelector('[data-testid="compare-add-cats"]')!)
-    await waitFor(() => {
-      // RsCategoryPicker.tsx sets data-testid="cat-picker" on its DialogContent.
-      expect(document.querySelector('[data-testid="cat-picker"]')).not.toBeNull()
-    }, { timeout: 5000 })
+    // Filter hint is shown
+    expect(document.querySelector('[data-testid="compare-cat-details"] .small')).not.toBeNull()
+    // Add-categories button is removed
+    expect(document.querySelector('[data-testid="compare-add-cats"]')).toBeNull()
   }, 30000)
 })
