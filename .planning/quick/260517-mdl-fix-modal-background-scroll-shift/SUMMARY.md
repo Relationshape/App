@@ -7,20 +7,35 @@ completed: 2026-05-17
 # Summary
 
 ## What changed
-- `src/styles/legacy-components.css`: added `scrollbar-gutter: stable` to the
-  `html` rule so the vertical scrollbar gutter is reserved at all times.
+- `src/styles/legacy-components.css`:
+  1. Added `scrollbar-gutter: stable` to the `html` rule so the vertical
+     scrollbar gutter is reserved at all times (fixes horizontal jump).
+  2. Moved `padding-top: 80px` (and the mobile `66px` override) from `body`
+     to `#root` so that the fixed-nav offset isn't wiped out when a modal
+     opens (fixes the vertical content shift).
 
 ## Why
-When a Radix Dialog opens, `react-remove-scroll` locks the body and the
-vertical scrollbar is removed. Without a stable gutter, the viewport widens
-by the scrollbar width, which:
+Two distinct problems were causing the page to visibly shift when any
+Radix Dialog opened:
 
-- shifts the centered fixed nav (`#nav` uses `left: 50%; translateX(-50%)`),
-- reflows page content horizontally,
-- reads as "the background scrolls" when opening the modal.
+1. **Horizontal jump.** When `react-remove-scroll` locks the body, the
+   vertical scrollbar is removed; without a reserved gutter the viewport
+   widens by the scrollbar width, shifting the centered fixed `#nav`
+   (`left: 50%; translateX(-50%)`) and reflowing content. Fixed by
+   `scrollbar-gutter: stable` on `html`.
 
-`scrollbar-gutter: stable` reserves that space permanently, so the lock no
-longer changes viewport width and nothing shifts.
+2. **Vertical 80px content jump (this was the "scrolls to the bottom"
+   symptom).** `react-remove-scroll-bar` (via Radix Dialog) injects, with
+   `!important`:
+   ```css
+   body[data-scroll-locked] { padding: 0 ... !important; ... }
+   ```
+   Its `gapMode` defaults to `'margin'`, so the injected `padding-*` values
+   are taken from body's *margin* (zero, because of our `html, body { margin: 0 }`
+   reset). The 80px reserved for the fixed nav lived on `body { padding-top: 80px }`
+   and was therefore zeroed out the moment a dialog opened — every page
+   jumped up by 80px (66px on mobile). Fixed by moving the nav offset onto
+   `#root` instead, which the scroll-lock CSS doesn't touch.
 
 ## Was shadcn being misused?
 No. `DialogHost` (`src/components/DialogHost.tsx`) uses the shadcn
