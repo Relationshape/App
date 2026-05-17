@@ -128,6 +128,13 @@ export const useStore = create<AppState>()(
     deleteImport: (id) => {
       set((state) => ({ imports: state.imports.filter((i) => i.id !== id) }))
     },
+    unlockImport: (id, answers) => {
+      set((state) => ({
+        imports: state.imports.map((i) =>
+          i.id === id ? { ...i, answers, answersUnlocked: true } : i
+        ),
+      }))
+    },
 
     // Snapshot replace (backup restore)
     replaceAll: (snapshot) => {
