@@ -11,6 +11,7 @@ import { catProgress } from '@/lib/charts/math'
 import { Button } from '@/components/ui/button'
 import { RsTile } from '@/components/RsTile'
 import { RsCategoryPicker } from '@/components/RsCategoryPicker'
+import { NewMapWizard } from '@/components/NewMapWizard'
 import { t, getLang } from '@/lib/i18n/i18n'
 
 export function CategoryOverview() {
@@ -26,25 +27,6 @@ export function CategoryOverview() {
   const result = allResults.find((r) => r.id === resultId) ?? null
 
   // All hooks MUST be declared before any early returns (Rules of Hooks).
-  // Otherwise the new-result path renders 2 hooks on the first pass and 3 on the next,
-  // crashing with "Rendered more hooks than during the previous render".
-  useEffect(() => {
-    if (resultId !== 'new' || !profile) return
-    const id = (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : `r-${Date.now()}`
-    saveResult({
-      id,
-      profileId: profile.id,
-      subject: profile.name,
-      subjectColor: profile.color,
-      subjectEmoji: profile.emoji,
-      answers: {},
-      enabledCategories: CATEGORIES.map((c) => c.id),
-      progress: { mode: 'list' },
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-    })
-    navigate(`/q-categories/${profile.id}/${id}`, { replace: true })
-  }, [resultId, profile, saveResult, navigate])
 
   useEffect(() => {
     if (!profile) navigate('/')
@@ -67,7 +49,7 @@ export function CategoryOverview() {
   )
 
   if (!profile) return null
-  if (resultId === 'new') return null
+  if (resultId === 'new') return <NewMapWizard profile={profile} />
   if (!result) return null
 
   function openCategory(catId: string) {

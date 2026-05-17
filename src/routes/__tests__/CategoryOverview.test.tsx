@@ -129,12 +129,10 @@ describe('CategoryOverview (QUEST-01 + 260516-qva)', () => {
     expect(saved?.enabledCategories).toContain(CATEGORIES[1]!.id)
   })
 
-  it('resultId === "new" creates a fresh result and redirects', async () => {
+  it('resultId === "new" shows the NewMapWizard', async () => {
     await mountAtHash(`#/q-categories/${PROFILE_ID}/new`)
     await waitFor(() => {
-      const hasPage = document.querySelector('[data-testid="category-overview-page"]')
-      const hasHome = document.querySelector('[data-testid="home-page"]')
-      expect(hasPage || hasHome).not.toBeNull()
+      expect(document.querySelector('[data-testid="new-map-wizard"]')).not.toBeNull()
     })
   })
 
