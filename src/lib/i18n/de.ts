@@ -30,7 +30,7 @@ export const DE: Record<TranslationKey, string> = {
   welcome_f1: '🔒 Bleibt auf diesem Gerät',
   welcome_f2: '📤 Ende-zu-Ende-verschlüsseltes Teilen',
   welcome_f3: '📊 Kategorie- & Übersichts-Netzdiagramme',
-  welcome_f4: '👥 Mehrere Profile in einer App',
+  welcome_f4: '👤 Ein Profil, viele Beziehungen',
   feat_maps_title: 'Beziehungskarten',
   feat_maps_short:
     'Beantworte Fragen und bewerte Beziehungselemente, um eine visuelle Karte jeder Beziehung zu erstellen.',
@@ -55,12 +55,12 @@ export const DE: Record<TranslationKey, string> = {
   feat_security_sub: 'Bleibt auf diesem Gerät',
   feat_charts_title: 'Netzdiagramme',
   feat_charts_sub: 'Visuelle Beziehungskarten',
-  feat_profiles_title: 'Mehrere Profile',
-  feat_profiles_sub: 'Alles an einem Ort',
+  feat_profiles_title: 'Dein Profil',
+  feat_profiles_sub: 'Ein Profil, alle Karten',
   btn_select_all_continue: 'Alle auswählen & weiter',
   profiles_title: 'Deine Profile',
   profiles_sub:
-    'Jedes Profil enthält deine eigenen Antworten. Führe separate Profile für verschiedene Lebensphasen oder Personas.',
+    'Dein Profil ist deine Identität in der App. Alle deine Beziehungskarten befinden sich hier.',
   new_profile_btn: 'Neues Profil',
   imports_title: '📥 Importierte Ergebnisse',
   imports_sub: 'Verschlüsselte Freigaben von Menschen, denen du vertraust.',
@@ -98,7 +98,7 @@ export const DE: Record<TranslationKey, string> = {
     'Alle Daten werden nur in deinem Browser gespeichert – keine Accounts, keine Server, keine Analyse. Du hast die volle Kontrolle.',
   wizard_s3_title: 'Zuerst ein Profil anlegen 👤',
   wizard_s3_body:
-    'Ein Profil repräsentiert dich (oder eine Persona). Du kannst mehrere Profile auf einem Gerät führen – z.B. für verschiedene Lebensphasen.',
+    'Ein Profil repräsentiert dich in der App. Erstelle ein Profil und kartiere damit beliebig viele Beziehungen.',
   wizard_s4_title: 'Beziehungen kartieren 🗺️',
   wizard_s4_body:
     'Für jede Beziehung, über die du nachdenken möchtest, erstelle eine „Beziehungskarte". Gehe durch die Kategorien und bewerte jedes Element – von „Nein" bis „Brauche ich".',
@@ -235,6 +235,10 @@ export const DE: Record<TranslationKey, string> = {
     'Wähle bis zu vier Ergebnisse zum Überlagern aus. Öffne eine Kategorie für ein Netzdiagramm.',
   compare_import_btn: 'Ergebnis importieren',
   compare_import_title: 'Ergebnis importieren',
+  compare_own_section: 'Eigene Karten',
+  compare_imported_section: 'Importierte Ergebnisse',
+  compare_selected_of: '{n} von 4 ausgewählt',
+  compare_max_hint: 'Es können bis zu 4 Karten gleichzeitig überlagert werden.',
   compare_select: 'Wähle oben Ergebnisse aus.',
   alignment_title: 'Übereinstimmungsübersicht',
   cat_details_title: 'Kategorie-Details',
@@ -356,6 +360,9 @@ export const DE: Record<TranslationKey, string> = {
     'Relationshapes ist ein Kommunikationswerkzeug, das dabei hilft, Beziehungen nach den tatsächlichen Bedürfnissen und Wünschen aller Beteiligten zu gestalten – unabhängig von gesellschaftlichen Normen oder Hierarchien.',
   about_p2:
     'Es kommt aus der Welt der Beziehungsanarchie und wurde inspiriert von Andie Nordgrens Manifest, dem Smorgasbord der Beziehungsanarchie, sowie Büchern wie Polysecure (Jessica Fern) und More than Two (Eve Rickert & Franklin Veaux).',
+  about_philosophy_title: 'Philosophie',
+  about_philosophy:
+    'Beziehungen verändern sich mit der Zeit. Relationshapes anerkennt das gesamte Spektrum menschlicher Verbindungen – romantisch, platonisch, sexuell, kinky, familiär – ohne Hierarchien oder Einheitsmodelle vorzuschreiben. Das Werkzeug ist eine Einladung, es frei zu bearbeiten, zu ergänzen, zu streichen und anzupassen. Die Urheber*innen sind explizit: Es kann niemals eine Universallösung sein, und jede Person bringt ihre eigene Prägung in diese Gespräche mit.',
   about_how_title: 'So wird die App verwendet',
   about_how_1: 'Erstelle ein Profil für dich.',
   about_how_2: 'Starte für jede Beziehung, über die du nachdenken möchtest, eine Beziehungskarte.',
@@ -365,15 +372,24 @@ export const DE: Record<TranslationKey, string> = {
     'Öffne in der Ergebnisansicht eine Kategorie, um ein Netzdiagramm ihrer Elemente zu sehen.',
   about_how_5:
     'Tausche optional dein verschlüsseltes Paket mit der anderen Person aus und vergleiche.',
+  about_approach_title: 'Empfohlene Vorgehensweise',
+  about_approach_1:
+    'Lies zunächst alle Kategorien einmal durch, bevor du anfängst zu antworten – manche Begriffe profitieren von einer gemeinsamen Definition vorab.',
+  about_approach_2:
+    'Füll es unabhängig voneinander aus und vergleicht und besprecht eure Antworten dann gemeinsam.',
+  about_approach_3:
+    'Kehre von Zeit zu Zeit zurück – etwa alle sechs Monate ist ein guter Rhythmus, da sich Bedürfnisse und Beziehungen weiterentwickeln.',
   about_privacy_title: 'Datenschutz',
   about_privacy:
     'Alles bleibt im lokalen Speicher deines Browsers auf diesem Gerät. Die App hat kein Backend. Geteilte Pakete werden mit AES-GCM (256-Bit) verschlüsselt, wobei der Schlüssel über PBKDF2 aus deinem Passwort abgeleitet wird (250.000 Iterationen).',
-  about_credits_title: 'Credits',
+  about_credits_title: 'Credits & Lizenz',
   about_credits:
-    'Der Relationshapes-Fragebogen und das Konzept stammen von Anne Lüscher (sie/ihr) und Benjamin Frey (er/ihm), veröffentlicht unter CC BY-NC 4.0.',
+    'Der Relationshapes-Fragebogen und das Konzept stammen von Anne Lüscher (sie/ihr) und Benjamin Frey (er/ihm), veröffentlicht unter CC BY-NC 4.0 – kostenlos teilbar und anpassbar für nicht-kommerzielle Zwecke mit Namensnennung.',
   about_credits_repo: 'Original-Repository',
   about_credits_unofficial:
     'Diese App ist eine inoffizielle Implementierung, um das Werkzeug interaktiver und zugänglicher zu machen.',
+  about_contact_title: 'Kontakt',
+  about_contact: 'Fragen und Feedback sind willkommen unter',
   about_ai_title: 'Transparenz zur Verwendung von KI-Tools',
   about_ai_text:
     'Diese App wurde mithilfe von Claude Code programmiert. Die ursprüngliche Idee, die Struktur der App, sowie alle Elemente, Fragen und Texte entstammen jedoch zu 100% der Arbeit der Urheber*innen, sowie den Erfahrungswelten der breiteren Community.',
@@ -478,9 +494,9 @@ export const DE: Record<TranslationKey, string> = {
   feat_sharing_title: 'Teilen',
   feat_sharing_short: 'Tausche deine Ergebnisse aus, um ins Gespräch zu kommen und Gemeinsamkeiten zu entdecken.',
   feat_sharing_body: 'Tausche deine Ergebnisse mit deinem Gegenüber aus um ins Gespräch zu kommen, Bedürfnisse, Wünsche und Grenzen zu kommunizieren und Abmachungen zu treffen. Das grafische Übereinanderlegen mittels Netzdiagramm zeigt intuitiv, wo ihr aligned seid und wo mögliche Differenzen bestehen.',
-  feat_multi_title: 'Mehrere Profile',
-  feat_multi_short: 'Führe separate Profile für verschiedene Lebensphasen oder Personas.',
-  feat_multi_body: 'Erstelle und verwalte mehrere Profile in einer einzigen App. Jedes Profil enthält deine eigenen Antworten für einen anderen Lebenskontext oder eine Persona — alles getrennt und privat.',
+  feat_multi_title: 'Ein Profil',
+  feat_multi_short: 'Ein Profil, unbegrenzte Beziehungskarten.',
+  feat_multi_body: 'Erstelle ein einziges Profil, das dich repräsentiert, und kartiere damit beliebig viele Beziehungen. Jede Beziehungskarte ist separat und privat — alles an einem Ort.',
 
   // Scale picker (plan 02-04)
   scale_picker_label: 'Antwortskala',

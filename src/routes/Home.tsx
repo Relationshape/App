@@ -55,7 +55,8 @@ export function Home() {
 
   function openTemplateWizard(imp: Import) {
     setTemplateProfileId(profiles[0]?.id ?? '')
-    setTemplateStep(1)
+    // Skip profile picker when there is exactly one profile
+    setTemplateStep(profiles.length === 1 ? 2 : 1)
     setTemplateSubject(imp.subject?.trim() ?? '')
     setTemplateImp(imp)
   }
@@ -123,10 +124,12 @@ export function Home() {
             {p.pronouns && <p className="muted small">{p.pronouns}</p>}
           </Link>
         ))}
-        <Link to="/profile/new" className="card card-add" data-testid="home-new-profile">
-          <div className="card-add-icon">+</div>
-          <div>{t('new_profile_btn')}</div>
-        </Link>
+        {profiles.length === 0 && (
+          <Link to="/profile/new" className="card card-add" data-testid="home-new-profile">
+            <div className="card-add-icon">+</div>
+            <div>{t('new_profile_btn')}</div>
+          </Link>
+        )}
       </div>
       {withAnswers.length > 0 && (
         <section className="page-section" data-testid="home-imports">
