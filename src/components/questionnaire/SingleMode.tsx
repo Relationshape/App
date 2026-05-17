@@ -4,10 +4,10 @@
 // (.q-card / .q-card-cat / .q-card-item / .q-card-slider / .q-card-note /
 // .q-card-actions / .q-card-progress). Quick task 260516-w94.
 
-import { useReducer, useMemo, useState } from 'react'
+import { useReducer, useMemo, useState, useRef } from 'react'
+import { useDrag } from '@use-gesture/react'
 import { useStore } from '@/lib/storage/store'
 import { useTemplateWarning } from '@/lib/hooks/useTemplateWarning'
-import { useSwipe } from '@/lib/hooks/useSwipe'
 import { useKeydown } from '@/lib/hooks/useKeydown'
 import { useReducedMotion } from '@/lib/hooks/useReducedMotion'
 import { useIsCoarsePointer } from '@/lib/hooks/useIsCoarsePointer'
@@ -21,7 +21,7 @@ import { QuestionnaireNav } from './QuestionnaireNav'
 import { enabledItemsForCat, type FlatItem } from '@/lib/charts/items'
 import { CATEGORIES } from '@/lib/data/data'
 import type { Result, Profile, AnswerCell } from '@/lib/storage/types'
-import { t, getLang } from '@/lib/i18n/i18n'
+import { t } from '@/lib/i18n/i18n'
 
 type Dir = 'left' | 'right'
 interface State { cursor: number; dir: Dir }
@@ -43,8 +43,6 @@ export function SingleMode({ result, profile }: Props) {
   const { confirmIfTemplate } = useTemplateWarning(result)
   const reduced = useReducedMotion()
   const coarse = useIsCoarsePointer()
-  const lang = getLang()
-
   const enabledCats = useMemo(() => (
     (result.enabledCategories ?? CATEGORIES.map((c) => c.id))
       .map((cid) => CATEGORIES.find((c) => c.id === cid))
@@ -66,6 +64,9 @@ export function SingleMode({ result, profile }: Props) {
   const initial = result.progress?.flatIndex ?? 0
   const [state, dispatch] = useReducer(reducer, { cursor: initial, dir: 'right' as Dir })
   const [editScaleOpen, setEditScaleOpen] = useState(false)
+  const [dragX, setDragX] = useState(0)
+  const [swipeClass, setSwipeClass] = useState<string | null>(null)
+  const swipingRef = useRef(false)
 
   const cur = items[state.cursor]
   const peekNext = items[state.cursor + 1]
@@ -79,11 +80,40 @@ export function SingleMode({ result, profile }: Props) {
     else dispatch({ type: 'prev' })
   }
 
-  const bind = useSwipe({
-    onLeft: () => { void advance(+1, 'left') },
-    onRight: () => { void advance(-1, 'right') },
-    threshold: 40,
-  })
+  const bind = useDrag(
+    ({ movement: [mx], last }) => {
+      if (swipingRef.current) return
+      if (!last) {
+        if (!reduced) setDragX(mx)
+        return
+      }
+      setDragX(0)
+      const threshold = 40
+      if (reduced) {
+        if (mx < -threshold) void advance(+1, 'left')
+        else if (mx > threshold) void advance(-1, 'right')
+        return
+      }
+      if (mx < -threshold) {
+        swipingRef.current = true
+        setSwipeClass('swipe-left')
+        setTimeout(() => {
+          setSwipeClass(null)
+          swipingRef.current = false
+          void advance(+1, 'left')
+        }, 180)
+      } else if (mx > threshold) {
+        swipingRef.current = true
+        setSwipeClass('swipe-right')
+        setTimeout(() => {
+          setSwipeClass(null)
+          swipingRef.current = false
+          void advance(-1, 'right')
+        }, 180)
+      }
+    },
+    { axis: 'x', pointer: { touch: true }, filterTaps: true, rubberband: reduced ? 0 : 0.15 },
+  )
 
   const keyHandlers = useMemo(() => ({
     ArrowRight: () => { void advance(+1, 'right') },
@@ -116,8 +146,6 @@ export function SingleMode({ result, profile }: Props) {
   const cell: AnswerCell | undefined = cur.isCustom
     ? result.answers[cur.catId]?.__custom?.[cur.item]
     : result.answers[cur.catId]?.[cur.item]
-  const catTitle = lang === 'de' && cat.de ? cat.de : cat.title
-
   async function setScaleKey(key: string, frac: number) {
     if (!cur) return
     if (!(await confirmIfTemplate())) return
@@ -190,23 +218,23 @@ export function SingleMode({ result, profile }: Props) {
               data-testid="single-peek"
               style={cardStyle}
             >
-              <div className="q-card-cat">
-                <span className="q-card-icon" aria-hidden>{cat.icon}</span>
-                <span>{catTitle}</span>
-              </div>
               <h1 className="q-card-item">{peekNext.item}</h1>
             </article>
           )}
           <article
-            className="q-card in single-card"
+            className={`q-card in single-card${swipeClass ? ` ${swipeClass}` : dragX !== 0 ? ' dragging' : ''}`}
             data-state={reduced ? undefined : `entering-${state.dir}`}
             data-testid="single-card"
-            style={{ ...cardStyle, touchAction: 'pan-y' } as React.CSSProperties}
+            style={{
+              ...cardStyle,
+              touchAction: 'pan-y',
+              ...(dragX !== 0 && !reduced
+                ? { transform: `translate(${dragX}px) rotate(${dragX * 0.03}deg)` }
+                : {}),
+            } as React.CSSProperties}
             {...bind()}
           >
             <div className="q-card-cat">
-              <span className="q-card-icon" aria-hidden>{cat.icon}</span>
-              <span>{catTitle}</span>
               {cur.isCustom && <span className="q-item-tag">{t('custom_tag')}</span>}
               <Button
                 variant="ghost"

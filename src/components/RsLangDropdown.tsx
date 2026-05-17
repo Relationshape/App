@@ -7,12 +7,12 @@
 
 import { useStore } from '@/lib/storage/store'
 import type { Settings } from '@/lib/storage/types'
-import { availableLangs } from '@/lib/i18n/i18n'
+import { availableLangs, getLang } from '@/lib/i18n/i18n'
 
 type Lang = NonNullable<Settings['lang']>
 
 export function RsLangDropdown() {
-  const current = useStore((s) => s.settings.lang ?? 'en')
+  const current = useStore((s) => s.settings.lang ?? getLang())
   const setLang = useStore((s) => s.setLang)
   return (
     <label className="inline-flex items-center gap-2 text-sm">
