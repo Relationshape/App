@@ -107,6 +107,9 @@ export function MapSettings() {
       <section className="page-section" data-testid="map-settings-categories">
         <h2>{t('map_settings_cat_title')}</h2>
         <p className="muted">{t('map_settings_cat_sub')}</p>
+        <div className="callout" data-testid="map-cat-hidden-info">
+          ℹ️ {t('map_settings_cat_hidden_info')}
+        </div>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-2" data-testid="map-cat-grid">
           {CATEGORIES.map((cat) => {
             const on = enabledCategories.includes(cat.id)

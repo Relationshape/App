@@ -4,7 +4,6 @@
 
 import { Link, useNavigate } from 'react-router-dom'
 import { useStore } from '@/lib/storage/store'
-import { isTemplateImport } from '@/lib/data/imports'
 import { dialog } from '@/lib/dialog/dialog'
 import { fmtDate } from '@/lib/format/date'
 import { t } from '@/lib/i18n/i18n'
@@ -13,12 +12,16 @@ import type { Import } from '@/lib/storage/types'
 export function Home() {
   const profiles = useStore((s) => s.profiles)
   const imports = useStore((s) => s.imports)
-  const visibleImports = imports
-    .filter((i) => !isTemplateImport(i))
-    .sort((a, b) => (b.importedAt ?? 0) - (a.importedAt ?? 0))
+  const byDate = (a: Import, b: Import) => (b.importedAt ?? 0) - (a.importedAt ?? 0)
+  const withAnswers = imports
+    .filter((i) => i.exportMode !== 'template' && !(i.exportMode === 'restricted' && !i.answersUnlocked))
+    .sort(byDate)
+  const lockedImports = imports
+    .filter((i) => i.exportMode === 'restricted' && !i.answersUnlocked)
+    .sort(byDate)
   const templateImports = imports
-    .filter((i) => isTemplateImport(i))
-    .sort((a, b) => (b.importedAt ?? 0) - (a.importedAt ?? 0))
+    .filter((i) => i.exportMode === 'template')
+    .sort(byDate)
 
   return (
     <section className="page" data-testid="home-page">
@@ -45,15 +48,28 @@ export function Home() {
           <div>{t('new_profile_btn')}</div>
         </Link>
       </div>
-      {visibleImports.length > 0 && (
+      {withAnswers.length > 0 && (
         <section className="page-section" data-testid="home-imports">
           <header className="section-head">
-            <h2>{t('imports_title')}</h2>
-            <p className="muted">{t('imports_sub')}</p>
+            <h2>{t('imports_with_answers_title')}</h2>
+            <p className="muted">{t('imports_with_answers_sub')}</p>
           </header>
           <div className="list">
-            {visibleImports.map((i) => (
-              <ImportRow key={i.id} imp={i} isTemplate={false} />
+            {withAnswers.map((i) => (
+              <ImportRow key={i.id} imp={i} category="answers" />
+            ))}
+          </div>
+        </section>
+      )}
+      {lockedImports.length > 0 && (
+        <section className="page-section" data-testid="home-locked-imports">
+          <header className="section-head">
+            <h2>{t('imports_locked_title')}</h2>
+            <p className="muted">{t('imports_locked_sub')}</p>
+          </header>
+          <div className="list">
+            {lockedImports.map((i) => (
+              <ImportRow key={i.id} imp={i} category="locked" />
             ))}
           </div>
         </section>
@@ -66,7 +82,7 @@ export function Home() {
           </header>
           <div className="list">
             {templateImports.map((i) => (
-              <ImportRow key={i.id} imp={i} isTemplate={true} />
+              <ImportRow key={i.id} imp={i} category="template" />
             ))}
           </div>
         </section>
@@ -75,15 +91,16 @@ export function Home() {
   )
 }
 
-function ImportRow({ imp, isTemplate }: { imp: Import; isTemplate: boolean }) {
+type ImportCategory = 'answers' | 'locked' | 'template'
+
+function ImportRow({ imp, category }: { imp: Import; category: ImportCategory }) {
   const navigate = useNavigate()
   const deleteImport = useStore((s) => s.deleteImport)
   const v = (imp.version ?? 1) > 1 ? ` (v${imp.version})` : ''
-  const isLocked = imp.exportMode === 'restricted' && !imp.answersUnlocked
   const color = imp.color || '#7c3aed'
   const subject = imp.subject?.trim() || '—'
   const title = (imp.name?.trim() || 'Imported result') + v
-  const testIdBase = isTemplate ? `home-template-${imp.id}` : `home-import-${imp.id}`
+  const testIdBase = category === 'template' ? `home-template-${imp.id}` : `home-import-${imp.id}`
 
   async function onDelete() {
     const ok = await dialog<boolean>({
@@ -107,12 +124,12 @@ function ImportRow({ imp, isTemplate }: { imp: Import; isTemplate: boolean }) {
       <div className="li-body">
         <h3>
           {title}
-          {isTemplate && (
+          {category === 'template' && (
             <span className="badge" style={{ marginLeft: 6, fontSize: 11 }}>
               {t('template_badge')}
             </span>
           )}
-          {isLocked && (
+          {category === 'locked' && (
             <span className="badge" style={{ marginLeft: 6, fontSize: 11 }}>
               {t('locked_answers_badge')}
             </span>
@@ -123,15 +140,7 @@ function ImportRow({ imp, isTemplate }: { imp: Import; isTemplate: boolean }) {
         </p>
       </div>
       <div className="li-actions">
-        {isTemplate ? (
-          <button
-            type="button"
-            className="btn btn-primary"
-            data-testid={`${testIdBase}-use-template`}
-          >
-            {t('btn_use_as_template')}
-          </button>
-        ) : (
+        {category === 'answers' && (
           <button
             type="button"
             className="btn"
@@ -141,6 +150,13 @@ function ImportRow({ imp, isTemplate }: { imp: Import; isTemplate: boolean }) {
             {t('btn_compare')}
           </button>
         )}
+        <button
+          type="button"
+          className="btn btn-ghost"
+          data-testid={`${testIdBase}-use-template`}
+        >
+          {t('btn_use_as_template')}
+        </button>
         <button
           type="button"
           className="btn btn-danger-ghost"

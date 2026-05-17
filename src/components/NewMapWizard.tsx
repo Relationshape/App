@@ -185,6 +185,9 @@ export function NewMapWizard({ profile }: Props) {
               <DialogDescription>{t('new_card_scale_sub')}</DialogDescription>
             </DialogHeader>
             <div className="scale-dialog-body flex-1 overflow-y-auto min-h-0" data-testid="wizard-scale-step">
+              <div className="callout" style={{ marginBottom: '12px', fontSize: '13px' }}>
+                {t('wizard_scale_hint')}
+              </div>
               {!customizeScale ? (
                 <div className="scale-preview-list">
                   {scale.map((s) => (

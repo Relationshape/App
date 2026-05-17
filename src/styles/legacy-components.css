@@ -853,8 +853,14 @@ a:hover { text-decoration: underline; }
    ================================================================ */
 .share-out, .form textarea {
   background: var(--surface-2);
+  color: var(--text);
   font-family: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, monospace;
   font-size: 12px; resize: vertical;
+}
+.share-out {
+  background: var(--bg);
+  color: var(--text);
+  opacity: 0.95;
 }
 .share-result { display: grid; gap: 12px; margin-top: 18px; }
 .callout {
