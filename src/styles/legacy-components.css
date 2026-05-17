@@ -1250,7 +1250,7 @@ a:hover { text-decoration: underline; }
   }
 }
 
-.q-slider-wrap { grid-column: 1 / -1; padding: 4px 4px 0; }
+.q-slider-wrap { grid-column: 1 / -1; padding: 28px 4px 0; }
 .q-card-slider { padding: 6px 0 0; }
 .q-card-rate-actions { display: flex; justify-content: flex-end; }
 
