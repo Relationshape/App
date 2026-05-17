@@ -211,6 +211,7 @@ export const EN = {
   tab_spider: 'Radar Chart',
   tab_items: 'Item by Item',
   tab_edit: 'Edit Answers',
+  tab_categories: 'Categories',
   btn_close: 'Close',
   btn_save_changes: 'Save changes',
   btn_remove_item: 'Remove',
