@@ -17,6 +17,7 @@ import type { ChartDataset } from '@/components/charts/types'
 import type { Result } from '@/lib/storage/types'
 import type { CATEGORIES } from '@/lib/data/data'
 import { getLang } from '@/lib/i18n/i18n'
+import { RsSummaryCells } from '@/components/RsSummaryCells'
 
 type CategoryDef = (typeof CATEGORIES)[number]
 
@@ -25,7 +26,7 @@ export interface RsCategoryCardProps {
   datasets: readonly ChartDataset[]
   /** When null/undefined AND filledCount === 0, the card is hidden entirely. */
   editableResult?: Result | null
-  /** Reserved for Fabi-mode summary cells (deferred per CONTEXT.md D-06). */
+  /** D-06: when true, renders an RsSummaryCells block inside .cat-card-head. */
   fabiMode?: boolean
   onClick: () => void
   testId?: string
@@ -62,7 +63,7 @@ export function RsCategoryCard({
   cat,
   datasets,
   editableResult,
-  fabiMode: _fabiMode, // TODO(fabiMode): summary cells — deferred per D-06
+  fabiMode,
   onClick,
   testId,
 }: RsCategoryCardProps) {
@@ -95,7 +96,7 @@ export function RsCategoryCard({
           <h3>{title}</h3>
           <p className="muted small">{blurb}</p>
         </div>
-        {/* TODO(fabiMode): port summaryCellsHTML from public/legacy/js/app.js — deferred per CONTEXT.md D-06. */}
+        {fabiMode ? <RsSummaryCells datasets={datasets} catId={cat.id} /> : null}
         <span className="cat-card-toggle" aria-hidden>
           →
         </span>
