@@ -95,7 +95,7 @@ export function ListMode({ result, profile }: Props) {
     const itemScale = await dialog<MutableScaleStep[] | null | false>({
       title: t('q_add_custom_scale_title'),
       body: (close) => <ListModeScalePicker defaultScale={scale} onClose={close} />,
-      actions: [{ label: t('btn_cancel'), kind: 'ghost', value: false }],
+      actions: [],
     })
     if (itemScale === false) return
 
@@ -184,7 +184,7 @@ function ListModeScalePicker({
   onClose,
 }: {
   defaultScale: MutableScaleStep[]
-  onClose: (v: MutableScaleStep[] | null) => void
+  onClose: (v: MutableScaleStep[] | null | false) => void
 }) {
   const [customizing, setCustomizing] = useState(false)
   const [customScale, setCustomScale] = useState<MutableScaleStep[]>(() => defaultScale.map((s) => ({ ...s })))
@@ -204,6 +204,9 @@ function ListModeScalePicker({
             ))}
           </div>
           <div className="flex gap-2 justify-end">
+            <Button variant="ghost" onClick={() => onClose(false)} data-testid="add-custom-scale-cancel">
+              {t('btn_cancel')}
+            </Button>
             <Button variant="ghost" onClick={() => setCustomizing(true)}>
               {t('q_add_custom_scale_customize')}
             </Button>
@@ -214,7 +217,9 @@ function ListModeScalePicker({
         </>
       ) : (
         <>
-          <ScaleEditor scale={customScale} onChange={setCustomScale} />
+          <div className="overflow-y-auto" style={{ maxHeight: '45vh' }}>
+            <ScaleEditor scale={customScale} onChange={setCustomScale} />
+          </div>
           <div className="flex gap-2 justify-end">
             <Button variant="ghost" onClick={() => { setCustomizing(false); setCustomScale(defaultScale.map((s) => ({ ...s }))) }}>
               {t('btn_back')}

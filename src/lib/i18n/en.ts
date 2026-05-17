@@ -221,6 +221,8 @@ export const EN = {
   // Compare
   compare_title: '📊 Compare',
   compare_sub: 'Pick up to four results to overlay. Open a category for a per-item radar chart.',
+  compare_import_btn: 'Import result',
+  compare_import_title: 'Import a result',
   compare_select: 'Select results above.',
   alignment_title: 'Alignment overview',
   cat_details_title: 'Category details',

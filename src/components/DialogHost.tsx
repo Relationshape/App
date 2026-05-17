@@ -22,18 +22,20 @@ export function DialogHost() {
           </DialogHeader>
         )}
         <div>{typeof req.body === 'function' ? req.body(close) : req.body}</div>
-        <DialogFooter>
-          {req.actions.map((a, i) => (
-            <Button
-              key={i}
-              data-testid={`dialog-action-${i}`}
-              variant={a.kind === 'primary' ? 'default' : a.kind === 'danger' ? 'destructive' : 'ghost'}
-              onClick={() => close(a.value)}
-            >
-              {a.label}
-            </Button>
-          ))}
-        </DialogFooter>
+        {req.actions.length > 0 && (
+          <DialogFooter>
+            {req.actions.map((a, i) => (
+              <Button
+                key={i}
+                data-testid={`dialog-action-${i}`}
+                variant={a.kind === 'primary' ? 'default' : a.kind === 'danger' ? 'destructive' : 'ghost'}
+                onClick={() => close(a.value)}
+              >
+                {a.label}
+              </Button>
+            ))}
+          </DialogFooter>
+        )}
       </DialogContent>
     </Dialog>
   )

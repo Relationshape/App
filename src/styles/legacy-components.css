@@ -853,6 +853,8 @@ a:hover { text-decoration: underline; }
 .pick-chip:hover { border-color: var(--c); }
 .pick-chip.on { background: color-mix(in oklab, var(--c) 25%, var(--surface)); border-color: var(--c); }
 .pick-chip .swatch { width: 10px; height: 10px; border-radius: 50%; background: var(--c); }
+.pick-chip--import { border-style: dashed; opacity: 0.75; }
+.pick-chip--import:hover { opacity: 1; border-color: var(--primary); }
 
 /* ================================================================
    Share / Import

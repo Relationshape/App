@@ -15,9 +15,11 @@ import { CategoryModal } from '@/components/charts/CategoryModal'
 import { RsCategoryCard } from '@/components/RsCategoryCard'
 import { RsCategoryPicker } from '@/components/RsCategoryPicker'
 import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
+import { ImportForm } from '@/components/ImportForm'
 import { mapResultToDataset, mapImportToDataset } from '@/lib/charts/datasets'
 import { CATEGORIES } from '@/lib/data/data'
-import type { AnswersBlob } from '@/lib/storage/types'
+import type { AnswersBlob, Import } from '@/lib/storage/types'
 import { useToast } from '@/lib/hooks/useToast'
 import { t } from '@/lib/i18n/i18n'
 
@@ -98,6 +100,15 @@ export function Compare() {
   const [activeAxis, setActiveAxis] = useState<string | null>(null)
   const [modalCat, setModalCat] = useState<CategoryDef | null>(null)
   const [pickerOpen, setPickerOpen] = useState(false)
+  const [importOpen, setImportOpen] = useState(false)
+
+  function handleImportSuccess(imp: Import) {
+    setImportOpen(false)
+    const id = `imp:${imp.id}`
+    const cur = truncatedRaw.length === 0 ? effectiveIds : truncatedRaw
+    const next = cur.includes(id) ? cur : [...cur, id].slice(0, 4)
+    setParams({ ids: next.join(',') })
+  }
 
   function toggleId(id: string) {
     const cur = truncatedRaw.length === 0 ? effectiveIds : truncatedRaw
@@ -134,30 +145,38 @@ export function Compare() {
 
       {/* Chip picker — every option is a toggle. Selected state via `.on` modifier. */}
       <div className="compare-pick" data-testid="compare-chips">
-        {allOptions.length === 0 ? (
+        {allOptions.length === 0 && (
           <p className="muted" data-testid="compare-empty">{t('compare_empty')}</p>
-        ) : (
-          allOptions.map((o) => {
-            const selected = effectiveIds.includes(o.id)
-            const ds = datasets.find((d) => d.id === o.id)
-            const swatchColor = ds?.color
-            return (
-              <button
-                key={o.id}
-                type="button"
-                className={`pick-chip${selected ? ' on' : ''}`}
-                onClick={() => toggleId(o.id)}
-                style={{ ['--c' as 'color']: swatchColor } as React.CSSProperties}
-                data-testid={`compare-chip-${o.id}`}
-                aria-pressed={selected}
-              >
-                <span className="swatch" aria-hidden="true" />
-                <span aria-hidden="true">{ds?.emoji ?? '•'}</span>
-                <span>{ds?.name ?? o.label}</span>
-              </button>
-            )
-          })
         )}
+        {allOptions.map((o) => {
+          const selected = effectiveIds.includes(o.id)
+          const ds = datasets.find((d) => d.id === o.id)
+          const swatchColor = ds?.color
+          return (
+            <button
+              key={o.id}
+              type="button"
+              className={`pick-chip${selected ? ' on' : ''}`}
+              onClick={() => toggleId(o.id)}
+              style={{ ['--c' as 'color']: swatchColor } as React.CSSProperties}
+              data-testid={`compare-chip-${o.id}`}
+              aria-pressed={selected}
+            >
+              <span className="swatch" aria-hidden="true" />
+              <span aria-hidden="true">{ds?.emoji ?? '•'}</span>
+              <span>{ds?.name ?? o.label}</span>
+            </button>
+          )
+        })}
+        <button
+          type="button"
+          className="pick-chip pick-chip--import"
+          onClick={() => setImportOpen(true)}
+          data-testid="compare-import-btn"
+        >
+          <span aria-hidden="true">📥</span>
+          <span>{t('compare_import_btn')}</span>
+        </button>
       </div>
 
       {/* Either the Fabi-mode overview spider OR the tip callout that explains it. */}
@@ -235,6 +254,17 @@ export function Compare() {
           saveResult({ ...firstEditableResult, enabledCategories: mergedIds })
         }}
       />
+
+      {/* Import modal — directly on the compare page */}
+      <Dialog open={importOpen} onOpenChange={setImportOpen}>
+        <DialogContent className="max-w-lg" data-testid="compare-import-modal">
+          <DialogTitle>{t('compare_import_title')}</DialogTitle>
+          <ImportForm
+            onSuccess={handleImportSuccess}
+            testIdPrefix="compare-import"
+          />
+        </DialogContent>
+      </Dialog>
     </section>
   )
 }

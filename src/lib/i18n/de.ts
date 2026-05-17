@@ -233,6 +233,8 @@ export const DE: Record<TranslationKey, string> = {
   compare_title: '📊 Vergleichen',
   compare_sub:
     'Wähle bis zu vier Ergebnisse zum Überlagern aus. Öffne eine Kategorie für ein Netzdiagramm.',
+  compare_import_btn: 'Ergebnis importieren',
+  compare_import_title: 'Ergebnis importieren',
   compare_select: 'Wähle oben Ergebnisse aus.',
   alignment_title: 'Übereinstimmungsübersicht',
   cat_details_title: 'Kategorie-Details',
