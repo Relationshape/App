@@ -17,6 +17,9 @@ vi.mock('@/lib/i18n/i18n', () => ({
 // Imported AFTER the mock is declared.
 import { RsCategoryCard } from '@/components/RsCategoryCard'
 
+import type { CATEGORIES } from '@/lib/data/data'
+type CategoryDef = (typeof CATEGORIES)[number]
+
 const CAT = {
   id: 'connection',
   title: 'Connection',
@@ -25,7 +28,9 @@ const CAT = {
   deBlurb: 'Wie wir uns verbinden.',
   color: '#7c3aed',
   icon: '🔗',
-}
+  items: [] as readonly { readonly id: string; readonly title: string; readonly de: string }[],
+  deItems: [] as readonly string[],
+} as unknown as CategoryDef
 
 const MOCK_RESULT: Result = {
   id: 'r1',
@@ -86,7 +91,7 @@ describe('RsCategoryCard (Phase 04 D-05 + D-06)', () => {
     const { container } = render(
       <RsCategoryCard
         cat={CAT}
-        datasets={[ds({ connection: { item1: { scale: 'green' } } } as ChartDataset['answers'])]}
+        datasets={[ds({ connection: { item1: { scale: 'green' } } } as unknown as ChartDataset['answers'])]}
         editableResult={MOCK_RESULT}
         onClick={() => {}}
         testId="card"
@@ -102,7 +107,7 @@ describe('RsCategoryCard (Phase 04 D-05 + D-06)', () => {
     const { container } = render(
       <RsCategoryCard
         cat={CAT}
-        datasets={[ds({ connection: { __custom: { c1: { scale: 'red' }, c2: { scale: 'green' } } } } as ChartDataset['answers'])]}
+        datasets={[ds({ connection: { __custom: { c1: { scale: 'red' }, c2: { scale: 'green' } } } } as unknown as ChartDataset['answers'])]}
         editableResult={null}
         onClick={() => {}}
         testId="card"
@@ -132,7 +137,7 @@ describe('RsCategoryCard (Phase 04 D-05 + D-06)', () => {
     const { container } = render(
       <RsCategoryCard
         cat={CAT}
-        datasets={[ds({ connection: { x: { scale: 'green' } } } as ChartDataset['answers'])]}
+        datasets={[ds({ connection: { x: { scale: 'green' } } } as unknown as ChartDataset['answers'])]}
         editableResult={MOCK_RESULT}
         onClick={() => {}}
         testId="card"
@@ -147,7 +152,7 @@ describe('RsCategoryCard (Phase 04 D-05 + D-06)', () => {
     const { container } = render(
       <RsCategoryCard
         cat={CAT}
-        datasets={[ds({ connection: { x: { scale: 'green' } } } as ChartDataset['answers'])]}
+        datasets={[ds({ connection: { x: { scale: 'green' } } } as unknown as ChartDataset['answers'])]}
         editableResult={MOCK_RESULT}
         onClick={onClick}
         testId="card"
@@ -162,7 +167,7 @@ describe('RsCategoryCard (Phase 04 D-05 + D-06)', () => {
     const { container } = render(
       <RsCategoryCard
         cat={CAT}
-        datasets={[ds({ connection: { x: { scale: 'green' } } } as ChartDataset['answers'])]}
+        datasets={[ds({ connection: { x: { scale: 'green' } } } as unknown as ChartDataset['answers'])]}
         editableResult={MOCK_RESULT}
         onClick={() => {}}
         testId="card"
@@ -176,11 +181,11 @@ describe('RsCategoryCard (Phase 04 D-05 + D-06)', () => {
 
   it('D-06: falls back to cat.title when getLang() === "de" but cat.de is undefined', () => {
     mockLang = 'de'
-    const catWithoutDe = { ...CAT, de: undefined, deBlurb: undefined }
+    const catWithoutDe = { ...CAT, de: undefined, deBlurb: undefined } as unknown as CategoryDef
     const { container } = render(
       <RsCategoryCard
         cat={catWithoutDe}
-        datasets={[ds({ connection: { x: { scale: 'green' } } } as ChartDataset['answers'])]}
+        datasets={[ds({ connection: { x: { scale: 'green' } } } as unknown as ChartDataset['answers'])]}
         editableResult={MOCK_RESULT}
         onClick={() => {}}
         testId="card"
@@ -194,7 +199,7 @@ describe('RsCategoryCard (Phase 04 D-05 + D-06)', () => {
     const { container } = render(
       <RsCategoryCard
         cat={CAT}
-        datasets={[ds({ connection: { x: { scale: 'green' } } } as ChartDataset['answers'])]}
+        datasets={[ds({ connection: { x: { scale: 'green' } } } as unknown as ChartDataset['answers'])]}
         editableResult={MOCK_RESULT}
         fabiMode={true}
         onClick={() => {}}
@@ -209,7 +214,7 @@ describe('RsCategoryCard (Phase 04 D-05 + D-06)', () => {
     const { container } = render(
       <RsCategoryCard
         cat={CAT}
-        datasets={[ds({ connection: { x: { scale: 'green' } } } as ChartDataset['answers'])]}
+        datasets={[ds({ connection: { x: { scale: 'green' } } } as unknown as ChartDataset['answers'])]}
         editableResult={MOCK_RESULT}
         fabiMode={false}
         onClick={() => {}}

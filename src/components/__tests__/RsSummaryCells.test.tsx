@@ -32,8 +32,8 @@ describe('RsSummaryCells (Phase 04 D-06)', () => {
     const { container } = render(
       <RsSummaryCells
         datasets={[
-          ds('a', { connection: { __custom: { c1: { scale: 'open' } } } } as ChartDataset['answers']),
-          ds('b', { connection: { __custom: { c1: { scale: 'need' } } } } as ChartDataset['answers']),
+          ds('a', { connection: { __custom: { c1: { scale: 'open' } } } } as unknown as ChartDataset["answers"]),
+          ds('b', { connection: { __custom: { c1: { scale: 'need' } } } } as unknown as ChartDataset["answers"]),
         ]}
         catId="connection"
       />,
@@ -45,7 +45,7 @@ describe('RsSummaryCells (Phase 04 D-06)', () => {
   it('renders muted "—" cell when categoryAverage returns null', () => {
     const { container } = render(
       <RsSummaryCells
-        datasets={[ds('a', {} as ChartDataset['answers'])]}
+        datasets={[ds('a', {} as unknown as ChartDataset["answers"])]}
         catId="connection"
       />,
     )
@@ -57,7 +57,7 @@ describe('RsSummaryCells (Phase 04 D-06)', () => {
   it('applies background, color, and borderColor inline styles for non-null cells', () => {
     const { container } = render(
       <RsSummaryCells
-        datasets={[ds('a', { connection: { __custom: { c1: { scale: 'need' } } } } as ChartDataset['answers'])]}
+        datasets={[ds('a', { connection: { __custom: { c1: { scale: 'need' } } } } as unknown as ChartDataset["answers"])]}
         catId="connection"
       />,
     )
