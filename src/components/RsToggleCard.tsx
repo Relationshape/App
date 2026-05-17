@@ -4,7 +4,7 @@
 // Encapsulates the legacy .onboard-toggle / .onboard-text / .onboard-switch markup so multiple
 // display-mode toggles (the legacy .onboard-toggles container is plural) can share the same shell.
 
-import { useId } from 'react'
+import { type ReactElement, useId } from 'react'
 
 export interface RsToggleCardProps {
   title: string
@@ -20,7 +20,7 @@ export function RsToggleCard({
   checked,
   onCheckedChange,
   testId,
-}: RsToggleCardProps): JSX.Element {
+}: RsToggleCardProps): ReactElement {
   const titleId = useId()
   const rootClass = `onboard-toggle${checked ? ' is-on' : ''}`
   const switchClass = `onboard-switch${checked ? ' on' : ''}`

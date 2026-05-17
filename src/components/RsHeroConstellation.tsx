@@ -2,10 +2,26 @@
 // Renders the animated SVG background used on the Welcome hero. Animation is
 // SMIL-based (no JS), so we just inject the SVG string.
 
+type Depth = 0 | 1 | 2
+
+interface ConstellationNode {
+  x: number
+  y: number
+  r: number
+  d: Depth
+  acc: boolean
+}
+
+type Edge = readonly [number, number]
+
+function depthValue(values: readonly [number, number, number], depth: Depth): number {
+  return values[depth]
+}
+
 function heroConstellationSVG(): string {
   const W = 840, H = 340
 
-  const nodes = [
+  const nodes: ConstellationNode[] = [
     { x: 118, y: 50,  r: 9.5, d: 0, acc: false },
     { x: 292, y: 24,  r: 7,   d: 0, acc: false },
     { x: 562, y: 35,  r: 11,  d: 0, acc: false },
@@ -31,8 +47,8 @@ function heroConstellationSVG(): string {
     { x: 210, y: 200, r: 2.8, d: 2, acc: false },
   ]
 
-  const mainEdges  = [[0,1],[1,2],[2,3],[0,4],[3,5],[4,6],[5,7],[6,8],[7,12],[8,9],[9,10],[10,11],[11,12],[1,9],[2,11]]
-  const crossEdges = [[13,0],[13,14],[14,2],[15,3],[15,18],[16,8],[17,9],[18,11],[13,16],[17,20],[19,14],[16,21],[22,9],[22,16]]
+  const mainEdges: Edge[]  = [[0,1],[1,2],[2,3],[0,4],[3,5],[4,6],[5,7],[6,8],[7,12],[8,9],[9,10],[10,11],[11,12],[1,9],[2,11]]
+  const crossEdges: Edge[] = [[13,0],[13,14],[14,2],[15,3],[15,18],[16,8],[17,9],[18,11],[13,16],[17,20],[19,14],[16,21],[22,9],[22,16]]
 
   const starData: Array<[number, number, number]> = [
     [42,18,0.6],[160,38,0.8],[380,15,0.5],[550,22,0.7],[720,40,0.6],[800,55,0.9],
@@ -76,11 +92,11 @@ function heroConstellationSVG(): string {
     const col2 = acc ? 'var(--primary)' : 'var(--accent)'
     const hx = 30 + (i * 11) % 18
     const hy = 22 + (i * 7)  % 16
-    const specOp     = [0.22, 0.48, 0.78][d].toFixed(2)
-    const bodyHigh   = [0.78, 0.90, 1.00][d].toFixed(2)
-    const bodyMid    = [0.50, 0.62, 0.75][d].toFixed(2)
-    const bodyLow    = [0.08, 0.14, 0.22][d].toFixed(2)
-    const iridOp     = [0.08, 0.18, 0.30][d].toFixed(2)
+    const specOp     = depthValue([0.22, 0.48, 0.78], d).toFixed(2)
+    const bodyHigh   = depthValue([0.78, 0.90, 1.00], d).toFixed(2)
+    const bodyMid    = depthValue([0.50, 0.62, 0.75], d).toFixed(2)
+    const bodyLow    = depthValue([0.08, 0.14, 0.22], d).toFixed(2)
+    const iridOp     = depthValue([0.08, 0.18, 0.30], d).toFixed(2)
     return `<radialGradient id="sg${i}" cx="${hx}%" cy="${hy}%" r="72%" fx="${hx-8}%" fy="${hy-8}%">
         <stop offset="0%"   stop-color="white"  stop-opacity="${specOp}"/>
         <stop offset="18%"  stop-color="${col}"  stop-opacity="${bodyHigh}"/>
@@ -98,7 +114,7 @@ function heroConstellationSVG(): string {
     if (!na || !nb) return ''
     const dist = Math.hypot(nb.x - na.x, nb.y - na.y)
     const depthAvg = (na.d + nb.d) / 2
-    const baseOp   = [0.20, 0.32, 0.48][Math.round(depthAvg)] ?? 0.20
+    const baseOp   = depthValue([0.20, 0.32, 0.48], Math.round(depthAvg) as Depth)
     const op = Math.max(0.05, baseOp - dist * 0.000055).toFixed(2)
     const w  = (0.6 + depthAvg * 0.5).toFixed(1)
     const col = (na.acc || nb.acc) ? 'var(--accent)' : 'var(--primary)'
@@ -108,27 +124,27 @@ function heroConstellationSVG(): string {
 
   const renderNode = ({ x, y, r, d, acc: _acc }: typeof nodes[number], i: number) => {
     void _acc
-    const speed = [4.5, 3.2, 2.2][d]
+    const speed = depthValue([4.5, 3.2, 2.2], d)
     const da = (speed + (i * 0.23) % 1.5).toFixed(1)
     const db = (speed * 1.45 + (i * 0.37) % 1.8).toFixed(1)
     const dc = (speed * 0.78 + (i * 0.29) % 1.1).toFixed(1)
     const d1 = (speed * 0.88 + (i * 0.15) % 0.8).toFixed(1)
 
-    const swA = [0.8, 1.1, 1.6][d].toFixed(1)
-    const swB = [0.6, 0.85, 1.2][d].toFixed(1)
-    const swC = [0.45, 0.65, 0.95][d].toFixed(1)
+    const swA = depthValue([0.8, 1.1, 1.6], d).toFixed(1)
+    const swB = depthValue([0.6, 0.85, 1.2], d).toFixed(1)
+    const swC = depthValue([0.45, 0.65, 0.95], d).toFixed(1)
 
     const rA_s = (r * 1.02).toFixed(1)
-    const rA_e = (r * [5.8, 4.6, 3.5][d]).toFixed(1)
+    const rA_e = (r * depthValue([5.8, 4.6, 3.5], d)).toFixed(1)
     const rB_s = (r * 1.02).toFixed(1)
-    const rB_e = (r * [4.5, 3.6, 2.8][d]).toFixed(1)
+    const rB_e = (r * depthValue([4.5, 3.6, 2.8], d)).toFixed(1)
     const rC_s = (r * 1.02).toFixed(1)
-    const rC_e = (r * [3.2, 2.5, 2.0][d]).toFixed(1)
+    const rC_e = (r * depthValue([3.2, 2.5, 2.0], d)).toFixed(1)
 
-    const opA = [0.45, 0.65, 0.85][d]
-    const opB = [0.35, 0.52, 0.70][d]
-    const opC = [0.28, 0.42, 0.60][d]
-    const filmOp = [0.04, 0.06, 0.09][d]
+    const opA = depthValue([0.45, 0.65, 0.85], d)
+    const opB = depthValue([0.35, 0.52, 0.70], d)
+    const opC = depthValue([0.28, 0.42, 0.60], d)
+    const filmOp = depthValue([0.04, 0.06, 0.09], d)
 
     const mA = 1.18, mB = 1.24, mC = 1.15
 
@@ -138,7 +154,7 @@ function heroConstellationSVG(): string {
 
     const kt = '0;0.62;0.90;1'
     const ks = '0.42 0 0.58 1;0 0 1 1;0 0 1 1'
-    const rimOp = [0.00, 0.14, 0.28][d]
+    const rimOp = depthValue([0.00, 0.14, 0.28], d)
 
     return `<g>
       <ellipse cx="${x}" cy="${y}" rx="${rA_s}" ry="${(parseFloat(rA_s)*mA).toFixed(1)}"
