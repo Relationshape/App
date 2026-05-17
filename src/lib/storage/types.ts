@@ -140,6 +140,7 @@ export interface AppState extends PersistedShape {
   saveImport: (imp: Import) => void
   getImport: (id: string) => Import | null
   deleteImport: (id: string) => void
+  unlockImport: (id: string, answers: AnswersBlob) => void
 
   // Snapshot replace (backup restore)
   replaceAll: (snapshot: Partial<PersistedShape>) => void

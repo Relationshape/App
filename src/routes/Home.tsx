@@ -9,36 +9,61 @@ import { dialog } from '@/lib/dialog/dialog'
 import { fmtDate } from '@/lib/format/date'
 import { t } from '@/lib/i18n/i18n'
 import { CATEGORIES } from '@/lib/data/data'
+import { decryptResult } from '@/lib/crypto/crypto'
 import {
   Dialog, DialogContent, DialogTitle, DialogFooter,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import type { Import, Profile } from '@/lib/storage/types'
+import type { AnswersBlob, Import, Profile } from '@/lib/storage/types'
+
+function hasNoAnswers(imp: Import): boolean {
+  return Object.values(imp.answers).every((cat) =>
+    Object.entries(cat).every(([k, v]) =>
+      k === '__hidden' || k === '__custom' || !v || !('scale' in (v as object))
+    ) && !Object.keys(cat.__custom ?? {}).length
+  )
+}
 
 export function Home() {
   const navigate = useNavigate()
   const profiles = useStore((s) => s.profiles)
   const imports = useStore((s) => s.imports)
   const saveResult = useStore((s) => s.saveResult)
+  const unlockImport = useStore((s) => s.unlockImport)
 
   const byDate = (a: Import, b: Import) => (b.importedAt ?? 0) - (a.importedAt ?? 0)
   const withAnswers = imports
-    .filter((i) => i.exportMode !== 'template' && !(i.exportMode === 'restricted' && !i.answersUnlocked))
+    .filter((i) => {
+      if (i.exportMode === 'restricted' && !i.answersUnlocked) return false
+      if (i.exportMode === 'template') return false
+      if (i.exportMode !== 'restricted' && hasNoAnswers(i)) return false
+      return true
+    })
     .sort(byDate)
   const lockedImports = imports
     .filter((i) => i.exportMode === 'restricted' && !i.answersUnlocked)
     .sort(byDate)
   const templateImports = imports
-    .filter((i) => i.exportMode === 'template')
+    .filter((i) => i.exportMode === 'template' || (i.exportMode !== 'restricted' && hasNoAnswers(i)))
     .sort(byDate)
 
-  // "Use as template" dialog state
+  // "Use as template" dialog state — 2-step wizard
   const [templateImp, setTemplateImp] = useState<Import | null>(null)
   const [templateProfileId, setTemplateProfileId] = useState<string>('')
+  const [templateStep, setTemplateStep] = useState<1 | 2>(1)
+  const [templateSubject, setTemplateSubject] = useState<string>('')
 
   function openTemplateWizard(imp: Import) {
     setTemplateProfileId(profiles[0]?.id ?? '')
+    setTemplateStep(1)
+    setTemplateSubject(imp.subject?.trim() ?? '')
     setTemplateImp(imp)
+  }
+
+  function closeTemplateWizard() {
+    setTemplateImp(null)
+    setTemplateStep(1)
+    setTemplateSubject('')
   }
 
   function confirmUseAsTemplate() {
@@ -49,7 +74,7 @@ export function Home() {
     saveResult({
       id,
       profileId: templateProfileId,
-      subject: templateImp.subject?.trim() || profile.name,
+      subject: templateSubject.trim() || profile.name,
       subjectEmoji: templateImp.subjectEmoji || profile.emoji,
       subjectColor: templateImp.subjectColor || profile.color,
       enabledCategories: templateImp.enabledCategories ?? CATEGORIES.map((c) => c.id),
@@ -60,8 +85,22 @@ export function Home() {
       createdAt: Date.now(),
       updatedAt: Date.now(),
     })
-    setTemplateImp(null)
+    closeTemplateWizard()
     navigate(`/q-categories/${templateProfileId}/${id}`)
+  }
+
+  function handleUnlockImport(imp: Import) {
+    void dialog<boolean>({
+      title: t('unlock_answers_title'),
+      body: (close) => (
+        <UnlockAnswersBody
+          imp={imp}
+          onUnlock={(answers) => { unlockImport(imp.id, answers); close(true) }}
+          onCancel={() => close(false)}
+        />
+      ),
+      actions: [],
+    })
   }
 
   return (
@@ -97,7 +136,7 @@ export function Home() {
           </header>
           <div className="list">
             {withAnswers.map((i) => (
-              <ImportRow key={i.id} imp={i} category="answers" onUseTemplate={openTemplateWizard} />
+              <ImportRow key={i.id} imp={i} category="answers" onUseTemplate={openTemplateWizard} onUnlock={handleUnlockImport} />
             ))}
           </div>
         </section>
@@ -110,7 +149,7 @@ export function Home() {
           </header>
           <div className="list">
             {lockedImports.map((i) => (
-              <ImportRow key={i.id} imp={i} category="locked" onUseTemplate={openTemplateWizard} />
+              <ImportRow key={i.id} imp={i} category="locked" onUseTemplate={openTemplateWizard} onUnlock={handleUnlockImport} />
             ))}
           </div>
         </section>
@@ -123,40 +162,78 @@ export function Home() {
           </header>
           <div className="list">
             {templateImports.map((i) => (
-              <ImportRow key={i.id} imp={i} category="template" onUseTemplate={openTemplateWizard} />
+              <ImportRow key={i.id} imp={i} category="template" onUseTemplate={openTemplateWizard} onUnlock={handleUnlockImport} />
             ))}
           </div>
         </section>
       )}
 
-      {/* Profile picker dialog for "Use as template" */}
-      <Dialog open={!!templateImp} onOpenChange={(o) => { if (!o) setTemplateImp(null) }}>
+      {/* 2-step "Use as template" wizard */}
+      <Dialog open={!!templateImp} onOpenChange={(o) => { if (!o) closeTemplateWizard() }}>
         <DialogContent className="max-w-sm" data-testid="use-template-dialog">
-          <DialogTitle>{t('use_as_template_step1_title')}</DialogTitle>
-          <p className="muted small">{t('use_as_template_step1_sub')}</p>
-          <div className="flex flex-col gap-2 py-1">
-            {profiles.map((p) => (
-              <ProfilePickerRow
-                key={p.id}
-                profile={p}
-                selected={p.id === templateProfileId}
-                onSelect={() => setTemplateProfileId(p.id)}
-              />
-            ))}
-            {profiles.length === 0 && (
-              <p className="muted small">{t('no_profiles_yet')}</p>
-            )}
-          </div>
-          <DialogFooter>
-            <Button variant="ghost" onClick={() => setTemplateImp(null)}>{t('btn_cancel')}</Button>
-            <Button
-              disabled={!templateProfileId || profiles.length === 0}
-              onClick={confirmUseAsTemplate}
-              data-testid="use-template-confirm"
-            >
-              {t('btn_start_map')}
-            </Button>
-          </DialogFooter>
+          {templateStep === 1 && (
+            <>
+              <DialogTitle>{t('use_as_template_step1_title')}</DialogTitle>
+              <p className="muted small">{t('use_as_template_step1_sub')}</p>
+              <div className="flex flex-col gap-2 py-1">
+                {profiles.map((p) => (
+                  <ProfilePickerRow
+                    key={p.id}
+                    profile={p}
+                    selected={p.id === templateProfileId}
+                    onSelect={() => setTemplateProfileId(p.id)}
+                  />
+                ))}
+                {profiles.length === 0 && (
+                  <p className="muted small">{t('no_profiles_yet')}</p>
+                )}
+                <button
+                  type="button"
+                  className="btn btn-ghost text-left text-sm"
+                  onClick={() => { closeTemplateWizard(); navigate('/profile/new') }}
+                  data-testid="use-template-create-profile"
+                >
+                  {t('profile_picker_create_new')}
+                </button>
+              </div>
+              <DialogFooter>
+                <Button variant="ghost" onClick={closeTemplateWizard}>{t('btn_cancel')}</Button>
+                <Button
+                  disabled={!templateProfileId || profiles.length === 0}
+                  onClick={() => setTemplateStep(2)}
+                  data-testid="use-template-step1-next"
+                >
+                  {t('btn_next')}
+                </Button>
+              </DialogFooter>
+            </>
+          )}
+          {templateStep === 2 && (
+            <>
+              <DialogTitle>{t('use_template_step2_title')}</DialogTitle>
+              <div className="flex flex-col gap-2 py-1">
+                <input
+                  type="text"
+                  className="w-full rounded border border-line px-3 py-2 text-sm bg-surface"
+                  value={templateSubject}
+                  onChange={(e) => setTemplateSubject(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') confirmUseAsTemplate() }}
+                  placeholder={t('map_name_label')}
+                  autoFocus
+                  data-testid="use-template-subject-input"
+                />
+              </div>
+              <DialogFooter>
+                <Button variant="ghost" onClick={() => setTemplateStep(1)}>{t('btn_back')}</Button>
+                <Button
+                  onClick={confirmUseAsTemplate}
+                  data-testid="use-template-confirm"
+                >
+                  {t('use_template_start_btn')}
+                </Button>
+              </DialogFooter>
+            </>
+          )}
         </DialogContent>
       </Dialog>
     </section>
@@ -188,10 +265,12 @@ function ImportRow({
   imp,
   category,
   onUseTemplate,
+  onUnlock,
 }: {
   imp: Import
   category: ImportCategory
   onUseTemplate: (imp: Import) => void
+  onUnlock: (imp: Import) => void
 }) {
   const navigate = useNavigate()
   const deleteImport = useStore((s) => s.deleteImport)
@@ -247,6 +326,16 @@ function ImportRow({
             data-testid={`${testIdBase}-compare`}
           >
             {t('btn_compare')}
+          </button>
+        )}
+        {category === 'locked' && imp.lockedAnswers && (
+          <button
+            type="button"
+            className="btn"
+            onClick={() => onUnlock(imp)}
+            data-testid={`${testIdBase}-unlock`}
+          >
+            {t('unlock_answers_btn')}
           </button>
         )}
         <button
