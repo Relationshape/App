@@ -2,7 +2,7 @@
 // Port of public/legacy/js/app.js:2879-3050 openCategoryModal.
 // Built on shadcn Dialog. Legacy `cat-modal-*` CSS in legacy-components.css.
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { ItemSpider } from './ItemSpider'
@@ -35,17 +35,71 @@ export function CategoryModal({ open, onOpenChange, datasets, cat, result }: Pro
   const [tab, setTab] = useState<Tab>('spider')
   const lang = getLang()
   const showEdit = Boolean(result)
+  const saveStore = useStore((s) => s.saveResult)
+  const { toast } = useToast()
 
-  // Reset to spider tab whenever the modal opens on a new category
-  // (avoids landing on Edit tab when no result is provided)
-  function handleOpenChange(next: boolean) {
-    if (!next) setTab('spider')
+  // Local answer state for the Edit tab
+  const [localResult, setLocalResult] = useState<Result | null>(null)
+  const [isDirty, setIsDirty] = useState(false)
+
+  // When edit tab opens, clone the result into local state
+  useEffect(() => {
+    if (tab === 'edit' && result) {
+      setLocalResult(structuredClone(result))
+      setIsDirty(false)
+    }
+    // only watch tab change to avoid resetting while typing
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tab])
+
+  function handleLocalChange(next: Result) {
+    setLocalResult(next)
+    setIsDirty(true)
+  }
+
+  function doSave() {
+    if (!localResult || !isDirty) return
+    saveStore(localResult)
+    setIsDirty(false)
+    toast.success(t('btn_save_changes') + ' ✔')
+  }
+
+  async function confirmDiscard(): Promise<boolean> {
+    const choice = await dialog<string | null>({
+      title: t('confirm_discard_changes') as string,
+      body: () => null,
+      actions: [
+        { label: t('btn_cancel') as string, kind: 'ghost', value: null },
+        { label: t('btn_discard') as string, kind: 'danger', value: 'discard' },
+        { label: t('btn_save_changes') as string, kind: 'primary', value: 'save' },
+      ],
+    })
+    if (!choice || choice === null) return false
+    if (choice === 'save') { doSave(); return true }
+    if (choice === 'discard') { setIsDirty(false); return true }
+    return false
+  }
+
+  async function handleTabChange(newTab: Tab) {
+    if (isDirty && tab === 'edit' && newTab !== 'edit') {
+      const ok = await confirmDiscard()
+      if (!ok) return
+    }
+    setTab(newTab)
+  }
+
+  async function handleOpenChange(next: boolean) {
+    if (!next && isDirty) {
+      const ok = await confirmDiscard()
+      if (!ok) return
+    }
+    if (!next) { setTab('spider'); setIsDirty(false) }
     onOpenChange(next)
   }
 
   if (!cat) {
     return (
-      <Dialog open={open} onOpenChange={handleOpenChange}>
+      <Dialog open={open} onOpenChange={(o) => { void handleOpenChange(o) }}>
         <DialogContent
           className="max-w-[min(820px,96vw)] max-h-[min(90vh,900px)] p-0 overflow-hidden flex flex-col gap-0"
           showCloseButton={false}
@@ -60,7 +114,7 @@ export function CategoryModal({ open, onOpenChange, datasets, cat, result }: Pro
   const blurb = lang === 'de' && cat.deBlurb ? cat.deBlurb : cat.blurb
 
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
+    <Dialog open={open} onOpenChange={(o) => { void handleOpenChange(o) }}>
       <DialogContent
         className="max-w-[min(820px,96vw)] max-h-[min(90vh,900px)] p-0 overflow-hidden flex flex-col gap-0"
         style={{ ['--c' as 'color']: cat.color } as React.CSSProperties}
@@ -87,7 +141,7 @@ export function CategoryModal({ open, onOpenChange, datasets, cat, result }: Pro
             role="tab"
             aria-selected={tab === 'spider'}
             className={`cat-modal-tab${tab === 'spider' ? ' active' : ''}`}
-            onClick={() => setTab('spider')}
+            onClick={() => { void handleTabChange('spider') }}
             data-testid="cat-modal-tab-spider"
           >
             {t('tab_spider')}
@@ -97,7 +151,7 @@ export function CategoryModal({ open, onOpenChange, datasets, cat, result }: Pro
             role="tab"
             aria-selected={tab === 'items'}
             className={`cat-modal-tab${tab === 'items' ? ' active' : ''}`}
-            onClick={() => setTab('items')}
+            onClick={() => { void handleTabChange('items') }}
             data-testid="cat-modal-tab-items"
           >
             {t('tab_items')}
@@ -108,7 +162,7 @@ export function CategoryModal({ open, onOpenChange, datasets, cat, result }: Pro
               role="tab"
               aria-selected={tab === 'edit'}
               className={`cat-modal-tab${tab === 'edit' ? ' active' : ''}`}
-              onClick={() => setTab('edit')}
+              onClick={() => { void handleTabChange('edit') }}
               data-testid="cat-modal-tab-edit"
             >
               {t('tab_edit')}
@@ -134,13 +188,13 @@ export function CategoryModal({ open, onOpenChange, datasets, cat, result }: Pro
             <CategoryBars datasets={datasets} catId={cat.id} />
           </div>
         ) : (
-          result && (
+          result && localResult && (
             <div
               className="cat-modal-content cat-modal-bars-scroll"
               role="tabpanel"
               data-testid="cat-modal-panel-edit"
             >
-              <EditTabContent result={result} cat={cat} />
+              <EditTabContent result={localResult} cat={cat} onLocalChange={handleLocalChange} />
             </div>
           )
         )}
@@ -150,11 +204,22 @@ export function CategoryModal({ open, onOpenChange, datasets, cat, result }: Pro
           <button
             type="button"
             className="btn btn-ghost"
-            onClick={() => handleOpenChange(false)}
+            onClick={() => { void handleOpenChange(false) }}
             data-testid="cat-modal-close"
           >
             {t('btn_close')}
           </button>
+          {tab === 'edit' && showEdit && (
+            <button
+              type="button"
+              className="btn btn-primary"
+              disabled={!isDirty}
+              onClick={doSave}
+              data-testid="cat-modal-save"
+            >
+              {t('btn_save_changes')}
+            </button>
+          )}
         </div>
       </DialogContent>
     </Dialog>
@@ -168,9 +233,10 @@ export function CategoryModal({ open, onOpenChange, datasets, cat, result }: Pro
 interface EditTabProps {
   result: Result
   cat: CategoryDef
+  onLocalChange?: (next: Result) => void  // when provided, saves locally not to store
 }
 
-function EditTabContent({ result, cat }: EditTabProps) {
+function EditTabContent({ result, cat, onLocalChange }: EditTabProps) {
   const saveResult = useStore((s) => s.saveResult)
   const storeScale = useStore((s) => s.scale)
   const { confirmIfTemplate } = useTemplateWarning(result)
@@ -221,7 +287,11 @@ function EditTabContent({ result, cat }: EditTabProps) {
     const ns = next.answers[cat.id] ?? {}
     ns.__custom = { ...(ns.__custom ?? {}), [name]: { scale: 'open' } }
     next.answers[cat.id] = ns
-    saveResult(next)
+    if (onLocalChange) {
+      onLocalChange(next)
+    } else {
+      saveResult(next)
+    }
   }
 
   const catLabel = lang === 'de' && cat.de ? cat.de : cat.title
@@ -240,6 +310,7 @@ function EditTabContent({ result, cat }: EditTabProps) {
           scale={scale}
           onBeforeMutate={confirmIfTemplate}
           variant="list"
+          onSave={onLocalChange}
         />
       ))}
       {custom.map((item) => (
@@ -253,6 +324,7 @@ function EditTabContent({ result, cat }: EditTabProps) {
           scale={scale}
           onBeforeMutate={confirmIfTemplate}
           variant="list"
+          onSave={onLocalChange}
         />
       ))}
       <Button

@@ -70,16 +70,16 @@ export function Result() {
 
   return (
     <section className="page" data-testid="result-page">
-      {/* D-02 header — Back / avatar / title+subtitle / spacer / Map settings / Continue editing / Share. */}
+      {/* D-02 header — Back / avatar / title+subtitle / action buttons */}
       <header
         className="result-head"
         style={{ ['--c' as 'color']: dataset.color } as React.CSSProperties}
       >
-        <Button asChild variant="ghost" data-testid="result-back">
+        <Button asChild variant="ghost" data-testid="result-back" className="result-back-btn">
           <Link to={`/profile/${profile.id}`}>{t('btn_back')}</Link>
         </Button>
         <div className="li-avatar text-3xl">{dataset.emoji}</div>
-        <div>
+        <div className="result-head-info">
           <h1 data-testid="result-title">
             {result.subject || profile.name}
             {(result.version ?? 1) > 1 && ` (v${result.version})`}
@@ -88,16 +88,17 @@ export function Result() {
             {`${profile.emoji} ${profile.name} · ${countAnswers(result)} ${t('answers')} · ${t('result_last_edited')} ${fmtDate(result.updatedAt)}`}
           </p>
         </div>
-        <div className="flex-spacer" />
-        <Button asChild variant="outline" data-testid="result-settings">
-          <Link to={`/map/${result.id}/settings`}>{t('btn_map_settings')}</Link>
-        </Button>
-        <Button asChild data-testid="result-edit">
-          <Link to={`/q/${profile.id}/${result.id}`}>{t('btn_continue_editing')}</Link>
-        </Button>
-        <Button onClick={() => openShare(result.id)} data-testid="result-share">
-          {t('btn_share')}
-        </Button>
+        <div className="result-head-actions">
+          <Button asChild variant="outline" data-testid="result-settings">
+            <Link to={`/map/${result.id}/settings`}>{t('btn_map_settings')}</Link>
+          </Button>
+          <Button asChild data-testid="result-edit">
+            <Link to={`/q/${profile.id}/${result.id}`}>{t('btn_continue_editing')}</Link>
+          </Button>
+          <Button onClick={() => openShare(result.id)} data-testid="result-share">
+            {t('btn_share')}
+          </Button>
+        </div>
       </header>
 
       {/* D-01 Fabi-mode-only Spider overview section (mirrors legacy app.js:2795-2801). */}

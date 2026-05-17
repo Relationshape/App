@@ -31,6 +31,7 @@ interface Props {
   onEditItemScale?: () => void
   variant: 'list' | 'single'
   onAnswered?: () => void
+  onSave?: (next: Result) => void
 }
 
 export function RsQuestionCard({
@@ -44,8 +45,10 @@ export function RsQuestionCard({
   onEditItemScale,
   variant,
   onAnswered,
+  onSave,
 }: Props) {
-  const saveResult = useStore((s) => s.saveResult)
+  const storeSaveResult = useStore((s) => s.saveResult)
+  const saveResult = onSave ?? storeSaveResult
   const [note, setNote] = useState(cell?.note ?? '')
 
   const catDef = CATEGORIES.find((c) => c.id === catId)

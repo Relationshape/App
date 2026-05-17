@@ -196,15 +196,22 @@ export function ShareDataProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  function downloadFile() {
+  async function downloadFile() {
     if (!armor || !result || !profile) return
+    const filename = `relationshape-${slug(profile.name)}-${slug(result.subject)}.rshape.txt`
     const blob = new Blob([armor], { type: 'text/plain' })
+    const file = new File([blob], filename, { type: 'text/plain' })
+    if (navigator.canShare?.({ files: [file] })) {
+      try { await navigator.share({ files: [file] }); return } catch { /* fallthrough */ }
+    }
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `relationshape-${slug(profile.name)}-${slug(result.subject)}.rshape.txt`
+    a.download = filename
+    document.body.appendChild(a)
     a.click()
-    URL.revokeObjectURL(url)
+    document.body.removeChild(a)
+    setTimeout(() => URL.revokeObjectURL(url), 100)
   }
 
   const value = useMemo<ShareDataContextValue>(() => ({ openShare }), [openShare])
@@ -376,7 +383,7 @@ export function ShareDataProvider({ children }: { children: ReactNode }) {
                 </Button>
                 <Button
                   type="button"
-                  onClick={downloadFile}
+                  onClick={() => { void downloadFile() }}
                   data-testid="share-data-download"
                 >
                   {t('btn_download') as string}

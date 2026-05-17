@@ -50,7 +50,7 @@ export function RsCategoryPicker({ open, onOpenChange, existingIds, onSubmit }: 
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         className="max-w-[min(560px,96vw)] max-h-[min(90vh,720px)] p-6 flex flex-col gap-3"
-        showCloseButton={false}
+        showCloseButton={true}
         data-testid="cat-picker"
       >
         <DialogTitle asChild>
