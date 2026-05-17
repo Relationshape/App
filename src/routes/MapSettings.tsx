@@ -8,6 +8,7 @@ import { EmojiPicker } from '@/components/EmojiPicker'
 import { RsTile } from '@/components/RsTile'
 import { CATEGORIES } from '@/lib/data/data'
 import { t } from '@/lib/i18n/i18n'
+import { useTemplateWarning } from '@/lib/hooks/useTemplateWarning'
 import type { MutableScaleStep } from '@/lib/data/types'
 
 const PALETTE = ['#7c3aed', '#06b6d4', '#ec4899', '#10b981', '#f59e0b', '#ef4444', '#3b82f6', '#a78bfa', '#22c55e', '#e11d48']
@@ -25,6 +26,8 @@ export function MapSettings() {
   const [scale, setScale] = useState<MutableScaleStep[] | undefined>(result?.scale ? result.scale.map((s) => ({ ...s })) : undefined)
   const [enabledCategories, setEnabledCategories] = useState(result?.enabledCategories ?? CATEGORIES.map((c) => c.id))
 
+  const { confirmIfTemplate } = useTemplateWarning(result)
+
   useEffect(() => {
     if (!result) void navigate('/')
   }, [result, navigate])
@@ -33,9 +36,13 @@ export function MapSettings() {
   function toggleCat(catId: string) {
     setEnabledCategories((prev) => prev.includes(catId) ? prev.filter((c) => c !== catId) : [...prev, catId])
   }
-  function onSave() {
+  async function onSave() {
     const r = result
     if (!r) return
+    const structuralChange =
+      JSON.stringify(enabledCategories.slice().sort()) !== JSON.stringify((r.enabledCategories ?? CATEGORIES.map((c) => c.id)).slice().sort()) ||
+      (scale !== undefined && JSON.stringify(scale) !== JSON.stringify(r.scale ?? globalScale))
+    if (structuralChange && !await confirmIfTemplate()) return
     const trimmedSubject = subject.trim()
     saveResult({
       ...r,
@@ -128,7 +135,7 @@ export function MapSettings() {
           })}
         </div>
       </section>
-      <Button type="button" onClick={onSave} data-testid="map-save-btn">{t('btn_save')}</Button>
+      <Button type="button" onClick={() => { void onSave() }} data-testid="map-save-btn">{t('btn_save')}</Button>
     </section>
   )
 }

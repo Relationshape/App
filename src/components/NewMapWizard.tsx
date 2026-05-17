@@ -13,25 +13,47 @@ import { useStore } from '@/lib/storage/store'
 import { ScaleEditor } from '@/components/ScaleEditor'
 import { t, getLang } from '@/lib/i18n/i18n'
 import type { MutableScaleStep } from '@/lib/data/types'
-import type { Profile } from '@/lib/storage/types'
+import type { Import, Profile } from '@/lib/storage/types'
 
 interface Props {
   profile: Profile
 }
 
-type Step = 0 | 1 | 2
+type Step = 'source' | 'pick' | 0 | 1 | 2
+
+type TemplateSource =
+  | { kind: 'import'; id: string }
+  | { kind: 'result'; id: string }
+
+function hasNoAnswersForImport(imp: Import): boolean {
+  return Object.values(imp.answers).every((cat) =>
+    Object.entries(cat).every(([k, v]) =>
+      k === '__hidden' || k === '__custom' || !v || !('scale' in (v as object))
+    ) && !Object.keys(cat.__custom ?? {}).length
+  )
+}
 
 export function NewMapWizard({ profile }: Props) {
   const navigate = useNavigate()
   const globalScale = useStore((s) => s.scale)
   const saveResult = useStore((s) => s.saveResult)
   const lang = getLang()
+  const allResults = useStore((s) => s.results)
+  const allImports = useStore((s) => s.imports)
 
-  const [step, setStep] = useState<Step>(0)
+  const profileResults = allResults.filter((r) => r.profileId === profile.id)
+  const templateImports = allImports.filter((i) =>
+    i.exportMode === 'template' ||
+    (i.exportMode !== 'restricted' && hasNoAnswersForImport(i))
+  )
+  const hasTemplates = profileResults.length > 0 || templateImports.length > 0
+
+  const [step, setStep] = useState<Step>(hasTemplates ? 'source' : 0)
   const [subject, setSubject] = useState('')
   const [checkedIds, setCheckedIds] = useState<Set<string>>(() => new Set())
   const [scale, setScale] = useState<MutableScaleStep[]>(() => globalScale.map((s) => ({ ...s })))
   const [customizeScale, setCustomizeScale] = useState(false)
+  const [templateSource, setTemplateSource] = useState<TemplateSource | null>(null)
 
   function onCancel() {
     navigate(`/profile/${profile.id}`)
@@ -39,6 +61,34 @@ export function NewMapWizard({ profile }: Props) {
 
   function onComplete() {
     const id = crypto.randomUUID()
+
+    if (templateSource) {
+      const tmplCategories = templateSource.kind === 'import'
+        ? templateImports.find((i) => i.id === templateSource.id)?.enabledCategories ?? CATEGORIES.map((c) => c.id)
+        : profileResults.find((r) => r.id === templateSource.id)?.enabledCategories ?? CATEGORIES.map((c) => c.id)
+      const tmplScale = templateSource.kind === 'import'
+        ? templateImports.find((i) => i.id === templateSource.id)?.scale
+        : profileResults.find((r) => r.id === templateSource.id)?.scale
+      saveResult({
+        id,
+        profileId: profile.id,
+        subject: subject.trim() || profile.name,
+        subjectColor: profile.color,
+        subjectEmoji: profile.emoji,
+        answers: {},
+        enabledCategories: tmplCategories,
+        ...(tmplScale ? { scale: tmplScale } : {}),
+        ...(templateSource.kind === 'import'
+          ? { seededFromImportId: templateSource.id }
+          : { seededFromResultId: templateSource.id }),
+        progress: { mode: 'list' },
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      })
+      navigate(`/q-categories/${profile.id}/${id}`, { replace: true })
+      return
+    }
+
     const enabledCategories =
       checkedIds.size > 0
         ? Array.from(checkedIds)
@@ -81,6 +131,86 @@ export function NewMapWizard({ profile }: Props) {
         showCloseButton={false}
         data-testid="new-map-wizard"
       >
+        {step === 'source' && (
+          <>
+            <DialogHeader>
+              <DialogTitle data-testid="wizard-step-source-title">{t('new_map_title')}</DialogTitle>
+            </DialogHeader>
+            <div className="flex flex-col gap-3">
+              <button
+                type="button"
+                className="list-item list-item--selectable"
+                onClick={() => { setTemplateSource(null); setStep(0) }}
+                data-testid="wizard-source-blank"
+              >
+                <div className="li-body">
+                  <strong>{t('wizard_source_blank')}</strong>
+                  <p className="muted small">{t('wizard_source_blank_sub')}</p>
+                </div>
+              </button>
+              <button
+                type="button"
+                className="list-item list-item--selectable"
+                onClick={() => setStep('pick')}
+                data-testid="wizard-source-template"
+              >
+                <div className="li-body">
+                  <strong>{t('wizard_source_template')}</strong>
+                  <p className="muted small">{t('wizard_source_template_sub')}</p>
+                </div>
+              </button>
+            </div>
+            <DialogFooter>
+              <Button variant="ghost" onClick={onCancel} data-testid="wizard-cancel">
+                {t('btn_cancel')}
+              </Button>
+            </DialogFooter>
+          </>
+        )}
+
+        {step === 'pick' && (
+          <>
+            <DialogHeader>
+              <DialogTitle data-testid="wizard-step-pick-title">{t('wizard_pick_template_title')}</DialogTitle>
+            </DialogHeader>
+            <div className="flex-1 overflow-y-auto min-h-0 flex flex-col gap-2" data-testid="wizard-pick-step">
+              {profileResults.length > 0 && (
+                <div>
+                  <p className="muted small font-semibold mb-1">{t('wizard_pick_own_section')}</p>
+                  {profileResults.map((r) => (
+                    <TemplatePickRow
+                      key={r.id}
+                      label={r.subject ?? profile.name}
+                      emoji={r.subjectEmoji ?? profile.emoji}
+                      testId={`wizard-pick-result-${r.id}`}
+                      onClick={() => { setTemplateSource({ kind: 'result', id: r.id }); setStep(0) }}
+                    />
+                  ))}
+                </div>
+              )}
+              {templateImports.length > 0 && (
+                <div>
+                  <p className="muted small font-semibold mb-1">{t('wizard_pick_import_section')}</p>
+                  {templateImports.map((i) => (
+                    <TemplatePickRow
+                      key={i.id}
+                      label={i.subject ?? i.name ?? 'Import'}
+                      emoji={i.emoji ?? '📋'}
+                      testId={`wizard-pick-import-${i.id}`}
+                      onClick={() => { setTemplateSource({ kind: 'import', id: i.id }); setStep(0) }}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+            <DialogFooter>
+              <Button variant="ghost" onClick={() => setStep('source')} data-testid="wizard-pick-back">
+                {t('btn_back')}
+              </Button>
+            </DialogFooter>
+          </>
+        )}
+
         {step === 0 && (
           <>
             <DialogHeader>
@@ -93,22 +223,34 @@ export function NewMapWizard({ profile }: Props) {
                 className="w-full rounded border border-line px-3 py-2 text-sm bg-surface"
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
-                onKeyDown={(e) => { if (e.key === 'Enter' && subject.trim()) setStep(1) }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && subject.trim()) {
+                    if (templateSource) { onComplete() } else { setStep(1) }
+                  }
+                }}
                 placeholder="e.g. Sam, my best friend"
                 autoFocus
                 data-testid="wizard-name-input"
               />
             </div>
             <DialogFooter>
-              <Button variant="ghost" onClick={onCancel} data-testid="wizard-cancel">
-                {t('btn_cancel')}
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  if (templateSource) { setStep('pick') }
+                  else if (hasTemplates) { setStep('source') }
+                  else { onCancel() }
+                }}
+                data-testid="wizard-cancel"
+              >
+                {templateSource || hasTemplates ? t('btn_back') : t('btn_cancel')}
               </Button>
               <Button
-                onClick={() => setStep(1)}
+                onClick={() => { if (templateSource) { onComplete() } else { setStep(1) } }}
                 disabled={!subject.trim()}
                 data-testid="wizard-name-next"
               >
-                {t('btn_next')}
+                {templateSource ? t('use_template_start_btn') : t('btn_next')}
               </Button>
             </DialogFooter>
           </>
@@ -229,3 +371,30 @@ export function NewMapWizard({ profile }: Props) {
     </Dialog>
   )
 }
+
+function TemplatePickRow({
+  label,
+  emoji,
+  testId,
+  onClick,
+}: {
+  label: string
+  emoji: string
+  testId: string
+  onClick: () => void
+}) {
+  return (
+    <button
+      type="button"
+      className="list-item list-item--selectable w-full text-left"
+      onClick={onClick}
+      data-testid={testId}
+    >
+      <div className="li-avatar">{emoji}</div>
+      <div className="li-body">
+        <strong>{label}</strong>
+      </div>
+    </button>
+  )
+}
+

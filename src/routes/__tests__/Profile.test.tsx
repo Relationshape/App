@@ -44,8 +44,11 @@ function result(id: string, profileId: string, subject: string) {
   return { id, profileId, subject, answers: {}, createdAt: 1000, updatedAt: 1000 }
 }
 
-function imp(id: string, name: string, exportMode?: string) {
-  const obj: Record<string, unknown> = { id, name, subject: 'Test', answers: {}, importedAt: 1000 }
+function imp(id: string, name: string, exportMode?: string, withAnswers?: boolean) {
+  const answers: Record<string, unknown> = withAnswers
+    ? { cat1: { item1: { scale: 'yes' } } }
+    : {}
+  const obj: Record<string, unknown> = { id, name, subject: 'Test', answers, importedAt: 1000 }
   if (exportMode) obj.exportMode = exportMode
   return obj
 }
@@ -82,7 +85,7 @@ describe('Profile lifecycle (PROFILE-01..04)', () => {
   it('Home filters template imports from the imports list (PROFILE-01)', async () => {
     await mountAtHash('#/', makeStore({
       imports: [
-        imp(IMPORT_REG, 'Regular Import'),
+        imp(IMPORT_REG, 'Regular Import', undefined, true),
         imp(IMPORT_TPL, '__template__foo', 'template'),
       ],
     }))
@@ -177,7 +180,7 @@ describe('Profile lifecycle (PROFILE-01..04)', () => {
   it('Home renders templates section when a template import exists (PROFILE-01 parity)', async () => {
     await mountAtHash('#/', makeStore({
       imports: [
-        imp(IMPORT_REG, 'Regular Import'),
+        imp(IMPORT_REG, 'Regular Import', undefined, true),
         imp(IMPORT_TPL, '__template__foo', 'template'),
       ],
     }))
