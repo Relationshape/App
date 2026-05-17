@@ -146,8 +146,8 @@ export function CategoryModal({ open, onOpenChange, datasets, cat, result, initi
         style={{ ['--c' as 'color']: cat.color } as React.CSSProperties}
         showCloseButton={false}
         data-testid="category-modal"
-        onPointerDownOutside={(e) => e.preventDefault()}
-        onInteractOutside={(e) => e.preventDefault()}
+        onPointerDownOutside={(e) => { if (isDirty) e.preventDefault() }}
+        onInteractOutside={(e) => { e.preventDefault(); void handleOpenChange(false) }}
       >
         {/* Header row */}
         <div className="cat-modal-head-row">
@@ -289,6 +289,9 @@ interface EditTabProps {
 function EditTabContent({ result, cat, onLocalChange, onImmediateSave }: EditTabProps) {
   const saveResult = useStore((s) => s.saveResult)
   const storeScale = useStore((s) => s.scale)
+  const storeTemplateWarningDisabled = useStore((s) =>
+    s.results.find((r) => r.id === result.id)?.templateWarningDisabled ?? false
+  )
   const { confirmIfTemplate } = useTemplateWarning(result)
   const { toast } = useToast()
   const lang = getLang()
@@ -347,6 +350,7 @@ function EditTabContent({ result, cat, onLocalChange, onImmediateSave }: EditTab
     if (itemScale === false) return
 
     const next = structuredClone(result)
+    if (storeTemplateWarningDisabled) next.templateWarningDisabled = true
     const ns = next.answers[cat.id] ?? {}
     const cell = itemScale ? { scale: 'open', itemScale } : { scale: 'open' }
     ns.__custom = { ...(ns.__custom ?? {}), [name]: cell }

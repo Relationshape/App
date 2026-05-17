@@ -15,11 +15,11 @@ interface Props {
   size?: number
 }
 
-// Scales linearly with chart size. Capped at 16px to keep labels within the SVG viewBox.
-// size=480 (modal):      7 items → 11px,  3 items → 16px (capped)
-// size=800 (fullscreen): 7 items → 15px,  3 items → 16px (capped)
+// Scales linearly with chart size. Raised cap to 20px for better readability.
+// size=520 (modal):      10 items → 13px,  5 items → 20px (capped)
+// size=800 (fullscreen): 10 items → 20px,  5 items → 20px (capped)
 function itemLabelFontSize(itemCount: number, size: number): number {
-  return Math.round(Math.max(10, Math.min(16, (100 * size / 480) / itemCount)))
+  return Math.round(Math.max(10, Math.min(20, (120 * size / 480) / itemCount)))
 }
 
 export function ItemSpider({ datasets, catId, size = 480 }: Props) {
@@ -38,12 +38,13 @@ export function ItemSpider({ datasets, catId, size = 480 }: Props) {
   if (items.length < 3) return null
 
   const fs = itemLabelFontSize(items.length, size)
-  const pad = Math.max(100, Math.ceil(fs * 8.5))
+  const pad = Math.max(110, Math.ceil(fs * 9.0))
   const r = size / 2 - pad
   const cx = size / 2
   const cy = size / 2
   const lineHeight = fs * 1.15
-  const maxCharsPerLine = Math.round(9 * Math.sqrt(size / 480))
+  // Allow slightly more chars per line so shorter items stay on 1 line
+  const maxCharsPerLine = Math.round(11 * Math.sqrt(size / 480))
 
   // Pre-compute per-dataset per-axis values so we don't repeat lookups
   const dataPoints = truncated.map((ds) => {
@@ -148,7 +149,7 @@ export function ItemSpider({ datasets, catId, size = 480 }: Props) {
         {items.map((displayItem, i) => {
           const [lx, ly] = polarToCartesian(i, items.length, r + fs * 1.7, cx, cy)
           const anchor = Math.abs(lx - cx) < 4 ? 'middle' : lx > cx ? 'start' : 'end'
-          const lines = wrapLabel(displayItem, maxCharsPerLine)
+          const lines = wrapLabel(displayItem, maxCharsPerLine).slice(0, 3)
           const yOffset = ((lines.length - 1) * lineHeight) / 2
           const isHovered = hoveredIdx === i
           return (

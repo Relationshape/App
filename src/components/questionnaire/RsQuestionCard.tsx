@@ -52,6 +52,11 @@ export function RsQuestionCard({
 }: Props) {
   const storeSaveResult = useStore((s) => s.saveResult)
   const saveResult = onSave ?? storeSaveResult
+  // Read templateWarningDisabled reactively so saves don't overwrite it
+  // when confirmIfTemplate sets it in the store before React re-renders.
+  const storeTemplateWarningDisabled = useStore((s) =>
+    s.results.find((r) => r.id === result.id)?.templateWarningDisabled ?? false
+  )
   const [note, setNote] = useState(cell?.note ?? '')
   const [editOpen, setEditOpen] = useState(false)
   const [pendingLabel, setPendingLabel] = useState('')
@@ -71,6 +76,7 @@ export function RsQuestionCard({
   async function saveItemEdit() {
     if (!(await onBeforeMutate())) { setEditOpen(false); return }
     const next = structuredClone(result)
+    if (storeTemplateWarningDisabled) next.templateWarningDisabled = true
     const slot = next.answers[catId] ?? {}
     function patchCell(existing: AnswerCell | undefined): AnswerCell {
       const c: AnswerCell = existing ? { ...existing } : { scale: 'open' }
@@ -158,6 +164,7 @@ export function RsQuestionCard({
     })
     if (!confirmed) return
     const next = structuredClone(result)
+    if (storeTemplateWarningDisabled) next.templateWarningDisabled = true
     const slot = next.answers[catId] ?? {}
     if (isCustom) {
       const customs = { ...(slot.__custom ?? {}) }

@@ -9,11 +9,16 @@ import { t } from '@/lib/i18n/i18n'
 
 export function useTemplateWarning(result: Result | null | undefined) {
   const saveResult = useStore((s) => s.saveResult)
+  // Read the flag reactively so we see the latest store value even if the
+  // `result` prop hasn't re-rendered yet (prevents the stale-clone overwrite bug).
+  const storeDisabled = useStore((s) =>
+    result ? (s.results.find((r) => r.id === result.id)?.templateWarningDisabled ?? false) : false
+  )
   return {
     confirmIfTemplate: async (): Promise<boolean> => {
       if (!result) return true
       if (!result.seededFromImportId && !result.seededFromResultId) return true
-      if (result.templateWarningDisabled) return true
+      if (result.templateWarningDisabled || storeDisabled) return true
       let disableForever = false
       const choice = await dialog<'ok' | 'cancel'>({
         title: t('template_warning_title'),
