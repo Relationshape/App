@@ -1,7 +1,7 @@
 // RESULT-02, D-04, D-05. Declarative SVG spider. Port of public/legacy/js/charts.js:303-322 + 137-300.
 
 import { CATEGORIES, DEFAULT_SCALE } from '@/lib/data/data'
-import { categoryAverage, labelFontSize, pickCategoryAxes, polarToCartesian } from '@/lib/charts/math'
+import { categoryAverage, labelFontSize, pickCategoryAxes, polarToCartesian, wrapLabel } from '@/lib/charts/math'
 import type { ChartDataset } from './types'
 
 interface Props {
@@ -34,7 +34,11 @@ export function Spider({
     return { key: id, title: c?.title ?? id, icon: c?.icon ?? '•' }
   })
   const fs = labelFontSize(axes.length)
-  const pad = Math.max(100, Math.min(145, Math.ceil(fs * 4.2)))
+  const lineHeight = fs * 1.2
+  // maxChars chosen so most category names fit in 1-2 lines with room for the 3rd
+  const maxCharsPerLine = Math.max(10, Math.round(200 / fs))
+  // Extra padding when labels can wrap to 2-3 lines
+  const pad = Math.max(110, Math.min(165, Math.ceil(fs * 5.0)))
   const r = size / 2 - pad
   const cx = size / 2
   const cy = size / 2
@@ -88,9 +92,11 @@ export function Spider({
         })}
         {/* Axis labels with per-handler event binding */}
         {axes.map((ax, i) => {
-          const [lx, ly] = polarToCartesian(i, axes.length, r + fs * 1.6, cx, cy)
+          const [lx, ly] = polarToCartesian(i, axes.length, r + fs * 1.8, cx, cy)
           const anchor = Math.abs(lx - cx) < 4 ? 'middle' : lx > cx ? 'start' : 'end'
           const isActive = activeAxis === ax.key
+          const lines = wrapLabel(ax.title, maxCharsPerLine).slice(0, 3)
+          const yOffset = ((lines.length - 1) * lineHeight) / 2
           return (
             <g
               key={`axis-${ax.key}`}
@@ -100,10 +106,19 @@ export function Spider({
               onPointerLeave={() => onAxisLeave?.()}
               onClick={(e) => { e.stopPropagation(); onAxisTap?.(ax.key) }}
             >
-              <text x={lx} y={ly} textAnchor={anchor} fontSize={fs} fill="currentColor" className={isActive ? 'is-active font-medium' : ''}>
-                {ax.title}{/* React text node — XSS-safe (D-05) */}
+              <text
+                x={lx}
+                y={ly - yOffset}
+                textAnchor={anchor}
+                fontSize={fs}
+                fill="currentColor"
+                className={isActive ? 'is-active font-medium' : ''}
+              >
+                {lines.map((line, li) => (
+                  <tspan key={li} x={lx} dy={li === 0 ? 0 : lineHeight}>{line}</tspan>
+                ))}
               </text>
-              <text x={lx} y={ly - fs * 0.9} textAnchor={anchor} fontSize={fs * 0.7} fill="currentColor" fillOpacity={0.7} aria-hidden="true">
+              <text x={lx} y={ly - yOffset - fs * 1.0} textAnchor={anchor} fontSize={fs * 0.7} fill="currentColor" fillOpacity={0.7} aria-hidden="true">
                 {ax.icon}
               </text>
             </g>

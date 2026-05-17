@@ -60,8 +60,7 @@ export function ResultModal({ open, onOpenChange, result, profile }: Props) {
           style={{ ['--c' as 'color']: dataset.color } as React.CSSProperties}
           showCloseButton={false}
           data-testid="result-modal"
-          onPointerDownOutside={(e) => e.preventDefault()}
-          onInteractOutside={(e) => e.preventDefault()}
+          onInteractOutside={() => handleClose()}
         >
           {/* Header */}
           <div className="cat-modal-head-row">

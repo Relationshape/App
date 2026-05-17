@@ -52,6 +52,11 @@ export function RsQuestionCard({
 }: Props) {
   const storeSaveResult = useStore((s) => s.saveResult)
   const saveResult = onSave ?? storeSaveResult
+  // Read templateWarningDisabled reactively so saves don't overwrite it
+  // when confirmIfTemplate sets it in the store before React re-renders.
+  const storeTemplateWarningDisabled = useStore((s) =>
+    s.results.find((r) => r.id === result.id)?.templateWarningDisabled ?? false
+  )
   const [note, setNote] = useState(cell?.note ?? '')
   const [editOpen, setEditOpen] = useState(false)
   const [pendingLabel, setPendingLabel] = useState('')
@@ -71,6 +76,7 @@ export function RsQuestionCard({
   async function saveItemEdit() {
     if (!(await onBeforeMutate())) { setEditOpen(false); return }
     const next = structuredClone(result)
+    if (storeTemplateWarningDisabled) next.templateWarningDisabled = true
     const slot = next.answers[catId] ?? {}
     function patchCell(existing: AnswerCell | undefined): AnswerCell {
       const c: AnswerCell = existing ? { ...existing } : { scale: 'open' }
@@ -89,8 +95,7 @@ export function RsQuestionCard({
     setEditOpen(false)
   }
 
-  async function setScaleKey(key: string, frac: number) {
-    if (!(await onBeforeMutate())) return
+  function setScaleKey(key: string, frac: number) {
     const next = structuredClone(result)
     const slot = next.answers[catId] ?? {}
     if (isCustom) {
@@ -104,8 +109,7 @@ export function RsQuestionCard({
     saveResult(next)
   }
 
-  async function clearAnswer() {
-    if (!(await onBeforeMutate())) return
+  function clearAnswer() {
     const next = structuredClone(result)
     const slot = next.answers[catId] ?? {}
     if (isCustom) {
@@ -119,8 +123,7 @@ export function RsQuestionCard({
     saveResult(next)
   }
 
-  async function setGR(gr: 'G' | 'R' | 'Both') {
-    if (!(await onBeforeMutate())) return
+  function setGR(gr: 'G' | 'R' | 'Both') {
     const next = structuredClone(result)
     const slot = next.answers[catId] ?? {}
     if (isCustom) {
@@ -134,9 +137,8 @@ export function RsQuestionCard({
     saveResult(next)
   }
 
-  async function commitNote() {
+  function commitNote() {
     if (note === (cell?.note ?? '')) return
-    if (!(await onBeforeMutate())) return
     const next = structuredClone(result)
     const slot = next.answers[catId] ?? {}
     if (isCustom) {
@@ -162,6 +164,7 @@ export function RsQuestionCard({
     })
     if (!confirmed) return
     const next = structuredClone(result)
+    if (storeTemplateWarningDisabled) next.templateWarningDisabled = true
     const slot = next.answers[catId] ?? {}
     if (isCustom) {
       const customs = { ...(slot.__custom ?? {}) }
@@ -195,12 +198,12 @@ export function RsQuestionCard({
         const idx = d - 1
         const frac = N > 1 ? idx / (N - 1) : 0
         const step = scale[idx]!
-        void setScaleKey(step.key, frac).then(() => onAnswered?.())
+        setScaleKey(step.key, frac); onAnswered?.()
         return
       }
       if (d === N + 1) {
         e.preventDefault()
-        void clearAnswer().then(() => onAnswered?.())
+        clearAnswer(); onAnswered?.()
         return
       }
     }
