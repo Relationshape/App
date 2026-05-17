@@ -32,6 +32,8 @@ type Step = 'mode' | 'pass' | 'output'
 interface ShareDataContextValue {
   /** Open the share modal for the given result id. No-op if the id can't be resolved. */
   openShare(resultId: string): void
+  /** Open the share modal pre-set to template mode. onDone is called after the modal closes. */
+  openShareTemplate(resultId: string, onDone?: () => void): void
 }
 
 const ShareDataContext = createContext<ShareDataContextValue | null>(null)
@@ -95,6 +97,7 @@ export function ShareDataProvider({ children }: { children: ReactNode }) {
   const [armor, setArmor] = useState<string | null>(null)
 
   const passInputRef = useRef<HTMLInputElement | null>(null)
+  const onDoneRef = useRef<(() => void) | undefined>(undefined)
 
   const reset = useCallback(() => {
     setStep('mode')
@@ -112,8 +115,9 @@ export function ShareDataProvider({ children }: { children: ReactNode }) {
 
   const close = useCallback(() => {
     setOpen(false)
-    // Defer reset until the dialog has closed to avoid flicker.
-    setTimeout(reset, 200)
+    const cb = onDoneRef.current
+    onDoneRef.current = undefined
+    setTimeout(() => { reset(); cb?.() }, 200)
   }, [reset])
 
   const openShare = useCallback((resultId: string) => {
@@ -129,6 +133,25 @@ export function ShareDataProvider({ children }: { children: ReactNode }) {
     setResult(r)
     setProfile(p)
     setOpen(true)
+  }, [reset, toast])
+
+  const openShareTemplate = useCallback((resultId: string, onDone?: () => void) => {
+    const s = useStore.getState()
+    const r = s.results.find((x) => x.id === resultId) ?? null
+    const p = r ? s.profiles.find((x) => x.id === r.profileId) ?? null : null
+    if (!r || !p) {
+      toast.error(t('import_no_results') as string)
+      onDone?.()
+      return
+    }
+    onDoneRef.current = onDone
+    reset()
+    setResult(r)
+    setProfile(p)
+    setMode('template')
+    setStep('pass')
+    setOpen(true)
+    requestAnimationFrame(() => passInputRef.current?.focus())
   }, [reset, toast])
 
   function pickMode(selected: ExportMode) {
@@ -214,7 +237,7 @@ export function ShareDataProvider({ children }: { children: ReactNode }) {
     setTimeout(() => URL.revokeObjectURL(url), 100)
   }
 
-  const value = useMemo<ShareDataContextValue>(() => ({ openShare }), [openShare])
+  const value = useMemo<ShareDataContextValue>(() => ({ openShare, openShareTemplate }), [openShare, openShareTemplate])
 
   const modeTitle =
     mode === 'unrestricted' ? (t('export_unrestricted_title') as string) :
