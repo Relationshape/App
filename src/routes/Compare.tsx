@@ -3,6 +3,8 @@
 // cat-card / callout / page-head / section-head) + Kategorie-Details cat-grid
 // section that opens a per-category modal. Default-to-first-2 selection mirrors
 // legacy `viewCompare` line 3480.
+// Phase 04 (D-04/D-05/D-06): Add-more-categories button, compareFilterIds union,
+// and RsCategoryCard replaces ad-hoc RsTile for cat-grid.
 
 import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
@@ -10,12 +12,14 @@ import { useStore } from '@/lib/storage/store'
 import { Spider } from '@/components/charts/Spider'
 import { Alignment } from '@/components/charts/Alignment'
 import { CategoryModal } from '@/components/charts/CategoryModal'
-import { RsTile } from '@/components/RsTile'
+import { RsCategoryCard } from '@/components/RsCategoryCard'
+import { RsCategoryPicker } from '@/components/RsCategoryPicker'
+import { Button } from '@/components/ui/button'
 import { mapResultToDataset, mapImportToDataset } from '@/lib/charts/datasets'
 import { CATEGORIES } from '@/lib/data/data'
 import type { AnswersBlob } from '@/lib/storage/types'
 import { useToast } from '@/lib/hooks/useToast'
-import { t, getLang } from '@/lib/i18n/i18n'
+import { t } from '@/lib/i18n/i18n'
 
 type CategoryDef = (typeof CATEGORIES)[number]
 
@@ -25,7 +29,6 @@ export function Compare() {
   const rawIds = idsParam.split(',').map((s) => s.trim()).filter(Boolean)
   const truncatedRaw = rawIds.slice(0, 4)
   const { toast } = useToast()
-  const lang = getLang()
 
   useEffect(() => {
     if (rawIds.length > 4) toast.message(t('compare_too_many_truncated', { n: rawIds.length }) as string)
@@ -36,6 +39,7 @@ export function Compare() {
   const results = useStore((s) => s.results)
   const imports = useStore((s) => s.imports)
   const fabiMode = useStore((s) => s.settings.fabiMode ?? false)
+  const saveResult = useStore((s) => s.saveResult)
 
   // All available datasets (results first, then imports), as { id, label } for chip rendering.
   const allOptions = useMemo(
@@ -65,21 +69,40 @@ export function Compare() {
     return mapResultToDataset(r, profile)
   }).filter((d): d is NonNullable<typeof d> => d !== null), [effectiveIds.join(','), results, imports, profiles])
 
+  // Phase-04 D-04: legacy app.js:3484-3486 — first own-result among selected
+  // (used to gate the Add-more-categories button + as the editableResult for
+  // RsCategoryCard's hide-vs-dim rule).
+  const firstEditableResult = useMemo(() => {
+    const firstResultId = effectiveIds.find((id) => !id.startsWith('imp:'))
+    return firstResultId ? results.find((r) => r.id === firstResultId) ?? null : null
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [effectiveIds.join(','), results])
+
+  // Phase-04 D-04: legacy app.js:3489-3498 — union of enabledCategories across
+  // all selected own-results. `null` means "no filter from any selected result".
+  const compareFilterIds = useMemo<string[] | null>(() => {
+    const set = new Set<string>()
+    let hasFilter = false
+    for (const id of effectiveIds) {
+      if (id.startsWith('imp:')) continue
+      const r = results.find((x) => x.id === id)
+      if (r?.enabledCategories) {
+        hasFilter = true
+        r.enabledCategories.forEach((cid) => set.add(cid))
+      }
+    }
+    return hasFilter ? Array.from(set) : null
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [effectiveIds.join(','), results])
+
   const [activeAxis, setActiveAxis] = useState<string | null>(null)
   const [modalCat, setModalCat] = useState<CategoryDef | null>(null)
+  const [pickerOpen, setPickerOpen] = useState(false)
 
   function toggleId(id: string) {
     const cur = truncatedRaw.length === 0 ? effectiveIds : truncatedRaw
     const next = cur.includes(id) ? cur.filter((x) => x !== id) : [...cur, id].slice(0, 4)
     setParams({ ids: next.join(',') })
-  }
-
-  // Title/blurb selectors honour the active locale (DE → cat.de / cat.deBlurb when present).
-  function catTitle(cat: CategoryDef): string {
-    return lang === 'de' && cat.de ? cat.de : cat.title
-  }
-  function catBlurb(cat: CategoryDef): string {
-    return lang === 'de' && cat.deBlurb ? cat.deBlurb : cat.blurb
   }
 
   // A category has "item by item" values when at least one dataset has any
@@ -94,7 +117,11 @@ export function Compare() {
     }
     return Object.keys(slot.__custom ?? {}).length > 0
   }
-  const visibleCategories = CATEGORIES.filter((cat) =>
+
+  const filteredCategories = compareFilterIds
+    ? CATEGORIES.filter((c) => compareFilterIds.includes(c.id))
+    : CATEGORIES
+  const visibleCategories = filteredCategories.filter((cat) =>
     datasets.some((ds) => hasItemValues(ds.answers, cat.id)),
   )
 
@@ -167,24 +194,26 @@ export function Compare() {
           <header className="section-head">
             <h2>{t('cat_details_title')}</h2>
             <p className="muted">{t('cat_details_sub')}</p>
+            {firstEditableResult ? (
+              <Button
+                onClick={() => setPickerOpen(true)}
+                data-testid="compare-add-cats"
+              >
+                {t('btn_add_categories')}
+              </Button>
+            ) : null}
           </header>
-          {/* TODO: legacy app.js openAddCategoriesDialog ("Weitere Kategorien hinzufügen") is
-              out of scope for this quick task — multi-screen flow tracked separately. */}
           <div className="cat-grid">
             {visibleCategories.map((cat) => (
-              <RsTile
+              <RsCategoryCard
                 key={cat.id}
-                color={cat.color}
-                active
+                cat={cat}
+                datasets={datasets}
+                editableResult={firstEditableResult}
+                fabiMode={fabiMode}
                 onClick={() => setModalCat(cat)}
                 testId={`compare-cat-card-${cat.id}`}
-                icon={<span className="text-2xl">{cat.icon}</span>}
-                title={catTitle(cat)}
-                trailing={<span aria-hidden>→</span>}
-                ariaLabel={catTitle(cat)}
-              >
-                <p className="muted small">{catBlurb(cat)}</p>
-              </RsTile>
+              />
             ))}
           </div>
         </section>
@@ -195,6 +224,15 @@ export function Compare() {
         onOpenChange={(open) => { if (!open) setModalCat(null) }}
         datasets={datasets}
         cat={modalCat}
+      />
+      <RsCategoryPicker
+        open={pickerOpen}
+        onOpenChange={setPickerOpen}
+        existingIds={firstEditableResult?.enabledCategories ?? CATEGORIES.map((c) => c.id)}
+        onSubmit={(mergedIds) => {
+          if (!firstEditableResult) return
+          saveResult({ ...firstEditableResult, enabledCategories: mergedIds })
+        }}
       />
     </section>
   )
