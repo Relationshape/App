@@ -1,6 +1,6 @@
 // PROFILE-06, D-29. Blocking gate on first visit; migrates legacy rs-age-confirmed (CONCERNS Pitfall 13).
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel,
   AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
@@ -15,6 +15,7 @@ export function AgeGate() {
   const ageConfirmed = useStore((s) => s.settings.ageConfirmed)
   const setSettings = useStore((s) => s.setSettings)
   const navigate = useNavigate()
+  const location = useLocation()
   const [denied, setDenied] = useState(false)
 
   // Migration block (CONCERNS Pitfall 13): runs once on first mount.
@@ -26,6 +27,13 @@ export function AgeGate() {
       localStorage.removeItem(LEGACY_KEY)
     }
   }, [ageConfirmed, setSettings])
+
+  // Ensure the landing page is visible in the background while the gate is blocking.
+  useEffect(() => {
+    if (!ageConfirmed && !denied && location.pathname !== '/welcome') {
+      navigate('/welcome', { replace: true })
+    }
+  }, [ageConfirmed, denied, location.pathname, navigate])
 
   if (denied) {
     return (

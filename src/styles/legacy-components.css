@@ -388,6 +388,8 @@ a:hover { text-decoration: underline; }
 .btn-danger { background: var(--red); color: white; border-color: transparent; }
 .btn-danger-ghost { background: transparent; color: var(--red); border-color: transparent; }
 .btn-danger-ghost:hover { background: color-mix(in oklab, var(--red) 10%, transparent); }
+.btn-danger-outline { background: transparent; color: var(--red); border-color: var(--red); }
+.btn-danger-outline:hover { background: color-mix(in oklab, var(--red) 10%, transparent); }
 .icon-btn {
   background: none; border: 0; color: var(--muted); font: inherit; cursor: pointer; padding: 4px 6px; border-radius: 6px;
 }

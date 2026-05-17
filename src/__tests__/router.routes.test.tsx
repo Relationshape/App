@@ -11,17 +11,14 @@ const PROFILE_ID = 'test-profile-abc'
 const RESULT_ID = 'test-result-xyz'
 
 function makeBaseStore(extra: object = {}) {
+  // persist.ts reads directly from root (no 'state' wrapper) — D-06
   return JSON.stringify({
-    state: {
-      profiles: [],
-      results: [],
-      imports: [],
-      settings: { theme: 'auto', ageConfirmed: true, wizardSeen: true },
-      scale: [],
-      lastSaveError: null,
-      ...extra,
-    },
-    version: 1,
+    profiles: [],
+    results: [],
+    imports: [],
+    settings: { theme: 'auto', ageConfirmed: true, wizardSeen: true },
+    scale: [],
+    ...extra,
   })
 }
 

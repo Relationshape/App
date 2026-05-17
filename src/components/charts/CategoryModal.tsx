@@ -45,7 +45,7 @@ export function CategoryModal({ open, onOpenChange, datasets, cat, result }: Pro
   const [localResult, setLocalResult] = useState<Result | null>(null)
   const [isDirty, setIsDirty] = useState(false)
 
-  // When edit tab opens, clone the result into local state
+  // When edit tab opens, clone the result into local state.
   useEffect(() => {
     if (tab === 'edit' && result) {
       setLocalResult(structuredClone(result))
@@ -54,6 +54,15 @@ export function CategoryModal({ open, onOpenChange, datasets, cat, result }: Pro
     // only watch tab change to avoid resetting while typing
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tab])
+
+  // After an immediate save the store result changes while isDirty is false —
+  // resync localResult so the spider sees fresh data when switching tabs.
+  useEffect(() => {
+    if (tab === 'edit' && result && !isDirty) {
+      setLocalResult(structuredClone(result))
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [result])
 
   function handleLocalChange(next: Result) {
     setLocalResult(next)
@@ -129,6 +138,8 @@ export function CategoryModal({ open, onOpenChange, datasets, cat, result }: Pro
         style={{ ['--c' as 'color']: cat.color } as React.CSSProperties}
         showCloseButton={false}
         data-testid="category-modal"
+        onPointerDownOutside={(e) => e.preventDefault()}
+        onInteractOutside={(e) => e.preventDefault()}
       >
         {/* Header row */}
         <div className="cat-modal-head-row">
