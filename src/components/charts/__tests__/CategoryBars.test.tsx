@@ -36,26 +36,24 @@ function makeDatasetWithAnswers(): ChartDataset {
 describe('CategoryBars (RESULT-03)', () => {
   afterEach(() => cleanup())
 
-  it('renders one row per answered item; uses scale step color for each bar', () => {
+  it('renders one row per answered item; bars use dataset color', () => {
     const ds = makeDatasetWithAnswers()
     const { container } = render(<CategoryBars datasets={[ds]} catId={CAT_ID} />)
 
     const wrapper = container.querySelector(`[data-testid="category-bars-${CAT_ID}"]`)
     expect(wrapper).not.toBeNull()
 
-    const rows = container.querySelectorAll('.rs-bar-row')
+    const rows = container.querySelectorAll('.rs-bar-ds-row')
     expect(rows.length).toBe(2)
 
-    // Bar for ITEM_1 (scale: need = value 6, color #e63946)
-    // jsdom normalises hex colors to rgb() when reading style.background
+    // Bars are filled with the dataset color (#7c3aed → rgb(124, 58, 237))
     const bar1 = container.querySelector(`[data-testid="bar-cell-0-${ITEM_1}"]`) as HTMLElement | null
     expect(bar1).not.toBeNull()
-    expect(bar1!.style.background).toContain('230')  // #e63946 → rgb(230, 57, 70)
+    expect(bar1!.style.background).toContain('124')  // #7c3aed → rgb(124, 58, 237)
 
-    // Bar for ITEM_2 (scale: maybe = value 2, color #43aa8b)
     const bar2 = container.querySelector(`[data-testid="bar-cell-0-${ITEM_2}"]`) as HTMLElement | null
     expect(bar2).not.toBeNull()
-    expect(bar2!.style.background).toContain('67')  // #43aa8b → rgb(67, 170, 139)
+    expect(bar2!.style.background).toContain('124')  // same dataset color
   })
 
   it('returns null for unknown catId', () => {
@@ -105,9 +103,9 @@ describe('CategoryBars (RESULT-03)', () => {
     // DOM property is the raw value — confirm it does NOT execute as HTML
     expect(bar!.title).toContain('<script>alert(1)</script>')
     // The label text node (rs-bar-label) must encode < as &lt;
-    const label = container.querySelector('.rs-bar-label') as HTMLElement | null
+    const label = container.querySelector('.rs-bar-item-label') as HTMLElement | null
     // label shows the item name (not ds.name), which is static data — XSS is in ds.name
-    // The bar-row label shows ITEM_1 text node: safe static string
+    // The bar-item label shows ITEM_1 text node: safe static string
     expect(label?.textContent).toBe(ITEM_1)
   })
 })

@@ -3,6 +3,7 @@
 // PROFILE-06, D-29: AgeGate blocks on first visit, migrates legacy key, fires setSettings.
 import { render, screen, act, fireEvent, cleanup, waitFor } from '@testing-library/react'
 import { describe, it, expect, afterEach, vi } from 'vitest'
+import { MemoryRouter } from 'react-router-dom'
 import { MemoryLocalStorage } from '../../../tests/helpers/MemoryLocalStorage'
 
 describe('<AgeGate />', () => {
@@ -18,7 +19,7 @@ describe('<AgeGate />', () => {
     // Ensure store has no ageConfirmed
     useStore.setState({ settings: { theme: 'auto' } })
     await act(async () => {
-      render(<AgeGate />)
+      render(<MemoryRouter><AgeGate /></MemoryRouter>)
     })
     expect(screen.queryByTestId('age-gate-dialog')).not.toBeNull()
   })
@@ -32,7 +33,7 @@ describe('<AgeGate />', () => {
     const { useStore } = await import('@/lib/storage/store')
     useStore.setState({ settings: { theme: 'auto' } })
     await act(async () => {
-      render(<AgeGate />)
+      render(<MemoryRouter><AgeGate /></MemoryRouter>)
     })
     // After migration: dialog should NOT be shown
     await waitFor(() => {
@@ -51,7 +52,7 @@ describe('<AgeGate />', () => {
     const { useStore } = await import('@/lib/storage/store')
     useStore.setState({ settings: { theme: 'auto' } })
     await act(async () => {
-      render(<AgeGate />)
+      render(<MemoryRouter><AgeGate /></MemoryRouter>)
     })
     expect(screen.queryByTestId('age-gate-dialog')).not.toBeNull()
     await act(async () => {
@@ -70,7 +71,7 @@ describe('<AgeGate />', () => {
     const { useStore } = await import('@/lib/storage/store')
     useStore.setState({ settings: { theme: 'auto' } })
     await act(async () => {
-      render(<AgeGate />)
+      render(<MemoryRouter><AgeGate /></MemoryRouter>)
     })
     await act(async () => {
       fireEvent.click(screen.getByTestId('age-gate-no'))

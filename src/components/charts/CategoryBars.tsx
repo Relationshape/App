@@ -48,7 +48,19 @@ export function CategoryBars({ datasets, catId }: Props) {
                   ds.scale.find((s) => s.key === cell.scale)?.value ?? 0,
                   ds.scale,
                 ) : null
-                if (!step) return null
+                if (!step) {
+                  return (
+                    <div
+                      key={di}
+                      className="rs-bar-ds-row rs-bar-ds-row--empty"
+                      data-testid={`bar-cell-empty-${di}-${displayItem}`}
+                    >
+                      <span className="rs-bar-ds-name" style={{ color: ds.color }}>{ds.name}</span>
+                      <div className="rs-bar-track" />
+                      <span className="rs-bar-label-text" />
+                    </div>
+                  )
+                }
                 const max = scaleMaxValue(ds.scale)
                 const pct = max > 0 ? (step.value / max) * 100 : 0
                 return (
@@ -67,6 +79,7 @@ export function CategoryBars({ datasets, catId }: Props) {
                       <div
                         className="rs-bar-fill"
                         style={{ width: `${pct}%`, background: ds.color }}
+                        title={ds.name}
                         data-testid={`bar-cell-${di}-${displayItem}`}
                       />
                     </div>
