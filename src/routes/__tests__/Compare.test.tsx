@@ -42,6 +42,37 @@ function makeStore(extra: object = {}) {
   })
 }
 
+function makeStoreWithAnswers(
+  resultsList: Array<{ id: string; enabledCategories?: string[]; answers?: object }>,
+) {
+  return JSON.stringify({
+    profiles: [
+      { id: P1, name: 'Alice', pronouns: '', color: '#7c3aed', emoji: '🌷', notes: '', createdAt: 1 },
+    ],
+    results: resultsList.map((r) => ({
+      id: r.id,
+      profileId: P1,
+      subject: r.id,
+      answers: r.answers ?? {},
+      enabledCategories: r.enabledCategories,
+      createdAt: 1,
+      updatedAt: 1,
+    })),
+    imports: [
+      {
+        id: IMP1,
+        name: 'Imported Person',
+        subject: 'Their Map',
+        answers: {},
+        scale: [],
+        importedAt: 1,
+      },
+    ],
+    settings: { theme: 'auto', ageConfirmed: true, wizardSeen: true },
+    scale: [],
+  })
+}
+
 async function mountAtHash(hash: string, storeJson?: string) {
   vi.resetModules()
   const mem = new MemoryLocalStorage()
@@ -120,5 +151,112 @@ describe('Compare route (SHARE-05, D-25, D-35)', () => {
     expect(chip).not.toBeNull()
     // The chip label should include the import's subject or name
     expect(chip?.textContent).toContain('Their Map')
+  }, 30000)
+
+  it('D-04: shows Add-more-categories button when an own-result is selected', async () => {
+    // Both own-results selected — firstEditableResult will be R1; both have item-level answers
+    // so the section renders.
+    const store = makeStoreWithAnswers([
+      { id: R1, answers: { connection: { item1: { scale: 'green' } } } },
+      { id: R2, answers: { connection: { item2: { scale: 'red' } } } },
+    ])
+    await mountAtHash(`#/compare?ids=${R1},${R2}`, store)
+    await waitFor(() => {
+      expect(document.querySelector('[data-testid="compare-page"]')).not.toBeNull()
+    }, { timeout: 10000 })
+    await waitFor(() => {
+      expect(document.querySelector('[data-testid="compare-add-cats"]')).not.toBeNull()
+    }, { timeout: 5000 })
+  }, 30000)
+
+  it('D-04: hides Add-more-categories button when only imports are selected', async () => {
+    // imp: only — firstEditableResult is null → no button.
+    await mountAtHash(`#/compare?ids=imp:${IMP1}`)
+    await waitFor(() => {
+      expect(document.querySelector('[data-testid="compare-page"]')).not.toBeNull()
+    }, { timeout: 10000 })
+    // Even if cat-details section is empty (no item-level data on the import),
+    // the button must NOT appear.
+    expect(document.querySelector('[data-testid="compare-add-cats"]')).toBeNull()
+  }, 30000)
+
+  it('D-04: compareFilterIds union filters cat-grid to enabled categories only', async () => {
+    // R1: enabledCategories=['connection'], R2: enabledCategories=['time-together'].
+    // Both have item-level answers in those categories. Other categories must be filtered out.
+    const store = makeStoreWithAnswers([
+      {
+        id: R1,
+        enabledCategories: ['connection'],
+        answers: {
+          connection: { item1: { scale: 'green' } },
+          'time-together': { item2: { scale: 'green' } },  // R1 ALSO has answers in time-together, but it's not enabled for R1
+          'creative': { item3: { scale: 'green' } },    // and creative — but not enabled
+        },
+      },
+      {
+        id: R2,
+        enabledCategories: ['time-together'],
+        answers: {
+          connection: { item1: { scale: 'red' } },
+          'time-together': { item2: { scale: 'red' } },
+          'creative': { item3: { scale: 'red' } },
+        },
+      },
+    ])
+    await mountAtHash(`#/compare?ids=${R1},${R2}`, store)
+    await waitFor(() => {
+      expect(document.querySelector('[data-testid="compare-page"]')).not.toBeNull()
+    }, { timeout: 10000 })
+    // Union = ['connection', 'time-together'] → those cards visible; creative filtered out.
+    await waitFor(() => {
+      expect(document.querySelector('[data-testid="compare-cat-card-connection"]')).not.toBeNull()
+      expect(document.querySelector('[data-testid="compare-cat-card-time-together"]')).not.toBeNull()
+      expect(document.querySelector('[data-testid="compare-cat-card-creative"]')).toBeNull()
+    }, { timeout: 5000 })
+  }, 30000)
+
+  it('D-04: when no selected result has enabledCategories, all hasItemValues cats render', async () => {
+    // Both results: enabledCategories undefined → compareFilterIds null → no artificial filter.
+    // hasItemValues still filters; creative has data, so it should render.
+    const store = makeStoreWithAnswers([
+      {
+        id: R1,
+        answers: {
+          connection: { item1: { scale: 'green' } },
+          'creative': { item3: { scale: 'green' } },
+        },
+      },
+      {
+        id: R2,
+        answers: {
+          connection: { item1: { scale: 'red' } },
+        },
+      },
+    ])
+    await mountAtHash(`#/compare?ids=${R1},${R2}`, store)
+    await waitFor(() => {
+      expect(document.querySelector('[data-testid="compare-page"]')).not.toBeNull()
+    }, { timeout: 10000 })
+    // Both connection AND creative visible (no compareFilterIds restriction).
+    await waitFor(() => {
+      expect(document.querySelector('[data-testid="compare-cat-card-connection"]')).not.toBeNull()
+      expect(document.querySelector('[data-testid="compare-cat-card-creative"]')).not.toBeNull()
+    }, { timeout: 5000 })
+  }, 30000)
+
+  it('D-04: clicking Add-more-categories opens the RsCategoryPicker dialog', async () => {
+    const store = makeStoreWithAnswers([
+      { id: R1, answers: { connection: { item1: { scale: 'green' } } } },
+      { id: R2, answers: { connection: { item1: { scale: 'red' } } } },
+    ])
+    await mountAtHash(`#/compare?ids=${R1},${R2}`, store)
+    await waitFor(() => {
+      expect(document.querySelector('[data-testid="compare-add-cats"]')).not.toBeNull()
+    }, { timeout: 10000 })
+    fireEvent.click(document.querySelector('[data-testid="compare-add-cats"]')!)
+    await waitFor(() => {
+      // RsCategoryPicker.tsx sets data-testid="cat-picker" on its DialogContent.
+      expect(document.querySelector('[data-testid="cat-picker"]')).not.toBeNull()
+    }, { timeout: 5000 })
   }, 30000)
 })
