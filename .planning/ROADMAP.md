@@ -17,6 +17,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Skeleton** *(completed 2026-05-15)* - Vite + React 19 + TS + Tailwind v4 + shadcn + PWA plugin + Vitest scaffolded; pure TS port of Store / crypto / data / i18n with v1.0 fixture round-trip tests; Celestial Map design system as Tailwind tokens + self-hosted fonts + reduced-motion-guarded animations exposed via `<DesignSystem />` reference route. Skeleton works, no user-visible features yet.
 - [x] **Phase 2: Parity** *(completed 2026-05-16)* - React app shell (router covering every v1.0 hash route, providers, persistent nav, toast + dialog primitives) plus every v1.0 view ported to React with full feature parity: profile lifecycle, questionnaire (list + swipe modes), result + chart components, share / import / compare, settings. EN/DE strings preserved, encrypted bundle round-trip preserved.
 - [ ] **Phase 3: Cutover** - PWA manifest + Workbox service worker, install + offline verified, v1↔v2 bundle compatibility proven, Lighthouse PWA passes, legacy `js/` + `css/` + `sw.js` removed, deploy preview smoke-walked end-to-end.
+- [ ] **Phase 4: Port Compare page** - Bring the React Compare flow to full legacy parity. Restructure `/result/:id` (drop inline Spider/drilldown; add Compare-with-someone picker + cat-card grid); close remaining `/compare?ids=…` gaps (Add-more-categories button, compareFilterIds union, RsCategoryCard replaces ad-hoc RsTile). Extract three new components: `RsCompareTile`, `CompareWithSomeone`, `RsCategoryCard`. No store API, route, or i18n changes.
 
 ## Phase Details
 
@@ -120,10 +121,30 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3
+Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Skeleton | 9/9 | ✓ Complete | 2026-05-15 |
 | 2. Parity | 7/7 | ✓ Complete | 2026-05-16 |
 | 3. Cutover | 0/TBD | Not started | - |
+| 4. Port Compare page | 0/5 | Planned | - |
+
+### Phase 4: Port Compare page
+
+**Goal:** Bring the React Compare flow to full legacy parity on two surfaces: (1) the `/result/:id` detail page — drop the inline Spider + activeAxis drill-down, restructure to legacy parity (header with N-answers subtitle → Fabi-only Spider overview → Compare-with-someone picker → By-category cat-card grid), open `CategoryModal` on `:catId` deep-link; (2) the `/compare?ids=…` overlay — add the legacy "Add more categories" button (when an own-result is selected), apply the `compareFilterIds` union over selected own-results' `enabledCategories`, and replace the ad-hoc `RsTile` cat cards with the new shared `RsCategoryCard`. Extract three new components (`RsCompareTile`, `CompareWithSomeone`, `RsCategoryCard`). No store API, route, or i18n changes; all CSS already ported in phase 02.
+**Requirements**: D-01 (Result restructure), D-02 (Result header + subtitle), D-03 (Compare-with picker), D-04 (Compare overlay gaps), D-05 (`.cat-card.is-empty` hide/dim rule), D-06 (RsCategoryCard extraction), D-07 (hash-route compatibility — verified, no change), D-08 (i18n keys — verified present, no change), D-09 (no store API changes), D-10 (out-of-scope items deferred). All decision IDs sourced from `.planning/phases/04-port-compare-page/04-CONTEXT.md`.
+**Depends on:** Phase 3
+**Plans:** 5 plans
+
+Plans:
+**Wave 1** *(parallel — new primitives)*
+- [ ] 04-01-PLAN.md — `RsCompareTile` primitive + tests (D-03)
+- [ ] 04-02-PLAN.md — `RsCategoryCard` primitive + hide/dim rule + tests (D-05, D-06)
+
+**Wave 2** *(parallel — section + Compare overlay rewire; blocked on Wave 1)*
+- [ ] 04-03-PLAN.md — `CompareWithSomeone` section + tests (D-03; depends on 04-01)
+- [ ] 04-05-PLAN.md — Rewire `Compare.tsx` (Add-more-categories button + compareFilterIds union + RsCategoryCard swap) + update Compare tests (D-04, D-05, D-06, D-07; depends on 04-02)
+
+**Wave 3** *(blocked on Wave 2)*
+- [ ] 04-04-PLAN.md — Rewire `Result.tsx` (legacy parity restructure + deep-link modal + CompareWithSomeone + cat-grid) + update Result tests (D-01, D-02, D-05, D-06, D-08, D-09; depends on 04-02, 04-03)

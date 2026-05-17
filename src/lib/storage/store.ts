@@ -6,7 +6,7 @@
 import { create } from 'zustand'
 import { DEFAULT_SCALE } from '@/lib/data/data'
 import type { MutableScaleStep } from '@/lib/data/types'
-import { getLocalizedDefaultScale, setLang as i18nSetLang } from '@/lib/i18n/i18n'
+import { DEFAULT_SCALE_DE, getLocalizedDefaultScale, setLang as i18nSetLang } from '@/lib/i18n/i18n'
 import { migrateScale } from './migrateScale'
 import { relationshapePersist } from './persist'
 import type {
@@ -147,10 +147,23 @@ export const useStore = create<AppState>()(
       set((state) => ({ settings: { ...state.settings, theme } }))
     },
 
-    // Lang — also syncs the i18n module-level _lang (D-14)
+    // Lang — also syncs the i18n module-level _lang (D-14).
+    // Legacy parity (storage.js getScale): if the persisted scale is an unmodified
+    // EN or DE default, swap it to the new language's default so labels follow the
+    // language toggle. Custom scales (any key/label divergence) are kept as-is.
     setLang: (lang) => {
       i18nSetLang(lang)
-      set((state) => ({ settings: { ...state.settings, lang } }))
+      set((state) => {
+        const current = state.scale
+        const matchesDefault = (def: readonly MutableScaleStep[]) =>
+          current.length === def.length &&
+          current.every((s, i) => s.key === def[i]!.key && s.label === def[i]!.label)
+        const isUnmodified = matchesDefault(DEFAULT_SCALE) || matchesDefault(DEFAULT_SCALE_DE)
+        const nextScale = isUnmodified
+          ? (getLocalizedDefaultScale(DEFAULT_SCALE).map((s) => ({ ...s })) as MutableScaleStep[])
+          : state.scale
+        return { settings: { ...state.settings, lang }, scale: nextScale }
+      })
     },
 
     // Settings (Phase 2 extensions)

@@ -159,24 +159,36 @@ ProfilePicker delta would have broken the build.
 
 ## Post-merge reconciliation (orchestrator)
 
-While the executor ran, a parallel fast-task series landed on `main` (commits
-`3d218fa`, `b1bdd7a`, `c584e65`, `2f2e12a`) including `feat(nav): use
-RsLangDropdown in navbar; keep LangToggle segmented in Settings` (0935d65) and
-`feat(settings): legacy parity for theme + lang + data buttons` (b1bdd7a). On
-worktree merge, two files conflicted:
+A parallel agent was working on the floating-pill nav and language picker
+concurrently with this task. At the time this task's executor created its
+worktree from `2eebb35`, the parent repo's working tree contained the parallel
+agent's in-progress edits (uncommitted). The executor faithfully copied that
+state into the worktree as "user mid-work baseline" — including a Nav using
+`LangToggle` and a dropdown-picker LangToggle.
 
-- **`src/components/Nav.tsx`**: orchestrator preserved the user's `RsLangDropdown`
-  import + JSX (the parallel-committed design choice). The executor had silently
-  swapped this for `LangToggle` — rolled back during merge. All other Nav
-  changes (floating-pill structure, `cleanLabel`, `RsMenuLink` items, SVG icons)
-  preserved.
-- **`src/components/LangToggle.tsx`**: orchestrator kept the segmented
-  theme-picker version that landed via `b1bdd7a`. The executor's full
-  dropdown-picker rewrite was an unauthorized change and was rolled back.
+Meanwhile, the parallel agent finalized differently and committed to `main`:
+`0935d65` (`feat(nav): use RsLangDropdown in navbar; keep LangToggle segmented
+in Settings`) and `b1bdd7a` (`feat(settings): legacy parity for theme + lang
++ data buttons`). By worktree-merge time, `main` had the *finalized* parallel
+work, while the worktree branch had a *snapshot of an earlier intermediate
+state* of the same files.
 
-Both rollbacks verified: `bun run test` 230/230 pass; `bun run typecheck` only
-pre-existing unrelated errors (RsHeroConstellation, RsToggleCard). Final merge
-commit: `a0bc1be`.
+On merge, two files conflicted between the two agents' versions:
+
+- **`src/components/Nav.tsx`**: kept main's `RsLangDropdown` import + JSX
+  (the parallel agent's finalized choice). All other Nav changes from this
+  task's executor (floating-pill structure, `cleanLabel`, `RsMenuLink` items,
+  SVG icons) preserved.
+- **`src/components/LangToggle.tsx`**: kept main's segmented theme-picker
+  version (parallel agent's finalized choice). The dropdown-picker variant
+  the executor inherited was discarded.
+
+Neither rollback was an "executor mistake" — both agents acted on what their
+respective contexts said was the right baseline. The conflict was an artifact
+of two agents racing on overlapping files; the resolution simply takes the
+later/committed truth on main as the source of record. Final merge commit:
+`a0bc1be`. Verified `bun run test` 230/230 pass; typecheck pre-existing
+errors only (RsHeroConstellation, RsToggleCard).
 
 ## Self-Check: PASSED
 

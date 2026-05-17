@@ -87,6 +87,7 @@ export function Import() {
             rows={10}
             className="w-full font-mono text-xs"
             data-testid="import-textarea"
+            placeholder={'-----BEGIN RELATIONSHAPE BUNDLE-----\nv1\n…\n-----END RELATIONSHAPE BUNDLE-----'}
           />
         </label>
         <label>

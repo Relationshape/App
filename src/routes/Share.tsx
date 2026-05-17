@@ -74,8 +74,11 @@ export function Share() {
       </Button>
       <header>
         <h1>{t('share_title')}</h1>
-        <p className="muted">{t('share_sub')}</p>
+        <p>{t('share_intro')}</p>
       </header>
+      <div className="callout">
+        <strong>{t('share_callout_title')}</strong> {t('share_callout_body')}
+      </div>
       <form className="form" onSubmit={onEncrypt} data-testid="share-form">
         <label>
           {t('share_passphrase_label')}

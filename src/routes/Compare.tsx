@@ -13,6 +13,7 @@ import { CategoryModal } from '@/components/charts/CategoryModal'
 import { RsTile } from '@/components/RsTile'
 import { mapResultToDataset, mapImportToDataset } from '@/lib/charts/datasets'
 import { CATEGORIES } from '@/lib/data/data'
+import type { AnswersBlob } from '@/lib/storage/types'
 import { useToast } from '@/lib/hooks/useToast'
 import { t, getLang } from '@/lib/i18n/i18n'
 
@@ -81,6 +82,22 @@ export function Compare() {
     return lang === 'de' && cat.deBlurb ? cat.deBlurb : cat.blurb
   }
 
+  // A category has "item by item" values when at least one dataset has any
+  // per-item answer entry for it (base item or custom). Categories without
+  // any item-level data are hidden from Kategorie-Details — opening their
+  // modal would yield an empty ItemSpider anyway.
+  function hasItemValues(answers: AnswersBlob | undefined, catId: string): boolean {
+    const slot = answers?.[catId]
+    if (!slot) return false
+    for (const k of Object.keys(slot)) {
+      if (k !== '__custom' && k !== '__hidden') return true
+    }
+    return Object.keys(slot.__custom ?? {}).length > 0
+  }
+  const visibleCategories = CATEGORIES.filter((cat) =>
+    datasets.some((ds) => hasItemValues(ds.answers, cat.id)),
+  )
+
   return (
     <section className="page" data-testid="compare-page">
       <header className="page-head">
@@ -143,8 +160,9 @@ export function Compare() {
         </section>
       )}
 
-      {/* Kategorie-Details — every category becomes a card that opens the modal. */}
-      {datasets.length >= 1 && (
+      {/* Kategorie-Details — one card per category that has item-by-item data
+          in at least one of the selected datasets. */}
+      {datasets.length >= 1 && visibleCategories.length > 0 && (
         <section className="page-section" data-testid="compare-cat-details">
           <header className="section-head">
             <h2>{t('cat_details_title')}</h2>
@@ -153,7 +171,7 @@ export function Compare() {
           {/* TODO: legacy app.js openAddCategoriesDialog ("Weitere Kategorien hinzufügen") is
               out of scope for this quick task — multi-screen flow tracked separately. */}
           <div className="cat-grid">
-            {CATEGORIES.map((cat) => (
+            {visibleCategories.map((cat) => (
               <RsTile
                 key={cat.id}
                 color={cat.color}

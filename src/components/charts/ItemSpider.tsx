@@ -49,7 +49,12 @@ export function ItemSpider({ datasets, catId, size = 480 }: Props) {
 
   return (
     <div className="rs-chart-wrap rs-item-spider" data-testid={`item-spider-${catId}`}>
-      <svg viewBox={`0 0 ${size} ${size}`} role="img" aria-label={`${cat.title} items`}>
+      <svg
+        viewBox={`0 0 ${size} ${size}`}
+        role="img"
+        aria-label={`${cat.title} items`}
+        style={{ width: '100%', height: 'auto', maxWidth: size }}
+      >
         {[1, 2, 3].map((g) => {
           const rr = (r * g) / 3
           const pts = items.map((_, i) => polarToCartesian(i, items.length, rr, cx, cy))

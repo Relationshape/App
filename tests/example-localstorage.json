@@ -1,0 +1,732 @@
+{
+    "profiles": [
+        {
+            "id": "9843ca4d-d297-41f0-8e8a-f8ec54bf193b",
+            "name": "asvskrjttjz",
+            "pronouns": "öouiiul",
+            "color": "#7c3aed",
+            "emoji": "🌷",
+            "createdAt": 1778848985170
+        }
+    ],
+    "results": [
+        {
+            "profileId": "9843ca4d-d297-41f0-8e8a-f8ec54bf193b",
+            "subject": "egaeeb",
+            "subjectEmoji": "💞",
+            "subjectColor": "#f59e0b",
+            "answers": {
+                "connection": {
+                    "__custom": {},
+                    "__hidden": {},
+                    "Intellectual / philosophical discussions": {
+                        "scale": "not-really",
+                        "scaleFrac": 0.24834437086092714
+                    },
+                    "Shared activities / interests": {
+                        "scale": "open",
+                        "scaleFrac": 0.5496688741721855
+                    },
+                    "Political discussions": {
+                        "scale": "open",
+                        "scaleFrac": 0.5695364238410596
+                    },
+                    "Sharing ideas": {
+                        "scale": "open",
+                        "scaleFrac": 0.5
+                    },
+                    "Sharing humour": {
+                        "scale": "hell-yes",
+                        "scaleFrac": 0.8333333333333334
+                    },
+                    "Playfulness": {
+                        "scale": "hell-yes",
+                        "scaleFrac": 0.8849337748344371
+                    },
+                    "Companionship": {
+                        "scale": "maybe",
+                        "scaleFrac": 0.396523178807947
+                    },
+                    "Understanding": {
+                        "scale": "want",
+                        "scaleFrac": 0.7334437086092715
+                    },
+                    "Talking about everyday things": {
+                        "scale": "not-really",
+                        "scaleFrac": 0.22682119205298013
+                    },
+                    "Gift-giving": {
+                        "scale": "need",
+                        "scaleFrac": 0.9246688741721855
+                    }
+                }
+            },
+            "scale": [
+                {
+                    "key": "no",
+                    "label": "Nein",
+                    "short": "Nein",
+                    "value": 0,
+                    "color": "#264653",
+                    "description": "Ich will das nicht / stimme dem nicht zu."
+                },
+                {
+                    "key": "not-really",
+                    "label": "Eher nicht",
+                    "short": "Eher nicht",
+                    "value": 1,
+                    "color": "#577590",
+                    "description": "Ich tendiere dagegen."
+                },
+                {
+                    "key": "maybe",
+                    "label": "Vielleicht / Zukünftig",
+                    "short": "Vielleicht",
+                    "value": 2,
+                    "color": "#43aa8b",
+                    "description": "Hoffentlich oder vielleicht in der Zukunft."
+                },
+                {
+                    "key": "open",
+                    "label": "Offen dafür",
+                    "short": "Offen",
+                    "value": 3,
+                    "color": "#90be6d",
+                    "description": "Ich bin offen, neutral, bereit es auszuprobieren."
+                },
+                {
+                    "key": "want",
+                    "label": "Möchte ich",
+                    "short": "Möchte",
+                    "value": 4,
+                    "color": "#f9c74f",
+                    "description": "Das würde ich gerne haben."
+                },
+                {
+                    "key": "hell-yes",
+                    "label": "Ja, unbedingt!",
+                    "short": "Ja!",
+                    "value": 5,
+                    "color": "#f3722c",
+                    "description": "Starkes Ja, aufregend und willkommen."
+                },
+                {
+                    "key": "need",
+                    "label": "Brauche ich",
+                    "short": "Brauche",
+                    "value": 6,
+                    "color": "#e63946",
+                    "description": "Höchste Wichtigkeit. Wenn unerfüllt, stelle ich die Beziehung evtl. in Frage."
+                }
+            ],
+            "enabledCategories": [
+                "planning",
+                "holidays",
+                "connection",
+                "creative"
+            ],
+            "askedItems": {
+                "planning": {
+                    "base": [
+                        "Quality time together",
+                        "Reserved time slots",
+                        "Regular relationship check-ins",
+                        "Relationshapes interval",
+                        "Spontaneity",
+                        "Planning time together in advance",
+                        "Shared calendar"
+                    ],
+                    "custom": []
+                },
+                "holidays": {
+                    "base": [
+                        "Time off together",
+                        "Long weekends",
+                        "Day trips",
+                        "Week(s) away",
+                        "Long-term travel / sabbatical",
+                        "Just the two of us",
+                        "With friends",
+                        "With family",
+                        "With metamour(s)",
+                        "Abroad",
+                        "City trips",
+                        "Cultural travel",
+                        "Festival / Retreat",
+                        "Camping / Nature",
+                        "Road trip",
+                        "Beach",
+                        "Active / Adventure",
+                        "Wellness",
+                        "By train",
+                        "By bike",
+                        "By car",
+                        "By plane"
+                    ],
+                    "custom": []
+                },
+                "connection": {
+                    "base": [
+                        "Shared activities / interests",
+                        "Intellectual / philosophical discussions",
+                        "Political discussions",
+                        "Sharing ideas",
+                        "Sharing humour",
+                        "Playfulness",
+                        "Companionship",
+                        "Understanding",
+                        "Talking about everyday things",
+                        "Gift-giving"
+                    ],
+                    "custom": []
+                },
+                "creative": {
+                    "base": [
+                        "Visual art",
+                        "Craft",
+                        "Music",
+                        "Photography",
+                        "Comedy",
+                        "Writing / poetry",
+                        "Painting / drawing",
+                        "Dance",
+                        "Theatre"
+                    ],
+                    "custom": []
+                }
+            },
+            "progress": {
+                "catIndex": 0
+            },
+            "version": 1,
+            "id": "8a5f3462-2a26-447c-acd5-5dee3d1d6fe7",
+            "createdAt": 1778848994915,
+            "updatedAt": 1778950627129
+        },
+        {
+            "profileId": "9843ca4d-d297-41f0-8e8a-f8ec54bf193b",
+            "subject": "bla",
+            "subjectEmoji": "🌌",
+            "subjectColor": "#ef4444",
+            "answers": {
+                "holidays": {
+                    "__custom": {},
+                    "Time off together": {
+                        "scale": "maybe",
+                        "scaleFrac": 0.4153846153846154
+                    },
+                    "Long weekends": {
+                        "scale": "want",
+                        "scaleFrac": 0.6666666666666666
+                    },
+                    "Week(s) away": {
+                        "scale": "want",
+                        "scaleFrac": 0.7307692307692307
+                    }
+                }
+            },
+            "scale": [
+                {
+                    "key": "no",
+                    "label": "Nein",
+                    "short": "Nein",
+                    "value": 0,
+                    "color": "#264653",
+                    "description": "Ich will das nicht / stimme dem nicht zu."
+                },
+                {
+                    "key": "not-really",
+                    "label": "Eher nicht",
+                    "short": "Eher nicht",
+                    "value": 1,
+                    "color": "#577590",
+                    "description": "Ich tendiere dagegen."
+                },
+                {
+                    "key": "maybe",
+                    "label": "Vielleicht / Zukünftig",
+                    "short": "Vielleicht",
+                    "value": 2,
+                    "color": "#43aa8b",
+                    "description": "Hoffentlich oder vielleicht in der Zukunft."
+                },
+                {
+                    "key": "open",
+                    "label": "Offen dafür",
+                    "short": "Offen",
+                    "value": 3,
+                    "color": "#90be6d",
+                    "description": "Ich bin offen, neutral, bereit es auszuprobieren."
+                },
+                {
+                    "key": "want",
+                    "label": "Möchte ich",
+                    "short": "Möchte",
+                    "value": 4,
+                    "color": "#f9c74f",
+                    "description": "Das würde ich gerne haben."
+                },
+                {
+                    "key": "hell-yes",
+                    "label": "Ja, unbedingt!",
+                    "short": "Ja!",
+                    "value": 5,
+                    "color": "#f3722c",
+                    "description": "Starkes Ja, aufregend und willkommen."
+                },
+                {
+                    "key": "need",
+                    "label": "Brauche ich",
+                    "short": "Brauche",
+                    "value": 6,
+                    "color": "#e63946",
+                    "description": "Höchste Wichtigkeit. Wenn unerfüllt, stelle ich die Beziehung evtl. in Frage."
+                }
+            ],
+            "enabledCategories": [
+                "social-circles",
+                "holidays"
+            ],
+            "askedItems": {
+                "social-circles": {
+                    "base": [
+                        "Cultivate mutual circle of friends",
+                        "Introduce each other to own social group(s)",
+                        "Introduce each other to family members",
+                        "Keep social circles separate"
+                    ],
+                    "custom": []
+                },
+                "holidays": {
+                    "base": [
+                        "Time off together",
+                        "Long weekends",
+                        "Day trips",
+                        "Week(s) away",
+                        "Long-term travel / sabbatical",
+                        "Just the two of us",
+                        "With friends",
+                        "With family",
+                        "With metamour(s)",
+                        "Abroad",
+                        "City trips",
+                        "Cultural travel",
+                        "Festival / Retreat",
+                        "Camping / Nature",
+                        "Road trip",
+                        "Beach",
+                        "Active / Adventure",
+                        "Wellness",
+                        "By train",
+                        "By bike",
+                        "By car",
+                        "By plane"
+                    ],
+                    "custom": []
+                }
+            },
+            "progress": {
+                "catIndex": 1
+            },
+            "version": 1,
+            "seededFromImportId": "9efd8b57-007f-46bc-b9ad-bca6e17d8339",
+            "id": "d1450a32-bdc9-4fb9-acbc-1d4cd6607bb2",
+            "createdAt": 1778849155136,
+            "updatedAt": 1778849223394
+        },
+        {
+            "profileId": "9843ca4d-d297-41f0-8e8a-f8ec54bf193b",
+            "subject": "asgjjgsjF s.",
+            "subjectEmoji": "🌌",
+            "subjectColor": "#ef4444",
+            "answers": {},
+            "scale": [
+                {
+                    "key": "no",
+                    "label": "Nein",
+                    "short": "Nein",
+                    "value": 0,
+                    "color": "#264653",
+                    "description": "Ich will das nicht / stimme dem nicht zu."
+                },
+                {
+                    "key": "not-really",
+                    "label": "Eher nicht",
+                    "short": "Eher nicht",
+                    "value": 1,
+                    "color": "#577590",
+                    "description": "Ich tendiere dagegen."
+                },
+                {
+                    "key": "maybe",
+                    "label": "Vielleicht / Zukünftig",
+                    "short": "Vielleicht",
+                    "value": 2,
+                    "color": "#43aa8b",
+                    "description": "Hoffentlich oder vielleicht in der Zukunft."
+                },
+                {
+                    "key": "open",
+                    "label": "Offen dafür",
+                    "short": "Offen",
+                    "value": 3,
+                    "color": "#90be6d",
+                    "description": "Ich bin offen, neutral, bereit es auszuprobieren."
+                },
+                {
+                    "key": "want",
+                    "label": "Möchte ich",
+                    "short": "Möchte",
+                    "value": 4,
+                    "color": "#f9c74f",
+                    "description": "Das würde ich gerne haben."
+                },
+                {
+                    "key": "hell-yes",
+                    "label": "Ja, unbedingt!",
+                    "short": "Ja!",
+                    "value": 5,
+                    "color": "#f3722c",
+                    "description": "Starkes Ja, aufregend und willkommen."
+                },
+                {
+                    "key": "need",
+                    "label": "Brauche ich",
+                    "short": "Brauche",
+                    "value": 6,
+                    "color": "#e63946",
+                    "description": "Höchste Wichtigkeit. Wenn unerfüllt, stelle ich die Beziehung evtl. in Frage."
+                }
+            ],
+            "enabledCategories": [
+                "social-circles",
+                "holidays"
+            ],
+            "askedItems": {
+                "social-circles": {
+                    "base": [
+                        "Cultivate mutual circle of friends",
+                        "Introduce each other to own social group(s)",
+                        "Introduce each other to family members",
+                        "Keep social circles separate"
+                    ],
+                    "custom": []
+                },
+                "holidays": {
+                    "base": [
+                        "Time off together",
+                        "Long weekends",
+                        "Day trips",
+                        "Week(s) away",
+                        "Long-term travel / sabbatical",
+                        "Just the two of us",
+                        "With friends",
+                        "With family",
+                        "With metamour(s)",
+                        "Abroad",
+                        "City trips",
+                        "Cultural travel",
+                        "Festival / Retreat",
+                        "Camping / Nature",
+                        "Road trip",
+                        "Beach",
+                        "Active / Adventure",
+                        "Wellness",
+                        "By train",
+                        "By bike",
+                        "By car",
+                        "By plane"
+                    ],
+                    "custom": []
+                }
+            },
+            "progress": {
+                "catIndex": 0
+            },
+            "version": 1,
+            "seededFromImportId": "ae7504eb-788e-4c93-8013-162b69d885a1",
+            "id": "0986d744-d065-4ab2-9d71-429b89988ad1",
+            "createdAt": 1778849588682,
+            "updatedAt": 1778849588682
+        }
+    ],
+    "imports": [
+        {
+            "name": "Dhdh u",
+            "pronouns": " M m m",
+            "emoji": "🌷",
+            "color": "#7c3aed",
+            "subject": "Eingeschränkter export",
+            "subjectEmoji": "🌌",
+            "subjectColor": "#06b6d4",
+            "scale": [
+                {
+                    "key": "no",
+                    "label": "Nein",
+                    "short": "Nein",
+                    "value": 0,
+                    "color": "#264653",
+                    "description": "Ich will das nicht / stimme dem nicht zu."
+                },
+                {
+                    "key": "not-really",
+                    "label": "Eher nicht",
+                    "short": "Eher nicht",
+                    "value": 1,
+                    "color": "#577590",
+                    "description": "Ich tendiere dagegen."
+                },
+                {
+                    "key": "maybe",
+                    "label": "Vielleicht / Zukünftig",
+                    "short": "Vielleicht",
+                    "value": 2,
+                    "color": "#43aa8b",
+                    "description": "Hoffentlich oder vielleicht in der Zukunft."
+                },
+                {
+                    "key": "open",
+                    "label": "Offen dafür",
+                    "short": "Offen",
+                    "value": 3,
+                    "color": "#90be6d",
+                    "description": "Ich bin offen, neutral, bereit es auszuprobieren."
+                },
+                {
+                    "key": "want",
+                    "label": "Möchte ich",
+                    "short": "Möchte",
+                    "value": 4,
+                    "color": "#f9c74f",
+                    "description": "Das würde ich gerne haben."
+                },
+                {
+                    "key": "hell-yes",
+                    "label": "Ja, unbedingt!",
+                    "short": "Ja!",
+                    "value": 5,
+                    "color": "#f3722c",
+                    "description": "Starkes Ja, aufregend und willkommen."
+                },
+                {
+                    "key": "need",
+                    "label": "Brauche ich",
+                    "short": "Brauche",
+                    "value": 6,
+                    "color": "#e63946",
+                    "description": "Höchste Wichtigkeit. Wenn unerfüllt, stelle ich die Beziehung evtl. in Frage."
+                }
+            ],
+            "enabledCategories": [
+                "connection"
+            ],
+            "askedItems": {
+                "connection": {
+                    "base": [
+                        "Shared activities / interests",
+                        "Intellectual / philosophical discussions",
+                        "Political discussions",
+                        "Sharing ideas",
+                        "Sharing humour",
+                        "Playfulness",
+                        "Companionship",
+                        "Understanding",
+                        "Talking about everyday things",
+                        "Gift-giving"
+                    ],
+                    "custom": []
+                }
+            },
+            "version": 1,
+            "srcVersion": 1,
+            "exportMode": "restricted",
+            "answers": {},
+            "lockedAnswers": "-----BEGIN RELATIONSHAPE BUNDLE-----\nv1\neyJrZGYiOnsibiI6IlBCS0RGMiIsImgiOiJTSEEtMjU2IiwiaSI6MjUwMDAwLCJz\nIjoiaXpIaExxVU1BUHdycE45RE5EWUFoUT09In0sImNpcGhlciI6eyJuIjoiQUVT\nLUdDTSIsIml2IjoiYk16bHpYRkl5S1NKeEtiSCJ9LCJkYXRhIjoib0dKeXZrMTZX\nK2RJTmxqRzRuL3lncHV6eGF3WHNkZ3RwVjBnQVozaFJ6WmNXQzROTGVycmx6aHBh\nekRmVnE4R1RBQlEwb2VKa3lHK0hoT1I5QjRXVXJWd3dadStSOWxOOG9iQXhucEts\nbE91dm9XNGFkUHc3dEJaYVIydUNlM0k0Q0I0OUpKU2lHVUduNUhycVFGWmVaRFgx\ndkdhLzhXamNycGpaTHBQeHJBdHZJK1BhdmpRb0g2TWd0QjNWSjNCWE56SkVJZGJC\nVjJmTGZ0ekd5ZlJiNzBTdkVqYitoK2l3YkVKL2RMUFZwWnlDV203Qzc1TGdHSDZD\nVjd3aUMrdzk2M0E0dFBFUkVsR2ZQbm45N1pPdTVuOXVTV3dpMjFLeWpRb01VaUJq\nUXBRTWhxSGJhYTdqME5QVW4waG1uNlRrTEZ6V2Y3SlVwZXNoYm41b1VzZVVZaEhK\nYlRBZjVtZ2gxQ3QycDBXOVZ0K0dPSjduY1p4UisyaUJreVJZRUEwakF2aFdUTWRM\nVFdsMEFpQVU3YTJIcTlxeldIL3JkdGl1M3hiYjcrZ3hMM0ttb1UyMDE2Y2U3UzNS\nK2VuQzJUR1hqQ0VTS3kvaDF2eDFjNjJiUXU1cDdZc3Z6VnBnSGVadzJsM2VYd204\nZDRIekNrNjJQRE1scUcrSmZEZWxYVkgraFlVVXZJUU9JeTBJQ3NidmU0d3ZpMFMz\ndWRDSHR1REJGcTFheUQvczM5TDlmRUlVR2swTTN0NllwVUFGcEZGbFpRbW5WeDEz\ndXhFNWVqV2R3MFJUdFlZUmIzOElGTFJEZ01CVFVqMFdXU0tubmhXMTJSRmh6N05w\nNEx5UnRkUGNNZlVGU1ZZSlpkTnhDMDN1LzZlNlIzdkcwbzNpck5FVkFlSm54eGVV\nQnBZMUJnZnkrVzF0YnhUS3NFWEVkZWNZV1VmRlB5TUZUaEpmU2tqZVdCb2JONTBy\ncjE5TXNzYTFDektBY1M3YnlBSDhVMU5PTEJ6V2NqT0dPS0ltQzN6ZW1lSXp2M3Bp\nTXNRSE1iTDZyUTkvSWVLYlh0aW1MRWIxVkRZLzZ5VFM0YW50aFZHZWRKMUZzOHVI\nbjJUYmdDYlozOEpoUlpXK3c2Mnp0a0VmY1JsVVh2L0M0Nm5FemNKZkNiblJSK2VO\nSXM3TEs0clBTOVlHTC9tS3FyUmJZOW9xbi8xL3ZXQ3VkdlM1VDkwTEZUakxJY1A4\nbzhOcFJjZzlUK2w2RE5RQmQ3RkJoeURQSVJsOVU1VFhWdnRoQ3htc0NUVUxSSjEr\nZzNSRU0rZzB4cHZTMlRQb2JKMHV1az0ifQ==\n-----END RELATIONSHAPE BUNDLE-----\n",
+            "id": "00ff7b91-600e-44c2-ae55-b23ddeadfccc",
+            "importedAt": 1778850297413
+        },
+        {
+            "name": "Dhdh u",
+            "pronouns": " M m m",
+            "emoji": "🌷",
+            "color": "#7c3aed",
+            "subject": "Eingeschränkter export",
+            "subjectEmoji": "🌌",
+            "subjectColor": "#06b6d4",
+            "scale": [
+                {
+                    "key": "no",
+                    "label": "Nein",
+                    "short": "Nein",
+                    "value": 0,
+                    "color": "#264653",
+                    "description": "Ich will das nicht / stimme dem nicht zu."
+                },
+                {
+                    "key": "not-really",
+                    "label": "Eher nicht",
+                    "short": "Eher nicht",
+                    "value": 1,
+                    "color": "#577590",
+                    "description": "Ich tendiere dagegen."
+                },
+                {
+                    "key": "maybe",
+                    "label": "Vielleicht / Zukünftig",
+                    "short": "Vielleicht",
+                    "value": 2,
+                    "color": "#43aa8b",
+                    "description": "Hoffentlich oder vielleicht in der Zukunft."
+                },
+                {
+                    "key": "open",
+                    "label": "Offen dafür",
+                    "short": "Offen",
+                    "value": 3,
+                    "color": "#90be6d",
+                    "description": "Ich bin offen, neutral, bereit es auszuprobieren."
+                },
+                {
+                    "key": "want",
+                    "label": "Möchte ich",
+                    "short": "Möchte",
+                    "value": 4,
+                    "color": "#f9c74f",
+                    "description": "Das würde ich gerne haben."
+                },
+                {
+                    "key": "hell-yes",
+                    "label": "Ja, unbedingt!",
+                    "short": "Ja!",
+                    "value": 5,
+                    "color": "#f3722c",
+                    "description": "Starkes Ja, aufregend und willkommen."
+                },
+                {
+                    "key": "need",
+                    "label": "Brauche ich",
+                    "short": "Brauche",
+                    "value": 6,
+                    "color": "#e63946",
+                    "description": "Höchste Wichtigkeit. Wenn unerfüllt, stelle ich die Beziehung evtl. in Frage."
+                }
+            ],
+            "enabledCategories": [
+                "connection"
+            ],
+            "askedItems": null,
+            "version": 2,
+            "srcVersion": 1,
+            "exportMode": "unrestricted",
+            "answers": {
+                "connection": {
+                    "__custom": {},
+                    "Shared activities / interests": {
+                        "scale": "want",
+                        "scaleFrac": 0.6666666666666666
+                    },
+                    "Intellectual / philosophical discussions": {
+                        "scale": "maybe",
+                        "scaleFrac": 0.3333333333333333
+                    },
+                    "Political discussions": {
+                        "scale": "open",
+                        "scaleFrac": 0.43478261224488907
+                    },
+                    "Sharing ideas": {
+                        "scale": "want",
+                        "scaleFrac": 0.7427992016999576
+                    },
+                    "Sharing humour": {
+                        "scale": "need",
+                        "scaleFrac": 1
+                    },
+                    "Playfulness": {
+                        "scale": "not-really",
+                        "scaleFrac": 0.16666666666666666
+                    },
+                    "Companionship": {
+                        "scale": "not-really",
+                        "scaleFrac": 0.2392657683686887
+                    },
+                    "Understanding": {
+                        "scale": "open",
+                        "scaleFrac": 0.4203809612231719
+                    },
+                    "Talking about everyday things": {
+                        "scale": "need",
+                        "scaleFrac": 1
+                    },
+                    "Gift-giving": {
+                        "scale": "want",
+                        "scaleFrac": 0.6666666666666666
+                    }
+                }
+            },
+            "id": "edc2edb6-4ba7-460f-ac95-f858b2aa428a",
+            "importedAt": 1778851196239
+        }
+    ],
+    "settings": {
+        "theme": "dark",
+        "lang": "en"
+    },
+    "scale": [
+        {
+            "key": "no",
+            "label": "Nein",
+            "short": "Nein",
+            "value": 0,
+            "color": "#264653",
+            "description": "Ich will das nicht / stimme dem nicht zu."
+        },
+        {
+            "key": "not-really",
+            "label": "Eher nicht",
+            "short": "Eher nicht",
+            "value": 1,
+            "color": "#577590",
+            "description": "Ich tendiere dagegen."
+        },
+        {
+            "key": "maybe",
+            "label": "Vielleicht / Zukünftig",
+            "short": "Vielleicht",
+            "value": 2,
+            "color": "#43aa8b",
+            "description": "Hoffentlich oder vielleicht in der Zukunft."
+        },
+        {
+            "key": "open",
+            "label": "Offen dafür",
+            "short": "Offen",
+            "value": 3,
+            "color": "#90be6d",
+            "description": "Ich bin offen, neutral, bereit es auszuprobieren."
+        },
+        {
+            "key": "want",
+            "label": "Möchte ich",
+            "short": "Möchte",
+            "value": 4,
+            "color": "#f9c74f",
+            "description": "Das würde ich gerne haben."
+        },
+        {
+            "key": "hell-yes",
+            "label": "Ja, unbedingt!",
+            "short": "Ja!",
+            "value": 5,
+            "color": "#f3722c",
+            "description": "Starkes Ja, aufregend und willkommen."
+        },
+        {
+            "key": "need",
+            "label": "Brauche ich",
+            "short": "Brauche",
+            "value": 6,
+            "color": "#e63946",
+            "description": "Höchste Wichtigkeit. Wenn unerfüllt, stelle ich die Beziehung evtl. in Frage."
+        }
+    ]
+}
