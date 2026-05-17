@@ -89,8 +89,7 @@ export function RsQuestionCard({
     setEditOpen(false)
   }
 
-  async function setScaleKey(key: string, frac: number) {
-    if (!(await onBeforeMutate())) return
+  function setScaleKey(key: string, frac: number) {
     const next = structuredClone(result)
     const slot = next.answers[catId] ?? {}
     if (isCustom) {
@@ -104,8 +103,7 @@ export function RsQuestionCard({
     saveResult(next)
   }
 
-  async function clearAnswer() {
-    if (!(await onBeforeMutate())) return
+  function clearAnswer() {
     const next = structuredClone(result)
     const slot = next.answers[catId] ?? {}
     if (isCustom) {
@@ -119,8 +117,7 @@ export function RsQuestionCard({
     saveResult(next)
   }
 
-  async function setGR(gr: 'G' | 'R' | 'Both') {
-    if (!(await onBeforeMutate())) return
+  function setGR(gr: 'G' | 'R' | 'Both') {
     const next = structuredClone(result)
     const slot = next.answers[catId] ?? {}
     if (isCustom) {
@@ -134,9 +131,8 @@ export function RsQuestionCard({
     saveResult(next)
   }
 
-  async function commitNote() {
+  function commitNote() {
     if (note === (cell?.note ?? '')) return
-    if (!(await onBeforeMutate())) return
     const next = structuredClone(result)
     const slot = next.answers[catId] ?? {}
     if (isCustom) {
@@ -195,12 +191,12 @@ export function RsQuestionCard({
         const idx = d - 1
         const frac = N > 1 ? idx / (N - 1) : 0
         const step = scale[idx]!
-        void setScaleKey(step.key, frac).then(() => onAnswered?.())
+        setScaleKey(step.key, frac); onAnswered?.()
         return
       }
       if (d === N + 1) {
         e.preventDefault()
-        void clearAnswer().then(() => onAnswered?.())
+        clearAnswer(); onAnswered?.()
         return
       }
     }
