@@ -40,6 +40,8 @@ jobs:
         run: pnpm test
 
       - name: Build
+        env:
+          VITE_BASE_PATH: /${{ github.event.repository.name }}/
         run: pnpm build
 
       - name: Publish dist to ${{ env.DEPLOY_BRANCH }}
