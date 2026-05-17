@@ -31,10 +31,12 @@ interface Props {
   cat: CategoryDef | null
   /** When provided, the Edit Answers tab is shown and answers are saved to this result. */
   result?: Result | null
+  /** Tab to open on when the modal first becomes visible. Defaults to 'spider'. */
+  initialTab?: Tab
 }
 
-export function CategoryModal({ open, onOpenChange, datasets, cat, result }: Props) {
-  const [tab, setTab] = useState<Tab>('spider')
+export function CategoryModal({ open, onOpenChange, datasets, cat, result, initialTab }: Props) {
+  const [tab, setTab] = useState<Tab>(initialTab ?? 'spider')
   const [spiderEnlarged, setSpiderEnlarged] = useState(false)
   const lang = getLang()
   const showEdit = Boolean(result)
@@ -111,9 +113,15 @@ export function CategoryModal({ open, onOpenChange, datasets, cat, result }: Pro
       const ok = await confirmDiscard()
       if (!ok) return
     }
-    if (!next) { setTab('spider'); setIsDirty(false) }
+    if (!next) { setTab(initialTab ?? 'spider'); setIsDirty(false) }
     onOpenChange(next)
   }
+
+  // Sync tab when the modal opens with a new initialTab
+  useEffect(() => {
+    if (open) setTab(initialTab ?? 'spider')
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open])
 
   if (!cat) {
     return (

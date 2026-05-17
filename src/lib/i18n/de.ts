@@ -222,6 +222,7 @@ export const DE: Record<TranslationKey, string> = {
   tab_spider: 'Netzdiagramm',
   tab_items: 'Element für Element',
   tab_edit: 'Antworten bearbeiten',
+  tab_categories: 'Elementansicht',
   btn_close: 'Schließen',
   btn_save_changes: 'Änderungen speichern',
   btn_remove_item: 'Entfernen',
