@@ -139,8 +139,8 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 Plans:
 **Wave 1** *(parallel — new primitives)*
-- [ ] 04-01-PLAN.md — `RsCompareTile` primitive + tests (D-03)
-- [ ] 04-02-PLAN.md — `RsCategoryCard` primitive + hide/dim rule + tests (D-05, D-06)
+- [x] 04-01-PLAN.md — `RsCompareTile` primitive + tests (D-03)
+- [x] 04-02-PLAN.md — `RsCategoryCard` primitive + hide/dim rule + tests (D-05, D-06)
 
 **Wave 2** *(parallel — section + Compare overlay rewire; blocked on Wave 1)*
 - [ ] 04-03-PLAN.md — `CompareWithSomeone` section + tests (D-03; depends on 04-01)
