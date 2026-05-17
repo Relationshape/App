@@ -29,9 +29,10 @@ export function EmojiPicker({ value, onChange }: Props) {
       <PopoverTrigger
         aria-label={t('emoji_picker_label')}
         data-testid="emoji-picker"
-        className="inline-flex h-12 w-12 items-center justify-center rounded border border-line text-2xl"
+        className="relative inline-flex h-16 w-16 items-center justify-center rounded-xl border-2 border-dashed border-line text-3xl transition-colors hover:border-accent hover:bg-surface-2"
       >
         {value || '✨'}
+        <span className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-accent text-on-accent text-[11px] font-bold shadow" aria-hidden>✎</span>
       </PopoverTrigger>
       <PopoverContent align="start" className="max-w-[20rem]">
         <div className="grid grid-cols-8 gap-1" data-testid="emoji-grid">

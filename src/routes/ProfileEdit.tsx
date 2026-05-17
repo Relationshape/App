@@ -7,7 +7,11 @@ import { Button } from '@/components/ui/button'
 import { EmojiPicker } from '@/components/EmojiPicker'
 import { t } from '@/lib/i18n/i18n'
 
-const PALETTE = ['#7c3aed', '#06b6d4', '#ec4899', '#10b981', '#f59e0b', '#ef4444', '#3b82f6', '#a78bfa', '#22c55e', '#e11d48']
+const PALETTE = [
+  '#7c3aed', '#8b5cf6', '#a78bfa', '#6366f1', '#3b82f6', '#0ea5e9', '#06b6d4', '#14b8a6',
+  '#10b981', '#22c55e', '#84cc16', '#eab308', '#f59e0b', '#f97316', '#ef4444', '#e11d48',
+  '#ec4899', '#d946ef', '#c026d3', '#9333ea', '#64748b', '#475569', '#1e293b', '#0f172a',
+]
 
 export function ProfileEdit() {
   const { id } = useParams<{ id?: string }>()

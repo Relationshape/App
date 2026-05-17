@@ -22,6 +22,10 @@ export interface AnswerCell {
   scaleFrac?: number
   gr?: GROfBoth
   note?: string
+  /** Per-item scale override — when set, replaces the result/global scale for this item. */
+  itemScale?: MutableScaleStep[]
+  /** Display label override — replaces the item key in the UI. */
+  customLabel?: string
 }
 
 // The answers blob is: { [categoryId]: { [itemName]: AnswerCell, __custom?: Record<string, AnswerCell>, __hidden?: Record<string, true> } }

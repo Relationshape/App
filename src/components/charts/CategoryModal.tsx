@@ -33,6 +33,7 @@ interface Props {
 
 export function CategoryModal({ open, onOpenChange, datasets, cat, result }: Props) {
   const [tab, setTab] = useState<Tab>('spider')
+  const [spiderEnlarged, setSpiderEnlarged] = useState(false)
   const lang = getLang()
   const showEdit = Boolean(result)
   const saveStore = useStore((s) => s.saveResult)
@@ -177,7 +178,28 @@ export function CategoryModal({ open, onOpenChange, datasets, cat, result }: Pro
             role="tabpanel"
             data-testid="cat-modal-panel-spider"
           >
-            <ItemSpider datasets={datasets} catId={cat.id} size={520} />
+            <button
+              type="button"
+              className="cat-modal-spider-enlarge-btn"
+              onClick={() => setSpiderEnlarged(true)}
+              data-testid="cat-modal-spider-enlarge"
+              aria-label={t('spider_click_to_enlarge') as string}
+              title={t('spider_click_to_enlarge') as string}
+            >
+              <ItemSpider datasets={datasets} catId={cat.id} size={520} />
+              <span className="cat-modal-spider-hint" aria-hidden="true">
+                ⊞ {t('spider_click_to_enlarge')}
+              </span>
+            </button>
+            <Dialog open={spiderEnlarged} onOpenChange={setSpiderEnlarged}>
+              <DialogContent
+                className="max-w-[min(860px,96vw)] max-h-[min(92vh,860px)] p-4 overflow-auto"
+                data-testid="cat-modal-spider-fullscreen"
+              >
+                <DialogTitle className="sr-only">{title}</DialogTitle>
+                <ItemSpider datasets={datasets} catId={cat.id} size={800} />
+              </DialogContent>
+            </Dialog>
           </div>
         ) : tab === 'items' ? (
           <div
@@ -310,7 +332,7 @@ function EditTabContent({ result, cat, onLocalChange }: EditTabProps) {
           scale={scale}
           onBeforeMutate={confirmIfTemplate}
           variant="list"
-          onSave={onLocalChange}
+          {...(onLocalChange ? { onSave: onLocalChange } : {})}
         />
       ))}
       {custom.map((item) => (
@@ -324,7 +346,7 @@ function EditTabContent({ result, cat, onLocalChange }: EditTabProps) {
           scale={scale}
           onBeforeMutate={confirmIfTemplate}
           variant="list"
-          onSave={onLocalChange}
+          {...(onLocalChange ? { onSave: onLocalChange } : {})}
         />
       ))}
       <Button
