@@ -13,6 +13,10 @@ import { RsTile } from '@/components/RsTile'
 import { RsCategoryPicker } from '@/components/RsCategoryPicker'
 import { NewMapWizard } from '@/components/NewMapWizard'
 import { t, getLang } from '@/lib/i18n/i18n'
+import { useShareData } from '@/components/providers/ShareDataProvider'
+import {
+  Dialog, DialogContent, DialogTitle, DialogFooter,
+} from '@/components/ui/dialog'
 
 export function CategoryOverview() {
   const { profileId, resultId } = useParams<{ profileId: string; resultId: string }>()
@@ -22,6 +26,8 @@ export function CategoryOverview() {
   const saveResult = useStore((s) => s.saveResult)
   const lang = getLang()
   const [pickerOpen, setPickerOpen] = useState(false)
+  const [preShareOpen, setPreShareOpen] = useState(false)
+  const { openShareTemplate } = useShareData()
 
   const profile = profileId ? profiles.find((p) => p.id === profileId) ?? null : null
   const result = allResults.find((r) => r.id === resultId) ?? null
@@ -48,9 +54,30 @@ export function CategoryOverview() {
     [enabledIds],
   )
 
+  const hasAnswers = useMemo(() => {
+    if (!result) return false
+    return Object.values(result.answers).some((cat) =>
+      Object.entries(cat).some(([k, v]) =>
+        k !== '__hidden' && k !== '__custom' && v !== null && typeof v === 'object' && 'scale' in (v as object)
+      )
+    )
+  }, [result?.answers])
+
   if (!profile) return null
   if (resultId === 'new') return <NewMapWizard profile={profile} />
   if (!result) return null
+
+  function startQuestionnaire() {
+    navigate(`/q/${profile!.id}/${result!.id}`)
+  }
+
+  function handleStartClick() {
+    if (!hasAnswers) {
+      setPreShareOpen(true)
+    } else {
+      startQuestionnaire()
+    }
+  }
 
   function openCategory(catId: string) {
     const idx = enabledCats.findIndex((c) => c.id === catId)
@@ -103,8 +130,12 @@ export function CategoryOverview() {
         >
           {t('btn_add_categories')}
         </Button>
-        <Button asChild data-testid="confirm-start-questionnaire">
-          <a href={`#/q/${profile.id}/${result.id}`}>{t('q_overview_start')}</a>
+        <Button
+          type="button"
+          onClick={handleStartClick}
+          data-testid="confirm-start-questionnaire"
+        >
+          {t('q_overview_start')}
         </Button>
       </div>
       <RsCategoryPicker
@@ -113,6 +144,33 @@ export function CategoryOverview() {
         existingIds={enabledIds}
         onSubmit={onPickerSubmit}
       />
+
+      <Dialog open={preShareOpen} onOpenChange={(o) => { if (!o) setPreShareOpen(false) }}>
+        <DialogContent className="max-w-md" data-testid="pre-share-prompt">
+          <DialogTitle>{t('pre_share_title')}</DialogTitle>
+          <p className="muted small" style={{ lineHeight: 1.55 }}>{t('pre_share_body')}</p>
+          <DialogFooter className="flex-col sm:flex-row gap-2 mt-1">
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => { setPreShareOpen(false); startQuestionnaire() }}
+              data-testid="pre-share-skip"
+            >
+              {t('pre_share_skip')}
+            </Button>
+            <Button
+              type="button"
+              onClick={() => {
+                setPreShareOpen(false)
+                openShareTemplate(result.id, startQuestionnaire)
+              }}
+              data-testid="pre-share-share-btn"
+            >
+              {t('pre_share_share_btn')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </section>
   )
 }

@@ -136,15 +136,47 @@ describe('CategoryOverview (QUEST-01 + 260516-qva)', () => {
     })
   })
 
-  it('confirm button links to /q/:profileId/:resultId', async () => {
+  it('confirm button opens pre-share prompt when map has no answers', async () => {
     await mountAtHash(`#/q-categories/${PROFILE_ID}/${RESULT_ID}`)
     await waitFor(() => {
       expect(document.querySelector('[data-testid="category-overview-page"]')).not.toBeNull()
     })
-    const btn = document.querySelector('[data-testid="confirm-start-questionnaire"]')
+    const btn = document.querySelector('[data-testid="confirm-start-questionnaire"]') as HTMLButtonElement
     expect(btn).not.toBeNull()
-    const href = btn?.getAttribute('href') ?? ''
-    expect(href).toContain(PROFILE_ID)
-    expect(href).toContain(RESULT_ID)
+    await act(async () => { fireEvent.click(btn) })
+    // Empty map → pre-share prompt should appear
+    expect(document.querySelector('[data-testid="pre-share-prompt"]')).not.toBeNull()
+  })
+
+  it('confirm button skips pre-share prompt and navigates when map already has answers', async () => {
+    const storeWithAnswers = JSON.stringify({
+      profiles: [
+        { id: PROFILE_ID, name: 'Alice', pronouns: '', color: '#7c3aed', emoji: '🌷', notes: '', createdAt: 1 },
+      ],
+      results: [
+        {
+          id: RESULT_ID,
+          profileId: PROFILE_ID,
+          subject: 'Sam',
+          answers: { cat1: { item1: { scale: 'yes' } } },
+          enabledCategories: CATEGORIES.map((c) => c.id),
+          createdAt: 1,
+          updatedAt: 1,
+        },
+      ],
+      imports: [],
+      settings: { theme: 'auto', ageConfirmed: true, wizardSeen: true },
+      scale: [],
+    })
+    await mountAtHash(`#/q-categories/${PROFILE_ID}/${RESULT_ID}`, storeWithAnswers)
+    await waitFor(() => {
+      expect(document.querySelector('[data-testid="category-overview-page"]')).not.toBeNull()
+    })
+    const btn = document.querySelector('[data-testid="confirm-start-questionnaire"]') as HTMLButtonElement
+    expect(btn).not.toBeNull()
+    await act(async () => { fireEvent.click(btn) })
+    // Has answers → navigate directly, no pre-share prompt
+    expect(document.querySelector('[data-testid="pre-share-prompt"]')).toBeNull()
+    expect(window.location.hash).toBe(`#/q/${PROFILE_ID}/${RESULT_ID}`)
   })
 })

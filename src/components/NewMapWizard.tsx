@@ -46,7 +46,10 @@ export function NewMapWizard({ profile }: Props) {
     i.exportMode === 'template' ||
     (i.exportMode !== 'restricted' && hasNoAnswersForImport(i))
   )
-  const hasTemplates = profileResults.length > 0 || templateImports.length > 0
+  const importedMaps = allImports.filter((i) =>
+    !templateImports.includes(i)
+  )
+  const hasTemplates = profileResults.length > 0 || allImports.length > 0
 
   const [step, setStep] = useState<Step>(hasTemplates ? 'source' : 0)
   const [subject, setSubject] = useState('')
@@ -64,10 +67,10 @@ export function NewMapWizard({ profile }: Props) {
 
     if (templateSource) {
       const tmplCategories = templateSource.kind === 'import'
-        ? templateImports.find((i) => i.id === templateSource.id)?.enabledCategories ?? CATEGORIES.map((c) => c.id)
+        ? allImports.find((i) => i.id === templateSource.id)?.enabledCategories ?? CATEGORIES.map((c) => c.id)
         : profileResults.find((r) => r.id === templateSource.id)?.enabledCategories ?? CATEGORIES.map((c) => c.id)
       const tmplScale = templateSource.kind === 'import'
-        ? templateImports.find((i) => i.id === templateSource.id)?.scale
+        ? allImports.find((i) => i.id === templateSource.id)?.scale
         : profileResults.find((r) => r.id === templateSource.id)?.scale
       saveResult({
         id,
@@ -202,6 +205,20 @@ export function NewMapWizard({ profile }: Props) {
                   ))}
                 </div>
               )}
+              {importedMaps.length > 0 && (
+                <div>
+                  <p className="muted small font-semibold mb-1">{t('wizard_pick_imported_maps_section')}</p>
+                  {importedMaps.map((i) => (
+                    <TemplatePickRow
+                      key={i.id}
+                      label={i.subject ?? i.name ?? 'Import'}
+                      emoji={i.emoji ?? '📨'}
+                      testId={`wizard-pick-imported-map-${i.id}`}
+                      onClick={() => { setTemplateSource({ kind: 'import', id: i.id }); setStep(0) }}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
             <DialogFooter>
               <Button variant="ghost" onClick={() => setStep('source')} data-testid="wizard-pick-back">
@@ -326,10 +343,11 @@ export function NewMapWizard({ profile }: Props) {
               <DialogTitle>{t('new_card_scale_title')}</DialogTitle>
               <DialogDescription>{t('new_card_scale_sub')}</DialogDescription>
             </DialogHeader>
+            {/* Callout outside the scroll area so it stays visible and doesn't overlap rows */}
+            <div className="callout" style={{ fontSize: '13px', flexShrink: 0 }}>
+              {t('wizard_scale_hint')}
+            </div>
             <div className="scale-dialog-body flex-1 overflow-y-auto min-h-0" data-testid="wizard-scale-step">
-              <div className="callout" style={{ marginBottom: '12px', fontSize: '13px' }}>
-                {t('wizard_scale_hint')}
-              </div>
               {!customizeScale ? (
                 <div className="scale-preview-list">
                   {scale.map((s) => (

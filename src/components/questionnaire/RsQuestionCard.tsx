@@ -13,7 +13,11 @@
 
 import { useState } from 'react'
 import { ScalePicker } from '@/components/ScalePicker'
+import { ScaleEditor } from '@/components/ScaleEditor'
 import { Button } from '@/components/ui/button'
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
+} from '@/components/ui/dialog'
 import { useStore } from '@/lib/storage/store'
 import { dialog } from '@/lib/dialog/dialog'
 import { CATEGORIES } from '@/lib/data/data'
@@ -29,7 +33,6 @@ interface Props {
   cell: AnswerCell | undefined
   scale: readonly MutableScaleStep[]
   onBeforeMutate: () => Promise<boolean>
-  onEditItemScale?: () => void
   variant: 'list' | 'single'
   onAnswered?: () => void
   onSave?: (next: Result) => void
@@ -43,7 +46,6 @@ export function RsQuestionCard({
   cell,
   scale,
   onBeforeMutate,
-  onEditItemScale,
   variant,
   onAnswered,
   onSave,
@@ -51,9 +53,41 @@ export function RsQuestionCard({
   const storeSaveResult = useStore((s) => s.saveResult)
   const saveResult = onSave ?? storeSaveResult
   const [note, setNote] = useState(cell?.note ?? '')
+  const [editOpen, setEditOpen] = useState(false)
+  const [pendingLabel, setPendingLabel] = useState('')
+  const [pendingScale, setPendingScale] = useState<MutableScaleStep[] | null>(null)
 
   const catDef = CATEGORIES.find((c) => c.id === catId)
   const showGR = variant === 'list' && Boolean((catDef as { gr?: boolean } | undefined)?.gr)
+
+  const displayName = cell?.customLabel || item
+
+  function openEditDialog() {
+    setPendingLabel(cell?.customLabel ?? '')
+    setPendingScale(cell?.itemScale ? cell.itemScale.map((s) => ({ ...s })) : null)
+    setEditOpen(true)
+  }
+
+  async function saveItemEdit() {
+    if (!(await onBeforeMutate())) { setEditOpen(false); return }
+    const next = structuredClone(result)
+    const slot = next.answers[catId] ?? {}
+    function patchCell(existing: AnswerCell | undefined): AnswerCell {
+      const c: AnswerCell = existing ? { ...existing } : { scale: 'open' }
+      const label = pendingLabel.trim()
+      if (label) c.customLabel = label; else delete c.customLabel
+      if (pendingScale) c.itemScale = pendingScale; else delete c.itemScale
+      return c
+    }
+    if (isCustom) {
+      slot.__custom = { ...(slot.__custom ?? {}), [item]: patchCell(slot.__custom?.[item]) }
+    } else {
+      slot[item] = patchCell(slot[item])
+    }
+    next.answers[catId] = slot
+    saveResult(next)
+    setEditOpen(false)
+  }
 
   async function setScaleKey(key: string, frac: number) {
     if (!(await onBeforeMutate())) return
@@ -182,76 +216,128 @@ export function RsQuestionCard({
   }
 
   return (
-    <div
-      className="q-item"
-      tabIndex={variant === 'list' ? 0 : -1}
-      onKeyDown={onKeyDown}
-      data-testid={`item-row-${catId}-${item}`}
-      data-item-key={item}
-      data-cat-id={catId}
-    >
-      <div className="q-item-name">
-        <strong>{item}</strong>
-        {onEditItemScale && (
+    <>
+      <div
+        className="q-item"
+        tabIndex={variant === 'list' ? 0 : -1}
+        onKeyDown={onKeyDown}
+        data-testid={`item-row-${catId}-${item}`}
+        data-item-key={item}
+        data-cat-id={catId}
+      >
+        <div className="q-item-name">
+          <strong>{displayName}</strong>
+          {cell?.customLabel && (
+            <span className="q-item-original-key muted small">({item})</span>
+          )}
           <Button
             variant="ghost"
             size="sm"
-            onClick={onEditItemScale}
-            data-testid={`item-edit-scale-${catId}-${item}`}
+            onClick={openEditDialog}
+            data-testid={`item-edit-${catId}-${item}`}
           >
             {t('item_edit_scale')}
           </Button>
-        )}
-        {variant === 'list' && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={hide}
-            data-testid={`item-hide-${catId}-${item}`}
-            className="ml-auto"
-          >
-            {t('btn_hide_item')}
-          </Button>
-        )}
-      </div>
-
-      {showGR && (
-        <div className="q-gr-sliders" role="group" aria-label="G/R/Both">
-          {(['G', 'R', 'Both'] as const).map((gr) => (
-            <button
-              key={gr}
-              type="button"
-              data-state={cell?.gr === gr ? 'active' : 'inactive'}
-              onClick={() => setGR(gr)}
-              className="px-2 py-1 text-xs border border-line rounded data-[state=active]:bg-accent"
-              data-testid={`gr-${catId}-${item}-${gr}`}
+          {variant === 'list' && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={hide}
+              data-testid={`item-hide-${catId}-${item}`}
+              className="ml-auto"
             >
-              {gr}
-            </button>
-          ))}
+              {t('btn_hide_item')}
+            </Button>
+          )}
         </div>
-      )}
 
-      <div className="q-slider-wrap">
-        <ScalePicker
-          scale={scale}
-          value={cell?.scale ?? null}
-          valueFrac={cell?.scaleFrac ?? null}
-          onChange={setScaleKey}
-          onClear={clearAnswer}
-          compact={variant === 'list'}
+        {showGR && (
+          <div className="q-gr-sliders" role="group" aria-label="G/R/Both">
+            {(['G', 'R', 'Both'] as const).map((gr) => (
+              <button
+                key={gr}
+                type="button"
+                data-state={cell?.gr === gr ? 'active' : 'inactive'}
+                onClick={() => setGR(gr)}
+                className="px-2 py-1 text-xs border border-line rounded data-[state=active]:bg-accent"
+                data-testid={`gr-${catId}-${item}-${gr}`}
+              >
+                {gr}
+              </button>
+            ))}
+          </div>
+        )}
+
+        <div className="q-slider-wrap">
+          <ScalePicker
+            scale={cell?.itemScale ?? scale}
+            value={cell?.scale ?? null}
+            valueFrac={cell?.scaleFrac ?? null}
+            onChange={setScaleKey}
+            onClear={clearAnswer}
+            compact={variant === 'list'}
+          />
+        </div>
+
+        <textarea
+          placeholder={t('item_note_placeholder')}
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+          onBlur={commitNote}
+          className="q-note"
+          rows={2}
+          data-testid={`item-note-${catId}-${item}`}
         />
       </div>
 
-      <textarea
-        placeholder={t('item_note_placeholder')}
-        value={note}
-        onChange={(e) => setNote(e.target.value)}
-        onBlur={commitNote}
-        className="q-note"
-        rows={2}
-        data-testid={`item-note-${catId}-${item}`}
-      />
-    </div>
+      <Dialog open={editOpen} onOpenChange={(o) => { if (!o) setEditOpen(false) }}>
+        <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{t('q_edit_item_scale')}: {item}</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col gap-4 py-2">
+            <label className="flex flex-col gap-1">
+              <span className="text-sm font-medium">{t('q_item_rename_label')}</span>
+              <input
+                type="text"
+                className="rounded border border-line px-2 py-1"
+                placeholder={item}
+                value={pendingLabel}
+                onChange={(e) => setPendingLabel(e.target.value)}
+                data-testid={`item-edit-label-${catId}-${item}`}
+              />
+            </label>
+            <div className="flex flex-col gap-2">
+              <p className="muted text-sm">{t('q_edit_item_scale_warning')}</p>
+              <ScaleEditor
+                key={`${catId}-${item}`}
+                scale={pendingScale ?? scale}
+                onChange={setPendingScale}
+              />
+              {pendingScale && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="self-start"
+                  onClick={() => setPendingScale(null)}
+                  data-testid={`item-scale-reset-${catId}-${item}`}
+                >
+                  {t('q_item_scale_reset')}
+                </Button>
+              )}
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setEditOpen(false)}>{t('btn_cancel')}</Button>
+            <Button
+              onClick={() => { void saveItemEdit() }}
+              data-testid={`item-edit-save-${catId}-${item}`}
+            >
+              {t('btn_save_changes')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   )
 }

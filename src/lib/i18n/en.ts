@@ -521,6 +521,10 @@ export const EN = {
   q_overview_title: 'Select categories',
   q_overview_sub: 'Toggle on the dimensions you want to map for this person.',
   q_overview_start: 'Start questionnaire →',
+  pre_share_title: 'Share as template first?',
+  pre_share_body: 'Before you start answering, do you want to share this questionnaire as a template with someone, so your counterpart can answer the same questions? Note: You can also do this later by clicking "Share" on the map card in your overview — where you can choose whether to share as an empty template or with your answers.',
+  pre_share_skip: 'Skip for now',
+  pre_share_share_btn: 'Share as template',
 
   // Nav / Profile picker (SHELL-03)
   no_profiles_yet: 'No profiles yet — create one to begin.',
@@ -573,6 +577,8 @@ export const EN = {
   imports_with_answers_sub: 'Imported maps whose answers are visible.',
   imports_locked_title: '🔒 Maps with Locked Answers',
   imports_locked_sub: 'The answers in these maps are encrypted with a second passphrase. Re-import the file with the reveal passphrase to unlock them.',
+  cat_details_filter_hint: 'Only categories that contain at least one answer in all selected maps are shown here.',
+  wizard_pick_imported_maps_section: 'Imported maps',
 } as const
 
 export type TranslationKey = keyof typeof EN

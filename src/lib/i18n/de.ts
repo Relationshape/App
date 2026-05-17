@@ -540,6 +540,10 @@ export const DE: Record<TranslationKey, string> = {
   q_overview_title: 'Kategorien auswählen',
   q_overview_sub: 'Schalte die Dimensionen ein, die du für diese Person abbilden willst.',
   q_overview_start: 'Fragebogen starten →',
+  pre_share_title: 'Zuerst als Vorlage teilen?',
+  pre_share_body: 'Bevor du mit der Beantwortung beginnst, willst du den zusammengestellten Fragebogen bereits mit jemandem als Vorlage teilen, damit dein Gegenüber dieselben Fragen beantworten kann? Hinweis: Du kannst diesen Schritt auch später noch auslösen, indem du in deiner Übersicht bei dieser Karte auf „Teilen" klickst, wobei du auswählen kannst, ob du die Karte als leere Vorlage oder mit deinen Antworten teilen möchtest.',
+  pre_share_skip: 'Überspringen',
+  pre_share_share_btn: 'Als Vorlage teilen',
 
   // Nav / Profile picker (SHELL-03)
   no_profiles_yet: 'Noch keine Profile — leg eines an, um zu starten.',
@@ -592,4 +596,6 @@ export const DE: Record<TranslationKey, string> = {
   imports_with_answers_sub: 'Importierte Karten, deren Antworten sichtbar sind.',
   imports_locked_title: '🔒 Karten mit gesperrten Antworten',
   imports_locked_sub: 'Die Antworten in diesen Karten sind mit einem zweiten Passwort verschlüsselt. Importiere die Datei erneut mit dem Freigabe-Passwort, um sie zu entsperren.',
+  cat_details_filter_hint: 'Es werden nur diejenigen Kategorien angezeigt, welche in allen zum Vergleich ausgewählten Karten mindestens eine Antwort enthalten.',
+  wizard_pick_imported_maps_section: 'Importierte Karten',
 }
