@@ -15,6 +15,7 @@ import { useState } from 'react'
 import { ScalePicker } from '@/components/ScalePicker'
 import { Button } from '@/components/ui/button'
 import { useStore } from '@/lib/storage/store'
+import { dialog } from '@/lib/dialog/dialog'
 import { CATEGORIES } from '@/lib/data/data'
 import type { AnswerCell, Result } from '@/lib/storage/types'
 import type { MutableScaleStep } from '@/lib/data/types'
@@ -117,9 +118,25 @@ export function RsQuestionCard({
 
   async function hide() {
     if (!(await onBeforeMutate())) return
+    const confirmed = await dialog<boolean>({
+      title: t('confirm_hide_item_title'),
+      body: () => <p>{t('confirm_hide_item_body')}</p>,
+      actions: [
+        { label: t('btn_cancel'), kind: 'ghost', value: false },
+        { label: t('btn_delete'), kind: 'danger', value: true },
+      ],
+    })
+    if (!confirmed) return
     const next = structuredClone(result)
     const slot = next.answers[catId] ?? {}
-    slot.__hidden = { ...(slot.__hidden ?? {}), [item]: true }
+    if (isCustom) {
+      const customs = { ...(slot.__custom ?? {}) }
+      delete customs[item]
+      slot.__custom = customs
+    } else {
+      slot.__hidden = { ...(slot.__hidden ?? {}), [item]: true }
+      delete (slot as Record<string, unknown>)[item]
+    }
     next.answers[catId] = slot
     saveResult(next)
   }

@@ -487,6 +487,8 @@ export const DE: Record<TranslationKey, string> = {
   // Questionnaire components (plan 02-04)
   item_note_placeholder: 'Notiz (optional)',
   btn_hide_item: 'Diesen Punkt ausblenden',
+  confirm_hide_item_title: 'Element entfernen?',
+  confirm_hide_item_body: 'Dieses Element für diese Karte entfernen? Das Element und die Antwort wird für diese Karte permanent gelöscht.',
   q_back_to_categories: '← Kategorien',
   q_mode_list: '📋 Liste',
   q_mode_single: '📱 Einzeln',

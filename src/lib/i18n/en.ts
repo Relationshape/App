@@ -471,6 +471,8 @@ export const EN = {
   // Questionnaire components (plan 02-04)
   item_note_placeholder: 'Note (optional)',
   btn_hide_item: 'Hide this item',
+  confirm_hide_item_title: 'Remove this item?',
+  confirm_hide_item_body: 'Remove this item from this map? The item and its answer will be permanently deleted for this map.',
   q_back_to_categories: '← Categories',
   q_mode_list: '📋 List',
   q_mode_single: '📱 Single',
