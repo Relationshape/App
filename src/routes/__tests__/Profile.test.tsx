@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 // src/routes/__tests__/Profile.test.tsx
 // PROFILE-01..04, PROFILE-06 (via age-gate bypass seed)
-// Tests for Welcome, Home, ProfileEdit, ProfileDetail routes.
+// Tests for Welcome, Home (redirect), ProfileEdit, ProfileDetail routes.
 
 import { render, fireEvent, act, cleanup } from '@testing-library/react'
 import { describe, it, expect, afterEach, vi } from 'vitest'
@@ -72,29 +72,39 @@ describe('Profile lifecycle (PROFILE-01..04)', () => {
     cleanup()
   })
 
-  it('Home renders profile cards from store (PROFILE-01)', async () => {
+  it('Home redirects to ProfileDetail when a profile exists (PROFILE-01)', async () => {
     await mountAtHash('#/', makeStore({
-      profiles: [profile(PROFILE_A, 'Alice'), profile(PROFILE_B, 'Bob')],
+      profiles: [profile(PROFILE_A, 'Alice')],
     }))
-    expect(document.querySelector('[data-testid="home-page"]')).not.toBeNull()
-    expect(document.querySelector(`[data-testid="home-profile-${PROFILE_A}"]`)).not.toBeNull()
-    expect(document.querySelector(`[data-testid="home-profile-${PROFILE_B}"]`)).not.toBeNull()
-    // "new profile" card is hidden when at least one profile already exists
+    // Home redirects to the first profile's detail page
+    expect(document.querySelector('[data-testid="profile-detail-page"]')).not.toBeNull()
+    // Profile name appears in the header
+    const nameEl = document.querySelector('[data-testid="profile-name"]')
+    expect(nameEl?.textContent).toBe('Alice')
+    // No "new profile" card (Home grid is gone)
     expect(document.querySelector('[data-testid="home-new-profile"]')).toBeNull()
   })
 
-  it('Home filters template imports from the imports list (PROFILE-01)', async () => {
-    await mountAtHash('#/', makeStore({
+  it('Home redirects to Welcome when no profiles exist (PROFILE-01)', async () => {
+    await mountAtHash('#/', makeStore())
+    // No profile → redirect to Welcome
+    expect(document.querySelector('[data-testid="welcome-page"]')).not.toBeNull()
+    expect(document.querySelector('[data-testid="profile-detail-page"]')).toBeNull()
+  })
+
+  it('ProfileDetail filters template imports from the imports list (PROFILE-01)', async () => {
+    await mountAtHash(`#/profile/${PROFILE_A}`, makeStore({
+      profiles: [profile(PROFILE_A, 'Alice')],
       imports: [
         imp(IMPORT_REG, 'Regular Import', undefined, true),
         imp(IMPORT_TPL, '__template__foo', 'template'),
       ],
     }))
-    const importSection = document.querySelector('[data-testid="home-imports"]')
+    const importSection = document.querySelector('[data-testid="profile-imports"]')
     // Regular import appears; template import (exportMode=template) does not
     expect(importSection).not.toBeNull()
-    expect(document.querySelector(`[data-testid="home-import-${IMPORT_REG}"]`)).not.toBeNull()
-    expect(document.querySelector(`[data-testid="home-import-${IMPORT_TPL}"]`)).toBeNull()
+    expect(document.querySelector(`[data-testid="profile-import-${IMPORT_REG}"]`)).not.toBeNull()
+    expect(document.querySelector(`[data-testid="profile-import-${IMPORT_TPL}"]`)).toBeNull()
   })
 
   it('ProfileEdit /profile/new creates a profile and navigates to /profile/:id (PROFILE-03)', async () => {
@@ -178,20 +188,21 @@ describe('Profile lifecycle (PROFILE-01..04)', () => {
     expect(document.querySelector(`[data-testid="result-delete-${RESULT_A}"]`)).not.toBeNull()
   })
 
-  it('Home renders templates section when a template import exists (PROFILE-01 parity)', async () => {
-    await mountAtHash('#/', makeStore({
+  it('ProfileDetail renders templates section when a template import exists (PROFILE-01 parity)', async () => {
+    await mountAtHash(`#/profile/${PROFILE_A}`, makeStore({
+      profiles: [profile(PROFILE_A, 'Alice')],
       imports: [
         imp(IMPORT_REG, 'Regular Import', undefined, true),
         imp(IMPORT_TPL, '__template__foo', 'template'),
       ],
     }))
     // Templates section is its own block, separate from imports
-    expect(document.querySelector('[data-testid="home-templates"]')).not.toBeNull()
-    expect(document.querySelector(`[data-testid="home-template-${IMPORT_TPL}"]`)).not.toBeNull()
+    expect(document.querySelector('[data-testid="profile-templates"]')).not.toBeNull()
+    expect(document.querySelector(`[data-testid="profile-template-${IMPORT_TPL}"]`)).not.toBeNull()
     // Existing imports section co-exists and still excludes the template
-    expect(document.querySelector('[data-testid="home-imports"]')).not.toBeNull()
-    expect(document.querySelector(`[data-testid="home-import-${IMPORT_REG}"]`)).not.toBeNull()
-    expect(document.querySelector(`[data-testid="home-import-${IMPORT_TPL}"]`)).toBeNull()
+    expect(document.querySelector('[data-testid="profile-imports"]')).not.toBeNull()
+    expect(document.querySelector(`[data-testid="profile-import-${IMPORT_REG}"]`)).not.toBeNull()
+    expect(document.querySelector(`[data-testid="profile-import-${IMPORT_TPL}"]`)).toBeNull()
   })
 
   it('Welcome CTA navigates to /profile/new when no profiles exist (PROFILE-02)', async () => {
@@ -207,16 +218,25 @@ describe('Profile lifecycle (PROFILE-01..04)', () => {
 
   it('Threat T-02-08: profile name with XSS payload renders as inert text (not script)', async () => {
     const xssName = '<script>alert(1)</script>'
-    await mountAtHash('#/', makeStore({
+    await mountAtHash(`#/profile/${PROFILE_A}`, makeStore({
       profiles: [profile(PROFILE_A, xssName)],
     }))
     // The script text should appear as text content but NOT as executable script element
     expect(document.querySelector('script[data-testid]')).toBeNull()
     expect(document.body.innerHTML).not.toContain('<script>')
-    // The profile card IS rendered (React escapes XSS by default via text nodes)
-    const profileCard = document.querySelector(`[data-testid="home-profile-${PROFILE_A}"]`)
-    expect(profileCard).not.toBeNull()
-    // Text content contains the payload as plain text (escaped, not as HTML)
-    expect(profileCard!.textContent).toContain('alert(1)')
+    // ProfileDetail renders the name as plain text (React escapes XSS by default)
+    const nameEl = document.querySelector('[data-testid="profile-name"]')
+    expect(nameEl).not.toBeNull()
+    expect(nameEl!.textContent).toContain('alert(1)')
+  })
+
+  it('Home redirects to first profile when two profiles exist (PROFILE-01)', async () => {
+    await mountAtHash('#/', makeStore({
+      profiles: [profile(PROFILE_A, 'Alice'), profile(PROFILE_B, 'Bob')],
+    }))
+    // Redirects to the first profile (PROFILE_A)
+    expect(document.querySelector('[data-testid="profile-detail-page"]')).not.toBeNull()
+    const nameEl = document.querySelector('[data-testid="profile-name"]')
+    expect(nameEl?.textContent).toBe('Alice')
   })
 })

@@ -57,7 +57,7 @@ describe('D-24 deep-link parity — all v1.0 hash routes reach the route table',
   afterEach(() => { cleanup(); vi.restoreAllMocks() })
 
   const routeCases: Array<{ hash: string; testid: string }> = [
-    { hash: '#/', testid: 'home-page' },
+    { hash: '#/', testid: 'welcome-page' },
     { hash: '#/welcome', testid: 'welcome-page' },
     { hash: '#/profile/new', testid: 'profile-edit-form' },
     { hash: '#/intro', testid: 'intro-page' },
@@ -78,14 +78,14 @@ describe('D-24 deep-link parity — all v1.0 hash routes reach the route table',
 
   // Routes that redirect when entity not found — just verify they resolve (don't crash)
   const redirectCases: Array<{ hash: string; possible: string[] }> = [
-    { hash: '#/profile/nonexistent', possible: ['profile-edit-form', 'profile-detail-page', 'home-page'] },
-    { hash: '#/profile/nonexistent/edit', possible: ['profile-edit-form', 'home-page'] },
-    { hash: '#/q-categories/p1/r1', possible: ['category-overview-page', 'home-page'] },
-    { hash: '#/q/p1/r1', possible: ['home-page', 'list-mode', 'single-mode'] },
-    { hash: '#/result/r1', possible: ['result-page', 'home-page'] },
-    { hash: '#/result/r1/intimacy', possible: ['result-page', 'home-page'] },
-    { hash: '#/share/r1', possible: ['share-page', 'home-page'] },
-    { hash: '#/map/r1/settings', possible: ['map-settings-page', 'home-page'] },
+    { hash: '#/profile/nonexistent', possible: ['profile-edit-form', 'profile-detail-page', 'welcome-page'] },
+    { hash: '#/profile/nonexistent/edit', possible: ['profile-edit-form', 'welcome-page'] },
+    { hash: '#/q-categories/p1/r1', possible: ['category-overview-page', 'welcome-page'] },
+    { hash: '#/q/p1/r1', possible: ['welcome-page', 'list-mode', 'single-mode'] },
+    { hash: '#/result/r1', possible: ['result-page', 'welcome-page'] },
+    { hash: '#/result/r1/intimacy', possible: ['result-page', 'welcome-page'] },
+    { hash: '#/share/r1', possible: ['share-page', 'welcome-page'] },
+    { hash: '#/map/r1/settings', possible: ['map-settings-page', 'welcome-page'] },
   ]
 
   for (const { hash, possible } of redirectCases) {

@@ -6,7 +6,7 @@
 
 export const EN = {
   // Nav
-  nav_profiles: '👤 Profiles',
+  nav_profiles: '👤 Profile',
   nav_import: '📥 Import/Export',
   nav_compare: '📊 Results/Compare',
   nav_settings: '⚙️ Settings',
