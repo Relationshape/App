@@ -841,6 +841,51 @@ a:hover { text-decoration: underline; }
 
 /* Compare picker chips */
 .compare-pick { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* Redesigned compare dataset selector */
+.compare-selector { display: flex; flex-direction: column; gap: 16px; margin-bottom: 4px; }
+.compare-selector-meta { font-size: 12px; color: var(--muted); padding: 0 2px; }
+.compare-group { display: flex; flex-direction: column; gap: 6px; }
+.compare-group-header {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+}
+.compare-group-label {
+  margin: 0;
+  font-size: 11px; font-weight: 700; color: var(--muted);
+  letter-spacing: 0.07em; text-transform: uppercase;
+}
+.compare-group-items { display: flex; flex-direction: column; gap: 4px; }
+.compare-row {
+  --c: var(--primary);
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; border-radius: 12px;
+  background: var(--surface); border: 1.5px solid var(--glass-border);
+  font: inherit; font-size: 13.5px; cursor: pointer; text-align: left;
+  transition: border-color .15s, background .15s;
+  width: 100%;
+}
+.compare-row:hover:not(:disabled) { border-color: color-mix(in oklab, var(--c) 60%, transparent); }
+.compare-row--on {
+  background: color-mix(in oklab, var(--c) 10%, var(--surface));
+  border-color: var(--c);
+}
+.compare-row--disabled { opacity: 0.4; cursor: default; }
+.compare-row-check {
+  width: 18px; height: 18px; border-radius: 50%;
+  border: 1.5px solid var(--glass-border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 700; flex-shrink: 0;
+  color: transparent; transition: background .15s, border-color .15s, color .15s;
+}
+.compare-row--on .compare-row-check {
+  background: var(--c); border-color: var(--c); color: #fff;
+}
+.compare-row-emoji { font-size: 17px; flex-shrink: 0; line-height: 1; }
+.compare-row-text { display: flex; flex-direction: column; gap: 1px; min-width: 0; flex: 1; }
+.compare-row-name { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.compare-row-sub { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.compare-row-locked { font-size: 11px; margin-left: 4px; }
+.compare-import-inline-btn { font-size: 12px !important; padding: 4px 10px !important; }
 .pick-chip {
   --c: var(--primary);
   background: var(--surface);

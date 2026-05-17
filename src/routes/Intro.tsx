@@ -9,6 +9,10 @@ export function Intro() {
       <h1>{t('about_title')}</h1>
       <p>{t('about_p1')}</p>
       <p>{t('about_p2')}</p>
+
+      <h2>{t('about_philosophy_title')}</h2>
+      <p>{t('about_philosophy')}</p>
+
       <h2>{t('about_how_title')}</h2>
       <ol>
         <li>{t('about_how_1')}</li>
@@ -17,8 +21,17 @@ export function Intro() {
         <li>{t('about_how_4')}</li>
         <li>{t('about_how_5')}</li>
       </ol>
+
+      <h2>{t('about_approach_title')}</h2>
+      <ol>
+        <li>{t('about_approach_1')}</li>
+        <li>{t('about_approach_2')}</li>
+        <li>{t('about_approach_3')}</li>
+      </ol>
+
       <h2>{t('about_privacy_title')}</h2>
       <p>{t('about_privacy')}</p>
+
       <h2>{t('about_credits_title')}</h2>
       <p>
         <TranslatedText k="about_credits" />{' '}
@@ -28,6 +41,15 @@ export function Intro() {
         .{' '}
         <TranslatedText k="about_credits_unofficial" />
       </p>
+
+      <h2>{t('about_contact_title')}</h2>
+      <p>
+        {t('about_contact')}{' '}
+        <a href="mailto:relationshape@protonmail.com">relationshape@protonmail.com</a>.
+      </p>
+
+      <h2>{t('about_ai_title')}</h2>
+      <p>{t('about_ai_text')}</p>
     </section>
   )
 }

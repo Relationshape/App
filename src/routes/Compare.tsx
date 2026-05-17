@@ -1,10 +1,4 @@
 // SHARE-05, D-25, D-35. Port of public/legacy/js/app.js:3453-3544.
-// Quick task 260516-ex7: legacy CSS layout (compare-pick / pick-chip / cat-grid /
-// cat-card / callout / page-head / section-head) + Kategorie-Details cat-grid
-// section that opens a per-category modal. Default-to-first-2 selection mirrors
-// legacy `viewCompare` line 3480.
-// Phase 04 (D-04/D-05/D-06): Add-more-categories button, compareFilterIds union,
-// and RsCategoryCard replaces ad-hoc RsTile for cat-grid.
 
 import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
@@ -43,19 +37,39 @@ export function Compare() {
   const fabiMode = useStore((s) => s.settings.fabiMode ?? false)
   const saveResult = useStore((s) => s.saveResult)
 
-  // All available datasets (results first, then imports), as { id, label } for chip rendering.
-  const allOptions = useMemo(
-    () => [
-      ...results.map((r) => ({
+  // Separate own-result options and imported options for grouped display.
+  const ownOptions = useMemo(
+    () => results.map((r) => {
+      const profile = profiles.find((p) => p.id === r.profileId)
+      return {
         id: r.id,
-        label: `${profiles.find((p) => p.id === r.profileId)?.name ?? '?'} · ${r.subject ?? ''}`,
-      })),
-      ...imports.map((i) => ({ id: `imp:${i.id}`, label: i.subject ?? i.name ?? 'Anonymous' })),
-    ],
-    [results, imports, profiles],
+        name: profile?.name ?? '?',
+        subject: r.subject ?? '',
+        emoji: r.subjectEmoji || profile?.emoji || '💞',
+        color: r.subjectColor || profile?.color || '#7c3aed',
+      }
+    }),
+    [results, profiles],
   )
 
-  // Default to the first 2 options when ?ids= is empty (legacy viewCompare:3480).
+  const importedOptions = useMemo(
+    () => imports.map((i) => ({
+      id: `imp:${i.id}`,
+      name: i.name ?? 'Anonymous',
+      subject: i.subject ?? '',
+      emoji: i.emoji || '📨',
+      color: i.color || '#7c3aed',
+      locked: i.exportMode === 'restricted' && !i.answersUnlocked,
+    })),
+    [imports],
+  )
+
+  const allOptions = useMemo(
+    () => [...ownOptions.map((o) => ({ id: o.id })), ...importedOptions.map((o) => ({ id: o.id }))],
+    [ownOptions, importedOptions],
+  )
+
+  // Default to the first 2 options when ?ids= is empty.
   const effectiveIds = truncatedRaw.length === 0
     ? allOptions.slice(0, 2).map((o) => o.id)
     : truncatedRaw
@@ -71,17 +85,12 @@ export function Compare() {
     return mapResultToDataset(r, profile)
   }).filter((d): d is NonNullable<typeof d> => d !== null), [effectiveIds.join(','), results, imports, profiles])
 
-  // Phase-04 D-04: legacy app.js:3484-3486 — first own-result among selected
-  // (used to gate the Add-more-categories button + as the editableResult for
-  // RsCategoryCard's hide-vs-dim rule, and to enable the Edit Answers tab).
   const firstEditableResult = useMemo(() => {
     const firstResultId = effectiveIds.find((id) => !id.startsWith('imp:'))
     return firstResultId ? results.find((r) => r.id === firstResultId) ?? null : null
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [effectiveIds.join(','), results])
 
-  // Phase-04 D-04: legacy app.js:3489-3498 — union of enabledCategories across
-  // all selected own-results. `null` means "no filter from any selected result".
   const compareFilterIds = useMemo<string[] | null>(() => {
     const set = new Set<string>()
     let hasFilter = false
@@ -116,10 +125,6 @@ export function Compare() {
     setParams({ ids: next.join(',') })
   }
 
-  // A category has "item by item" values when at least one dataset has any
-  // per-item answer entry for it (base item or custom). Categories without
-  // any item-level data are hidden from Kategorie-Details — opening their
-  // modal would yield an empty ItemSpider anyway.
   function hasItemValues(answers: AnswersBlob | undefined, catId: string): boolean {
     const slot = answers?.[catId]
     if (!slot) return false
@@ -136,6 +141,9 @@ export function Compare() {
     datasets.some((ds) => hasItemValues(ds.answers, cat.id)),
   )
 
+  const selectedCount = effectiveIds.length
+  const atMax = selectedCount >= 4
+
   return (
     <section className="page" data-testid="compare-page">
       <header className="page-head">
@@ -143,43 +151,99 @@ export function Compare() {
         <p className="muted">{t('compare_sub')}</p>
       </header>
 
-      {/* Chip picker — every option is a toggle. Selected state via `.on` modifier. */}
-      <div className="compare-pick" data-testid="compare-chips">
-        {allOptions.length === 0 && (
-          <p className="muted" data-testid="compare-empty">{t('compare_empty')}</p>
+      {/* Grouped dataset selector */}
+      <div className="compare-selector" data-testid="compare-chips">
+        {/* Selection counter */}
+        <div className="compare-selector-meta">
+          <span className="muted small">
+            {t('compare_selected_of', { n: selectedCount })}
+          </span>
+          {atMax && (
+            <span className="muted small"> · {t('compare_max_hint')}</span>
+          )}
+        </div>
+
+        {/* Own maps */}
+        {ownOptions.length > 0 && (
+          <div className="compare-group">
+            <p className="compare-group-label">{t('compare_own_section')}</p>
+            <div className="compare-group-items">
+              {ownOptions.map((o) => {
+                const selected = effectiveIds.includes(o.id)
+                const disabled = atMax && !selected
+                return (
+                  <button
+                    key={o.id}
+                    type="button"
+                    className={`compare-row${selected ? ' compare-row--on' : ''}${disabled ? ' compare-row--disabled' : ''}`}
+                    style={{ ['--c' as 'color']: o.color } as React.CSSProperties}
+                    onClick={() => !disabled && toggleId(o.id)}
+                    data-testid={`compare-chip-${o.id}`}
+                    aria-pressed={selected}
+                    disabled={disabled}
+                  >
+                    <span className="compare-row-check" aria-hidden="true">
+                      {selected ? '✓' : ''}
+                    </span>
+                    <span className="compare-row-emoji" aria-hidden="true">{o.emoji}</span>
+                    <span className="compare-row-text">
+                      <span className="compare-row-name">{o.subject || o.name}</span>
+                      {o.subject && <span className="compare-row-sub">{o.name}</span>}
+                    </span>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
         )}
-        {allOptions.map((o) => {
-          const selected = effectiveIds.includes(o.id)
-          const ds = datasets.find((d) => d.id === o.id)
-          const swatchColor = ds?.color
-          return (
+
+        {/* Imported results */}
+        <div className="compare-group">
+          <div className="compare-group-header">
+            <p className="compare-group-label">{t('compare_imported_section')}</p>
             <button
-              key={o.id}
               type="button"
-              className={`pick-chip${selected ? ' on' : ''}`}
-              onClick={() => toggleId(o.id)}
-              style={{ ['--c' as 'color']: swatchColor } as React.CSSProperties}
-              data-testid={`compare-chip-${o.id}`}
-              aria-pressed={selected}
+              className="btn btn-ghost compare-import-inline-btn"
+              onClick={() => setImportOpen(true)}
+              data-testid="compare-import-btn"
             >
-              <span className="swatch" aria-hidden="true" />
-              <span aria-hidden="true">{ds?.emoji ?? '•'}</span>
-              <span>{ds?.name ?? o.label}</span>
+              📥 {t('compare_import_btn')}
             </button>
-          )
-        })}
-        <button
-          type="button"
-          className="pick-chip pick-chip--import"
-          onClick={() => setImportOpen(true)}
-          data-testid="compare-import-btn"
-        >
-          <span aria-hidden="true">📥</span>
-          <span>{t('compare_import_btn')}</span>
-        </button>
+          </div>
+          {importedOptions.length > 0 && (
+            <div className="compare-group-items">
+              {importedOptions.map((o) => {
+                const selected = effectiveIds.includes(o.id)
+                const disabled = atMax && !selected
+                return (
+                  <button
+                    key={o.id}
+                    type="button"
+                    className={`compare-row${selected ? ' compare-row--on' : ''}${disabled ? ' compare-row--disabled' : ''}`}
+                    style={{ ['--c' as 'color']: o.color } as React.CSSProperties}
+                    onClick={() => !disabled && toggleId(o.id)}
+                    data-testid={`compare-chip-${o.id}`}
+                    aria-pressed={selected}
+                    disabled={disabled}
+                  >
+                    <span className="compare-row-check" aria-hidden="true">
+                      {selected ? '✓' : ''}
+                    </span>
+                    <span className="compare-row-emoji" aria-hidden="true">{o.emoji}</span>
+                    <span className="compare-row-text">
+                      <span className="compare-row-name">{o.subject || o.name}</span>
+                      {o.subject && <span className="compare-row-sub">{o.name}</span>}
+                      {o.locked && <span className="compare-row-locked">🔒</span>}
+                    </span>
+                  </button>
+                )
+              })}
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Either the Fabi-mode overview spider OR the tip callout that explains it. */}
+      {/* Fabi-mode spider or tip */}
       {datasets.length > 0 && (
         fabiMode ? (
           <section className="page-section panel">
@@ -196,7 +260,6 @@ export function Compare() {
         )
       )}
 
-      {/* Alignment overview only makes sense with ≥2 datasets. */}
       {datasets.length >= 2 && (
         <section className="page-section">
           <header className="section-head">
@@ -206,21 +269,16 @@ export function Compare() {
         </section>
       )}
 
-      {/* Kategorie-Details — one card per category that has item-by-item data
-          in at least one of the selected datasets. */}
       {datasets.length >= 1 && visibleCategories.length > 0 && (
         <section className="page-section" data-testid="compare-cat-details">
           <header className="section-head">
             <h2>{t('cat_details_title')}</h2>
             <p className="muted">{t('cat_details_sub')}</p>
-            {firstEditableResult ? (
-              <Button
-                onClick={() => setPickerOpen(true)}
-                data-testid="compare-add-cats"
-              >
+            {firstEditableResult && (
+              <Button onClick={() => setPickerOpen(true)} data-testid="compare-add-cats">
                 {t('btn_add_categories')}
               </Button>
-            ) : null}
+            )}
           </header>
           <div className="cat-grid">
             {visibleCategories.map((cat) => (
@@ -255,14 +313,10 @@ export function Compare() {
         }}
       />
 
-      {/* Import modal — directly on the compare page */}
       <Dialog open={importOpen} onOpenChange={setImportOpen}>
         <DialogContent className="max-w-lg" data-testid="compare-import-modal">
           <DialogTitle>{t('compare_import_title')}</DialogTitle>
-          <ImportForm
-            onSuccess={handleImportSuccess}
-            testIdPrefix="compare-import"
-          />
+          <ImportForm onSuccess={handleImportSuccess} testIdPrefix="compare-import" />
         </DialogContent>
       </Dialog>
     </section>

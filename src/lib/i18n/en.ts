@@ -223,6 +223,10 @@ export const EN = {
   compare_sub: 'Pick up to four results to overlay. Open a category for a per-item radar chart.',
   compare_import_btn: 'Import result',
   compare_import_title: 'Import a result',
+  compare_own_section: 'Your maps',
+  compare_imported_section: 'Imported results',
+  compare_selected_of: '{n} of 4 selected',
+  compare_max_hint: 'Up to 4 maps can be overlaid at once.',
   compare_select: 'Select results above.',
   alignment_title: 'Alignment overview',
   cat_details_title: 'Category details',
@@ -343,6 +347,9 @@ export const EN = {
     'Relationshapes is a communication tool to help shape relationships around the actual needs and desires of everyone involved — independently from outside norms or hierarchies.',
   about_p2:
     "It comes from the world of relationship anarchy and was inspired by Andie Nordgren's manifesto, the Smorgasbord of relationship anarchy, and books like Polysecure (Jessica Fern) and More than Two (Eve Rickert & Franklin Veaux).",
+  about_philosophy_title: 'Philosophy',
+  about_philosophy:
+    'Relationships are subject to change as they evolve. Relationshapes acknowledges the full spectrum of human connections — romantic, platonic, sexual, kinky, and familial — without prescribing hierarchy or a one-size-fits-all structure. The tool is an invitation to generously edit, add, delete, and adapt it to fit your own needs and context. The creators are explicit that it can never be a one-size-fits-all solution and that every person brings their own lifelong conditioning to these conversations.',
   about_how_title: 'How to use this app',
   about_how_1: 'Create a profile for yourself.',
   about_how_2: 'Start a relationship map for each connection you want to reflect on.',
@@ -350,15 +357,21 @@ export const EN = {
   about_how_3b: '(or your own custom scale) to mark how important each item is.',
   about_how_4: 'Open a category in the result view to see a radar chart of its items.',
   about_how_5: 'Optionally exchange your encrypted bundle with the other person and compare.',
+  about_approach_title: 'Recommended approach',
+  about_approach_1: 'Read through all the categories once before you start answering — some terms benefit from a shared definition discussed upfront.',
+  about_approach_2: 'Fill it in independently, then compare and discuss your answers together.',
+  about_approach_3: 'Revisit it from time to time — roughly every six months is a good rhythm, as needs and relationships evolve.',
   about_privacy_title: 'Privacy',
   about_privacy:
     "Everything stays in your browser's local storage on this device. The app has no backend. Shared bundles are encrypted with AES-GCM (256-bit) using a key derived from your passphrase via PBKDF2 (250 000 iterations). Pick a passphrase you and the other person agree on out of band.",
-  about_credits_title: 'Credits',
+  about_credits_title: 'Credits & License',
   about_credits:
-    'The Relationshapes questionnaire and concept are by Anne Lüscher (she/they) and Benjamin Frey (him/his), released under CC BY-NC 4.0.',
+    'The Relationshapes questionnaire and concept are by Anne Lüscher (she/they) and Benjamin Frey (him/his), released under CC BY-NC 4.0 — free to share and adapt for non-commercial use with attribution.',
   about_credits_repo: 'Original repository',
   about_credits_unofficial:
     'This app is an unofficial implementation built to make the tool more interactive and accessible.',
+  about_contact_title: 'Contact',
+  about_contact: 'Questions and feedback are welcome at',
   about_ai_title: 'Transparency on the Use of AI Tools',
   about_ai_text:
     'This app was programmed with the help of Claude Code. The original idea, the structure of the app, as well as all elements, questions and texts are 100% the work of the original authors and the experiences of the broader community.',

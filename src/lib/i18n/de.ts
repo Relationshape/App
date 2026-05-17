@@ -235,6 +235,10 @@ export const DE: Record<TranslationKey, string> = {
     'Wähle bis zu vier Ergebnisse zum Überlagern aus. Öffne eine Kategorie für ein Netzdiagramm.',
   compare_import_btn: 'Ergebnis importieren',
   compare_import_title: 'Ergebnis importieren',
+  compare_own_section: 'Eigene Karten',
+  compare_imported_section: 'Importierte Ergebnisse',
+  compare_selected_of: '{n} von 4 ausgewählt',
+  compare_max_hint: 'Es können bis zu 4 Karten gleichzeitig überlagert werden.',
   compare_select: 'Wähle oben Ergebnisse aus.',
   alignment_title: 'Übereinstimmungsübersicht',
   cat_details_title: 'Kategorie-Details',
@@ -356,6 +360,9 @@ export const DE: Record<TranslationKey, string> = {
     'Relationshapes ist ein Kommunikationswerkzeug, das dabei hilft, Beziehungen nach den tatsächlichen Bedürfnissen und Wünschen aller Beteiligten zu gestalten – unabhängig von gesellschaftlichen Normen oder Hierarchien.',
   about_p2:
     'Es kommt aus der Welt der Beziehungsanarchie und wurde inspiriert von Andie Nordgrens Manifest, dem Smorgasbord der Beziehungsanarchie, sowie Büchern wie Polysecure (Jessica Fern) und More than Two (Eve Rickert & Franklin Veaux).',
+  about_philosophy_title: 'Philosophie',
+  about_philosophy:
+    'Beziehungen verändern sich mit der Zeit. Relationshapes anerkennt das gesamte Spektrum menschlicher Verbindungen – romantisch, platonisch, sexuell, kinky, familiär – ohne Hierarchien oder Einheitsmodelle vorzuschreiben. Das Werkzeug ist eine Einladung, es frei zu bearbeiten, zu ergänzen, zu streichen und anzupassen. Die Urheber*innen sind explizit: Es kann niemals eine Universallösung sein, und jede Person bringt ihre eigene Prägung in diese Gespräche mit.',
   about_how_title: 'So wird die App verwendet',
   about_how_1: 'Erstelle ein Profil für dich.',
   about_how_2: 'Starte für jede Beziehung, über die du nachdenken möchtest, eine Beziehungskarte.',
@@ -365,15 +372,24 @@ export const DE: Record<TranslationKey, string> = {
     'Öffne in der Ergebnisansicht eine Kategorie, um ein Netzdiagramm ihrer Elemente zu sehen.',
   about_how_5:
     'Tausche optional dein verschlüsseltes Paket mit der anderen Person aus und vergleiche.',
+  about_approach_title: 'Empfohlene Vorgehensweise',
+  about_approach_1:
+    'Lies zunächst alle Kategorien einmal durch, bevor du anfängst zu antworten – manche Begriffe profitieren von einer gemeinsamen Definition vorab.',
+  about_approach_2:
+    'Füll es unabhängig voneinander aus und vergleicht und besprecht eure Antworten dann gemeinsam.',
+  about_approach_3:
+    'Kehre von Zeit zu Zeit zurück – etwa alle sechs Monate ist ein guter Rhythmus, da sich Bedürfnisse und Beziehungen weiterentwickeln.',
   about_privacy_title: 'Datenschutz',
   about_privacy:
     'Alles bleibt im lokalen Speicher deines Browsers auf diesem Gerät. Die App hat kein Backend. Geteilte Pakete werden mit AES-GCM (256-Bit) verschlüsselt, wobei der Schlüssel über PBKDF2 aus deinem Passwort abgeleitet wird (250.000 Iterationen).',
-  about_credits_title: 'Credits',
+  about_credits_title: 'Credits & Lizenz',
   about_credits:
-    'Der Relationshapes-Fragebogen und das Konzept stammen von Anne Lüscher (sie/ihr) und Benjamin Frey (er/ihm), veröffentlicht unter CC BY-NC 4.0.',
+    'Der Relationshapes-Fragebogen und das Konzept stammen von Anne Lüscher (sie/ihr) und Benjamin Frey (er/ihm), veröffentlicht unter CC BY-NC 4.0 – kostenlos teilbar und anpassbar für nicht-kommerzielle Zwecke mit Namensnennung.',
   about_credits_repo: 'Original-Repository',
   about_credits_unofficial:
     'Diese App ist eine inoffizielle Implementierung, um das Werkzeug interaktiver und zugänglicher zu machen.',
+  about_contact_title: 'Kontakt',
+  about_contact: 'Fragen und Feedback sind willkommen unter',
   about_ai_title: 'Transparenz zur Verwendung von KI-Tools',
   about_ai_text:
     'Diese App wurde mithilfe von Claude Code programmiert. Die ursprüngliche Idee, die Struktur der App, sowie alle Elemente, Fragen und Texte entstammen jedoch zu 100% der Arbeit der Urheber*innen, sowie den Erfahrungswelten der breiteren Community.',

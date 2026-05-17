@@ -79,7 +79,8 @@ describe('Profile lifecycle (PROFILE-01..04)', () => {
     expect(document.querySelector('[data-testid="home-page"]')).not.toBeNull()
     expect(document.querySelector(`[data-testid="home-profile-${PROFILE_A}"]`)).not.toBeNull()
     expect(document.querySelector(`[data-testid="home-profile-${PROFILE_B}"]`)).not.toBeNull()
-    expect(document.querySelector('[data-testid="home-new-profile"]')).not.toBeNull()
+    // "new profile" card is hidden when at least one profile already exists
+    expect(document.querySelector('[data-testid="home-new-profile"]')).toBeNull()
   })
 
   it('Home filters template imports from the imports list (PROFILE-01)', async () => {
