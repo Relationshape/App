@@ -189,4 +189,33 @@ describe('RsCategoryCard (Phase 04 D-05 + D-06)', () => {
     expect(container.querySelector('[data-testid="card"] h3')!.textContent).toBe('Connection')
     expect(container.querySelector('[data-testid="card"] p.muted.small')!.textContent).toBe('How we connect.')
   })
+
+  it('D-06 Fabi-mode: renders RsSummaryCells when fabiMode is true', () => {
+    const { container } = render(
+      <RsCategoryCard
+        cat={CAT}
+        datasets={[ds({ connection: { x: { scale: 'green' } } } as ChartDataset['answers'])]}
+        editableResult={MOCK_RESULT}
+        fabiMode={true}
+        onClick={() => {}}
+        testId="card"
+      />,
+    )
+    const summary = container.querySelector('[data-testid="card"] [data-testid="cat-card-summary"]')
+    expect(summary).not.toBeNull()
+  })
+
+  it('D-06 Fabi-mode: omits RsSummaryCells when fabiMode is false', () => {
+    const { container } = render(
+      <RsCategoryCard
+        cat={CAT}
+        datasets={[ds({ connection: { x: { scale: 'green' } } } as ChartDataset['answers'])]}
+        editableResult={MOCK_RESULT}
+        fabiMode={false}
+        onClick={() => {}}
+        testId="card"
+      />,
+    )
+    expect(container.querySelector('[data-testid="cat-card-summary"]')).toBeNull()
+  })
 })
