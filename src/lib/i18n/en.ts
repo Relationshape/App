@@ -26,7 +26,7 @@ export const EN = {
   welcome_f1: '🔒 Stays on this device',
   welcome_f2: '📤 End-to-end encrypted sharing',
   welcome_f3: '📊 Per-category & overview radar charts',
-  welcome_f4: '👥 Multiple profiles in one app',
+  welcome_f4: '👤 One profile, many relationships',
   feat_maps_title: 'Relationship Maps',
   feat_maps_short:
     'Answer questions and rate relationship elements to create a visual map of each connection.',
@@ -49,12 +49,12 @@ export const EN = {
   feat_security_sub: 'Stays on this device',
   feat_charts_title: 'Spider Charts',
   feat_charts_sub: 'Visual relationship maps',
-  feat_profiles_title: 'Multiple Profiles',
-  feat_profiles_sub: 'All in one place',
+  feat_profiles_title: 'Your Profile',
+  feat_profiles_sub: 'One profile, all your maps',
   btn_select_all_continue: 'Select all & continue',
   profiles_title: 'Your profiles',
   profiles_sub:
-    'Each profile holds your own answers. Keep separate profiles per chapter of life or persona.',
+    'Your profile is your identity in the app. All your relationship maps live here.',
   new_profile_btn: 'New profile',
   imports_title: '📥 Imported results',
   imports_sub: 'Encrypted shares from people you trust.',
@@ -92,7 +92,7 @@ export const EN = {
     'All data is stored only in your browser — no accounts, no servers, no analytics. You are in full control.',
   wizard_s3_title: 'Create a profile first 👤',
   wizard_s3_body:
-    'A profile represents you (or a persona). You can have multiple profiles on one device, e.g. for different life chapters.',
+    'A profile represents you in the app. Create one profile and use it to map as many relationships as you like.',
   wizard_s4_title: 'Map your relationships 🗺️',
   wizard_s4_body:
     "For each relationship you want to reflect on, create a \"relationship map\". Walk through the categories and rate each item — from 'No' to 'Need'.",
@@ -475,9 +475,9 @@ export const EN = {
   feat_sharing_title: 'Sharing',
   feat_sharing_short: 'Exchange your results to open conversations and find where you are aligned.',
   feat_sharing_body: 'Exchange your results with your counterpart to start a conversation, communicate needs, wishes, and boundaries, and make agreements. Overlaying both maps on a spider chart intuitively shows where you are aligned and where differences may exist.',
-  feat_multi_title: 'Multiple Profiles',
-  feat_multi_short: 'Keep separate profiles per chapter of life or persona.',
-  feat_multi_body: 'Create and manage multiple profiles in a single app. Each profile holds your own answers for a different life context or persona — keeping everything separate and private.',
+  feat_multi_title: 'One Profile',
+  feat_multi_short: 'One profile, unlimited relationship maps.',
+  feat_multi_body: 'Create a single profile representing you and map as many relationships as you like from it. Each relationship map is separate and private — all in one place.',
 
   // Scale picker (plan 02-04)
   scale_picker_label: 'Answer scale',

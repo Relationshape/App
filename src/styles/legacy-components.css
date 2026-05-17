@@ -1036,11 +1036,12 @@ a:hover { text-decoration: underline; }
 .scale-row-actions .icon-btn.danger:hover { color: var(--red); }
 .scale-row-actions .icon-btn:disabled { opacity: .35; cursor: not-allowed; }
 .scale-row-actions button[data-variant="destructive"] {
-  background-color: var(--red-soft);
-  color: var(--red);
+  background-color: var(--red);
+  color: #fff;
+  opacity: 1 !important;
 }
-.scale-row-actions button[data-variant="destructive"]:hover:not(:disabled) {
-  background-color: var(--red-soft-hover);
+.scale-row-actions button[data-variant="destructive"]:hover {
+  background-color: color-mix(in srgb, var(--red) 85%, #000);
 }
 @media (max-width: 600px) {
   .scale-legend-header { display: none; }

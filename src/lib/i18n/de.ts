@@ -30,7 +30,7 @@ export const DE: Record<TranslationKey, string> = {
   welcome_f1: '🔒 Bleibt auf diesem Gerät',
   welcome_f2: '📤 Ende-zu-Ende-verschlüsseltes Teilen',
   welcome_f3: '📊 Kategorie- & Übersichts-Netzdiagramme',
-  welcome_f4: '👥 Mehrere Profile in einer App',
+  welcome_f4: '👤 Ein Profil, viele Beziehungen',
   feat_maps_title: 'Beziehungskarten',
   feat_maps_short:
     'Beantworte Fragen und bewerte Beziehungselemente, um eine visuelle Karte jeder Beziehung zu erstellen.',
@@ -55,12 +55,12 @@ export const DE: Record<TranslationKey, string> = {
   feat_security_sub: 'Bleibt auf diesem Gerät',
   feat_charts_title: 'Netzdiagramme',
   feat_charts_sub: 'Visuelle Beziehungskarten',
-  feat_profiles_title: 'Mehrere Profile',
-  feat_profiles_sub: 'Alles an einem Ort',
+  feat_profiles_title: 'Dein Profil',
+  feat_profiles_sub: 'Ein Profil, alle Karten',
   btn_select_all_continue: 'Alle auswählen & weiter',
   profiles_title: 'Deine Profile',
   profiles_sub:
-    'Jedes Profil enthält deine eigenen Antworten. Führe separate Profile für verschiedene Lebensphasen oder Personas.',
+    'Dein Profil ist deine Identität in der App. Alle deine Beziehungskarten befinden sich hier.',
   new_profile_btn: 'Neues Profil',
   imports_title: '📥 Importierte Ergebnisse',
   imports_sub: 'Verschlüsselte Freigaben von Menschen, denen du vertraust.',
@@ -98,7 +98,7 @@ export const DE: Record<TranslationKey, string> = {
     'Alle Daten werden nur in deinem Browser gespeichert – keine Accounts, keine Server, keine Analyse. Du hast die volle Kontrolle.',
   wizard_s3_title: 'Zuerst ein Profil anlegen 👤',
   wizard_s3_body:
-    'Ein Profil repräsentiert dich (oder eine Persona). Du kannst mehrere Profile auf einem Gerät führen – z.B. für verschiedene Lebensphasen.',
+    'Ein Profil repräsentiert dich in der App. Erstelle ein Profil und kartiere damit beliebig viele Beziehungen.',
   wizard_s4_title: 'Beziehungen kartieren 🗺️',
   wizard_s4_body:
     'Für jede Beziehung, über die du nachdenken möchtest, erstelle eine „Beziehungskarte". Gehe durch die Kategorien und bewerte jedes Element – von „Nein" bis „Brauche ich".',
@@ -494,9 +494,9 @@ export const DE: Record<TranslationKey, string> = {
   feat_sharing_title: 'Teilen',
   feat_sharing_short: 'Tausche deine Ergebnisse aus, um ins Gespräch zu kommen und Gemeinsamkeiten zu entdecken.',
   feat_sharing_body: 'Tausche deine Ergebnisse mit deinem Gegenüber aus um ins Gespräch zu kommen, Bedürfnisse, Wünsche und Grenzen zu kommunizieren und Abmachungen zu treffen. Das grafische Übereinanderlegen mittels Netzdiagramm zeigt intuitiv, wo ihr aligned seid und wo mögliche Differenzen bestehen.',
-  feat_multi_title: 'Mehrere Profile',
-  feat_multi_short: 'Führe separate Profile für verschiedene Lebensphasen oder Personas.',
-  feat_multi_body: 'Erstelle und verwalte mehrere Profile in einer einzigen App. Jedes Profil enthält deine eigenen Antworten für einen anderen Lebenskontext oder eine Persona — alles getrennt und privat.',
+  feat_multi_title: 'Ein Profil',
+  feat_multi_short: 'Ein Profil, unbegrenzte Beziehungskarten.',
+  feat_multi_body: 'Erstelle ein einziges Profil, das dich repräsentiert, und kartiere damit beliebig viele Beziehungen. Jede Beziehungskarte ist separat und privat — alles an einem Ort.',
 
   // Scale picker (plan 02-04)
   scale_picker_label: 'Antwortskala',
