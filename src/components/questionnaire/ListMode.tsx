@@ -3,7 +3,7 @@
 // as a header (emoji + title + blurb + keyboard tip), 7-chip scale legend, then
 // rounded question cards. Legacy parity (quick task 260516-rm2).
 
-import { useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useStore } from '@/lib/storage/store'
 import { useTemplateWarning } from '@/lib/hooks/useTemplateWarning'
@@ -12,11 +12,13 @@ import { RsScaleLegend } from './RsScaleLegend'
 import { QuestionnaireHeader } from './QuestionnaireHeader'
 import { QuestionnaireNav } from './QuestionnaireNav'
 import { Button } from '@/components/ui/button'
+import { ScaleEditor } from '@/components/ScaleEditor'
 import { CATEGORIES } from '@/lib/data/data'
 import { enabledItemsForCat } from '@/lib/charts/items'
 import { dialog } from '@/lib/dialog/dialog'
 import { useToast } from '@/lib/hooks/useToast'
 import type { Result, Profile } from '@/lib/storage/types'
+import type { MutableScaleStep } from '@/lib/data/types'
 import { t, getLang } from '@/lib/i18n/i18n'
 
 interface Props { result: Result; profile: Profile }
@@ -50,6 +52,8 @@ export function ListMode({ result, profile }: Props) {
 
   async function addCustom(catId: string) {
     if (!await confirmIfTemplate()) return
+
+    // Step 1: name
     const name = await dialog<string | null>({
       title: t('q_add_custom_title'),
       body: (close) => {
@@ -76,20 +80,29 @@ export function ListMode({ result, profile }: Props) {
           </div>
         )
       },
-      actions: [
-        { label: t('btn_cancel'), kind: 'ghost', value: null },
-      ],
+      actions: [{ label: t('btn_cancel'), kind: 'ghost', value: null }],
     })
     if (!name) return
+
     const slot = result.answers[catId] ?? {}
     const c = CATEGORIES.find((x) => x.id === catId)!
     if ((c.items as readonly string[]).includes(name) || (slot.__custom ?? {})[name]) {
       toast.message(t('q_item_already_exists'))
       return
     }
+
+    // Step 2: scale selection
+    const itemScale = await dialog<MutableScaleStep[] | null | false>({
+      title: t('q_add_custom_scale_title'),
+      body: (close) => <ListModeScalePicker defaultScale={scale} onClose={close} />,
+      actions: [{ label: t('btn_cancel'), kind: 'ghost', value: false }],
+    })
+    if (itemScale === false) return
+
     const next = structuredClone(result)
     const ns = next.answers[catId] ?? {}
-    ns.__custom = { ...(ns.__custom ?? {}), [name]: { scale: 'open' } }
+    const cell = itemScale ? { scale: 'open', itemScale } : { scale: 'open' }
+    ns.__custom = { ...(ns.__custom ?? {}), [name]: cell }
     next.answers[catId] = ns
     saveResult(next)
   }
@@ -162,6 +175,56 @@ export function ListMode({ result, profile }: Props) {
         </section>
       </main>
       <QuestionnaireNav result={result} profileId={profile.id} activeCat={cat} />
+    </div>
+  )
+}
+
+function ListModeScalePicker({
+  defaultScale,
+  onClose,
+}: {
+  defaultScale: MutableScaleStep[]
+  onClose: (v: MutableScaleStep[] | null) => void
+}) {
+  const [customizing, setCustomizing] = useState(false)
+  const [customScale, setCustomScale] = useState<MutableScaleStep[]>(() => defaultScale.map((s) => ({ ...s })))
+
+  return (
+    <div className="flex flex-col gap-3">
+      <p className="muted small">{t('q_add_custom_scale_sub')}</p>
+      {!customizing ? (
+        <>
+          <div className="scale-preview-list">
+            {defaultScale.map((s) => (
+              <div key={s.key} className="scale-preview-row">
+                <div className="scale-preview-swatch" style={{ background: s.color }} />
+                <span className="scale-preview-label">{s.label}</span>
+                <span className="scale-preview-short">{s.short}</span>
+              </div>
+            ))}
+          </div>
+          <div className="flex gap-2 justify-end">
+            <Button variant="ghost" onClick={() => setCustomizing(true)}>
+              {t('q_add_custom_scale_customize')}
+            </Button>
+            <Button onClick={() => onClose(null)} data-testid="add-custom-scale-default">
+              {t('q_add_custom_scale_use_default')}
+            </Button>
+          </div>
+        </>
+      ) : (
+        <>
+          <ScaleEditor scale={customScale} onChange={setCustomScale} />
+          <div className="flex gap-2 justify-end">
+            <Button variant="ghost" onClick={() => { setCustomizing(false); setCustomScale(defaultScale.map((s) => ({ ...s }))) }}>
+              {t('btn_back')}
+            </Button>
+            <Button onClick={() => onClose(customScale)} data-testid="add-custom-scale-confirm">
+              {t('btn_ok')}
+            </Button>
+          </div>
+        </>
+      )}
     </div>
   )
 }

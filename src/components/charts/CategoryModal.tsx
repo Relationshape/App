@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { ItemSpider } from './ItemSpider'
 import { CategoryBars } from './CategoryBars'
 import { RsQuestionCard } from '@/components/questionnaire/RsQuestionCard'
+import { ScaleEditor } from '@/components/ScaleEditor'
 import { useStore } from '@/lib/storage/store'
 import { useTemplateWarning } from '@/lib/hooks/useTemplateWarning'
 import { enabledItemsForCat } from '@/lib/charts/items'
@@ -16,6 +17,7 @@ import { useToast } from '@/lib/hooks/useToast'
 import type { ChartDataset } from './types'
 import type { CATEGORIES } from '@/lib/data/data'
 import type { Result } from '@/lib/storage/types'
+import type { MutableScaleStep } from '@/lib/data/types'
 import { t, getLang } from '@/lib/i18n/i18n'
 import { CATEGORIES as ALL_CATS } from '@/lib/data/data'
 
@@ -56,6 +58,12 @@ export function CategoryModal({ open, onOpenChange, datasets, cat, result }: Pro
   function handleLocalChange(next: Result) {
     setLocalResult(next)
     setIsDirty(true)
+  }
+
+  function handleImmediateSave(next: Result) {
+    saveStore(next)
+    setLocalResult(next)
+    setIsDirty(false)
   }
 
   function doSave() {
@@ -216,7 +224,7 @@ export function CategoryModal({ open, onOpenChange, datasets, cat, result }: Pro
               role="tabpanel"
               data-testid="cat-modal-panel-edit"
             >
-              <EditTabContent result={localResult} cat={cat} onLocalChange={handleLocalChange} />
+              <EditTabContent result={localResult} cat={cat} onLocalChange={handleLocalChange} onImmediateSave={handleImmediateSave} />
             </div>
           )
         )}
@@ -255,10 +263,11 @@ export function CategoryModal({ open, onOpenChange, datasets, cat, result }: Pro
 interface EditTabProps {
   result: Result
   cat: CategoryDef
-  onLocalChange?: (next: Result) => void  // when provided, saves locally not to store
+  onLocalChange?: (next: Result) => void
+  onImmediateSave?: (next: Result) => void
 }
 
-function EditTabContent({ result, cat, onLocalChange }: EditTabProps) {
+function EditTabContent({ result, cat, onLocalChange, onImmediateSave }: EditTabProps) {
   const saveResult = useStore((s) => s.saveResult)
   const storeScale = useStore((s) => s.scale)
   const { confirmIfTemplate } = useTemplateWarning(result)
@@ -271,6 +280,8 @@ function EditTabContent({ result, cat, onLocalChange }: EditTabProps) {
 
   async function addCustom() {
     if (!await confirmIfTemplate()) return
+
+    // Step 1: name
     const name = await dialog<string | null>({
       title: t('q_add_custom_title'),
       body: (close) => {
@@ -300,16 +311,31 @@ function EditTabContent({ result, cat, onLocalChange }: EditTabProps) {
       actions: [{ label: t('btn_cancel'), kind: 'ghost', value: null }],
     })
     if (!name) return
+
     const c = ALL_CATS.find((x) => x.id === cat.id)!
     if ((c.items as readonly string[]).includes(name) || (slot.__custom ?? {})[name]) {
       toast.message(t('q_item_already_exists'))
       return
     }
+
+    // Step 2: scale selection
+    const itemScale = await dialog<MutableScaleStep[] | null | false>({
+      title: t('q_add_custom_scale_title'),
+      body: (close) => <CustomScalePicker defaultScale={scale} onClose={close} />,
+      actions: [{ label: t('btn_cancel'), kind: 'ghost', value: false }],
+    })
+    // false = cancel (abort entire flow), null = use default, array = custom scale
+    if (itemScale === false) return
+
     const next = structuredClone(result)
     const ns = next.answers[cat.id] ?? {}
-    ns.__custom = { ...(ns.__custom ?? {}), [name]: { scale: 'open' } }
+    const cell = itemScale ? { scale: 'open', itemScale } : { scale: 'open' }
+    ns.__custom = { ...(ns.__custom ?? {}), [name]: cell }
     next.answers[cat.id] = ns
-    if (onLocalChange) {
+
+    if (onImmediateSave) {
+      onImmediateSave(next)
+    } else if (onLocalChange) {
       onLocalChange(next)
     } else {
       saveResult(next)
@@ -357,6 +383,56 @@ function EditTabContent({ result, cat, onLocalChange }: EditTabProps) {
       >
         {t('q_add_custom')}
       </Button>
+    </div>
+  )
+}
+
+function CustomScalePicker({
+  defaultScale,
+  onClose,
+}: {
+  defaultScale: MutableScaleStep[]
+  onClose: (v: MutableScaleStep[] | null) => void
+}) {
+  const [customizing, setCustomizing] = useState(false)
+  const [customScale, setCustomScale] = useState<MutableScaleStep[]>(() => defaultScale.map((s) => ({ ...s })))
+
+  return (
+    <div className="flex flex-col gap-3">
+      <p className="muted small">{t('q_add_custom_scale_sub')}</p>
+      {!customizing ? (
+        <>
+          <div className="scale-preview-list">
+            {defaultScale.map((s) => (
+              <div key={s.key} className="scale-preview-row">
+                <div className="scale-preview-swatch" style={{ background: s.color }} />
+                <span className="scale-preview-label">{s.label}</span>
+                <span className="scale-preview-short">{s.short}</span>
+              </div>
+            ))}
+          </div>
+          <div className="flex gap-2 justify-end">
+            <Button variant="ghost" onClick={() => setCustomizing(true)}>
+              {t('q_add_custom_scale_customize')}
+            </Button>
+            <Button onClick={() => onClose(null)} data-testid="modal-add-custom-scale-default">
+              {t('q_add_custom_scale_use_default')}
+            </Button>
+          </div>
+        </>
+      ) : (
+        <>
+          <ScaleEditor scale={customScale} onChange={setCustomScale} />
+          <div className="flex gap-2 justify-end">
+            <Button variant="ghost" onClick={() => { setCustomizing(false); setCustomScale(defaultScale.map((s) => ({ ...s }))) }}>
+              {t('btn_back')}
+            </Button>
+            <Button onClick={() => onClose(customScale)} data-testid="modal-add-custom-scale-confirm">
+              {t('btn_ok')}
+            </Button>
+          </div>
+        </>
+      )}
     </div>
   )
 }
