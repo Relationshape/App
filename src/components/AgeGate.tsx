@@ -1,5 +1,6 @@
 // PROFILE-06, D-29. Blocking gate on first visit; migrates legacy rs-age-confirmed (CONCERNS Pitfall 13).
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel,
   AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
@@ -13,6 +14,7 @@ const LEGACY_KEY = 'rs-age-confirmed'
 export function AgeGate() {
   const ageConfirmed = useStore((s) => s.settings.ageConfirmed)
   const setSettings = useStore((s) => s.setSettings)
+  const navigate = useNavigate()
   const [denied, setDenied] = useState(false)
 
   // Migration block (CONCERNS Pitfall 13): runs once on first mount.
@@ -50,7 +52,7 @@ export function AgeGate() {
           </AlertDialogCancel>
           <AlertDialogAction
             data-testid="age-gate-yes"
-            onClick={() => setSettings({ ageConfirmed: true })}
+            onClick={() => { setSettings({ ageConfirmed: true }); navigate('/welcome') }}
           >
             {t('age_gate_yes')}
           </AlertDialogAction>

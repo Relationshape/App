@@ -81,6 +81,10 @@ export function Nav() {
         ))}
       </div>
 
+      <div className="nav-lang">
+        <RsLangDropdown />
+      </div>
+
       <button
         type="button"
         className="nav-hamburger"
@@ -93,8 +97,6 @@ export function Nav() {
         <span className="hb-bar" />
         <span className="hb-bar" />
       </button>
-
-      <RsLangDropdown />
     </nav>
   )
 }

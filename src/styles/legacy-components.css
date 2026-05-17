@@ -1647,7 +1647,7 @@ a:hover { text-decoration: underline; }
 
 @media (max-width: 800px) {
   .nav-hamburger { display: flex; margin-left: 0; }
-  .nav-lang { margin-left: auto; }
+  div.nav-lang { margin-left: auto; }
 
   /* Hide nav links by default; show as overlay when nav-open */
   #nav .nav-links {
