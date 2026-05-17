@@ -326,10 +326,11 @@ export function NewMapWizard({ profile }: Props) {
               <DialogTitle>{t('new_card_scale_title')}</DialogTitle>
               <DialogDescription>{t('new_card_scale_sub')}</DialogDescription>
             </DialogHeader>
+            {/* Callout outside the scroll area so it stays visible and doesn't overlap rows */}
+            <div className="callout" style={{ fontSize: '13px', flexShrink: 0 }}>
+              {t('wizard_scale_hint')}
+            </div>
             <div className="scale-dialog-body flex-1 overflow-y-auto min-h-0" data-testid="wizard-scale-step">
-              <div className="callout" style={{ marginBottom: '12px', fontSize: '13px' }}>
-                {t('wizard_scale_hint')}
-              </div>
               {!customizeScale ? (
                 <div className="scale-preview-list">
                   {scale.map((s) => (

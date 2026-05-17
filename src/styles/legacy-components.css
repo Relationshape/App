@@ -445,16 +445,46 @@ a:hover { text-decoration: underline; }
 .result-head-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-left: auto; }
 
 @media (max-width: 680px) {
-  .result-head { padding: 12px 14px; gap: 8px 10px; }
-  .result-head .result-back-btn { order: -1; flex-shrink: 0; }
-  .result-head .li-avatar { width: 36px; height: 36px; font-size: 20px; flex-shrink: 0; }
-  .result-head-info { flex: 1 1 0; min-width: 0; }
-  .result-head-info h1 { font-size: 17px; }
+  .result-head {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto auto auto;
+    padding: 12px 14px;
+    gap: 6px 10px;
+  }
+  /* Row 1: back link spans full width */
+  .result-head .result-back-btn {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    justify-self: start;
+    font-size: 13px;
+    padding-inline: 0;
+  }
+  /* Row 2: avatar left, info right */
+  .result-head .li-avatar {
+    grid-column: 1;
+    grid-row: 2;
+    width: 40px; height: 40px; font-size: 22px;
+    align-self: center;
+    flex-shrink: unset;
+  }
+  .result-head-info {
+    grid-column: 2;
+    grid-row: 2;
+    min-width: 0;
+    flex: unset;
+    align-self: center;
+  }
+  .result-head-info h1 { font-size: 17px; line-height: 1.25; }
   .result-head-info .small { font-size: 11px; }
+  /* Row 3: action buttons span full width */
   .result-head-actions {
-    width: 100%;
+    grid-column: 1 / -1;
+    grid-row: 3;
+    display: flex;
+    gap: 6px;
     margin-left: 0;
-    justify-content: stretch;
+    width: 100%;
   }
   .result-head-actions > * {
     flex: 1 1 auto;
@@ -462,6 +492,7 @@ a:hover { text-decoration: underline; }
     font-size: 12px;
     white-space: nowrap;
     justify-content: center;
+    padding-inline: 8px;
   }
 }
 
@@ -1059,7 +1090,7 @@ a:hover { text-decoration: underline; }
 }
 
 /* Scale preview in new-card dialog */
-.scale-dialog-body { display: grid; gap: 12px; }
+.scale-dialog-body { display: flex; flex-direction: column; gap: 12px; }
 .scale-preview-list { display: grid; gap: 5px; }
 .scale-preview-row {
   display: flex; align-items: center; gap: 10px;
