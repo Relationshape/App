@@ -168,6 +168,10 @@ export function ProfileDetail() {
           <h2>{t('imports_section_title')}</h2>
         </header>
 
+        {allImports.length === 0 && (
+          <p className="muted small" data-testid="profile-no-imports">{t('profile_no_imports_yet')}</p>
+        )}
+
         {withAnswers.length > 0 && (
           <div data-testid="profile-imports">
             <h3 className="section-sub-head">{t('imports_with_answers_title')}</h3>

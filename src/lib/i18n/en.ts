@@ -137,6 +137,7 @@ export const EN = {
   btn_continue: 'Continue',
   btn_view: '📊 View',
   btn_share: '📤 Share',
+  btn_export_result: '📤 Export Result',
   confirm_delete_map: 'Delete this relationship map?',
 
   // New result
@@ -222,7 +223,9 @@ export const EN = {
   // Compare
   compare_title: '📊 Compare',
   compare_sub: 'Pick up to four results to overlay. Open a category for a per-item radar chart.',
-  compare_import_btn: 'Import result',
+  compare_import_btn: '📥 Import Result',
+  compare_no_imports_yet: 'You haven\'t imported any maps yet.',
+  profile_no_imports_yet: 'You haven\'t imported any maps yet.',
   compare_import_title: 'Import a result',
   compare_own_section: 'Your maps',
   compare_imported_section: 'Imported results',

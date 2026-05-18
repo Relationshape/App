@@ -398,6 +398,17 @@ a:hover { text-decoration: underline; }
 }
 .btn-ghost { background: transparent; border-color: transparent; color: var(--muted); }
 .btn-ghost:hover { color: var(--text); background: color-mix(in oklab, var(--surface-2) 80%, transparent); }
+.btn-outline {
+  background: transparent;
+  border-color: var(--primary);
+  color: var(--primary);
+  font-weight: 600;
+}
+.btn-outline:hover:not(:disabled) {
+  background: color-mix(in oklab, var(--primary) 12%, transparent);
+  border-color: var(--primary);
+  box-shadow: 0 0 14px rgba(185, 110, 255, 0.25);
+}
 .btn-danger { background: var(--red); color: white; border-color: transparent; }
 .btn-danger-ghost { background: transparent; color: var(--red); border-color: transparent; }
 .btn-danger-ghost:hover { background: color-mix(in oklab, var(--red) 10%, transparent); }
@@ -974,7 +985,7 @@ a:hover { text-decoration: underline; }
   text-align: center; line-height: 1.3;
 }
 .compare-row-unlock:hover { background: color-mix(in oklab, var(--c) 8%, transparent); }
-.compare-import-inline-btn { font-size: 12px !important; padding: 4px 10px !important; }
+.compare-import-inline-btn { font-size: 13px !important; padding: 7px 14px !important; }
 .pick-chip {
   --c: var(--primary);
   background: var(--surface);

@@ -67,11 +67,11 @@ export function ResultCard({ result, profile }: { result: Result; profile: Profi
           </button>
           <button
             type="button"
-            className="btn"
+            className="btn btn-outline"
             onClick={() => openShare(result.id)}
             data-testid={`result-share-${result.id}`}
           >
-            {t('btn_share')}
+            {t('btn_export_result')}
           </button>
           <button
             type="button"
