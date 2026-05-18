@@ -493,6 +493,8 @@ export const EN = {
   btn_hide_item: 'Hide this item',
   confirm_hide_item_title: 'Remove this item?',
   confirm_hide_item_body: 'Remove this item from this map? The item and its answer will be permanently deleted for this map.',
+  confirm_item_scale_edit_title: 'Edit individual scale?',
+  confirm_item_scale_edit_body: 'You are editing the scale of a single item. It may no longer match the scale used for other items, which can lead to inconsistencies in the results view. Continue anyway?',
   q_back_to_categories: '← Categories',
   q_mode_list: '📋 List',
   q_mode_single: '📱 Single',

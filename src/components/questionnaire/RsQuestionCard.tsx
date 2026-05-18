@@ -41,6 +41,8 @@ interface Props {
   /** When true, automatically opens the edit dialog once (used after creating a new custom item). */
   autoOpenEdit?: boolean
   onAutoOpenDone?: () => void
+  /** Ref set to true while a sub-dialog is open so parent modals don't close on interact-outside. */
+  blockCloseRef?: React.MutableRefObject<boolean> | undefined
 }
 
 export function RsQuestionCard({
@@ -57,6 +59,7 @@ export function RsQuestionCard({
   customItemDef,
   autoOpenEdit,
   onAutoOpenDone,
+  blockCloseRef,
 }: Props) {
   const storeSaveResult = useStore((s) => s.saveResult)
   const saveResult = onSave ?? storeSaveResult
@@ -79,7 +82,7 @@ export function RsQuestionCard({
 
   const displayName = cell?.customLabel || (isCustom ? item : getItemLabel(catId, item, getLang()))
 
-  function openEditDialog() {
+  function initEditDialog() {
     setPendingLabel(cell?.customLabel ?? '')
     setPendingScale(cell?.itemScale ? cell.itemScale.map((s) => ({ ...s })) : null)
     setPendingFormat(format)
@@ -88,12 +91,25 @@ export function RsQuestionCard({
     setEditOpen(true)
   }
 
+  async function openEditDialog() {
+    const confirmed = await dialog<boolean>({
+      title: t('confirm_item_scale_edit_title'),
+      body: () => <p>{t('confirm_item_scale_edit_body')}</p>,
+      actions: [
+        { label: t('btn_cancel'), kind: 'ghost', value: false },
+        { label: t('btn_continue'), kind: 'primary', value: true },
+      ],
+    })
+    if (!confirmed) return
+    initEditDialog()
+  }
+
   useEffect(() => {
     if (autoOpenEdit) {
-      openEditDialog()
+      initEditDialog()
       onAutoOpenDone?.()
     }
-  // openEditDialog reads from props/state captured at render time — stable enough for one-shot
+  // initEditDialog reads from props/state captured at render time — stable enough for one-shot
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoOpenEdit])
 
@@ -238,14 +254,20 @@ export function RsQuestionCard({
 
   async function hide() {
     if (!(await onBeforeMutate())) return
-    const confirmed = await dialog<boolean>({
-      title: t('confirm_hide_item_title'),
-      body: () => <p>{t('confirm_hide_item_body')}</p>,
-      actions: [
-        { label: t('btn_cancel'), kind: 'ghost', value: false },
-        { label: t('btn_delete'), kind: 'danger', value: true },
-      ],
-    })
+    if (blockCloseRef) blockCloseRef.current = true
+    let confirmed: boolean | null = false
+    try {
+      confirmed = await dialog<boolean>({
+        title: t('confirm_hide_item_title'),
+        body: () => <p>{t('confirm_hide_item_body')}</p>,
+        actions: [
+          { label: t('btn_cancel'), kind: 'ghost', value: false },
+          { label: t('btn_delete'), kind: 'danger', value: true },
+        ],
+      })
+    } finally {
+      if (blockCloseRef) blockCloseRef.current = false
+    }
     if (!confirmed) return
     const next = structuredClone(result)
     if (storeTemplateWarningDisabled) next.templateWarningDisabled = true
@@ -322,26 +344,6 @@ export function RsQuestionCard({
       >
         <div className="q-item-name">
           <strong>{displayName}</strong>
-          <div className="q-item-name-btns">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={openEditDialog}
-              data-testid={`item-edit-${catId}-${item}`}
-            >
-              {t('item_edit_scale')}
-            </Button>
-            {variant === 'list' && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={hide}
-                data-testid={`item-hide-${catId}-${item}`}
-              >
-                {t('btn_hide_item')}
-              </Button>
-            )}
-          </div>
         </div>
 
         {showGR && (
@@ -373,42 +375,57 @@ export function RsQuestionCard({
             />
           </div>
         ) : format === 'text' ? (
-          <>
-            <NonScaleTextAnswer cell={cell} onSave={saveNonScaleAnswer} />
-            {isCustom && !!cell?.textValue && (
-              <Button variant="ghost" size="sm" onClick={resetNonScaleAnswer} className="self-start mt-1">
-                {t('q_slider_reset')}
-              </Button>
-            )}
-          </>
+          <NonScaleTextAnswer cell={cell} onSave={saveNonScaleAnswer} />
         ) : format === 'single' || format === 'multi' ? (
-          <>
-            <NonScaleSelectionAnswer
-              format={format}
-              options={customItemDef?.options ?? []}
-              cell={cell}
-              onSave={saveNonScaleAnswer}
-            />
-            {isCustom && cell?.selectedValues !== undefined && cell.selectedValues.length > 0 && (
-              <Button variant="ghost" size="sm" onClick={resetNonScaleAnswer} className="self-start mt-1">
-                {t('q_slider_reset')}
-              </Button>
-            )}
-          </>
+          <NonScaleSelectionAnswer
+            format={format}
+            options={customItemDef?.options ?? []}
+            cell={cell}
+            onSave={saveNonScaleAnswer}
+          />
         ) : (
-          <>
-            <NonScaleRankingAnswer
-              options={customItemDef?.options ?? []}
-              cell={cell}
-              onSave={saveNonScaleAnswer}
-            />
-            {isCustom && cell?.rankingValues !== undefined && cell.rankingValues.length > 0 && (
-              <Button variant="ghost" size="sm" onClick={resetNonScaleAnswer} className="self-start mt-1">
-                {t('q_slider_reset')}
-              </Button>
-            )}
-          </>
+          <NonScaleRankingAnswer
+            options={customItemDef?.options ?? []}
+            cell={cell}
+            onSave={saveNonScaleAnswer}
+          />
         )}
+
+        <div className="q-item-actions">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => { void openEditDialog() }}
+            data-testid={`item-edit-${catId}-${item}`}
+          >
+            {t('item_edit_scale')}
+          </Button>
+          {variant === 'list' && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={hide}
+              data-testid={`item-hide-${catId}-${item}`}
+            >
+              {t('btn_hide_item')}
+            </Button>
+          )}
+          {isCustom && format === 'text' && !!cell?.textValue && (
+            <Button variant="ghost" size="sm" onClick={resetNonScaleAnswer} data-testid={`item-reset-${catId}-${item}`}>
+              {t('q_slider_reset')}
+            </Button>
+          )}
+          {isCustom && (format === 'single' || format === 'multi') && (cell?.selectedValues?.length ?? 0) > 0 && (
+            <Button variant="ghost" size="sm" onClick={resetNonScaleAnswer} data-testid={`item-reset-${catId}-${item}`}>
+              {t('q_slider_reset')}
+            </Button>
+          )}
+          {isCustom && format === 'ranking' && (cell?.rankingValues?.length ?? 0) > 0 && (
+            <Button variant="ghost" size="sm" onClick={resetNonScaleAnswer} data-testid={`item-reset-${catId}-${item}`}>
+              {t('q_slider_reset')}
+            </Button>
+          )}
+        </div>
 
         <textarea
           placeholder={t('item_note_placeholder')}
@@ -572,42 +589,28 @@ function NonScaleRankingAnswer({ options, cell, onSave }: {
   cell: AnswerCell | undefined
   onSave: (p: Partial<AnswerCell>) => void
 }) {
-  const ranked = cell?.rankingValues ?? []
-  const unranked = options.filter((o) => !ranked.includes(o))
+  // Show all items ranked from the start in their defined order.
+  // saved = explicitly ranked; append any options not yet in the saved list.
+  const saved = cell?.rankingValues ?? []
+  const effective = [...saved, ...options.filter((o) => !saved.includes(o))]
 
   function move(index: number, dir: 1 | -1) {
-    const next = [...ranked]
+    const next = [...effective]
     const target = index + dir
     if (target < 0 || target >= next.length) return
     ;[next[index], next[target]] = [next[target]!, next[index]!]
     onSave({ rankingValues: next })
   }
 
-  function addToRanking(opt: string) {
-    onSave({ rankingValues: [...ranked, opt] })
-  }
-
-  function removeFromRanking(opt: string) {
-    onSave({ rankingValues: ranked.filter((o) => o !== opt) })
-  }
-
   return (
     <div className="q-non-scale-wrap">
       <div className="q-ranking-list">
-        {ranked.map((opt, i) => (
+        {effective.map((opt, i) => (
           <div key={opt} className="q-ranking-row">
             <span className="q-ranking-pos">{i + 1}.</span>
             <span className="q-ranking-label">{opt}</span>
             <button type="button" className="btn-icon" onClick={() => move(i, -1)} disabled={i === 0} aria-label="Up">↑</button>
-            <button type="button" className="btn-icon" onClick={() => move(i, 1)} disabled={i === ranked.length - 1} aria-label="Down">↓</button>
-            <button type="button" className="btn-icon" onClick={() => removeFromRanking(opt)} aria-label="Remove">✕</button>
-          </div>
-        ))}
-        {unranked.map((opt) => (
-          <div key={opt} className="q-ranking-row q-ranking-unranked">
-            <span className="q-ranking-pos">—</span>
-            <span className="q-ranking-label">{opt}</span>
-            <button type="button" className="btn-icon" onClick={() => addToRanking(opt)} aria-label="Add to ranking">+</button>
+            <button type="button" className="btn-icon" onClick={() => move(i, 1)} disabled={i === effective.length - 1} aria-label="Down">↓</button>
           </div>
         ))}
       </div>

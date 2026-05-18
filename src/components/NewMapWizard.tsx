@@ -2,7 +2,7 @@
 // 3 steps: map name → category picker → scale confirm/customize.
 // Shown in CategoryOverview when resultId === 'new'.
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription,
@@ -12,9 +12,17 @@ import { CATEGORIES, CATEGORY_GROUPS } from '@/lib/data/data'
 import { useStore } from '@/lib/storage/store'
 import { ScaleEditor } from '@/components/ScaleEditor'
 import { localizeStep } from '@/lib/data/locale'
+import { dialog } from '@/lib/dialog/dialog'
+import {
+  QUICK_EMOJIS, makeCustomCatId, nextCustomCatColor,
+} from '@/lib/data/customCategories'
+import {
+  applyPendingItems, FormatPickerInline, OptionsInputInline, ScalePickerInline,
+  type PendingCustomItem, type PendingItemsByCat,
+} from '@/components/RsCategoryPicker'
 import { t, getLang } from '@/lib/i18n/i18n'
 import type { MutableScaleStep } from '@/lib/data/types'
-import type { Import, Profile } from '@/lib/storage/types'
+import type { CustomCategoryDef, CustomItemFormat, Import, Profile } from '@/lib/storage/types'
 
 interface Props {
   profile: Profile
@@ -59,6 +67,17 @@ export function NewMapWizard({ profile }: Props) {
   const [customizeScale, setCustomizeScale] = useState(false)
   const [templateSource, setTemplateSource] = useState<TemplateSource | null>(null)
 
+  // Custom category sub-wizard (shown within step 1)
+  type CatSubStep = 'list' | 'create' | 'items'
+  const [catSubStep, setCatSubStep] = useState<CatSubStep>('list')
+  const [createTitle, setCreateTitle] = useState('')
+  const [createIcon, setCreateIcon] = useState(QUICK_EMOJIS[0]!)
+  const [pendingCatMeta, setPendingCatMeta] = useState<{ title: string; icon: string } | null>(null)
+  const [pendingItems, setPendingItems] = useState<PendingCustomItem[]>([])
+  const [customCats, setCustomCats] = useState<CustomCategoryDef[]>([])
+  const [itemsByCat, setItemsByCat] = useState<PendingItemsByCat>({})
+  const addingItemRef = useRef(false)
+
   function onCancel() {
     navigate(`/profile/${profile.id}`)
   }
@@ -98,19 +117,21 @@ export function NewMapWizard({ profile }: Props) {
         ? Array.from(checkedIds)
         : CATEGORIES.map((c) => c.id)
 
-    saveResult({
+    const base = {
       id,
       profileId: profile.id,
       subject: subject.trim() || profile.name,
       subjectColor: profile.color,
       subjectEmoji: profile.emoji,
-      answers: {},
+      answers: {} as Record<string, never>,
       enabledCategories,
       ...(customizeScale ? { scale } : {}),
-      progress: { mode: 'list' },
+      ...(customCats.length > 0 ? { customCategories: customCats } : {}),
+      progress: { mode: 'list' as const },
       createdAt: Date.now(),
       updatedAt: Date.now(),
-    })
+    }
+    saveResult(applyPendingItems(base, itemsByCat))
     navigate(`/q-categories/${profile.id}/${id}`, { replace: true })
   }
 
@@ -126,6 +147,113 @@ export function NewMapWizard({ profile }: Props) {
   function selectAllAndContinue() {
     setCheckedIds(new Set(CATEGORIES.map((c) => c.id)))
     setStep(2)
+  }
+
+  function startCreateCat() {
+    setCreateTitle('')
+    setCreateIcon(QUICK_EMOJIS[0]!)
+    setCatSubStep('create')
+  }
+
+  function goToItemsStep() {
+    if (!createTitle.trim()) return
+    setPendingCatMeta({ title: createTitle.trim(), icon: createIcon })
+    setPendingItems([])
+    setCatSubStep('items')
+  }
+
+  async function addItemFlow() {
+    if (addingItemRef.current) return
+    addingItemRef.current = true
+    try {
+      const name = await dialog<string | null>({
+        title: t('q_add_custom_title'),
+        dismissable: false,
+        body: (close) => {
+          let value = ''
+          const submit = () => close(value.trim() || null)
+          return (
+            <div className="flex flex-col gap-2">
+              <input
+                autoFocus
+                placeholder={t('q_add_custom_placeholder')}
+                onChange={(e) => { value = e.target.value }}
+                onKeyDown={(e) => { if (e.key === 'Enter') submit() }}
+                className="w-full rounded border border-line px-2 py-1"
+              />
+              <button type="button" onClick={submit} className="self-end px-3 py-1 rounded bg-accent text-on-accent">
+                {t('btn_ok')}
+              </button>
+            </div>
+          )
+        },
+        actions: [{ label: t('btn_cancel'), kind: 'ghost', value: null }],
+      })
+      if (!name) return
+
+      const format = await dialog<CustomItemFormat | false>({
+        title: t('q_add_custom_format_title'),
+        dismissable: false,
+        body: (close) => <FormatPickerInline onClose={close} />,
+        actions: [],
+      })
+      if (!format) return
+
+      let options: string[] | undefined
+      if (format === 'single' || format === 'multi' || format === 'ranking') {
+        const rawOptions = await dialog<string[] | false>({
+          title: t('q_add_custom_options_title'),
+          dismissable: false,
+          body: (close) => <OptionsInputInline onClose={close} />,
+          actions: [],
+        })
+        if (rawOptions === null || rawOptions === false) return
+        options = rawOptions as string[]
+      }
+
+      let itemScale: MutableScaleStep[] | undefined
+      if (format === 'scale') {
+        const scaleResult = await dialog<MutableScaleStep[] | null | false>({
+          title: t('q_add_custom_scale_title'),
+          dismissable: false,
+          body: (close) => <ScalePickerInline defaultScale={scale} onClose={close} />,
+          actions: [],
+        })
+        if (scaleResult === false || scaleResult === null) {
+          if (scaleResult === false) return
+        } else {
+          itemScale = scaleResult as MutableScaleStep[]
+        }
+      }
+
+      const item: PendingCustomItem = {
+        name,
+        format,
+        ...(options !== undefined ? { options } : {}),
+        ...(itemScale !== undefined ? { itemScale } : {}),
+      }
+      setPendingItems((prev) => [...prev, item])
+    } finally {
+      addingItemRef.current = false
+    }
+  }
+
+  function confirmCustomCat() {
+    if (!pendingCatMeta || pendingItems.length === 0) return
+    const newId = makeCustomCatId()
+    const newColor = nextCustomCatColor(customCats)
+    const newDef: CustomCategoryDef = {
+      id: newId,
+      title: pendingCatMeta.title,
+      icon: pendingCatMeta.icon,
+      color: newColor,
+    }
+    setCustomCats((prev) => [...prev, newDef])
+    setCheckedIds((prev) => { const next = new Set(prev); next.add(newId); return next })
+    setItemsByCat((prev) => ({ ...prev, [newId]: pendingItems }))
+    setPendingCatMeta(null)
+    setPendingItems([])
+    setCatSubStep('list')
   }
 
   return (
@@ -274,7 +402,7 @@ export function NewMapWizard({ profile }: Props) {
           </>
         )}
 
-        {step === 1 && (
+        {step === 1 && catSubStep === 'list' && (
           <>
             <DialogHeader>
               <DialogTitle>{t('onboarding_title')}</DialogTitle>
@@ -319,6 +447,41 @@ export function NewMapWizard({ profile }: Props) {
                   )
                 })}
               </div>
+              <div className="cat-picker-custom-section">
+                <h3 className="cat-picker-group-title">{t('cat_picker_custom_section')}</h3>
+                {customCats.length > 0 && (
+                  <div className="cat-picker-items">
+                    {customCats.map((cat) => {
+                      const isChecked = checkedIds.has(cat.id)
+                      return (
+                        <label
+                          key={cat.id}
+                          htmlFor={`nmw-cc-${cat.id}`}
+                          className={`cat-picker-item${isChecked ? ' is-checked' : ''}`}
+                        >
+                          <input
+                            type="checkbox"
+                            id={`nmw-cc-${cat.id}`}
+                            checked={isChecked}
+                            onChange={() => toggleCategory(cat.id)}
+                          />
+                          <span className="cat-picker-icon" aria-hidden>{cat.icon}</span>
+                          <span className="cat-picker-label">{cat.title}</span>
+                          <span className="cat-picker-check" aria-hidden>{isChecked ? '✓' : ''}</span>
+                        </label>
+                      )
+                    })}
+                  </div>
+                )}
+                <button
+                  type="button"
+                  className="cat-picker-create-btn"
+                  onClick={startCreateCat}
+                  data-testid="wizard-cat-create-btn"
+                >
+                  + {t('cat_picker_create_btn')}
+                </button>
+              </div>
             </div>
             <div className="rs-modal-actions">
               <Button variant="ghost" onClick={() => setStep(0)} data-testid="wizard-cat-back">
@@ -333,6 +496,97 @@ export function NewMapWizard({ profile }: Props) {
                 data-testid="wizard-cat-next"
               >
                 {t('btn_start_map')}
+              </Button>
+            </div>
+          </>
+        )}
+
+        {step === 1 && catSubStep === 'create' && (
+          <>
+            <DialogHeader>
+              <DialogTitle>{t('cat_picker_create_btn')}</DialogTitle>
+            </DialogHeader>
+            <div className="flex-1 overflow-y-auto min-h-0 flex flex-col gap-4">
+              <div className="flex flex-col gap-1">
+                <label className="text-sm font-medium">{t('cat_create_title_label')}</label>
+                <input
+                  autoFocus
+                  type="text"
+                  value={createTitle}
+                  onChange={(e) => setCreateTitle(e.target.value)}
+                  placeholder={t('cat_create_title_placeholder') as string}
+                  className="w-full rounded border border-line px-2 py-1"
+                  data-testid="wizard-cat-create-title"
+                  onKeyDown={(e) => { if (e.key === 'Enter' && createTitle.trim()) goToItemsStep() }}
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-sm font-medium">{t('cat_create_emoji_label')}</label>
+                <div className="cat-wizard-emoji-grid">
+                  {QUICK_EMOJIS.map((emoji) => (
+                    <button
+                      key={emoji}
+                      type="button"
+                      className={`cat-wizard-emoji-btn${createIcon === emoji ? ' is-selected' : ''}`}
+                      onClick={() => setCreateIcon(emoji)}
+                    >
+                      {emoji}
+                    </button>
+                  ))}
+                </div>
+                <input
+                  type="text"
+                  value={createIcon}
+                  onChange={(e) => setCreateIcon(e.target.value || QUICK_EMOJIS[0]!)}
+                  placeholder="✶"
+                  className="w-20 rounded border border-line px-2 py-1 mt-2 text-center"
+                  maxLength={4}
+                />
+              </div>
+            </div>
+            <div className="rs-modal-actions">
+              <Button variant="ghost" onClick={() => setCatSubStep('list')} data-testid="wizard-cat-create-back">
+                {t('btn_back')}
+              </Button>
+              <Button onClick={goToItemsStep} disabled={!createTitle.trim()} data-testid="wizard-cat-create-next">
+                {t('cat_create_next')}
+              </Button>
+            </div>
+          </>
+        )}
+
+        {step === 1 && catSubStep === 'items' && pendingCatMeta && (
+          <>
+            <DialogHeader>
+              <DialogTitle>{t('cat_items_step_title')}: {pendingCatMeta.title}</DialogTitle>
+            </DialogHeader>
+            <div className="flex-1 overflow-y-auto min-h-0 flex flex-col gap-3">
+              <p className="muted small">{t('cat_items_step_sub')}</p>
+              {pendingItems.length > 0 && (
+                <div className="cat-wizard-items-list">
+                  {pendingItems.map((item, idx) => (
+                    <div key={`${item.name}-${idx}`} className="cat-wizard-item-row">
+                      <span className="flex-1 text-sm">{item.name}</span>
+                      <span className="cat-wizard-item-format">{item.format}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <button
+                type="button"
+                className="cat-picker-create-btn"
+                onClick={() => { void addItemFlow() }}
+                data-testid="wizard-cat-items-add"
+              >
+                + {t('cat_items_add_btn')}
+              </button>
+            </div>
+            <div className="rs-modal-actions">
+              <Button variant="ghost" onClick={() => setCatSubStep('create')} data-testid="wizard-cat-items-back">
+                {t('btn_back')}
+              </Button>
+              <Button onClick={confirmCustomCat} disabled={pendingItems.length === 0} data-testid="wizard-cat-items-done">
+                {t('cat_items_done_btn')}
               </Button>
             </div>
           </>

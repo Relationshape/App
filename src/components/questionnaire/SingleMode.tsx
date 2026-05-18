@@ -4,7 +4,7 @@
 // (.q-card / .q-card-cat / .q-card-item / .q-card-slider / .q-card-note /
 // .q-card-actions / .q-card-progress). Quick task 260516-w94.
 
-import { useReducer, useMemo, useState, useRef } from 'react'
+import { useReducer, useMemo, useState, useRef, useEffect } from 'react'
 import { useDrag } from '@use-gesture/react'
 import { useStore } from '@/lib/storage/store'
 import { useTemplateWarning } from '@/lib/hooks/useTemplateWarning'
@@ -26,6 +26,7 @@ import { resolveAnyCat } from '@/lib/data/customCategories'
 import { getItemLabel } from '@/lib/data/locale'
 import type { Result, Profile, AnswerCell } from '@/lib/storage/types'
 import { t, getLang } from '@/lib/i18n/i18n'
+import { dialog } from '@/lib/dialog/dialog'
 
 type Dir = 'left' | 'right'
 interface State { cursor: number; dir: Dir }
@@ -73,6 +74,20 @@ export function SingleMode({ result, profile }: Props) {
   const [dragX, setDragX] = useState(0)
   const [swipeClass, setSwipeClass] = useState<string | null>(null)
   const swipingRef = useRef(false)
+  const [enterClass, setEnterClass] = useState<string | null>(null)
+
+  // Directional entering: briefly apply an offset class, then remove it so the CSS
+  // transition carries the card to its final .in position.
+  useEffect(() => {
+    if (reduced) return
+    const cls = state.dir === 'left' ? 'entering-right' : 'entering-left'
+    setEnterClass(cls)
+    const id = requestAnimationFrame(() =>
+      requestAnimationFrame(() => setEnterClass(null))
+    )
+    return () => cancelAnimationFrame(id)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.cursor])
 
   const cur = items[state.cursor]
   const isDone = state.cursor >= items.length
@@ -86,38 +101,39 @@ export function SingleMode({ result, profile }: Props) {
   }
 
   const bind = useDrag(
-    ({ movement: [mx], last }) => {
+    ({ movement: [mx], velocity: [vx], last }) => {
       if (swipingRef.current) return
       if (!last) {
         if (!reduced) setDragX(mx)
         return
       }
       setDragX(0)
-      const threshold = 40
+      // Trigger on distance OR fast flick velocity
+      const triggered = Math.abs(mx) > 60 || Math.abs(vx) > 0.4
       if (reduced) {
-        if (mx < -threshold) void advance(+1, 'left')
-        else if (mx > threshold) void advance(-1, 'right')
+        if (triggered && mx < 0) void advance(+1, 'left')
+        else if (triggered && mx > 0) void advance(-1, 'right')
         return
       }
-      if (mx < -threshold) {
+      if (triggered && mx < 0) {
         swipingRef.current = true
         setSwipeClass('swipe-left')
         setTimeout(() => {
           setSwipeClass(null)
           swipingRef.current = false
           void advance(+1, 'left')
-        }, 180)
-      } else if (mx > threshold) {
+        }, 260)
+      } else if (triggered && mx > 0) {
         swipingRef.current = true
         setSwipeClass('swipe-right')
         setTimeout(() => {
           setSwipeClass(null)
           swipingRef.current = false
           void advance(-1, 'right')
-        }, 180)
+        }, 260)
       }
     },
-    { axis: 'x', pointer: { touch: true }, filterTaps: true, rubberband: reduced ? 0 : 0.15 },
+    { axis: 'x', pointer: { touch: true }, filterTaps: true, rubberband: reduced ? 0 : 0.2 },
   )
 
   const keyHandlers = useMemo(() => ({
@@ -200,7 +216,16 @@ export function SingleMode({ result, profile }: Props) {
     saveResult(next)
   }
 
-  function openEditScaleDialog() {
+  async function openEditScaleDialog() {
+    const confirmed = await dialog<boolean>({
+      title: t('confirm_item_scale_edit_title'),
+      body: () => <p>{t('confirm_item_scale_edit_body')}</p>,
+      actions: [
+        { label: t('btn_cancel'), kind: 'ghost', value: false },
+        { label: t('btn_continue'), kind: 'primary', value: true },
+      ],
+    })
+    if (!confirmed) return
     setPendingLabel(cell?.customLabel ?? '')
     setPendingScale(cell?.itemScale ? cell.itemScale.map((s) => ({ ...s })) : null)
     setEditScaleOpen(true)
@@ -245,8 +270,7 @@ export function SingleMode({ result, profile }: Props) {
         </p>
         <div className="q-stack">
           <article
-            className={`q-card in single-card${swipeClass ? ` ${swipeClass}` : dragX !== 0 ? ' dragging' : ''}`}
-            data-state={reduced ? undefined : `entering-${state.dir}`}
+            className={`q-card${enterClass ? ` ${enterClass}` : ' in'} single-card${swipeClass ? ` ${swipeClass}` : dragX !== 0 ? ' dragging' : ''}`}
             data-testid="single-card"
             style={{
               ...cardStyle,
@@ -263,7 +287,7 @@ export function SingleMode({ result, profile }: Props) {
                 variant="ghost"
                 size="sm"
                 className="item-scale-btn"
-                onClick={openEditScaleDialog}
+                onClick={() => { void openEditScaleDialog() }}
                 data-testid={`item-edit-scale-${cur.catId}-${cur.item}`}
               >
                 {t('item_edit_scale')}

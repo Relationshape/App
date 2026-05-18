@@ -18,10 +18,10 @@ import { dialog } from '@/lib/dialog/dialog'
 import { ScaleEditor } from '@/components/ScaleEditor'
 import { useStore } from '@/lib/storage/store'
 import { t, getLang } from '@/lib/i18n/i18n'
-import type { CustomCategoryDef, CustomItemFormat, Result, Profile } from '@/lib/storage/types'
+import type { CustomCategoryDef, CustomItemFormat, CustomItemDef, AnswerCell, Result, Profile } from '@/lib/storage/types'
 import type { MutableScaleStep } from '@/lib/data/types'
 
-interface PendingCustomItem {
+export interface PendingCustomItem {
   name: string
   format: CustomItemFormat
   options?: string[]
@@ -29,6 +29,34 @@ interface PendingCustomItem {
 }
 
 type WizardStep = 'list' | 'create' | 'items'
+
+export interface PendingItemsByCat {
+  [catId: string]: PendingCustomItem[]
+}
+
+/** Apply pending custom items (from a wizard flow) to a result before saving. */
+export function applyPendingItems(result: Result, itemsByCat: PendingItemsByCat): Result {
+  if (Object.keys(itemsByCat).length === 0) return result
+  const next = structuredClone(result)
+  for (const [catId, items] of Object.entries(itemsByCat)) {
+    if (items.length === 0) continue
+    const slot = next.answers[catId] ?? {}
+    const customs: Record<string, AnswerCell> = { ...(slot.__custom ?? {}) }
+    const defs: Record<string, CustomItemDef> = { ...((next.customItemDefs ?? {})[catId] ?? {}) }
+    for (const item of items) {
+      const cell: AnswerCell = { scale: 'open' }
+      if (item.format === 'scale' && item.itemScale) cell.itemScale = item.itemScale
+      customs[item.name] = cell
+      const def: CustomItemDef = { format: item.format }
+      if (item.options) def.options = item.options
+      defs[item.name] = def
+    }
+    slot.__custom = customs
+    next.answers[catId] = slot as Result['answers'][string]
+    next.customItemDefs = { ...(next.customItemDefs ?? {}), [catId]: defs }
+  }
+  return next
+}
 
 interface Props {
   open: boolean
@@ -40,6 +68,7 @@ interface Props {
     mergedIds: string[],
     resultCustomCats: CustomCategoryDef[],
     profileCustomCats: CustomCategoryDef[],
+    pendingItemsByCat: PendingItemsByCat,
   ) => void
 }
 
@@ -59,6 +88,8 @@ export function RsCategoryPicker({ open, onOpenChange, existingIds, result, prof
   // Pending new custom cats (not yet submitted)
   const [pendingNewResultCats, setPendingNewResultCats] = useState<CustomCategoryDef[]>([])
   const [pendingNewProfileCats, setPendingNewProfileCats] = useState<CustomCategoryDef[]>([])
+  // Items added per new custom category, keyed by the generated cat id
+  const [pendingItemsByCat, setPendingItemsByCat] = useState<PendingItemsByCat>({})
 
   // Wizard form state (for 'create' step)
   const [createTitle, setCreateTitle] = useState('')
@@ -77,6 +108,7 @@ export function RsCategoryPicker({ open, onOpenChange, existingIds, result, prof
       setPendingItems([])
       setPendingNewResultCats([])
       setPendingNewProfileCats([])
+      setPendingItemsByCat({})
       setCreateTitle('')
       setCreateIcon(QUICK_EMOJIS[0]!)
       setCreateScope('result')
@@ -103,7 +135,7 @@ export function RsCategoryPicker({ open, onOpenChange, existingIds, result, prof
     if (!canSubmit) return
     const mergedResultCats = [...existingResultCats, ...pendingNewResultCats]
     const mergedProfileCats = [...existingProfileCats, ...pendingNewProfileCats]
-    onSubmit(Array.from(checkedIds), mergedResultCats, mergedProfileCats)
+    onSubmit(Array.from(checkedIds), mergedResultCats, mergedProfileCats, pendingItemsByCat)
     onOpenChange(false)
   }
 
@@ -235,6 +267,10 @@ export function RsCategoryPicker({ open, onOpenChange, existingIds, result, prof
       next.add(newId)
       return next
     })
+
+    if (pendingItems.length > 0) {
+      setPendingItemsByCat((prev) => ({ ...prev, [newId]: pendingItems }))
+    }
 
     setPendingCat(null)
     setPendingItems([])
@@ -537,9 +573,9 @@ export function RsCategoryPicker({ open, onOpenChange, existingIds, result, prof
   )
 }
 
-// ── Inline helpers (not exported from CategoryModal) ──────────────────────────
+// ── Inline helpers ────────────────────────────────────────────────────────────
 
-function FormatPickerInline({ onClose }: { onClose: (v: CustomItemFormat | false) => void }) {
+export function FormatPickerInline({ onClose }: { onClose: (v: CustomItemFormat | false) => void }) {
   const formats: { key: CustomItemFormat; labelKey: 'q_format_scale' | 'q_format_text' | 'q_format_single' | 'q_format_multi' | 'q_format_ranking'; descKey: 'q_format_scale_desc' | 'q_format_text_desc' | 'q_format_single_desc' | 'q_format_multi_desc' | 'q_format_ranking_desc' }[] = [
     { key: 'scale', labelKey: 'q_format_scale', descKey: 'q_format_scale_desc' },
     { key: 'text', labelKey: 'q_format_text', descKey: 'q_format_text_desc' },
@@ -569,7 +605,7 @@ function FormatPickerInline({ onClose }: { onClose: (v: CustomItemFormat | false
   )
 }
 
-function OptionsInputInline({ onClose }: { onClose: (v: string[] | false) => void }) {
+export function OptionsInputInline({ onClose }: { onClose: (v: string[] | false) => void }) {
   const [text, setText] = useState('')
   const [error, setError] = useState(false)
 
@@ -602,7 +638,7 @@ function OptionsInputInline({ onClose }: { onClose: (v: string[] | false) => voi
   )
 }
 
-function ScalePickerInline({
+export function ScalePickerInline({
   defaultScale,
   onClose,
 }: {

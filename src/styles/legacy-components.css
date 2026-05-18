@@ -5,6 +5,11 @@
 html, body { margin: 0; padding: 0; }
 html { overflow-x: hidden; }
 @media (min-width: 541px) { html { scrollbar-gutter: stable; } }
+/* background-attachment:fixed creates a GPU compositing layer that causes black
+   screenshots on Android Chrome. Switch to scroll on touch-only devices. */
+@media (hover: none) and (pointer: coarse) {
+  body, body::before { background-attachment: scroll; }
+}
 
 body {
   font-family: var(--font-sans);
@@ -264,7 +269,7 @@ a:hover { text-decoration: underline; }
     padding-top: 12px; margin-top: 12px;
   }
   /* Remove nested scroll — parent modal body now scrolls */
-  .onboarding-body { max-height: none; overflow: visible; }
+  .rs-modal-card .onboarding-body { max-height: none; overflow: visible; }
   /* Questionnaire header — compact layout */
   .q-head > .icon-only { display: none; }
   .q-mode-switch .btn { padding: 5px 8px; font-size: 12px; }
@@ -1208,10 +1213,13 @@ a:hover { text-decoration: underline; }
   display: grid; gap: 14px;
   position: absolute; inset: 0;
   transform: translateY(8px) scale(.98); opacity: 0;
-  transition: transform .25s cubic-bezier(.2,.7,.3,1.1), opacity .25s ease;
+  transition: transform .26s cubic-bezier(.2,.7,.3,1.1), opacity .26s ease;
   touch-action: pan-y; user-select: none; z-index: 2;
 }
 .q-card.in { transform: none; opacity: 1; }
+/* Directional entering: offset applied instantly (no transition), then class removed → CSS transition runs */
+.q-card.entering-right { transform: translate(70px, 0) scale(.96); opacity: 0; transition: none; }
+.q-card.entering-left  { transform: translate(-70px, 0) scale(.96); opacity: 0; transition: none; }
 .q-card.is-peek { transform: translateY(16px) scale(.94); opacity: .3; pointer-events: none; z-index: 1; filter: blur(1px); }
 .q-card.swipe-left  { transform: translate(-120%, 40px) rotate(-14deg) !important; opacity: 0 !important; }
 .q-card.swipe-right { transform: translate(120%,  40px) rotate( 14deg) !important; opacity: 0 !important; }
@@ -2090,8 +2098,8 @@ a:hover { text-decoration: underline; }
   }
 
   /* Edit-tab items: tighten the action buttons so they don't overflow */
-  .cat-modal-content .q-item-name-btns .btn,
-  .cat-modal-content .q-item-name-btns button { font-size: 11.5px; padding: 3px 7px; min-width: 0; }
+  .cat-modal-content .q-item-actions .btn,
+  .cat-modal-content .q-item-actions button { font-size: 11.5px; padding: 3px 7px; min-width: 0; }
 }
 
 /* Edit items in modal */
@@ -3385,6 +3393,7 @@ button.rs-tile:hover {
 
 /* Non-scale answer inputs */
 .q-non-scale-wrap { padding: 4px 0 8px; grid-column: 1 / -1; }
+.q-item-actions { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 4px; margin-top: 2px; }
 .q-option-pills { display: flex; flex-wrap: wrap; gap: 6px; padding: 2px 0; }
 .q-option-pill {
   padding: 5px 14px; border-radius: 999px; font: inherit; font-size: 13px; cursor: pointer;
