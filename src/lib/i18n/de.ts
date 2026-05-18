@@ -624,4 +624,8 @@ export const DE: Record<TranslationKey, string> = {
   q_add_custom_options_min: 'Bitte mindestens 2 Optionen eingeben.',
   q_text_answer_placeholder: 'Deine Antwort…',
   item_rename_btn: '✏️ Umbenennen',
+  q_edit_format_section: 'Antwortformat',
+  q_edit_format_change_warn: 'Das Format zu ändern löscht die bestehende Antwort für dieses Element.',
+  q_edit_format_options_label: 'Optionen (eine pro Zeile, min. 2)',
+  q_edit_format_options_min: 'Bitte mindestens 2 Optionen eingeben.',
 }

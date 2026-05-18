@@ -605,6 +605,10 @@ export const EN = {
   q_add_custom_options_min: 'Please enter at least 2 options.',
   q_text_answer_placeholder: 'Your answer…',
   item_rename_btn: '✏️ Rename',
+  q_edit_format_section: 'Answer format',
+  q_edit_format_change_warn: 'Changing the format will delete any existing answer for this item.',
+  q_edit_format_options_label: 'Options (one per line, min. 2)',
+  q_edit_format_options_min: 'Please enter at least 2 options.',
 } as const
 
 export type TranslationKey = keyof typeof EN
