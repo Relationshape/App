@@ -9,7 +9,7 @@ import { getItemLabel, localizeStep } from '@/lib/data/locale'
 import { scaleMaxValue, closestScaleEntry } from '@/lib/charts/math'
 import type { ChartDataset } from './types'
 import type { AnswerCell } from '@/lib/storage/types'
-import { getLang } from '@/lib/i18n/i18n'
+import { getLang, t } from '@/lib/i18n/i18n'
 
 interface Props { datasets: readonly ChartDataset[]; catId: string }
 
@@ -63,6 +63,11 @@ export function CategoryBars({ datasets, catId }: Props) {
 
   return (
     <div className="rs-bars" data-testid={`category-bars-${catId}`}>
+      {items.length === 0 && nonScaleItems.length === 0 && (
+        <p className="muted small text-center py-4" data-testid={`cat-no-answers-bars-${catId}`}>
+          {t('cat_no_answers')}
+        </p>
+      )}
       {items.map((displayItem) => {
         const isCustom = displayItem.startsWith('✶ ')
         const key = isCustom ? displayItem.slice(2) : displayItem

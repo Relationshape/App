@@ -225,6 +225,7 @@ export const EN = {
   compare_sub: 'Pick up to four results to overlay. Open a category for a per-item radar chart.',
   compare_import_btn: '📥 Import Result',
   compare_no_imports_yet: 'You haven\'t imported any maps yet.',
+  cat_no_answers: 'No answers have been saved for this category yet.',
   profile_no_imports_yet: 'You haven\'t imported any maps yet.',
   compare_import_title: 'Import a result',
   compare_own_section: 'Your maps',

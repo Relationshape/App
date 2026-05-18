@@ -237,6 +237,7 @@ export const DE: Record<TranslationKey, string> = {
     'Wähle bis zu vier Ergebnisse zum Überlagern aus. Öffne eine Kategorie für ein Netzdiagramm.',
   compare_import_btn: '📥 Ergebnis Importieren',
   compare_no_imports_yet: 'Du hast noch keine Beziehungskarten importiert.',
+  cat_no_answers: 'Für diese Kategorie wurden noch keine Antworten gespeichert.',
   profile_no_imports_yet: 'Du hast noch keine Beziehungskarten importiert.',
   compare_import_title: 'Ergebnis importieren',
   compare_own_section: 'Eigene Karten',
