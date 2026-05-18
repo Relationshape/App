@@ -73,7 +73,6 @@ export function SingleMode({ result, profile }: Props) {
   const swipingRef = useRef(false)
 
   const cur = items[state.cursor]
-  const peekNext = items[state.cursor + 1]
   const isDone = state.cursor >= items.length
 
   async function advance(delta: 1 | -1, dir: Dir) {
@@ -243,16 +242,7 @@ export function SingleMode({ result, profile }: Props) {
           {coarse ? t('q_single_hint_mobile') : t('q_single_hint_desktop')}
         </p>
         <div className="q-stack">
-          {peekNext && !reduced && (
-            <article
-              className="q-card is-peek"
-              aria-hidden
-              data-testid="single-peek"
-              style={cardStyle}
-            >
-              <h1 className="q-card-item">{peekNext.item}</h1>
-            </article>
-          )}
+
           <article
             className={`q-card in single-card${swipeClass ? ` ${swipeClass}` : dragX !== 0 ? ' dragging' : ''}`}
             data-state={reduced ? undefined : `entering-${state.dir}`}
