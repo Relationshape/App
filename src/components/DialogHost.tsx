@@ -17,14 +17,15 @@ export function DialogHost() {
     >
       <DialogContent
         data-testid="dialog-host"
+        className="max-h-[min(92vh,92svh)] flex flex-col overflow-hidden"
         {...(req.dismissable === false ? { onInteractOutside: (e: Event) => e.preventDefault() } : {})}
       >
         {req.title && (
-          <DialogHeader>
+          <DialogHeader className="flex-shrink-0">
             <DialogTitle>{req.title}</DialogTitle>
           </DialogHeader>
         )}
-        <div>{typeof req.body === 'function' ? req.body(close) : req.body}</div>
+        <div className="flex-1 overflow-y-auto min-h-0">{typeof req.body === 'function' ? req.body(close) : req.body}</div>
         {req.actions.length > 0 && (
           <DialogFooter>
             {req.actions.map((a, i) => (

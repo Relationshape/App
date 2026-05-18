@@ -41,6 +41,8 @@ interface Props {
   /** When true, automatically opens the edit dialog once (used after creating a new custom item). */
   autoOpenEdit?: boolean
   onAutoOpenDone?: () => void
+  /** Ref set to true while a sub-dialog is open so parent modals don't close on interact-outside. */
+  blockCloseRef?: React.MutableRefObject<boolean> | undefined
 }
 
 export function RsQuestionCard({
@@ -57,6 +59,7 @@ export function RsQuestionCard({
   customItemDef,
   autoOpenEdit,
   onAutoOpenDone,
+  blockCloseRef,
 }: Props) {
   const storeSaveResult = useStore((s) => s.saveResult)
   const saveResult = onSave ?? storeSaveResult
@@ -238,14 +241,20 @@ export function RsQuestionCard({
 
   async function hide() {
     if (!(await onBeforeMutate())) return
-    const confirmed = await dialog<boolean>({
-      title: t('confirm_hide_item_title'),
-      body: () => <p>{t('confirm_hide_item_body')}</p>,
-      actions: [
-        { label: t('btn_cancel'), kind: 'ghost', value: false },
-        { label: t('btn_delete'), kind: 'danger', value: true },
-      ],
-    })
+    if (blockCloseRef) blockCloseRef.current = true
+    let confirmed: boolean | null = false
+    try {
+      confirmed = await dialog<boolean>({
+        title: t('confirm_hide_item_title'),
+        body: () => <p>{t('confirm_hide_item_body')}</p>,
+        actions: [
+          { label: t('btn_cancel'), kind: 'ghost', value: false },
+          { label: t('btn_delete'), kind: 'danger', value: true },
+        ],
+      })
+    } finally {
+      if (blockCloseRef) blockCloseRef.current = false
+    }
     if (!confirmed) return
     const next = structuredClone(result)
     if (storeTemplateWarningDisabled) next.templateWarningDisabled = true
@@ -322,26 +331,6 @@ export function RsQuestionCard({
       >
         <div className="q-item-name">
           <strong>{displayName}</strong>
-          <div className="q-item-name-btns">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={openEditDialog}
-              data-testid={`item-edit-${catId}-${item}`}
-            >
-              {t('item_edit_scale')}
-            </Button>
-            {variant === 'list' && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={hide}
-                data-testid={`item-hide-${catId}-${item}`}
-              >
-                {t('btn_hide_item')}
-              </Button>
-            )}
-          </div>
         </div>
 
         {showGR && (
@@ -373,42 +362,57 @@ export function RsQuestionCard({
             />
           </div>
         ) : format === 'text' ? (
-          <>
-            <NonScaleTextAnswer cell={cell} onSave={saveNonScaleAnswer} />
-            {isCustom && !!cell?.textValue && (
-              <Button variant="ghost" size="sm" onClick={resetNonScaleAnswer} className="self-start mt-1">
-                {t('q_slider_reset')}
-              </Button>
-            )}
-          </>
+          <NonScaleTextAnswer cell={cell} onSave={saveNonScaleAnswer} />
         ) : format === 'single' || format === 'multi' ? (
-          <>
-            <NonScaleSelectionAnswer
-              format={format}
-              options={customItemDef?.options ?? []}
-              cell={cell}
-              onSave={saveNonScaleAnswer}
-            />
-            {isCustom && cell?.selectedValues !== undefined && cell.selectedValues.length > 0 && (
-              <Button variant="ghost" size="sm" onClick={resetNonScaleAnswer} className="self-start mt-1">
-                {t('q_slider_reset')}
-              </Button>
-            )}
-          </>
+          <NonScaleSelectionAnswer
+            format={format}
+            options={customItemDef?.options ?? []}
+            cell={cell}
+            onSave={saveNonScaleAnswer}
+          />
         ) : (
-          <>
-            <NonScaleRankingAnswer
-              options={customItemDef?.options ?? []}
-              cell={cell}
-              onSave={saveNonScaleAnswer}
-            />
-            {isCustom && cell?.rankingValues !== undefined && cell.rankingValues.length > 0 && (
-              <Button variant="ghost" size="sm" onClick={resetNonScaleAnswer} className="self-start mt-1">
-                {t('q_slider_reset')}
-              </Button>
-            )}
-          </>
+          <NonScaleRankingAnswer
+            options={customItemDef?.options ?? []}
+            cell={cell}
+            onSave={saveNonScaleAnswer}
+          />
         )}
+
+        <div className="q-item-actions">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={openEditDialog}
+            data-testid={`item-edit-${catId}-${item}`}
+          >
+            {t('item_edit_scale')}
+          </Button>
+          {variant === 'list' && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={hide}
+              data-testid={`item-hide-${catId}-${item}`}
+            >
+              {t('btn_hide_item')}
+            </Button>
+          )}
+          {isCustom && format === 'text' && !!cell?.textValue && (
+            <Button variant="ghost" size="sm" onClick={resetNonScaleAnswer} data-testid={`item-reset-${catId}-${item}`}>
+              {t('q_slider_reset')}
+            </Button>
+          )}
+          {isCustom && (format === 'single' || format === 'multi') && (cell?.selectedValues?.length ?? 0) > 0 && (
+            <Button variant="ghost" size="sm" onClick={resetNonScaleAnswer} data-testid={`item-reset-${catId}-${item}`}>
+              {t('q_slider_reset')}
+            </Button>
+          )}
+          {isCustom && format === 'ranking' && (cell?.rankingValues?.length ?? 0) > 0 && (
+            <Button variant="ghost" size="sm" onClick={resetNonScaleAnswer} data-testid={`item-reset-${catId}-${item}`}>
+              {t('q_slider_reset')}
+            </Button>
+          )}
+        </div>
 
         <textarea
           placeholder={t('item_note_placeholder')}

@@ -368,6 +368,7 @@ function EditTabContent({ result, cat, onLocalChange, onImmediateSave, addingRef
           scale={scale}
           onBeforeMutate={confirmIfTemplate}
           variant="list"
+          blockCloseRef={addingRef}
           {...(onLocalChange ? { onSave: onLocalChange } : {})}
         />
       ))}
@@ -384,6 +385,7 @@ function EditTabContent({ result, cat, onLocalChange, onImmediateSave, addingRef
             scale={scale}
             onBeforeMutate={confirmIfTemplate}
             variant="list"
+            blockCloseRef={addingRef}
             {...(customItemDef !== undefined ? { customItemDef } : {})}
             {...(onLocalChange ? { onSave: onLocalChange } : {})}
             autoOpenEdit={autoOpenItem === item}
