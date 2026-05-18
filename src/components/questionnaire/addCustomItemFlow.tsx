@@ -155,6 +155,7 @@ export interface RunAddCustomItemFlowParams {
  * Supports "Back" from the format step to re-enter the name.
  * All steps use dismissable: false so the X button always closes the entire flow.
  */
+/** Returns the created item name on success, null if the user cancelled. */
 export async function runAddCustomItemFlow({
   result,
   catId,
@@ -162,7 +163,7 @@ export async function runAddCustomItemFlow({
   onSave,
   onDuplicate,
   storeTemplateWarningDisabled,
-}: RunAddCustomItemFlowParams): Promise<void> {
+}: RunAddCustomItemFlowParams): Promise<string | null> {
   const slot = result.answers[catId] ?? {}
   let initialName = ''
 
@@ -200,13 +201,13 @@ export async function runAddCustomItemFlow({
       },
       actions: [{ label: t('btn_cancel'), kind: 'ghost', value: null }],
     })
-    if (!nameResult) return
+    if (!nameResult) return null
     const name = nameResult
 
     const c = ALL_CATS.find((x) => x.id === catId)
     if ((c ? (c.items as readonly string[]).includes(name) : false) || (slot.__custom ?? {})[name]) {
       onDuplicate()
-      return
+      return null
     }
 
     // Step 2: format selection
@@ -217,7 +218,7 @@ export async function runAddCustomItemFlow({
       actions: [],
     })
     // null = X button (cancel), false = cancel button, 'back' = go back to name step
-    if (format === null || format === false) return
+    if (format === null || format === false) return null
     if (format === 'back') { initialName = name; continue }
 
     // Step 3: collect options for choice-based formats
@@ -229,7 +230,7 @@ export async function runAddCustomItemFlow({
         body: (close) => <OptionsInput onClose={close} />,
         actions: [],
       })
-      if (rawOptions === null || rawOptions === false) return
+      if (rawOptions === null || rawOptions === false) return null
       options = rawOptions
     }
 
@@ -243,7 +244,7 @@ export async function runAddCustomItemFlow({
         actions: [],
       })
       // null = X button (cancel), false = cancel button, 'default' = use result scale
-      if (scaleResult === null || scaleResult === false) return
+      if (scaleResult === null || scaleResult === false) return null
       itemScale = scaleResult === 'default' ? null : scaleResult
     }
 
@@ -266,6 +267,7 @@ export async function runAddCustomItemFlow({
     }
 
     onSave(next)
-    break
+    return name
   }
+  return null
 }

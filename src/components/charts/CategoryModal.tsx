@@ -270,7 +270,7 @@ export function CategoryModal({ open, onOpenChange, datasets, cat, result, initi
         )}
 
         {/* Footer */}
-        <div className="rs-modal-actions">
+        <div className="rs-modal-actions cat-modal-footer">
           <button
             type="button"
             className="btn btn-ghost"
@@ -322,6 +322,8 @@ function EditTabContent({ result, cat, onLocalChange, onImmediateSave, addingRef
   const { base, custom } = enabledItemsForCat(result.answers, cat.id)
   const slot = result.answers[cat.id] ?? {}
 
+  const [autoOpenItem, setAutoOpenItem] = useState<string | null>(null)
+
   async function addCustom() {
     if (!await confirmIfTemplate()) return
     if (addingRef) addingRef.current = true
@@ -333,7 +335,7 @@ function EditTabContent({ result, cat, onLocalChange, onImmediateSave, addingRef
   }
 
   async function runAddCustom() {
-    await runAddCustomItemFlow({
+    const createdName = await runAddCustomItemFlow({
       result,
       catId: cat.id,
       scale,
@@ -345,6 +347,7 @@ function EditTabContent({ result, cat, onLocalChange, onImmediateSave, addingRef
         else saveResult(next)
       },
     })
+    if (createdName) setAutoOpenItem(createdName)
   }
 
   const catLabel = lang === 'de' && cat.de ? cat.de : cat.title
@@ -381,6 +384,8 @@ function EditTabContent({ result, cat, onLocalChange, onImmediateSave, addingRef
             variant="list"
             {...(customItemDef !== undefined ? { customItemDef } : {})}
             {...(onLocalChange ? { onSave: onLocalChange } : {})}
+            autoOpenEdit={autoOpenItem === item}
+            onAutoOpenDone={() => setAutoOpenItem(null)}
           />
         )
       })}

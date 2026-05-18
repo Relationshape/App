@@ -2048,6 +2048,41 @@ a:hover { text-decoration: underline; }
 /* Item-by-item in tab */
 .cat-modal-bars-scroll { width: 100%; }
 
+/* ── CategoryModal — mobile (narrow-screen) fixes ──────────────────────
+   On phones the three long German tab labels overflow the tab bar and
+   the 24px side padding leaves very little room for edit-tab content.   ------------------------------------------------------------------- */
+.cat-modal-footer { padding: 12px 24px 16px; border-top: 1px solid var(--glass-border); flex-shrink: 0; flex-wrap: wrap; }
+
+@media (max-width: 480px) {
+  /* Reduce chrome padding to reclaim horizontal space */
+  .cat-modal-head-row { padding: 12px 12px 8px; }
+  .cat-modal-content  { padding: 12px 12px; }
+  .cat-modal-footer   { padding: 10px 12px 14px; }
+
+  /* Tab bar: wrap labels so all three tabs are visible without side-scrolling.
+     "Element für Element" and "Antworten bearbeiten" each wrap to two lines,
+     keeping each tab narrow enough to fit in the available width. */
+  .cat-modal-tabs {
+    padding: 0 4px;
+    overflow-x: visible;
+    flex-wrap: wrap;
+  }
+  .cat-modal-tab {
+    padding: 7px 8px;
+    font-size: 12px;
+    white-space: normal;
+    text-align: center;
+    line-height: 1.25;
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  /* Edit-tab items: tighten the action buttons so they don't overflow */
+  .cat-modal-content .q-item-name { gap: 4px; }
+  .cat-modal-content .q-item-name .btn,
+  .cat-modal-content .q-item-name button { font-size: 11.5px; padding: 3px 7px; min-width: 0; }
+}
+
 /* Edit items in modal */
 .modal-edit-items { display: grid; gap: 8px; }
 .modal-edit-item {

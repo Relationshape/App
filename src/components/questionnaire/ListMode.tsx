@@ -3,7 +3,7 @@
 // as a header (emoji + title + blurb + keyboard tip), 7-chip scale legend, then
 // rounded question cards. Legacy parity (quick task 260516-rm2).
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useStore } from '@/lib/storage/store'
 import { useTemplateWarning } from '@/lib/hooks/useTemplateWarning'
@@ -49,15 +49,18 @@ export function ListMode({ result, profile }: Props) {
   const catTitle = lang === 'de' && cat.de ? cat.de : cat.title
   const catBlurb = lang === 'de' && cat.deBlurb ? cat.deBlurb : cat.blurb
 
+  const [autoOpenItem, setAutoOpenItem] = useState<string | null>(null)
+
   async function addCustom(catId: string) {
     if (!await confirmIfTemplate()) return
-    await runAddCustomItemFlow({
+    const createdName = await runAddCustomItemFlow({
       result,
       catId,
       scale,
       onDuplicate: () => toast.message(t('q_item_already_exists')),
       onSave: saveResult,
     })
+    if (createdName) setAutoOpenItem(createdName)
   }
 
   return (
@@ -119,6 +122,8 @@ export function ListMode({ result, profile }: Props) {
                     onBeforeMutate={confirmIfTemplate}
                     variant="list"
                     {...(customItemDef !== undefined ? { customItemDef } : {})}
+                    autoOpenEdit={autoOpenItem === item}
+                    onAutoOpenDone={() => setAutoOpenItem(null)}
                   />
                 )
               })}
