@@ -46,11 +46,19 @@ export function ListMode({ result, profile }: Props) {
   const safeIdx = Math.min(Math.max(0, result.progress?.catIndex ?? 0), enabledCats.length - 1)
   const cat = enabledCats[safeIdx]!
   const hasNextCat = safeIdx + 1 < enabledCats.length
+  const hasPrevCat = safeIdx > 0
 
   function goToNextCat() {
     saveResult({
       ...result,
       progress: { ...(result.progress ?? { mode: 'list' }), catIndex: safeIdx + 1 },
+    })
+  }
+
+  function goToPrevCat() {
+    saveResult({
+      ...result,
+      progress: { ...(result.progress ?? { mode: 'list' }), catIndex: safeIdx - 1 },
     })
   }
   const { base, custom } = enabledItemsForCat(result.answers, cat.id)
@@ -146,6 +154,7 @@ export function ListMode({ result, profile }: Props) {
         result={result}
         profileId={profile.id}
         activeCat={cat}
+        onPrevCat={hasPrevCat ? goToPrevCat : undefined}
         onNextCat={hasNextCat ? goToNextCat : undefined}
       />
     </div>

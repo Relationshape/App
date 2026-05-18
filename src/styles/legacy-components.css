@@ -3384,7 +3384,7 @@ button.rs-tile:hover {
 }
 
 /* Non-scale answer inputs */
-.q-non-scale-wrap { padding: 4px 0 8px; }
+.q-non-scale-wrap { padding: 4px 0 8px; grid-column: 1 / -1; }
 .q-option-pills { display: flex; flex-wrap: wrap; gap: 6px; padding: 2px 0; }
 .q-option-pill {
   padding: 5px 14px; border-radius: 999px; font: inherit; font-size: 13px; cursor: pointer;
