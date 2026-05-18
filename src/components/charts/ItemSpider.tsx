@@ -8,7 +8,7 @@ import { polarToCartesian, scaleMaxValue, wrapLabel } from '@/lib/charts/math'
 import { enabledItemsForCat } from '@/lib/charts/items'
 import { CATEGORIES } from '@/lib/data/data'
 import { getItemLabel, localizeStep } from '@/lib/data/locale'
-import { getLang } from '@/lib/i18n/i18n'
+import { getLang, t } from '@/lib/i18n/i18n'
 import type { ChartDataset } from './types'
 
 interface Props {
@@ -70,6 +70,8 @@ export function ItemSpider({ datasets, catId, size = 480 }: Props) {
     })
   })
 
+  const hasAnyAnswer = dataPoints.some((ds) => ds.some((p) => p.v > 0))
+
   // Build tooltip data when an axis is hovered
   const tooltipData = activeIdx !== null ? {
     label: (() => {
@@ -89,6 +91,11 @@ export function ItemSpider({ datasets, catId, size = 480 }: Props) {
 
   return (
     <div className="rs-chart-wrap rs-item-spider" data-testid={`item-spider-${catId}`} onClick={() => setClickedIdx(null)}>
+      {!hasAnyAnswer && (
+        <p className="muted small text-center mb-2" data-testid={`cat-no-answers-spider-${catId}`}>
+          {t('cat_no_answers')}
+        </p>
+      )}
       <svg
         viewBox={`0 0 ${size} ${size}`}
         role="img"
