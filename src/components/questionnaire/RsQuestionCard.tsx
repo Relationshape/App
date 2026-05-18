@@ -82,7 +82,7 @@ export function RsQuestionCard({
 
   const displayName = cell?.customLabel || (isCustom ? item : getItemLabel(catId, item, getLang()))
 
-  function openEditDialog() {
+  function initEditDialog() {
     setPendingLabel(cell?.customLabel ?? '')
     setPendingScale(cell?.itemScale ? cell.itemScale.map((s) => ({ ...s })) : null)
     setPendingFormat(format)
@@ -91,12 +91,25 @@ export function RsQuestionCard({
     setEditOpen(true)
   }
 
+  async function openEditDialog() {
+    const confirmed = await dialog<boolean>({
+      title: t('confirm_item_scale_edit_title'),
+      body: () => <p>{t('confirm_item_scale_edit_body')}</p>,
+      actions: [
+        { label: t('btn_cancel'), kind: 'ghost', value: false },
+        { label: t('btn_continue'), kind: 'primary', value: true },
+      ],
+    })
+    if (!confirmed) return
+    initEditDialog()
+  }
+
   useEffect(() => {
     if (autoOpenEdit) {
-      openEditDialog()
+      initEditDialog()
       onAutoOpenDone?.()
     }
-  // openEditDialog reads from props/state captured at render time — stable enough for one-shot
+  // initEditDialog reads from props/state captured at render time — stable enough for one-shot
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoOpenEdit])
 
@@ -382,7 +395,7 @@ export function RsQuestionCard({
           <Button
             variant="ghost"
             size="sm"
-            onClick={openEditDialog}
+            onClick={() => { void openEditDialog() }}
             data-testid={`item-edit-${catId}-${item}`}
           >
             {t('item_edit_scale')}
@@ -576,42 +589,28 @@ function NonScaleRankingAnswer({ options, cell, onSave }: {
   cell: AnswerCell | undefined
   onSave: (p: Partial<AnswerCell>) => void
 }) {
-  const ranked = cell?.rankingValues ?? []
-  const unranked = options.filter((o) => !ranked.includes(o))
+  // Show all items ranked from the start in their defined order.
+  // saved = explicitly ranked; append any options not yet in the saved list.
+  const saved = cell?.rankingValues ?? []
+  const effective = [...saved, ...options.filter((o) => !saved.includes(o))]
 
   function move(index: number, dir: 1 | -1) {
-    const next = [...ranked]
+    const next = [...effective]
     const target = index + dir
     if (target < 0 || target >= next.length) return
     ;[next[index], next[target]] = [next[target]!, next[index]!]
     onSave({ rankingValues: next })
   }
 
-  function addToRanking(opt: string) {
-    onSave({ rankingValues: [...ranked, opt] })
-  }
-
-  function removeFromRanking(opt: string) {
-    onSave({ rankingValues: ranked.filter((o) => o !== opt) })
-  }
-
   return (
     <div className="q-non-scale-wrap">
       <div className="q-ranking-list">
-        {ranked.map((opt, i) => (
+        {effective.map((opt, i) => (
           <div key={opt} className="q-ranking-row">
             <span className="q-ranking-pos">{i + 1}.</span>
             <span className="q-ranking-label">{opt}</span>
             <button type="button" className="btn-icon" onClick={() => move(i, -1)} disabled={i === 0} aria-label="Up">↑</button>
-            <button type="button" className="btn-icon" onClick={() => move(i, 1)} disabled={i === ranked.length - 1} aria-label="Down">↓</button>
-            <button type="button" className="btn-icon" onClick={() => removeFromRanking(opt)} aria-label="Remove">✕</button>
-          </div>
-        ))}
-        {unranked.map((opt) => (
-          <div key={opt} className="q-ranking-row q-ranking-unranked">
-            <span className="q-ranking-pos">—</span>
-            <span className="q-ranking-label">{opt}</span>
-            <button type="button" className="btn-icon" onClick={() => addToRanking(opt)} aria-label="Add to ranking">+</button>
+            <button type="button" className="btn-icon" onClick={() => move(i, 1)} disabled={i === effective.length - 1} aria-label="Down">↓</button>
           </div>
         ))}
       </div>

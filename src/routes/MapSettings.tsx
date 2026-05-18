@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { ScaleEditor } from '@/components/ScaleEditor'
 import { EmojiPicker } from '@/components/EmojiPicker'
 import { RsTile } from '@/components/RsTile'
-import { RsCategoryPicker } from '@/components/RsCategoryPicker'
+import { RsCategoryPicker, applyPendingItems, type PendingItemsByCat } from '@/components/RsCategoryPicker'
 import { CATEGORIES } from '@/lib/data/data'
 import { resolveAnyCat } from '@/lib/data/customCategories'
 import { t } from '@/lib/i18n/i18n'
@@ -39,6 +39,7 @@ export function MapSettings() {
   const [deletedCatIds, setDeletedCatIds] = useState<Set<string>>(() => new Set())
   const [pickerOpen, setPickerOpen] = useState(false)
   const [resultCustomCats, setResultCustomCats] = useState<CustomCategoryDef[]>(() => result?.customCategories ?? [])
+  const [pendingItemsByCat, setPendingItemsByCat] = useState<PendingItemsByCat>({})
 
   const { confirmIfTemplate } = useTemplateWarning(result)
 
@@ -67,13 +68,16 @@ export function MapSettings() {
     setResultCustomCats((prev) => prev.filter((c) => c.id !== catId))
   }
 
-  function handlePickerSubmit(mergedIds: string[], newResultCats: CustomCategoryDef[], newProfileCats: CustomCategoryDef[]) {
+  function handlePickerSubmit(mergedIds: string[], newResultCats: CustomCategoryDef[], newProfileCats: CustomCategoryDef[], itemsByCat: PendingItemsByCat) {
     const newIds = mergedIds.filter((id) => !knownCatIds.includes(id))
     if (newIds.length > 0) {
       setKnownCatIds((prev) => [...prev, ...newIds])
       setEnabledCategories((prev) => [...prev, ...newIds])
     }
     setResultCustomCats(newResultCats)
+    if (Object.keys(itemsByCat).length > 0) {
+      setPendingItemsByCat((prev) => ({ ...prev, ...itemsByCat }))
+    }
     if (profile && newProfileCats.length > (profile.customCategories?.length ?? 0)) {
       updateProfile(profile.id, { customCategories: newProfileCats })
     }
@@ -90,7 +94,7 @@ export function MapSettings() {
     const cleanedAnswers = deletedCatIds.size > 0
       ? Object.fromEntries(Object.entries(r.answers).filter(([cid]) => !deletedCatIds.has(cid))) as typeof r.answers
       : r.answers
-    saveResult({
+    const base = {
       ...r,
       ...(trimmedSubject ? { subject: trimmedSubject } : {}),
       subjectEmoji,
@@ -99,7 +103,8 @@ export function MapSettings() {
       answers: cleanedAnswers,
       ...(scale !== undefined ? { scale } : {}),
       ...(resultCustomCats.length > 0 ? { customCategories: resultCustomCats } : {}),
-    })
+    }
+    saveResult(applyPendingItems(base, pendingItemsByCat))
     void navigate(`/result/${r.id}`)
   }
   function clearScaleOverride() {

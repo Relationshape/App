@@ -1213,10 +1213,13 @@ a:hover { text-decoration: underline; }
   display: grid; gap: 14px;
   position: absolute; inset: 0;
   transform: translateY(8px) scale(.98); opacity: 0;
-  transition: transform .25s cubic-bezier(.2,.7,.3,1.1), opacity .25s ease;
+  transition: transform .26s cubic-bezier(.2,.7,.3,1.1), opacity .26s ease;
   touch-action: pan-y; user-select: none; z-index: 2;
 }
 .q-card.in { transform: none; opacity: 1; }
+/* Directional entering: offset applied instantly (no transition), then class removed → CSS transition runs */
+.q-card.entering-right { transform: translate(70px, 0) scale(.96); opacity: 0; transition: none; }
+.q-card.entering-left  { transform: translate(-70px, 0) scale(.96); opacity: 0; transition: none; }
 .q-card.is-peek { transform: translateY(16px) scale(.94); opacity: .3; pointer-events: none; z-index: 1; filter: blur(1px); }
 .q-card.swipe-left  { transform: translate(-120%, 40px) rotate(-14deg) !important; opacity: 0 !important; }
 .q-card.swipe-right { transform: translate(120%,  40px) rotate( 14deg) !important; opacity: 0 !important; }

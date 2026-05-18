@@ -10,7 +10,7 @@ import type { TranslationKey } from './en'
 
 export const DE: Record<TranslationKey, string> = {
   // Nav
-  nav_profiles: '👤 Profile',
+  nav_profiles: '👤 Profil',
   nav_import: '📥 Import/Export',
   nav_compare: '📊 Ergebnisse/Vergleichen',
   nav_settings: '⚙️ Einstellungen',
@@ -144,7 +144,7 @@ export const DE: Record<TranslationKey, string> = {
   btn_continue: 'Weiter',
   btn_view: '📊 Ansehen',
   btn_share: '📤 Teilen',
-  btn_export_result: '📤 Ergebnis Exportieren',
+  btn_export_result: '📤 Ergebnis exportieren',
   confirm_delete_map: 'Diese Beziehungskarte löschen?',
 
   // New result
@@ -512,6 +512,8 @@ export const DE: Record<TranslationKey, string> = {
   btn_hide_item: 'Diesen Punkt ausblenden',
   confirm_hide_item_title: 'Element entfernen?',
   confirm_hide_item_body: 'Dieses Element für diese Karte entfernen? Das Element und die Antwort wird für diese Karte permanent gelöscht.',
+  confirm_item_scale_edit_title: 'Einzelne Skala bearbeiten?',
+  confirm_item_scale_edit_body: 'Achtung, du bearbeitest gerade die Skala eines einzelnen Elementes – sie ist dann unter Umständen nicht mehr deckungsgleich mit der Skala, mit der andere Elemente bewertet werden. Dies kann zu Inkonsistenzen und Unklarheiten in der Ergebnisanzeige führen. Trotzdem fortfahren?',
   q_back_to_categories: '← Kategorien',
   q_mode_list: '📋 Liste',
   q_mode_single: '📱 Einzeln',

@@ -11,7 +11,7 @@ import { resolveAnyCat } from '@/lib/data/customCategories'
 import { catProgress } from '@/lib/charts/math'
 import { Button } from '@/components/ui/button'
 import { RsTile } from '@/components/RsTile'
-import { RsCategoryPicker } from '@/components/RsCategoryPicker'
+import { RsCategoryPicker, applyPendingItems, type PendingItemsByCat } from '@/components/RsCategoryPicker'
 import { NewMapWizard } from '@/components/NewMapWizard'
 import { t, getLang } from '@/lib/i18n/i18n'
 import { useShareData } from '@/components/providers/ShareDataProvider'
@@ -91,11 +91,12 @@ export function CategoryOverview() {
     navigate(`/q/${profile!.id}/${result!.id}`)
   }
 
-  function onPickerSubmit(mergedIds: string[], resultCats: CustomCategoryDef[], profileCats: CustomCategoryDef[]) {
+  function onPickerSubmit(mergedIds: string[], resultCats: CustomCategoryDef[], profileCats: CustomCategoryDef[], itemsByCat: PendingItemsByCat) {
     if (profile && profileCats.length > (profile.customCategories?.length ?? 0)) {
       updateProfile(profile.id, { customCategories: profileCats })
     }
-    saveResult({ ...result!, enabledCategories: mergedIds, customCategories: resultCats })
+    const next = applyPendingItems({ ...result!, enabledCategories: mergedIds, customCategories: resultCats }, itemsByCat)
+    saveResult(next)
   }
 
   return (

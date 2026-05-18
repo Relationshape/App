@@ -16,7 +16,7 @@ import { EnlargedSpider } from '@/components/charts/EnlargedSpider'
 import { CategoryModal } from '@/components/charts/CategoryModal'
 import { CompareWithSomeone } from '@/components/CompareWithSomeone'
 import { RsCategoryCard } from '@/components/RsCategoryCard'
-import { RsCategoryPicker } from '@/components/RsCategoryPicker'
+import { RsCategoryPicker, applyPendingItems } from '@/components/RsCategoryPicker'
 import { Button } from '@/components/ui/button'
 import { CATEGORIES } from '@/lib/data/data'
 import { resolveAnyCat } from '@/lib/data/customCategories'
@@ -100,7 +100,7 @@ export function Result() {
             <Link to={`/q/${profile.id}/${result.id}`}>{t('btn_continue_editing')}</Link>
           </Button>
           <Button onClick={() => openShare(result.id)} data-testid="result-share">
-            {t('btn_share')}
+            {t('btn_export_result')}
           </Button>
         </div>
       </header>
@@ -173,7 +173,7 @@ export function Result() {
         existingIds={result.enabledCategories ?? CATEGORIES.map((c) => c.id)}
         result={result}
         profile={profile}
-        onSubmit={(mergedIds, resultCats) => saveResult({ ...result, enabledCategories: mergedIds, customCategories: resultCats })}
+        onSubmit={(mergedIds, resultCats, _profileCats, itemsByCat) => saveResult(applyPendingItems({ ...result, enabledCategories: mergedIds, customCategories: resultCats }, itemsByCat))}
       />
 
       <EnlargedSpider

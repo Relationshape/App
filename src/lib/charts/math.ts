@@ -75,12 +75,13 @@ export function categoryAverage(
   scale: readonly MutableScaleStep[],
 ): CategoryAvgResult | null {
   const cat = CATEGORIES.find((c) => c.id === catId)
-  if (!cat) return null
   const max = scaleMaxValue(scale)
   const byKey = (k: string) => scale.find((s) => s.key === k)
   const values: number[] = []
   const slot = answers?.[catId] ?? {}
-  for (const item of cat.items) pushAnswerValues(slot[item], scale, byKey, values)
+  if (cat) {
+    for (const item of cat.items) pushAnswerValues(slot[item], scale, byKey, values)
+  }
   for (const k of Object.keys(slot.__custom ?? {})) {
     pushAnswerValues(slot.__custom![k], scale, byKey, values)
   }
