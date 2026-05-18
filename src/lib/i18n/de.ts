@@ -606,4 +606,22 @@ export const DE: Record<TranslationKey, string> = {
   btn_import_cards: '📥 Karten von einem Gegenüber empfangen / importieren',
   cat_details_filter_hint: 'Es werden nur diejenigen Kategorien angezeigt, welche in allen zum Vergleich ausgewählten Karten mindestens eine Antwort enthalten.',
   wizard_pick_imported_maps_section: 'Importierte Karten',
+
+  // Custom item format picker
+  q_add_custom_format_title: 'Antwortformat wählen',
+  q_format_scale: 'Skala',
+  q_format_scale_desc: 'Auf einer Skala bewerten',
+  q_format_text: 'Freitext',
+  q_format_text_desc: 'Freie Texteingabe',
+  q_format_single: 'Einzelauswahl',
+  q_format_single_desc: 'Genau eine Option auswählen',
+  q_format_multi: 'Mehrfachauswahl',
+  q_format_multi_desc: 'Eine oder mehrere Optionen auswählen',
+  q_format_ranking: 'Ranking',
+  q_format_ranking_desc: 'Optionen in eine Reihenfolge bringen',
+  q_add_custom_options_title: 'Optionen definieren',
+  q_add_custom_options_sub: 'Eine Option pro Zeile eingeben (min. 2)',
+  q_add_custom_options_min: 'Bitte mindestens 2 Optionen eingeben.',
+  q_text_answer_placeholder: 'Deine Antwort…',
+  item_rename_btn: '✏️ Umbenennen',
 }

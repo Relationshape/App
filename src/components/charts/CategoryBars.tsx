@@ -7,6 +7,7 @@ import { CATEGORIES } from '@/lib/data/data'
 import { enabledItemsForCat } from '@/lib/charts/items'
 import { scaleMaxValue, closestScaleEntry } from '@/lib/charts/math'
 import type { ChartDataset } from './types'
+import type { AnswerCell } from '@/lib/storage/types'
 
 interface Props { datasets: readonly ChartDataset[]; catId: string }
 
@@ -30,6 +31,32 @@ export function CategoryBars({ datasets, catId }: Props) {
       return step != null
     })
   })
+
+  // Collect non-scale custom items (those excluded from the bar chart)
+  const nonScaleItems: string[] = []
+  for (const ds of truncated) {
+    const { custom } = enabledItemsForCat(ds.answers, catId)
+    for (const item of custom) {
+      const def = ds.customItemDefs?.[catId]?.[item]
+      if (def && def.format !== 'scale' && !nonScaleItems.includes(item)) {
+        nonScaleItems.push(item)
+      }
+    }
+  }
+
+  function formatNonScaleAnswer(cell: AnswerCell | undefined, format: string): string | null {
+    if (!cell) return null
+    if (format === 'text') return cell.textValue ?? null
+    if (format === 'single' || format === 'multi') {
+      const vals = cell.selectedValues
+      return vals && vals.length > 0 ? vals.join(', ') : null
+    }
+    if (format === 'ranking') {
+      const vals = cell.rankingValues
+      return vals && vals.length > 0 ? vals.map((v, i) => `${i + 1}. ${v}`).join(' · ') : null
+    }
+    return null
+  }
 
   return (
     <div className="rs-bars" data-testid={`category-bars-${catId}`}>
@@ -93,6 +120,29 @@ export function CategoryBars({ datasets, catId }: Props) {
           </div>
         )
       })}
+      {nonScaleItems.length > 0 && (
+        <div className="rs-non-scale-section">
+          {nonScaleItems.map((itemName) => (
+            <div key={itemName} className="rs-non-scale-item">
+              <div className="rs-non-scale-item-label">✶ {itemName}</div>
+              {truncated.map((ds, di) => {
+                const def = ds.customItemDefs?.[catId]?.[itemName]
+                const cell = ds.answers[catId]?.__custom?.[itemName]
+                const formatted = def ? formatNonScaleAnswer(cell, def.format) : null
+                return (
+                  <div key={di} className="rs-non-scale-answer-row">
+                    <span className="rs-non-scale-answer-name" style={{ color: ds.color }}>{ds.name}</span>
+                    {formatted
+                      ? <span className="rs-non-scale-answer-val">{formatted}</span>
+                      : <span className="rs-non-scale-empty">—</span>
+                    }
+                  </div>
+                )
+              })}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

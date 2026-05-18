@@ -29,6 +29,7 @@ export function mapResultToDataset(result: Result, profile: Profile | null): Cha
     emoji: result.subjectEmoji || profile?.emoji || '💞',
     answers: result.answers,
     scale: resolveScale(result.scale),
+    ...(result.customItemDefs ? { customItemDefs: result.customItemDefs } : {}),
   }
 }
 
@@ -40,5 +41,6 @@ export function mapImportToDataset(imp: Import): ChartDataset {
     emoji: imp.subjectEmoji || imp.emoji || '📨',
     answers: imp.answers,
     scale: resolveScale(imp.scale),
+    ...(imp.customItemDefs ? { customItemDefs: imp.customItemDefs } : {}),
   }
 }

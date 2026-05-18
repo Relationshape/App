@@ -33,7 +33,10 @@ export function ItemSpider({ datasets, catId, size = 480 }: Props) {
   for (const ds of truncated) {
     const { base, custom } = enabledItemsForCat(ds.answers, catId)
     base.forEach((item) => itemSet.add(item))
-    custom.forEach((item) => itemSet.add(`✶ ${item}`))
+    custom.forEach((item) => {
+      const def = ds.customItemDefs?.[catId]?.[item]
+      if (!def || def.format === 'scale') itemSet.add(`✶ ${item}`)
+    })
   }
   const items = Array.from(itemSet)
   if (items.length < 3) return null

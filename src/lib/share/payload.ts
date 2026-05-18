@@ -1,7 +1,7 @@
 // SHARE-01/03/04. The v1.0 bundle envelope: type:"relationshape-result"; subject; name; pronouns; emoji; color; answers; scale; version.
 // Port of public/legacy/js/app.js sendable-payload assembly (search for "relationshape-result" in v1.0 source).
 
-import type { Result, Profile, Import } from '@/lib/storage/types'
+import type { Result, Profile, Import, CustomItemDef } from '@/lib/storage/types'
 import type { MutableScaleStep } from '@/lib/data/types'
 import { CATEGORIES } from '@/lib/data/data'
 import { useStore } from '@/lib/storage/store'
@@ -31,6 +31,7 @@ export interface SharePayload {
   exportMode?: ExportMode
   /** v1.0 restricted-mode field: encrypted answers bundle, gated by a second passphrase. */
   lockedAnswers?: string
+  customItemDefs?: Record<string, Record<string, CustomItemDef>> | null
 }
 
 export function buildSharePayload(result: Result, profile: Profile): SharePayload {
@@ -51,6 +52,7 @@ export function buildSharePayload(result: Result, profile: Profile): SharePayloa
   if (result.subject !== undefined) payload.subject = result.subject
   if (result.subjectEmoji !== undefined) payload.subjectEmoji = result.subjectEmoji
   if (result.subjectColor !== undefined) payload.subjectColor = result.subjectColor
+  if (result.customItemDefs) payload.customItemDefs = result.customItemDefs
   return payload
 }
 
@@ -97,6 +99,7 @@ export function buildBaseSharePayload(result: Result, profile: Profile): Omit<Sh
   if (result.subject !== undefined) payload.subject = result.subject
   if (result.subjectEmoji !== undefined) payload.subjectEmoji = result.subjectEmoji
   if (result.subjectColor !== undefined) payload.subjectColor = result.subjectColor
+  if (result.customItemDefs) payload.customItemDefs = result.customItemDefs
   return payload
 }
 
@@ -135,5 +138,6 @@ export function payloadToImport(p: SharePayload, id: string, srcVersion?: number
   if (p.enabledCategories != null) imp.enabledCategories = p.enabledCategories
   if (p.askedItems != null) imp.askedItems = p.askedItems as NonNullable<Import['askedItems']>
   if (p.lockedAnswers != null) imp.lockedAnswers = p.lockedAnswers
+  if (p.customItemDefs != null) imp.customItemDefs = p.customItemDefs as NonNullable<Import['customItemDefs']>
   return imp
 }

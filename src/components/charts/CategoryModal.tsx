@@ -16,7 +16,7 @@ import { dialog } from '@/lib/dialog/dialog'
 import { useToast } from '@/lib/hooks/useToast'
 import type { ChartDataset } from './types'
 import type { CATEGORIES } from '@/lib/data/data'
-import type { Result } from '@/lib/storage/types'
+import type { Result, CustomItemDef, CustomItemFormat } from '@/lib/storage/types'
 import type { MutableScaleStep } from '@/lib/data/types'
 import { t, getLang } from '@/lib/i18n/i18n'
 import { CATEGORIES as ALL_CATS } from '@/lib/data/data'
@@ -353,21 +353,57 @@ function EditTabContent({ result, cat, onLocalChange, onImmediateSave }: EditTab
       return
     }
 
-    // Step 2: scale selection
-    const itemScale = await dialog<MutableScaleStep[] | null | false>({
-      title: t('q_add_custom_scale_title'),
-      body: (close) => <CustomScalePicker defaultScale={scale} onClose={close} />,
+    // Step 2: format selection
+    const format = await dialog<CustomItemFormat | false>({
+      title: t('q_add_custom_format_title'),
+      body: (close) => <FormatPicker onClose={close} />,
       actions: [],
     })
-    // false = cancel (abort entire flow), null = use default, array = custom scale
-    if (itemScale === false) return
+    if (format === false) return
+
+    // Step 3: for single/multi/ranking, collect options
+    let options: string[] | undefined
+    if (format === 'single' || format === 'multi' || format === 'ranking') {
+      const rawOptions = await dialog<string[] | false>({
+        title: t('q_add_custom_options_title'),
+        body: (close) => <OptionsInput onClose={close} />,
+        actions: [],
+      })
+      if (rawOptions === false) return
+      options = rawOptions
+    }
+
+    // Step 4 (only for scale format): scale selection
+    let itemScale: MutableScaleStep[] | null = null
+    if (format === 'scale') {
+      const scaleResult = await dialog<MutableScaleStep[] | null | false>({
+        title: t('q_add_custom_scale_title'),
+        body: (close) => <CustomScalePicker defaultScale={scale} onClose={close} />,
+        actions: [],
+      })
+      // false = cancel (abort entire flow), null = use default, array = custom scale
+      if (scaleResult === false) return
+      itemScale = scaleResult
+    }
 
     const next = structuredClone(result)
     if (storeTemplateWarningDisabled) next.templateWarningDisabled = true
     const ns = next.answers[cat.id] ?? {}
-    const cell = itemScale ? { scale: 'open', itemScale } : { scale: 'open' }
+    const cell = (format === 'scale' && itemScale) ? { scale: 'open', itemScale } : { scale: 'open' }
     ns.__custom = { ...(ns.__custom ?? {}), [name]: cell }
     next.answers[cat.id] = ns
+
+    // Save customItemDef for non-default formats
+    if (format !== 'scale' || options) {
+      const def: CustomItemDef = { format, ...(options ? { options } : {}) }
+      next.customItemDefs = {
+        ...(next.customItemDefs ?? {}),
+        [cat.id]: {
+          ...(next.customItemDefs?.[cat.id] ?? {}),
+          [name]: def,
+        },
+      }
+    }
 
     if (onImmediateSave) {
       onImmediateSave(next)
@@ -408,6 +444,7 @@ function EditTabContent({ result, cat, onLocalChange, onImmediateSave }: EditTab
           scale={scale}
           onBeforeMutate={confirmIfTemplate}
           variant="list"
+          customItemDef={result.customItemDefs?.[cat.id]?.[item]}
           {...(onLocalChange ? { onSave: onLocalChange } : {})}
         />
       ))}
@@ -419,6 +456,70 @@ function EditTabContent({ result, cat, onLocalChange, onImmediateSave }: EditTab
       >
         {t('q_add_custom')}
       </Button>
+    </div>
+  )
+}
+
+function FormatPicker({ onClose }: { onClose: (v: CustomItemFormat | false) => void }) {
+  const formats: { key: CustomItemFormat; labelKey: 'q_format_scale' | 'q_format_text' | 'q_format_single' | 'q_format_multi' | 'q_format_ranking'; descKey: 'q_format_scale_desc' | 'q_format_text_desc' | 'q_format_single_desc' | 'q_format_multi_desc' | 'q_format_ranking_desc' }[] = [
+    { key: 'scale', labelKey: 'q_format_scale', descKey: 'q_format_scale_desc' },
+    { key: 'text', labelKey: 'q_format_text', descKey: 'q_format_text_desc' },
+    { key: 'single', labelKey: 'q_format_single', descKey: 'q_format_single_desc' },
+    { key: 'multi', labelKey: 'q_format_multi', descKey: 'q_format_multi_desc' },
+    { key: 'ranking', labelKey: 'q_format_ranking', descKey: 'q_format_ranking_desc' },
+  ]
+  return (
+    <div className="flex flex-col gap-2">
+      {formats.map(({ key, labelKey, descKey }) => (
+        <button
+          key={key}
+          type="button"
+          className="format-picker-tile"
+          onClick={() => onClose(key)}
+        >
+          <span className="format-picker-tile-label">{t(labelKey)}</span>
+          <span className="format-picker-tile-desc muted small">{t(descKey)}</span>
+        </button>
+      ))}
+      <div className="flex justify-end">
+        <Button variant="ghost" onClick={() => onClose(false)} data-testid="modal-format-picker-cancel">
+          {t('btn_cancel')}
+        </Button>
+      </div>
+    </div>
+  )
+}
+
+function OptionsInput({ onClose }: { onClose: (v: string[] | false) => void }) {
+  const [text, setText] = useState('')
+  const [error, setError] = useState(false)
+
+  function submit() {
+    const lines = text.split('\n').map((l) => l.trim()).filter(Boolean)
+    if (lines.length < 2) { setError(true); return }
+    onClose(lines)
+  }
+
+  return (
+    <div className="flex flex-col gap-2">
+      <p className="muted small">{t('q_add_custom_options_sub')}</p>
+      <textarea
+        autoFocus
+        rows={6}
+        className="w-full rounded border border-line px-2 py-1 font-mono text-sm"
+        value={text}
+        onChange={(e) => { setText(e.target.value); setError(false) }}
+        data-testid="modal-options-input"
+      />
+      {error && <p className="text-sm text-destructive">{t('q_add_custom_options_min')}</p>}
+      <div className="flex gap-2 justify-end">
+        <Button variant="ghost" onClick={() => onClose(false)} data-testid="modal-options-cancel">
+          {t('btn_cancel')}
+        </Button>
+        <Button onClick={submit} data-testid="modal-options-ok">
+          {t('btn_ok')}
+        </Button>
+      </div>
     </div>
   )
 }
