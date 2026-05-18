@@ -2154,6 +2154,8 @@ a:hover { text-decoration: underline; }
   border-radius: 16px;
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
+  padding: 0;
+  display: flex; flex-direction: column;
 }
 .hero-feat-btn {
   all: unset;
@@ -2162,6 +2164,7 @@ a:hover { text-decoration: underline; }
   padding: 18px 16px 16px;
   width: 100%; box-sizing: border-box;
   border-radius: 16px;
+  flex: 1;
   transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
 }
 .hero-feat-btn:hover {
