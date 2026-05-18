@@ -359,7 +359,7 @@ function EditTabContent({ result, cat, onLocalChange, onImmediateSave }: EditTab
       body: (close) => <FormatPicker onClose={close} />,
       actions: [],
     })
-    if (format === false) return
+    if (!format) return
 
     // Step 3: for single/multi/ranking, collect options
     let options: string[] | undefined
@@ -369,7 +369,7 @@ function EditTabContent({ result, cat, onLocalChange, onImmediateSave }: EditTab
         body: (close) => <OptionsInput onClose={close} />,
         actions: [],
       })
-      if (rawOptions === false) return
+      if (!rawOptions) return
       options = rawOptions
     }
 
@@ -433,21 +433,24 @@ function EditTabContent({ result, cat, onLocalChange, onImmediateSave }: EditTab
           {...(onLocalChange ? { onSave: onLocalChange } : {})}
         />
       ))}
-      {custom.map((item) => (
-        <RsQuestionCard
-          key={`custom-${item}`}
-          result={result}
-          catId={cat.id}
-          item={item}
-          isCustom={true}
-          cell={slot.__custom?.[item]}
-          scale={scale}
-          onBeforeMutate={confirmIfTemplate}
-          variant="list"
-          customItemDef={result.customItemDefs?.[cat.id]?.[item]}
-          {...(onLocalChange ? { onSave: onLocalChange } : {})}
-        />
-      ))}
+      {custom.map((item) => {
+        const customItemDef = result.customItemDefs?.[cat.id]?.[item]
+        return (
+          <RsQuestionCard
+            key={`custom-${item}`}
+            result={result}
+            catId={cat.id}
+            item={item}
+            isCustom={true}
+            cell={slot.__custom?.[item]}
+            scale={scale}
+            onBeforeMutate={confirmIfTemplate}
+            variant="list"
+            {...(customItemDef !== undefined ? { customItemDef } : {})}
+            {...(onLocalChange ? { onSave: onLocalChange } : {})}
+          />
+        )
+      })}
       <Button
         variant="ghost"
         onClick={addCustom}
