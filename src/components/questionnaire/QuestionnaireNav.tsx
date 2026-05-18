@@ -1,5 +1,5 @@
 // Sticky bottom nav pair (D-31 "always-visible save button").
-// Provides ← Categories + See results → navigation always visible during questionnaire.
+// Provides ← Categories + (Next category |) See results → navigation always visible during questionnaire.
 
 import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
@@ -10,9 +10,14 @@ import { t } from '@/lib/i18n/i18n'
 
 type Category = (typeof CATEGORIES)[number]
 
-interface Props { result: Result; profileId: string; activeCat?: Category | ResolvedCat }
+interface Props {
+  result: Result
+  profileId: string
+  activeCat?: Category | ResolvedCat
+  onNextCat?: (() => void) | undefined
+}
 
-export function QuestionnaireNav({ result, profileId, activeCat }: Props) {
+export function QuestionnaireNav({ result, profileId, activeCat, onNextCat }: Props) {
   const resultsHref = activeCat
     ? `/result/${result.id}/${activeCat.id}`
     : `/result/${result.id}`
@@ -27,9 +32,21 @@ export function QuestionnaireNav({ result, profileId, activeCat }: Props) {
             {t('q_back_to_categories')}
           </Link>
         </Button>
-        <Link to={resultsHref} data-testid="q-nav-see-results" className="btn btn-primary ml-auto">
-          {t('q_nav_see_results')} →
-        </Link>
+        <div className="ml-auto flex items-center gap-2">
+          {onNextCat && (
+            <button
+              type="button"
+              className="btn btn-outline"
+              onClick={onNextCat}
+              data-testid="q-nav-next-cat"
+            >
+              {t('q_nav_next_cat')}
+            </button>
+          )}
+          <Link to={resultsHref} data-testid="q-nav-see-results" className="btn btn-primary">
+            {t('q_nav_see_results')} →
+          </Link>
+        </div>
       </div>
     </nav>
   )
