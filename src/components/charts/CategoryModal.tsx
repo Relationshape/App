@@ -229,6 +229,9 @@ export function CategoryModal({ open, onOpenChange, datasets, cat, result, initi
                 ⊞ {t('spider_click_to_enlarge')}
               </span>
             </button>
+            <p className="muted small text-center mt-1" style={{ opacity: 0.6 }} data-testid="spider-scale-only-hint">
+              {t('spider_scale_only_hint')}
+            </p>
             <Dialog open={spiderEnlarged} onOpenChange={setSpiderEnlarged}>
               <DialogContent
                 className="max-w-[min(1400px,96vw)] max-h-[min(96vh,1400px)] p-4 overflow-auto"
@@ -238,6 +241,9 @@ export function CategoryModal({ open, onOpenChange, datasets, cat, result, initi
                 <ItemSpider datasets={datasets} catId={cat.id} size={1200} />
                 <p className="text-center muted small mt-3" style={{ opacity: 0.65 }}>
                   {t('spider_hover_hint')}
+                </p>
+                <p className="text-center muted small mt-1" style={{ opacity: 0.5 }}>
+                  {t('spider_scale_only_hint')}
                 </p>
               </DialogContent>
             </Dialog>

@@ -609,6 +609,8 @@ export const EN = {
   q_edit_format_change_warn: 'Changing the format will delete any existing answer for this item.',
   q_edit_format_options_label: 'Options (one per line, min. 2)',
   q_edit_format_options_min: 'Please enter at least 2 options.',
+  q_format_non_scale_hint: 'Non-scale items only appear in the item-by-item view — they are not shown in the network diagram.',
+  spider_scale_only_hint: 'Only scale-rated items are shown here.',
 } as const
 
 export type TranslationKey = keyof typeof EN

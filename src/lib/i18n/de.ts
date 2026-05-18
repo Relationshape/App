@@ -628,4 +628,6 @@ export const DE: Record<TranslationKey, string> = {
   q_edit_format_change_warn: 'Das Format zu ändern löscht die bestehende Antwort für dieses Element.',
   q_edit_format_options_label: 'Optionen (eine pro Zeile, min. 2)',
   q_edit_format_options_min: 'Bitte mindestens 2 Optionen eingeben.',
+  q_format_non_scale_hint: 'Elemente ohne Skala erscheinen nur in der Element-Ansicht – nicht im Netzdiagramm.',
+  spider_scale_only_hint: 'Nur skalenbasierte Elemente werden angezeigt.',
 }

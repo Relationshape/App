@@ -410,6 +410,9 @@ export function RsQuestionCard({
                     </label>
                   ))}
                 </div>
+                {pendingFormat !== 'scale' && (
+                  <p className="callout text-sm">{t('q_format_non_scale_hint')}</p>
+                )}
                 {pendingFormat !== format && (
                   <p className="text-sm text-destructive">{t('q_edit_format_change_warn')}</p>
                 )}
