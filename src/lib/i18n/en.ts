@@ -519,7 +519,7 @@ export const EN = {
   wizard_pick_own_section: 'Your maps',
   wizard_pick_import_section: 'Imported templates',
   spider_click_to_enlarge: 'Click to enlarge',
-  spider_hover_hint: 'Hover over a data point to inspect the item in detail',
+  spider_hover_hint: 'Hover over or tap a data point to inspect the item in detail',
   q_overview_title: 'Select categories',
   q_overview_sub: 'Toggle on the dimensions you want to map for this person.',
   q_overview_start: 'Start questionnaire →',
