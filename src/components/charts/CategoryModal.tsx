@@ -38,6 +38,8 @@ interface Props {
 export function CategoryModal({ open, onOpenChange, datasets, cat, result, initialTab }: Props) {
   const [tab, setTab] = useState<Tab>(initialTab ?? 'spider')
   const [spiderEnlarged, setSpiderEnlarged] = useState(false)
+  const [spiderZoom, setSpiderZoom] = useState(1.0)
+  const spiderContainerRef = useRef<HTMLDivElement>(null)
   const lang = getLang()
   const showEdit = Boolean(result)
   const saveStore = useStore((s) => s.saveResult)
@@ -134,6 +136,23 @@ export function CategoryModal({ open, onOpenChange, datasets, cat, result, initi
     if (open) setTab(initialTab ?? 'spider')
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open])
+
+  // Reset zoom when enlarged dialog opens
+  useEffect(() => {
+    if (spiderEnlarged) setSpiderZoom(1.0)
+  }, [spiderEnlarged])
+
+  // Non-passive wheel listener for scroll-to-zoom (React synthetic onWheel is passive)
+  useEffect(() => {
+    const el = spiderContainerRef.current
+    if (!el || !spiderEnlarged) return
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault()
+      setSpiderZoom((z) => Math.max(0.4, Math.min(8, z * (e.deltaY < 0 ? 1.12 : 1 / 1.12))))
+    }
+    el.addEventListener('wheel', onWheel, { passive: false })
+    return () => el.removeEventListener('wheel', onWheel)
+  }, [spiderEnlarged])
 
   if (!cat) {
     return (
@@ -235,17 +254,43 @@ export function CategoryModal({ open, onOpenChange, datasets, cat, result, initi
             </p>
             <Dialog open={spiderEnlarged} onOpenChange={setSpiderEnlarged}>
               <DialogContent
-                className="max-w-[min(1400px,96vw)] max-h-[min(96vh,1400px)] p-4 overflow-auto"
+                className="max-w-[min(1400px,96vw)] max-h-[min(96vh,1400px)] p-4 flex flex-col gap-2"
                 data-testid="cat-modal-spider-fullscreen"
               >
                 <DialogTitle className="sr-only">{title}</DialogTitle>
-                <ItemSpider datasets={datasets} catId={cat.id} size={1200} />
-                <p className="text-center muted small mt-3" style={{ opacity: 0.65 }}>
-                  {t('spider_hover_hint')}
-                </p>
-                <p className="text-center muted small mt-1" style={{ opacity: 0.5 }}>
-                  {t('spider_scale_only_hint')}
-                </p>
+                {/* Zoom controls */}
+                <div className="flex items-center gap-2 justify-end select-none" style={{ opacity: 0.7, fontSize: 13 }}>
+                  <button
+                    type="button"
+                    onClick={() => setSpiderZoom((z) => Math.max(0.4, z / 1.25))}
+                    className="px-2 py-0.5 rounded border border-current leading-none"
+                    aria-label="Verkleinern"
+                  >−</button>
+                  <span style={{ minWidth: 40, textAlign: 'center' }}>{Math.round(spiderZoom * 100)}%</span>
+                  <button
+                    type="button"
+                    onClick={() => setSpiderZoom((z) => Math.min(8, z * 1.25))}
+                    className="px-2 py-0.5 rounded border border-current leading-none"
+                    aria-label="Vergrößern"
+                  >+</button>
+                  <button
+                    type="button"
+                    onClick={() => setSpiderZoom(1)}
+                    className="px-2 py-0.5 rounded border border-current leading-none"
+                    aria-label="Zoom zurücksetzen"
+                    style={{ opacity: 0.5 }}
+                  >↺</button>
+                </div>
+                {/* Scrollable zoom container — wheel listener attached via ref (non-passive) */}
+                <div ref={spiderContainerRef} className="overflow-auto flex-1">
+                  <ItemSpider datasets={datasets} catId={cat.id} size={Math.round(1200 * spiderZoom)} />
+                  <p className="text-center muted small mt-3" style={{ opacity: 0.65 }}>
+                    {t('spider_hover_hint')}
+                  </p>
+                  <p className="text-center muted small mt-1" style={{ opacity: 0.5 }}>
+                    {t('spider_scale_only_hint')}
+                  </p>
+                </div>
               </DialogContent>
             </Dialog>
           </div>
