@@ -3,7 +3,8 @@
    ================================================================ */
 * { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; }
-html { overflow-x: hidden; scrollbar-gutter: stable; }
+html { overflow-x: hidden; }
+@media (min-width: 541px) { html { scrollbar-gutter: stable; } }
 
 body {
   font-family: var(--font-sans);
@@ -119,7 +120,7 @@ a:hover { text-decoration: underline; }
 .page {
   max-width: 1080px;
   margin: 0 auto;
-  padding: 24px max(16px, env(safe-area-inset-left)) 80px max(16px, env(safe-area-inset-right));
+  padding: 24px max(16px, env(safe-area-inset-right)) 80px max(16px, env(safe-area-inset-left));
   display: grid; gap: 28px;
 }
 .page.narrow { max-width: 720px; }
@@ -224,7 +225,17 @@ a:hover { text-decoration: underline; }
   .page { padding: 16px 12px 72px; gap: 20px; }
   .page-head h1 { font-size: 24px; }
   .result-head, .profile-head { padding: 14px; }
-  .result-head h1, .profile-head h1 { font-size: 20px; }
+  .result-head h1 { font-size: 20px; }
+  .profile-head h1 { font-size: 17px; }
+  /* Profile header: stack name row + buttons row */
+  .profile-head { flex-wrap: wrap; row-gap: 8px; }
+  .profile-head .flex-spacer { display: none; }
+  .profile-head-info { flex: 1 1 0; min-width: 0; }
+  .profile-head-actions { width: 100%; gap: 6px; }
+  .profile-head-actions > * {
+    flex: 1 1 auto; justify-content: center;
+    font-size: 13px; padding-inline: 8px; white-space: nowrap;
+  }
   .li-actions .btn { padding: 7px 10px; font-size: 13px; }
   .list-item {
     grid-template-columns: auto 1fr;
@@ -340,8 +351,9 @@ a:hover { text-decoration: underline; }
   background: color-mix(in oklab, var(--c) 18%, var(--surface-2));
   display: grid; place-items: center; font-size: 22px;
 }
-.li-body h3 { margin: 0; font-size: 17px; }
-.li-body p { margin: 2px 0 0; }
+.li-body { min-width: 0; }
+.li-body h3 { margin: 0; font-size: 17px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.li-body p { margin: 2px 0 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .li-actions { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
 
 .list-add {
@@ -442,6 +454,8 @@ a:hover { text-decoration: underline; }
   flex-wrap: wrap;
 }
 .profile-head h1, .result-head h1 { margin: 0; font-size: 24px; font-family: var(--font-heading); }
+.profile-head-info { min-width: 0; }
+.profile-head-actions { display: flex; gap: 8px; align-items: center; }
 .result-head-info { flex: 1 1 0; min-width: 0; }
 .result-head-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-left: auto; }
 
@@ -942,11 +956,12 @@ a:hover { text-decoration: underline; }
 .compare-row-unlock {
   flex-shrink: 0;
   display: flex; align-items: center;
-  padding: 0 13px;
+  padding: 8px 13px;
   background: none; border: none; border-left: 1px solid var(--glass-border);
   font: inherit; font-size: 12.5px; font-weight: 600;
-  color: var(--primary); cursor: pointer; white-space: nowrap;
+  color: var(--primary); cursor: pointer;
   transition: opacity .15s, background .15s;
+  text-align: center; line-height: 1.3;
 }
 .compare-row-unlock:hover { background: color-mix(in oklab, var(--c) 8%, transparent); }
 .compare-import-inline-btn { font-size: 12px !important; padding: 4px 10px !important; }
