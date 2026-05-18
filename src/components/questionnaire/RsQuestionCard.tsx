@@ -169,6 +169,16 @@ export function RsQuestionCard({
     saveResult(next)
   }
 
+  function resetNonScaleAnswer() {
+    const next = structuredClone(result)
+    const slot = next.answers[catId] ?? {}
+    const customs = { ...(slot.__custom ?? {}) }
+    customs[item] = { scale: 'open' }
+    slot.__custom = customs
+    next.answers[catId] = slot
+    saveResult(next)
+  }
+
   function setGR(gr: 'G' | 'R' | 'Both') {
     const next = structuredClone(result)
     const slot = next.answers[catId] ?? {}
@@ -304,7 +314,7 @@ export function RsQuestionCard({
             onClick={openEditDialog}
             data-testid={`item-edit-${catId}-${item}`}
           >
-            {format === 'scale' ? t('item_edit_scale') : t('item_rename_btn')}
+            {t('item_edit_scale')}
           </Button>
           {variant === 'list' && (
             <Button
@@ -348,20 +358,41 @@ export function RsQuestionCard({
             />
           </div>
         ) : format === 'text' ? (
-          <NonScaleTextAnswer cell={cell} onSave={saveNonScaleAnswer} />
+          <>
+            <NonScaleTextAnswer cell={cell} onSave={saveNonScaleAnswer} />
+            {isCustom && !!cell?.textValue && (
+              <Button variant="ghost" size="sm" onClick={resetNonScaleAnswer} className="self-start mt-1">
+                {t('q_slider_reset')}
+              </Button>
+            )}
+          </>
         ) : format === 'single' || format === 'multi' ? (
-          <NonScaleSelectionAnswer
-            format={format}
-            options={customItemDef?.options ?? []}
-            cell={cell}
-            onSave={saveNonScaleAnswer}
-          />
+          <>
+            <NonScaleSelectionAnswer
+              format={format}
+              options={customItemDef?.options ?? []}
+              cell={cell}
+              onSave={saveNonScaleAnswer}
+            />
+            {isCustom && cell?.selectedValues !== undefined && cell.selectedValues.length > 0 && (
+              <Button variant="ghost" size="sm" onClick={resetNonScaleAnswer} className="self-start mt-1">
+                {t('q_slider_reset')}
+              </Button>
+            )}
+          </>
         ) : (
-          <NonScaleRankingAnswer
-            options={customItemDef?.options ?? []}
-            cell={cell}
-            onSave={saveNonScaleAnswer}
-          />
+          <>
+            <NonScaleRankingAnswer
+              options={customItemDef?.options ?? []}
+              cell={cell}
+              onSave={saveNonScaleAnswer}
+            />
+            {isCustom && cell?.rankingValues !== undefined && cell.rankingValues.length > 0 && (
+              <Button variant="ghost" size="sm" onClick={resetNonScaleAnswer} className="self-start mt-1">
+                {t('q_slider_reset')}
+              </Button>
+            )}
+          </>
         )}
 
         <textarea

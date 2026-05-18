@@ -15,14 +15,12 @@
 import type { CSSProperties } from 'react'
 import type { ChartDataset } from '@/components/charts/types'
 import type { Result } from '@/lib/storage/types'
-import type { CATEGORIES } from '@/lib/data/data'
+import type { ResolvedCat } from '@/lib/data/customCategories'
 import { getLang } from '@/lib/i18n/i18n'
 import { RsSummaryCells } from '@/components/RsSummaryCells'
 
-type CategoryDef = (typeof CATEGORIES)[number]
-
 export interface RsCategoryCardProps {
-  cat: CategoryDef
+  cat: ResolvedCat
   datasets: readonly ChartDataset[]
   /** When null/undefined AND filledCount === 0, the card is hidden entirely. */
   editableResult?: Result | null

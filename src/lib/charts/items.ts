@@ -18,7 +18,10 @@ export function enabledItemsForCat(
   const slot = answers?.[catId] ?? {}
   const hidden = slot.__hidden ?? {}
   const cat = CATEGORIES.find((c) => c.id === catId)
-  if (!cat) return { base: [], custom: [] }
+  if (!cat) {
+    // Custom category — all items are stored as custom items
+    return { base: [], custom: Object.keys(slot.__custom ?? {}) }
+  }
   return {
     base: cat.items.filter((it) => !hidden[it]),
     custom: Object.keys(slot.__custom ?? {}),

@@ -13,9 +13,12 @@ export function DialogHost() {
     <Dialog
       key={req.id}
       open={true}
-      onOpenChange={(o) => { if (!o && req.dismissable !== false) close(null) }}
+      onOpenChange={(o) => { if (!o) close(null) }}
     >
-      <DialogContent data-testid="dialog-host">
+      <DialogContent
+        data-testid="dialog-host"
+        {...(req.dismissable === false ? { onInteractOutside: (e: Event) => e.preventDefault() } : {})}
+      >
         {req.title && (
           <DialogHeader>
             <DialogTitle>{req.title}</DialogTitle>

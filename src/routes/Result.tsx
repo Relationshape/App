@@ -19,10 +19,12 @@ import { RsCategoryCard } from '@/components/RsCategoryCard'
 import { RsCategoryPicker } from '@/components/RsCategoryPicker'
 import { Button } from '@/components/ui/button'
 import { CATEGORIES } from '@/lib/data/data'
+import { resolveAnyCat } from '@/lib/data/customCategories'
 import { useShareData } from '@/components/providers/ShareDataProvider'
 import { countAnswers, fmtDate } from '@/lib/format/date'
 import { t } from '@/lib/i18n/i18n'
 
+import type { ResolvedCat } from '@/lib/data/customCategories'
 type CategoryDef = (typeof CATEGORIES)[number]
 
 export function Result() {
@@ -36,7 +38,7 @@ export function Result() {
   const saveResult = useStore((s) => s.saveResult)
   const { openShare } = useShareData()
 
-  const [modalCat, setModalCat] = useState<CategoryDef | null>(null)
+  const [modalCat, setModalCat] = useState<ResolvedCat | CategoryDef | null>(null)
   const [enlargedOpen, setEnlargedOpen] = useState(false)
   const [pickerOpen, setPickerOpen] = useState(false)
 
@@ -65,8 +67,10 @@ export function Result() {
   // Only show categories that are in the result's enabled list (or all if unset).
   // Mirrors legacy app.js:2843 `enabledIds ?? editableResult?.enabledCategories`.
   const enabledCats = result.enabledCategories
-    ? CATEGORIES.filter((c) => result.enabledCategories!.includes(c.id))
-    : CATEGORIES
+    ? result.enabledCategories
+        .map((id) => resolveAnyCat(id, result.customCategories, profile?.customCategories))
+        .filter((c): c is NonNullable<typeof c> => Boolean(c))
+    : CATEGORIES.map((c) => ({ ...c, blurb: c.blurb ?? '', deBlurb: c.deBlurb ?? '' }))
 
   return (
     <section className="page" data-testid="result-page">
@@ -167,7 +171,9 @@ export function Result() {
         open={pickerOpen}
         onOpenChange={setPickerOpen}
         existingIds={result.enabledCategories ?? CATEGORIES.map((c) => c.id)}
-        onSubmit={(mergedIds) => saveResult({ ...result, enabledCategories: mergedIds })}
+        result={result}
+        profile={profile}
+        onSubmit={(mergedIds, resultCats) => saveResult({ ...result, enabledCategories: mergedIds, customCategories: resultCats })}
       />
 
       <EnlargedSpider

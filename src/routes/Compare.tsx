@@ -13,11 +13,13 @@ import { ImportForm } from '@/components/ImportForm'
 import { UnlockAnswersBody } from '@/components/UnlockAnswersDialog'
 import { mapResultToDataset, mapImportToDataset } from '@/lib/charts/datasets'
 import { CATEGORIES } from '@/lib/data/data'
+import { resolveAnyCat } from '@/lib/data/customCategories'
 import type { AnswersBlob, Import } from '@/lib/storage/types'
 import { useToast } from '@/lib/hooks/useToast'
 import { dialog } from '@/lib/dialog/dialog'
 import { t } from '@/lib/i18n/i18n'
 
+import type { ResolvedCat } from '@/lib/data/customCategories'
 type CategoryDef = (typeof CATEGORIES)[number]
 
 export function Compare() {
@@ -110,7 +112,7 @@ export function Compare() {
   }, [effectiveIds.join(','), results])
 
   const [activeAxis, setActiveAxis] = useState<string | null>(null)
-  const [modalCat, setModalCat] = useState<CategoryDef | null>(null)
+  const [modalCat, setModalCat] = useState<CategoryDef | ResolvedCat | null>(null)
   const [importOpen, setImportOpen] = useState(false)
 
   function handleImportSuccess(imp: Import) {
@@ -152,12 +154,27 @@ export function Compare() {
     return Object.keys(slot.__custom ?? {}).length > 0
   }
 
-  const filteredCategories = compareFilterIds
-    ? CATEGORIES.filter((c) => compareFilterIds.includes(c.id))
-    : CATEGORIES
-  const visibleCategories = filteredCategories.filter((cat) =>
-    datasets.some((ds) => hasItemValues(ds.answers, cat.id)),
-  )
+  // Collect all category IDs (builtin + custom from datasets)
+  const allCatIds = useMemo(() => {
+    const builtinIds = CATEGORIES.map((c) => c.id)
+    const customIds = datasets.flatMap((ds) => (ds.customCategories ?? []).map((c) => c.id))
+    return [...builtinIds, ...customIds]
+  }, [datasets])
+
+  const filteredCatIds = compareFilterIds
+    ? allCatIds.filter((id) => compareFilterIds.includes(id))
+    : allCatIds
+
+  const visibleCategories = useMemo(() => {
+    return filteredCatIds
+      .map((id) => {
+        const allResultCats = datasets.flatMap((ds) => ds.customCategories ?? [])
+        return resolveAnyCat(id, allResultCats, [])
+      })
+      .filter((c): c is NonNullable<typeof c> => Boolean(c))
+      .filter((cat) => datasets.some((ds) => hasItemValues(ds.answers, cat.id)))
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filteredCatIds.join(','), datasets])
 
   const selectedCount = effectiveIds.length
   const atMax = selectedCount >= 4

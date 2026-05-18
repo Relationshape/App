@@ -607,6 +607,21 @@ export const DE: Record<TranslationKey, string> = {
   cat_details_filter_hint: 'Es werden nur diejenigen Kategorien angezeigt, welche in allen zum Vergleich ausgewählten Karten mindestens eine Antwort enthalten.',
   wizard_pick_imported_maps_section: 'Importierte Karten',
 
+  // Custom categories
+  cat_picker_custom_section: 'Eigene Kategorien',
+  cat_picker_create_btn: 'Eigene Kategorie erstellen',
+  cat_create_title_label: 'Kategoriename',
+  cat_create_title_placeholder: 'z.B. Arbeit, Spiritualität...',
+  cat_create_emoji_label: 'Symbol (optional)',
+  cat_create_scope_label: 'Speichern für',
+  cat_create_scope_result: 'Nur diese Karte',
+  cat_create_scope_profile: 'Alle Karten dieses Profils',
+  cat_create_next: 'Weiter',
+  cat_items_step_title: 'Elemente hinzufügen',
+  cat_items_step_sub: 'Füge mindestens ein Element zur Kategorie hinzu.',
+  cat_items_add_btn: 'Element hinzufügen',
+  cat_items_done_btn: 'Fertig',
+
   // Custom item format picker
   q_add_custom_format_title: 'Antwortformat wählen',
   q_format_scale: 'Skala',

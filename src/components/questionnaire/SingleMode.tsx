@@ -22,6 +22,7 @@ import { QuestionnaireHeader } from './QuestionnaireHeader'
 import { QuestionnaireNav } from './QuestionnaireNav'
 import { enabledItemsForCat, type FlatItem } from '@/lib/charts/items'
 import { CATEGORIES } from '@/lib/data/data'
+import { resolveAnyCat } from '@/lib/data/customCategories'
 import { getItemLabel } from '@/lib/data/locale'
 import type { Result, Profile, AnswerCell } from '@/lib/storage/types'
 import { t, getLang } from '@/lib/i18n/i18n'
@@ -48,9 +49,9 @@ export function SingleMode({ result, profile }: Props) {
   const coarse = useIsCoarsePointer()
   const enabledCats = useMemo(() => (
     (result.enabledCategories ?? CATEGORIES.map((c) => c.id))
-      .map((cid) => CATEGORIES.find((c) => c.id === cid))
+      .map((cid) => resolveAnyCat(cid, result.customCategories, profile.customCategories))
       .filter((c): c is NonNullable<typeof c> => Boolean(c))
-  ), [result.enabledCategories])
+  ), [result.enabledCategories, result.customCategories, profile.customCategories])
 
   const safeIdx = Math.min(Math.max(0, result.progress?.catIndex ?? 0), Math.max(0, enabledCats.length - 1))
   const cat = enabledCats[safeIdx]
