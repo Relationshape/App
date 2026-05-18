@@ -102,6 +102,7 @@ export function buildBaseSharePayload(result: Result, profile: Profile): Omit<Sh
   if (result.subjectEmoji !== undefined) payload.subjectEmoji = result.subjectEmoji
   if (result.subjectColor !== undefined) payload.subjectColor = result.subjectColor
   if (result.customItemDefs) payload.customItemDefs = result.customItemDefs
+  if (result.customCategories) payload.customCategories = result.customCategories
   return payload
 }
 
@@ -141,5 +142,6 @@ export function payloadToImport(p: SharePayload, id: string, srcVersion?: number
   if (p.askedItems != null) imp.askedItems = p.askedItems as NonNullable<Import['askedItems']>
   if (p.lockedAnswers != null) imp.lockedAnswers = p.lockedAnswers
   if (p.customItemDefs != null) imp.customItemDefs = p.customItemDefs as NonNullable<Import['customItemDefs']>
+  if (p.customCategories != null) imp.customCategories = p.customCategories
   return imp
 }

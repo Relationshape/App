@@ -19,6 +19,7 @@ import type { ChartDataset } from './types'
 import type { CATEGORIES } from '@/lib/data/data'
 import type { Result, CustomItemDef, CustomItemFormat } from '@/lib/storage/types'
 import type { MutableScaleStep } from '@/lib/data/types'
+import type { ResolvedCat } from '@/lib/data/customCategories'
 import { localizeStep } from '@/lib/data/locale'
 import { t, getLang } from '@/lib/i18n/i18n'
 import { CATEGORIES as ALL_CATS } from '@/lib/data/data'
@@ -30,7 +31,7 @@ interface Props {
   open: boolean
   onOpenChange: (next: boolean) => void
   datasets: readonly ChartDataset[]
-  cat: CategoryDef | null
+  cat: CategoryDef | ResolvedCat | null
   /** When provided, the Edit Answers tab is shown and answers are saved to this result. */
   result?: Result | null
   /** Tab to open on when the modal first becomes visible. Defaults to 'spider'. */
@@ -304,7 +305,7 @@ export function CategoryModal({ open, onOpenChange, datasets, cat, result, initi
 
 interface EditTabProps {
   result: Result
-  cat: CategoryDef
+  cat: CategoryDef | ResolvedCat
   onLocalChange?: (next: Result) => void
   onImmediateSave?: (next: Result) => void
   addingRef?: React.MutableRefObject<boolean>
@@ -367,8 +368,8 @@ function EditTabContent({ result, cat, onLocalChange, onImmediateSave, addingRef
     })
     if (!name) return
 
-    const c = ALL_CATS.find((x) => x.id === cat.id)!
-    if ((c.items as readonly string[]).includes(name) || (slot.__custom ?? {})[name]) {
+    const c = ALL_CATS.find((x) => x.id === cat.id)
+    if ((c ? (c.items as readonly string[]).includes(name) : false) || (slot.__custom ?? {})[name]) {
       toast.message(t('q_item_already_exists'))
       return
     }

@@ -7,6 +7,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useStore } from '@/lib/storage/store'
 import { CATEGORIES } from '@/lib/data/data'
+import { resolveAnyCat } from '@/lib/data/customCategories'
 import { catProgress } from '@/lib/charts/math'
 import { Button } from '@/components/ui/button'
 import { RsTile } from '@/components/RsTile'
@@ -14,6 +15,7 @@ import { RsCategoryPicker } from '@/components/RsCategoryPicker'
 import { NewMapWizard } from '@/components/NewMapWizard'
 import { t, getLang } from '@/lib/i18n/i18n'
 import { useShareData } from '@/components/providers/ShareDataProvider'
+import type { CustomCategoryDef } from '@/lib/storage/types'
 import {
   Dialog, DialogContent, DialogTitle, DialogFooter,
 } from '@/components/ui/dialog'
@@ -24,6 +26,7 @@ export function CategoryOverview() {
   const profiles = useStore((s) => s.profiles)
   const allResults = useStore((s) => s.results)
   const saveResult = useStore((s) => s.saveResult)
+  const updateProfile = useStore((s) => s.updateProfile)
   const lang = getLang()
   const [pickerOpen, setPickerOpen] = useState(false)
   const [preShareOpen, setPreShareOpen] = useState(false)
@@ -49,9 +52,9 @@ export function CategoryOverview() {
   const enabledCats = useMemo(
     () =>
       enabledIds
-        .map((id) => CATEGORIES.find((c) => c.id === id))
+        .map((id) => resolveAnyCat(id, result?.customCategories, profile?.customCategories))
         .filter((c): c is NonNullable<typeof c> => Boolean(c)),
-    [enabledIds],
+    [enabledIds, result?.customCategories, profile?.customCategories],
   )
 
   const hasAnswers = useMemo(() => {
@@ -88,8 +91,11 @@ export function CategoryOverview() {
     navigate(`/q/${profile!.id}/${result!.id}`)
   }
 
-  function onPickerSubmit(mergedIds: string[]) {
-    saveResult({ ...result!, enabledCategories: mergedIds })
+  function onPickerSubmit(mergedIds: string[], resultCats: CustomCategoryDef[], profileCats: CustomCategoryDef[]) {
+    if (profile && profileCats.length > (profile.customCategories?.length ?? 0)) {
+      updateProfile(profile.id, { customCategories: profileCats })
+    }
+    saveResult({ ...result!, enabledCategories: mergedIds, customCategories: resultCats })
   }
 
   return (
@@ -142,6 +148,8 @@ export function CategoryOverview() {
         open={pickerOpen}
         onOpenChange={setPickerOpen}
         existingIds={enabledIds}
+        result={result!}
+        profile={profile}
         onSubmit={onPickerSubmit}
       />
 

@@ -8,9 +8,11 @@ import { EmojiPicker } from '@/components/EmojiPicker'
 import { RsTile } from '@/components/RsTile'
 import { RsCategoryPicker } from '@/components/RsCategoryPicker'
 import { CATEGORIES } from '@/lib/data/data'
+import { resolveAnyCat } from '@/lib/data/customCategories'
 import { t } from '@/lib/i18n/i18n'
 import { useTemplateWarning } from '@/lib/hooks/useTemplateWarning'
 import type { MutableScaleStep } from '@/lib/data/types'
+import type { CustomCategoryDef } from '@/lib/storage/types'
 
 const PALETTE = ['#7c3aed', '#06b6d4', '#ec4899', '#10b981', '#f59e0b', '#ef4444', '#3b82f6', '#a78bfa', '#22c55e', '#e11d48']
 
@@ -18,8 +20,11 @@ export function MapSettings() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const result = useStore((s) => (id ? s.results.find((r) => r.id === id) ?? null : null))
+  const profiles = useStore((s) => s.profiles)
+  const profile = result ? (profiles.find((p) => p.id === result.profileId) ?? null) : null
   const globalScale = useStore((s) => s.scale)
   const saveResult = useStore((s) => s.saveResult)
+  const updateProfile = useStore((s) => s.updateProfile)
 
   const [subject, setSubject] = useState(result?.subject ?? '')
   const [subjectEmoji, setSubjectEmoji] = useState(result?.subjectEmoji ?? '💞')
@@ -31,6 +36,7 @@ export function MapSettings() {
   const [enabledCategories, setEnabledCategories] = useState(() => result?.enabledCategories ?? CATEGORIES.map((c) => c.id))
 
   const [pickerOpen, setPickerOpen] = useState(false)
+  const [resultCustomCats, setResultCustomCats] = useState<CustomCategoryDef[]>(() => result?.customCategories ?? [])
 
   const { confirmIfTemplate } = useTemplateWarning(result)
 
@@ -43,11 +49,16 @@ export function MapSettings() {
     setEnabledCategories((prev) => prev.includes(catId) ? prev.filter((c) => c !== catId) : [...prev, catId])
   }
 
-  function handlePickerSubmit(mergedIds: string[]) {
+  function handlePickerSubmit(mergedIds: string[], newResultCats: CustomCategoryDef[], newProfileCats: CustomCategoryDef[]) {
     const newIds = mergedIds.filter((id) => !knownCatIds.includes(id))
-    if (newIds.length === 0) return
-    setKnownCatIds((prev) => [...prev, ...newIds])
-    setEnabledCategories((prev) => [...prev, ...newIds])
+    if (newIds.length > 0) {
+      setKnownCatIds((prev) => [...prev, ...newIds])
+      setEnabledCategories((prev) => [...prev, ...newIds])
+    }
+    setResultCustomCats(newResultCats)
+    if (profile && newProfileCats.length > (profile.customCategories?.length ?? 0)) {
+      updateProfile(profile.id, { customCategories: newProfileCats })
+    }
   }
 
   async function onSave() {
@@ -65,6 +76,7 @@ export function MapSettings() {
       subjectColor,
       enabledCategories,
       ...(scale !== undefined ? { scale } : {}),
+      ...(resultCustomCats.length > 0 ? { customCategories: resultCustomCats } : {}),
     })
     void navigate(`/result/${r.id}`)
   }
@@ -76,7 +88,14 @@ export function MapSettings() {
   }
 
   const knownSet = useMemo(() => new Set(knownCatIds), [knownCatIds])
-  const visibleCats = useMemo(() => CATEGORIES.filter((cat) => knownSet.has(cat.id)), [knownSet])
+  const visibleCats = useMemo(() => {
+    const builtins = CATEGORIES.filter((cat) => knownSet.has(cat.id))
+    const customCats = resultCustomCats
+      .filter((c) => knownSet.has(c.id))
+      .map((c) => resolveAnyCat(c.id, resultCustomCats, profile?.customCategories ?? []))
+      .filter((c): c is NonNullable<typeof c> => Boolean(c))
+    return [...builtins, ...customCats]
+  }, [knownSet, resultCustomCats, profile?.customCategories])
 
   return (
     <section className="page narrow" data-testid="map-settings-page">
@@ -168,6 +187,8 @@ export function MapSettings() {
         open={pickerOpen}
         onOpenChange={setPickerOpen}
         existingIds={knownCatIds}
+        result={result}
+        profile={profile}
         onSubmit={handlePickerSubmit}
       />
     </section>

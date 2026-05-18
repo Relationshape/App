@@ -9,13 +9,14 @@ import { useStore } from '@/lib/storage/store'
 import { t, getLang } from '@/lib/i18n/i18n'
 import { cn } from '@/lib/utils'
 import type { CATEGORIES } from '@/lib/data/data'
+import type { ResolvedCat } from '@/lib/data/customCategories'
 
 type Category = (typeof CATEGORIES)[number]
 
 interface Props {
   result: Result
   profileId: string
-  activeCat?: Category
+  activeCat?: Category | ResolvedCat
   idx?: number
   total?: number
 }

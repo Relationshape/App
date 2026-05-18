@@ -14,6 +14,7 @@ import { QuestionnaireNav } from './QuestionnaireNav'
 import { Button } from '@/components/ui/button'
 import { ScaleEditor } from '@/components/ScaleEditor'
 import { CATEGORIES } from '@/lib/data/data'
+import { resolveAnyCat } from '@/lib/data/customCategories'
 import { enabledItemsForCat } from '@/lib/charts/items'
 import { dialog } from '@/lib/dialog/dialog'
 import { useToast } from '@/lib/hooks/useToast'
@@ -34,7 +35,7 @@ export function ListMode({ result, profile }: Props) {
   const navigate = useNavigate()
 
   const enabledCats = (result.enabledCategories ?? CATEGORIES.map((c) => c.id))
-    .map((cid) => CATEGORIES.find((c) => c.id === cid))
+    .map((cid) => resolveAnyCat(cid, result.customCategories, profile.customCategories))
     .filter((c): c is NonNullable<typeof c> => c !== undefined)
 
   useEffect(() => {
@@ -86,8 +87,8 @@ export function ListMode({ result, profile }: Props) {
     if (!name) return
 
     const slot = result.answers[catId] ?? {}
-    const c = CATEGORIES.find((x) => x.id === catId)!
-    if ((c.items as readonly string[]).includes(name) || (slot.__custom ?? {})[name]) {
+    const c = CATEGORIES.find((x) => x.id === catId)
+    if ((c ? (c.items as readonly string[]).includes(name) : false) || (slot.__custom ?? {})[name]) {
       toast.message(t('q_item_already_exists'))
       return
     }

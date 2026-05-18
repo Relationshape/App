@@ -9,6 +9,7 @@ import type { MutableScaleStep } from './types'
  * The item key (English) is always preserved for storage; this is display-only.
  */
 export function getItemLabel(catId: string, item: string, lang: string): string {
+  if (catId.startsWith('ccat-')) return item
   if (lang !== 'de') return item
   const cat = CATEGORIES.find((c) => c.id === catId)
   if (!cat) return item

@@ -5,11 +5,12 @@ import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import type { Result } from '@/lib/storage/types'
 import type { CATEGORIES } from '@/lib/data/data'
+import type { ResolvedCat } from '@/lib/data/customCategories'
 import { t } from '@/lib/i18n/i18n'
 
 type Category = (typeof CATEGORIES)[number]
 
-interface Props { result: Result; profileId: string; activeCat?: Category }
+interface Props { result: Result; profileId: string; activeCat?: Category | ResolvedCat }
 
 export function QuestionnaireNav({ result, profileId, activeCat }: Props) {
   const resultsHref = activeCat

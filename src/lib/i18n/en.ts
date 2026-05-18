@@ -588,6 +588,21 @@ export const EN = {
   cat_details_filter_hint: 'Only categories that contain at least one answer in all selected maps are shown here.',
   wizard_pick_imported_maps_section: 'Imported maps',
 
+  // Custom categories
+  cat_picker_custom_section: 'Custom categories',
+  cat_picker_create_btn: 'Create custom category',
+  cat_create_title_label: 'Category name',
+  cat_create_title_placeholder: 'e.g. Work, Spirituality...',
+  cat_create_emoji_label: 'Icon (optional)',
+  cat_create_scope_label: 'Save for',
+  cat_create_scope_result: 'This card only',
+  cat_create_scope_profile: 'All cards of this profile',
+  cat_create_next: 'Next',
+  cat_items_step_title: 'Add items',
+  cat_items_step_sub: 'Add at least one item to the category.',
+  cat_items_add_btn: 'Add item',
+  cat_items_done_btn: 'Done',
+
   // Custom item format picker
   q_add_custom_format_title: 'Choose answer format',
   q_format_scale: 'Scale',
