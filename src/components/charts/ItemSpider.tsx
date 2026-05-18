@@ -190,7 +190,7 @@ export function ItemSpider({ datasets, catId, size = 480 }: Props) {
 
         {/* Tooltip shown in chart centre when a data-point dot is hovered */}
         {tooltipData && (() => {
-          const tFs = Math.round(Math.max(12, Math.min(22, size / 26)))
+          const tFs = Math.round(Math.max(24, Math.min(44, size / 13)))
           const tSmFs = Math.round(tFs * 0.82)
           const titleLines = wrapLabel(tooltipData.label, Math.round(24 * Math.sqrt(size / 480)))
           const rowH = tFs * 1.55

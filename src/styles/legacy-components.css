@@ -685,8 +685,18 @@ a:hover { text-decoration: underline; }
   filter: drop-shadow(0 4px 32px rgba(130, 60, 220, .2));
   overflow: visible;
 }
-.rs-grid-ring { fill: none; stroke: var(--line); stroke-width: 1.6; opacity: .45; }
-.rs-grid-spoke { stroke: var(--line); stroke-width: 1.3; opacity: .25; }
+/* Dark mode default — bright purple-white so rings/spokes are visible on dark bg */
+.rs-grid-ring { fill: none; stroke: rgba(200, 180, 255, 0.55); stroke-width: 1.6; opacity: 1; }
+.rs-grid-spoke { stroke: rgba(200, 180, 255, 0.38); stroke-width: 1.3; opacity: 1; }
+/* Light mode override — revert to subtle var(--line) */
+:root[data-theme="light"] .rs-grid-ring { stroke: var(--line); opacity: .45; }
+:root[data-theme="light"] .rs-grid-spoke { stroke: var(--line); opacity: .25; }
+@media (prefers-color-scheme: light) {
+  :root[data-theme="auto"] .rs-grid-ring,
+  :root:not([data-theme]) .rs-grid-ring { stroke: var(--line); opacity: .45; }
+  :root[data-theme="auto"] .rs-grid-spoke,
+  :root:not([data-theme]) .rs-grid-spoke { stroke: var(--line); opacity: .25; }
+}
 .rs-poly {
   fill-opacity: .2; stroke-width: 2; stroke-linejoin: round;
   paint-order: stroke fill; mix-blend-mode: screen;
