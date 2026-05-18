@@ -11,7 +11,7 @@
 //   Enter / ArrowDown → focus next .q-item
 //   ArrowUp           → focus previous .q-item
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { ScalePicker } from '@/components/ScalePicker'
 import { ScaleEditor } from '@/components/ScaleEditor'
 import { Button } from '@/components/ui/button'
@@ -21,7 +21,7 @@ import {
 import { useStore } from '@/lib/storage/store'
 import { dialog } from '@/lib/dialog/dialog'
 import { CATEGORIES } from '@/lib/data/data'
-import type { AnswerCell, Result } from '@/lib/storage/types'
+import type { AnswerCell, Result, CustomItemDef, CustomItemFormat } from '@/lib/storage/types'
 import type { MutableScaleStep } from '@/lib/data/types'
 import { t } from '@/lib/i18n/i18n'
 
@@ -36,6 +36,7 @@ interface Props {
   variant: 'list' | 'single'
   onAnswered?: () => void
   onSave?: (next: Result) => void
+  customItemDef?: CustomItemDef
 }
 
 export function RsQuestionCard({
@@ -49,6 +50,7 @@ export function RsQuestionCard({
   variant,
   onAnswered,
   onSave,
+  customItemDef,
 }: Props) {
   const storeSaveResult = useStore((s) => s.saveResult)
   const saveResult = onSave ?? storeSaveResult
@@ -61,32 +63,75 @@ export function RsQuestionCard({
   const [editOpen, setEditOpen] = useState(false)
   const [pendingLabel, setPendingLabel] = useState('')
   const [pendingScale, setPendingScale] = useState<MutableScaleStep[] | null>(null)
+  const [pendingFormat, setPendingFormat] = useState<CustomItemFormat>('scale')
+  const [pendingOptions, setPendingOptions] = useState('')
+  const [optionsError, setOptionsError] = useState(false)
 
   const catDef = CATEGORIES.find((c) => c.id === catId)
-  const showGR = variant === 'list' && Boolean((catDef as { gr?: boolean } | undefined)?.gr)
+  const format: CustomItemFormat = (isCustom && customItemDef?.format) ? customItemDef.format : 'scale'
+  const showGR = variant === 'list' && Boolean((catDef as { gr?: boolean } | undefined)?.gr) && format === 'scale'
 
   const displayName = cell?.customLabel || item
 
   function openEditDialog() {
     setPendingLabel(cell?.customLabel ?? '')
     setPendingScale(cell?.itemScale ? cell.itemScale.map((s) => ({ ...s })) : null)
+    setPendingFormat(format)
+    setPendingOptions(customItemDef?.options?.join('\n') ?? '')
+    setOptionsError(false)
     setEditOpen(true)
   }
 
   async function saveItemEdit() {
+    // Validate options if the pending format requires them
+    const needsOptions = pendingFormat === 'single' || pendingFormat === 'multi' || pendingFormat === 'ranking'
+    if (isCustom && needsOptions) {
+      const lines = pendingOptions.split('\n').map((l) => l.trim()).filter(Boolean)
+      if (lines.length < 2) { setOptionsError(true); return }
+    }
     if (!(await onBeforeMutate())) { setEditOpen(false); return }
     const next = structuredClone(result)
     if (storeTemplateWarningDisabled) next.templateWarningDisabled = true
     const slot = next.answers[catId] ?? {}
+    const formatChanged = isCustom && pendingFormat !== format
+
     function patchCell(existing: AnswerCell | undefined): AnswerCell {
       const c: AnswerCell = existing ? { ...existing } : { scale: 'open' }
       const label = pendingLabel.trim()
       if (label) c.customLabel = label; else delete c.customLabel
-      if (pendingScale) c.itemScale = pendingScale; else delete c.itemScale
+      if (!isCustom || pendingFormat === 'scale') {
+        if (pendingScale) c.itemScale = pendingScale; else delete c.itemScale
+      }
+      // Clear answer fields when format changes
+      if (formatChanged) {
+        delete c.textValue
+        delete c.selectedValues
+        delete c.rankingValues
+        if (pendingFormat !== 'scale') {
+          c.scale = 'open'
+          delete c.itemScale
+        }
+      }
       return c
     }
+
     if (isCustom) {
       slot.__custom = { ...(slot.__custom ?? {}), [item]: patchCell(slot.__custom?.[item]) }
+      // Update customItemDef if format or options changed
+      if (formatChanged || needsOptions) {
+        const options = needsOptions
+          ? pendingOptions.split('\n').map((l) => l.trim()).filter(Boolean)
+          : undefined
+        const newDef: CustomItemDef = { format: pendingFormat }
+        if (options) newDef.options = options
+        next.customItemDefs = {
+          ...(next.customItemDefs ?? {}),
+          [catId]: {
+            ...((next.customItemDefs ?? {})[catId] ?? {}),
+            [item]: newDef,
+          },
+        }
+      }
     } else {
       slot[item] = patchCell(slot[item])
     }
@@ -137,6 +182,20 @@ export function RsQuestionCard({
     saveResult(next)
   }
 
+  function saveNonScaleAnswer(patch: Partial<AnswerCell>) {
+    const next = structuredClone(result)
+    const slot = next.answers[catId] ?? {}
+    if (isCustom) {
+      const customs = slot.__custom ?? {}
+      customs[item] = { ...(customs[item] ?? { scale: 'open' }), ...patch } as AnswerCell
+      slot.__custom = customs
+    } else {
+      slot[item] = { ...(slot[item] ?? { scale: 'open' }), ...patch } as AnswerCell
+    }
+    next.answers[catId] = slot
+    saveResult(next)
+  }
+
   function commitNote() {
     if (note === (cell?.note ?? '')) return
     const next = structuredClone(result)
@@ -170,6 +229,14 @@ export function RsQuestionCard({
       const customs = { ...(slot.__custom ?? {}) }
       delete customs[item]
       slot.__custom = customs
+      // Clean up customItemDef for this item
+      if (next.customItemDefs?.[catId]?.[item]) {
+        const defs = { ...next.customItemDefs }
+        const catDefs = { ...defs[catId] }
+        delete catDefs[item]
+        defs[catId] = catDefs
+        next.customItemDefs = defs
+      }
     } else {
       slot.__hidden = { ...(slot.__hidden ?? {}), [item]: true }
       delete (slot as Record<string, unknown>)[item]
@@ -236,7 +303,7 @@ export function RsQuestionCard({
             onClick={openEditDialog}
             data-testid={`item-edit-${catId}-${item}`}
           >
-            {t('item_edit_scale')}
+            {format === 'scale' ? t('item_edit_scale') : t('item_rename_btn')}
           </Button>
           {variant === 'list' && (
             <Button
@@ -268,16 +335,33 @@ export function RsQuestionCard({
           </div>
         )}
 
-        <div className="q-slider-wrap">
-          <ScalePicker
-            scale={cell?.itemScale ?? scale}
-            value={cell?.scale ?? null}
-            valueFrac={cell?.scaleFrac ?? null}
-            onChange={setScaleKey}
-            onClear={clearAnswer}
-            compact={variant === 'list'}
+        {format === 'scale' ? (
+          <div className="q-slider-wrap">
+            <ScalePicker
+              scale={cell?.itemScale ?? scale}
+              value={cell?.scale ?? null}
+              valueFrac={cell?.scaleFrac ?? null}
+              onChange={setScaleKey}
+              onClear={clearAnswer}
+              compact={variant === 'list'}
+            />
+          </div>
+        ) : format === 'text' ? (
+          <NonScaleTextAnswer cell={cell} onSave={saveNonScaleAnswer} />
+        ) : format === 'single' || format === 'multi' ? (
+          <NonScaleSelectionAnswer
+            format={format}
+            options={customItemDef?.options ?? []}
+            cell={cell}
+            onSave={saveNonScaleAnswer}
           />
-        </div>
+        ) : (
+          <NonScaleRankingAnswer
+            options={customItemDef?.options ?? []}
+            cell={cell}
+            onSave={saveNonScaleAnswer}
+          />
+        )}
 
         <textarea
           placeholder={t('item_note_placeholder')}
@@ -307,25 +391,63 @@ export function RsQuestionCard({
                 data-testid={`item-edit-label-${catId}-${item}`}
               />
             </label>
-            <div className="flex flex-col gap-2">
-              <p className="muted text-sm">{t('q_edit_item_scale_warning')}</p>
-              <ScaleEditor
-                key={`${catId}-${item}`}
-                scale={pendingScale ?? scale}
-                onChange={setPendingScale}
-              />
-              {pendingScale && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="self-start"
-                  onClick={() => setPendingScale(null)}
-                  data-testid={`item-scale-reset-${catId}-${item}`}
-                >
-                  {t('q_item_scale_reset')}
-                </Button>
-              )}
-            </div>
+            {isCustom && (
+              <div className="flex flex-col gap-2">
+                <span className="text-sm font-medium">{t('q_edit_format_section')}</span>
+                <div className="flex flex-col gap-1">
+                  {(['scale', 'text', 'single', 'multi', 'ranking'] as CustomItemFormat[]).map((f) => (
+                    <label key={f} className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name={`edit-format-${catId}-${item}`}
+                        value={f}
+                        checked={pendingFormat === f}
+                        onChange={() => { setPendingFormat(f); setOptionsError(false) }}
+                        data-testid={`item-edit-format-${f}-${catId}-${item}`}
+                      />
+                      <span className="text-sm">{t(`q_format_${f}` as Parameters<typeof t>[0])}</span>
+                    </label>
+                  ))}
+                </div>
+                {pendingFormat !== format && (
+                  <p className="text-sm text-destructive">{t('q_edit_format_change_warn')}</p>
+                )}
+                {(pendingFormat === 'single' || pendingFormat === 'multi' || pendingFormat === 'ranking') && (
+                  <label className="flex flex-col gap-1">
+                    <span className="text-sm font-medium">{t('q_edit_format_options_label')}</span>
+                    <textarea
+                      rows={5}
+                      className="w-full rounded border border-line px-2 py-1 font-mono text-sm"
+                      value={pendingOptions}
+                      onChange={(e) => { setPendingOptions(e.target.value); setOptionsError(false) }}
+                      data-testid={`item-edit-options-${catId}-${item}`}
+                    />
+                    {optionsError && <p className="text-sm text-destructive">{t('q_edit_format_options_min')}</p>}
+                  </label>
+                )}
+              </div>
+            )}
+            {(!isCustom || pendingFormat === 'scale') && (
+              <div className="flex flex-col gap-2">
+                <p className="muted text-sm">{t('q_edit_item_scale_warning')}</p>
+                <ScaleEditor
+                  key={`${catId}-${item}`}
+                  scale={pendingScale ?? scale}
+                  onChange={setPendingScale}
+                />
+                {pendingScale && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="self-start"
+                    onClick={() => setPendingScale(null)}
+                    data-testid={`item-scale-reset-${catId}-${item}`}
+                  >
+                    {t('q_item_scale_reset')}
+                  </Button>
+                )}
+              </div>
+            )}
           </div>
           <DialogFooter>
             <Button variant="ghost" onClick={() => setEditOpen(false)}>{t('btn_cancel')}</Button>
@@ -339,5 +461,106 @@ export function RsQuestionCard({
         </DialogContent>
       </Dialog>
     </>
+  )
+}
+
+// ── Non-scale answer sub-components ──────────────────────────────────────────
+
+function NonScaleTextAnswer({ cell, onSave }: { cell: AnswerCell | undefined; onSave: (p: Partial<AnswerCell>) => void }) {
+  const [val, setVal] = useState(cell?.textValue ?? '')
+  useEffect(() => { setVal(cell?.textValue ?? '') }, [cell?.textValue])
+  return (
+    <div className="q-non-scale-wrap">
+      <textarea
+        className="q-text-answer"
+        value={val}
+        onChange={(e) => setVal(e.target.value)}
+        onBlur={() => onSave({ textValue: val })}
+        placeholder={t('q_text_answer_placeholder')}
+        rows={2}
+      />
+    </div>
+  )
+}
+
+function NonScaleSelectionAnswer({ format, options, cell, onSave }: {
+  format: 'single' | 'multi'
+  options: string[]
+  cell: AnswerCell | undefined
+  onSave: (p: Partial<AnswerCell>) => void
+}) {
+  const selected = new Set(cell?.selectedValues ?? [])
+  function toggle(opt: string) {
+    if (format === 'single') {
+      onSave({ selectedValues: selected.has(opt) ? [] : [opt] })
+    } else {
+      const next = new Set(selected)
+      if (next.has(opt)) next.delete(opt); else next.add(opt)
+      onSave({ selectedValues: Array.from(next) })
+    }
+  }
+  return (
+    <div className="q-non-scale-wrap">
+      <div className="q-option-pills">
+        {options.map((opt) => (
+          <button
+            key={opt}
+            type="button"
+            className={`q-option-pill${selected.has(opt) ? ' is-selected' : ''}`}
+            onClick={() => toggle(opt)}
+          >
+            {opt}
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function NonScaleRankingAnswer({ options, cell, onSave }: {
+  options: string[]
+  cell: AnswerCell | undefined
+  onSave: (p: Partial<AnswerCell>) => void
+}) {
+  const ranked = cell?.rankingValues ?? []
+  const unranked = options.filter((o) => !ranked.includes(o))
+
+  function move(index: number, dir: 1 | -1) {
+    const next = [...ranked]
+    const target = index + dir
+    if (target < 0 || target >= next.length) return
+    ;[next[index], next[target]] = [next[target]!, next[index]!]
+    onSave({ rankingValues: next })
+  }
+
+  function addToRanking(opt: string) {
+    onSave({ rankingValues: [...ranked, opt] })
+  }
+
+  function removeFromRanking(opt: string) {
+    onSave({ rankingValues: ranked.filter((o) => o !== opt) })
+  }
+
+  return (
+    <div className="q-non-scale-wrap">
+      <div className="q-ranking-list">
+        {ranked.map((opt, i) => (
+          <div key={opt} className="q-ranking-row">
+            <span className="q-ranking-pos">{i + 1}.</span>
+            <span className="q-ranking-label">{opt}</span>
+            <button type="button" className="btn-icon" onClick={() => move(i, -1)} disabled={i === 0} aria-label="Up">↑</button>
+            <button type="button" className="btn-icon" onClick={() => move(i, 1)} disabled={i === ranked.length - 1} aria-label="Down">↓</button>
+            <button type="button" className="btn-icon" onClick={() => removeFromRanking(opt)} aria-label="Remove">✕</button>
+          </div>
+        ))}
+        {unranked.map((opt) => (
+          <div key={opt} className="q-ranking-row q-ranking-unranked">
+            <span className="q-ranking-pos">—</span>
+            <span className="q-ranking-label">{opt}</span>
+            <button type="button" className="btn-icon" onClick={() => addToRanking(opt)} aria-label="Add to ranking">+</button>
+          </div>
+        ))}
+      </div>
+    </div>
   )
 }

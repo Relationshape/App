@@ -10,10 +10,12 @@ import { CategoryModal } from '@/components/charts/CategoryModal'
 import { RsCategoryCard } from '@/components/RsCategoryCard'
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { ImportForm } from '@/components/ImportForm'
+import { UnlockAnswersBody } from '@/components/UnlockAnswersDialog'
 import { mapResultToDataset, mapImportToDataset } from '@/lib/charts/datasets'
 import { CATEGORIES } from '@/lib/data/data'
 import type { AnswersBlob, Import } from '@/lib/storage/types'
 import { useToast } from '@/lib/hooks/useToast'
+import { dialog } from '@/lib/dialog/dialog'
 import { t } from '@/lib/i18n/i18n'
 
 type CategoryDef = (typeof CATEGORIES)[number]
@@ -34,6 +36,7 @@ export function Compare() {
   const profiles = useStore((s) => s.profiles)
   const results = useStore((s) => s.results)
   const imports = useStore((s) => s.imports)
+  const unlockImport = useStore((s) => s.unlockImport)
   const fabiMode = useStore((s) => s.settings.fabiMode ?? false)
 
   // Separate own-result options and imported options for grouped display.
@@ -54,6 +57,7 @@ export function Compare() {
   const importedOptions = useMemo(
     () => imports.map((i) => ({
       id: `imp:${i.id}`,
+      impId: i.id,
       name: i.name ?? 'Anonymous',
       subject: i.subject ?? '',
       emoji: i.emoji || '📨',
@@ -115,6 +119,22 @@ export function Compare() {
     const cur = truncatedRaw.length === 0 ? effectiveIds : truncatedRaw
     const next = cur.includes(id) ? cur : [...cur, id].slice(0, 4)
     setParams({ ids: next.join(',') })
+  }
+
+  function handleUnlockImport(impId: string) {
+    const imp = imports.find((i) => i.id === impId)
+    if (!imp) return
+    void dialog<boolean>({
+      title: t('unlock_answers_title'),
+      body: (close) => (
+        <UnlockAnswersBody
+          imp={imp}
+          onUnlock={(answers) => { unlockImport(impId, answers); close(true) }}
+          onCancel={() => close(false)}
+        />
+      ),
+      actions: [],
+    })
   }
 
   function toggleId(id: string) {
@@ -223,6 +243,33 @@ export function Compare() {
           {importedOptions.length > 0 && (
             <div className="compare-group-items">
               {importedOptions.map((o) => {
+                if (o.locked) {
+                  return (
+                    <div
+                      key={o.id}
+                      className="compare-row compare-row--locked-import"
+                      style={{ ['--c' as 'color']: o.color } as React.CSSProperties}
+                      data-testid={`compare-chip-${o.id}`}
+                    >
+                      <span className="compare-row-select compare-row-select--locked">
+                        <span className="compare-row-emoji" aria-hidden="true">{o.emoji}</span>
+                        <span className="compare-row-text">
+                          <span className="compare-row-name">{o.subject || o.name}</span>
+                          {o.subject && <span className="compare-row-sub">{o.name}</span>}
+                          <span className="compare-row-locked-label">{t('locked_answers_badge')}</span>
+                        </span>
+                      </span>
+                      <button
+                        type="button"
+                        className="compare-row-unlock"
+                        onClick={() => handleUnlockImport(o.impId)}
+                        data-testid={`compare-unlock-${o.id}`}
+                      >
+                        {t('unlock_answers_btn')}
+                      </button>
+                    </div>
+                  )
+                }
                 const selected = effectiveIds.includes(o.id)
                 const disabled = atMax && !selected
                 return (
@@ -243,7 +290,6 @@ export function Compare() {
                     <span className="compare-row-text">
                       <span className="compare-row-name">{o.subject || o.name}</span>
                       {o.subject && <span className="compare-row-sub">{o.name}</span>}
-                      {o.locked && <span className="compare-row-locked">🔒</span>}
                     </span>
                   </button>
                 )

@@ -17,6 +17,14 @@ export interface Profile {
 
 export type GROfBoth = 'G' | 'R' | 'Both'
 
+export type CustomItemFormat = 'scale' | 'text' | 'single' | 'multi' | 'ranking'
+
+export interface CustomItemDef {
+  format: CustomItemFormat
+  /** Option list for single / multi / ranking formats */
+  options?: string[]
+}
+
 export interface AnswerCell {
   scale: string
   scaleFrac?: number
@@ -26,6 +34,10 @@ export interface AnswerCell {
   itemScale?: MutableScaleStep[]
   /** Display label override — replaces the item key in the UI. */
   customLabel?: string
+  // New: answers for non-scale formats
+  textValue?: string
+  selectedValues?: string[]   // single (0-1 entries) or multi (0-N entries)
+  rankingValues?: string[]    // ordered list of option strings (for ranking)
 }
 
 // The answers blob is: { [categoryId]: { [itemName]: AnswerCell, __custom?: Record<string, AnswerCell>, __hidden?: Record<string, true> } }
@@ -65,6 +77,7 @@ export interface Result {
   version?: number
   createdAt: number
   updatedAt: number
+  customItemDefs?: Record<string, Record<string, CustomItemDef>>  // catId → itemName → def
 }
 
 export interface Import {
@@ -89,6 +102,7 @@ export interface Import {
   /** Restricted export: AES-armored answers blob, unlocked with a second passphrase. */
   lockedAnswers?: string
   templateWarningDisabled?: boolean
+  customItemDefs?: Record<string, Record<string, CustomItemDef>>
 }
 
 export interface Settings {

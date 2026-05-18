@@ -79,6 +79,7 @@ export function ProfileDetail() {
       subjectColor: templateImp.subjectColor || profile.color,
       enabledCategories: templateImp.enabledCategories ?? CATEGORIES.map((c) => c.id),
       ...(templateImp.scale ? { scale: templateImp.scale } : {}),
+      ...(templateImp.customItemDefs ? { customItemDefs: templateImp.customItemDefs } : {}),
       answers: {},
       seededFromImportId: templateImp.id,
       progress: { mode: 'list' },

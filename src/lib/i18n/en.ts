@@ -587,6 +587,28 @@ export const EN = {
   btn_import_cards: '📥 Receive / import cards from a counterpart',
   cat_details_filter_hint: 'Only categories that contain at least one answer in all selected maps are shown here.',
   wizard_pick_imported_maps_section: 'Imported maps',
+
+  // Custom item format picker
+  q_add_custom_format_title: 'Choose answer format',
+  q_format_scale: 'Scale',
+  q_format_scale_desc: 'Rate on a numeric scale',
+  q_format_text: 'Free text',
+  q_format_text_desc: 'Open text answer',
+  q_format_single: 'Single selection',
+  q_format_single_desc: 'Choose exactly one option',
+  q_format_multi: 'Multiple selection',
+  q_format_multi_desc: 'Choose one or more options',
+  q_format_ranking: 'Ranking',
+  q_format_ranking_desc: 'Put the options in order',
+  q_add_custom_options_title: 'Define options',
+  q_add_custom_options_sub: 'Enter one option per line (min. 2)',
+  q_add_custom_options_min: 'Please enter at least 2 options.',
+  q_text_answer_placeholder: 'Your answer…',
+  item_rename_btn: '✏️ Rename',
+  q_edit_format_section: 'Answer format',
+  q_edit_format_change_warn: 'Changing the format will delete any existing answer for this item.',
+  q_edit_format_options_label: 'Options (one per line, min. 2)',
+  q_edit_format_options_min: 'Please enter at least 2 options.',
 } as const
 
 export type TranslationKey = keyof typeof EN
