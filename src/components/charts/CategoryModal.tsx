@@ -2,6 +2,7 @@
 // Port of public/legacy/js/app.js:2879-3050 openCategoryModal.
 // Built on shadcn Dialog. Legacy `cat-modal-*` CSS in legacy-components.css.
 
+import * as React from 'react'
 import { useState, useEffect, useRef } from 'react'
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
@@ -47,10 +48,12 @@ export function CategoryModal({ open, onOpenChange, datasets, cat, result, initi
   // Local answer state for the Edit tab
   const [localResult, setLocalResult] = useState<Result | null>(null)
   const [isDirty, setIsDirty] = useState(false)
-  // Guards against re-entrant confirmDiscard calls: onInteractOutside fires for
-  // every click inside the discard dialog (portal = "outside" the modal), which
-  // would otherwise stack a second dialog before the first one resolves.
+  // Guards against re-entrant confirmDiscard calls AND addCustom flows:
+  // onInteractOutside fires for every click inside any portal dialog (treated
+  // as "outside" the modal), which would otherwise close the main modal while
+  // a sub-dialog is open.
   const confirmingRef = useRef(false)
+  const addingCustomRef = useRef(false)
 
   // When edit tab opens, clone the result into local state.
   useEffect(() => {
@@ -158,7 +161,7 @@ export function CategoryModal({ open, onOpenChange, datasets, cat, result, initi
         showCloseButton={false}
         data-testid="category-modal"
         onPointerDownOutside={(e) => { if (isDirty || confirmingRef.current) e.preventDefault() }}
-        onInteractOutside={(e) => { e.preventDefault(); if (!confirmingRef.current) void handleOpenChange(false) }}
+        onInteractOutside={(e) => { e.preventDefault(); if (!confirmingRef.current && !addingCustomRef.current) void handleOpenChange(false) }}
       >
         {/* Header row */}
         <div className="cat-modal-head-row">
@@ -263,7 +266,7 @@ export function CategoryModal({ open, onOpenChange, datasets, cat, result, initi
               role="tabpanel"
               data-testid="cat-modal-panel-edit"
             >
-              <EditTabContent result={localResult} cat={cat} onLocalChange={handleLocalChange} onImmediateSave={handleImmediateSave} />
+              <EditTabContent result={localResult} cat={cat} onLocalChange={handleLocalChange} onImmediateSave={handleImmediateSave} addingRef={addingCustomRef} />
             </div>
           )
         )}
@@ -304,9 +307,10 @@ interface EditTabProps {
   cat: CategoryDef
   onLocalChange?: (next: Result) => void
   onImmediateSave?: (next: Result) => void
+  addingRef?: React.MutableRefObject<boolean>
 }
 
-function EditTabContent({ result, cat, onLocalChange, onImmediateSave }: EditTabProps) {
+function EditTabContent({ result, cat, onLocalChange, onImmediateSave, addingRef }: EditTabProps) {
   const saveResult = useStore((s) => s.saveResult)
   const storeScale = useStore((s) => s.scale)
   const storeTemplateWarningDisabled = useStore((s) =>
@@ -322,10 +326,19 @@ function EditTabContent({ result, cat, onLocalChange, onImmediateSave }: EditTab
 
   async function addCustom() {
     if (!await confirmIfTemplate()) return
+    if (addingRef) addingRef.current = true
+    try {
+      await runAddCustom()
+    } finally {
+      if (addingRef) addingRef.current = false
+    }
+  }
 
+  async function runAddCustom() {
     // Step 1: name
     const name = await dialog<string | null>({
       title: t('q_add_custom_title'),
+      dismissable: false,
       body: (close) => {
         let value = ''
         const submit = () => close(value.trim() || null)
@@ -363,6 +376,7 @@ function EditTabContent({ result, cat, onLocalChange, onImmediateSave }: EditTab
     // Step 2: format selection
     const format = await dialog<CustomItemFormat | false>({
       title: t('q_add_custom_format_title'),
+      dismissable: false,
       body: (close) => <FormatPicker onClose={close} />,
       actions: [],
     })
@@ -373,6 +387,7 @@ function EditTabContent({ result, cat, onLocalChange, onImmediateSave }: EditTab
     if (format === 'single' || format === 'multi' || format === 'ranking') {
       const rawOptions = await dialog<string[] | false>({
         title: t('q_add_custom_options_title'),
+        dismissable: false,
         body: (close) => <OptionsInput onClose={close} />,
         actions: [],
       })
@@ -381,10 +396,13 @@ function EditTabContent({ result, cat, onLocalChange, onImmediateSave }: EditTab
     }
 
     // Step 4 (only for scale format): scale selection
+    // dismissable: false so clicking outside doesn't resolve with null (which
+    // would be indistinguishable from the "use default" button value).
     let itemScale: MutableScaleStep[] | null = null
     if (format === 'scale') {
       const scaleResult = await dialog<MutableScaleStep[] | null | false>({
         title: t('q_add_custom_scale_title'),
+        dismissable: false,
         body: (close) => <CustomScalePicker defaultScale={scale} onClose={close} />,
         actions: [],
       })

@@ -92,9 +92,11 @@ export function ListMode({ result, profile }: Props) {
       return
     }
 
-    // Step 2: scale selection
+    // Step 2: scale selection — dismissable: false so clicking outside doesn't
+    // resolve with null (indistinguishable from the "use default" button).
     const itemScale = await dialog<MutableScaleStep[] | null | false>({
       title: t('q_add_custom_scale_title'),
+      dismissable: false,
       body: (close) => <ListModeScalePicker defaultScale={scale} onClose={close} />,
       actions: [],
     })
