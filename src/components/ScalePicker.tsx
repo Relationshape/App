@@ -5,7 +5,8 @@
 
 import { useId, useRef } from 'react'
 import type { MutableScaleStep } from '@/lib/data/types'
-import { t } from '@/lib/i18n/i18n'
+import { localizeStep } from '@/lib/data/locale'
+import { t, getLang } from '@/lib/i18n/i18n'
 
 interface Props {
   scale: readonly MutableScaleStep[]
@@ -38,6 +39,7 @@ function interpolateColor(scale: readonly MutableScaleStep[], frac: number): str
 
 export function ScalePicker({ scale, value, valueFrac, onChange, onClear, compact }: Props) {
   const id = useId()
+  const lang = getLang()
   const trackRef = useRef<HTMLDivElement | null>(null)
   const draggingRef = useRef(false)
   const N = scale.length
@@ -155,7 +157,7 @@ export function ScalePicker({ scale, value, valueFrac, onChange, onClear, compac
                 title={s.description}
                 aria-label={s.label}
               />
-              <span className="rs-click-scale-ref-label" aria-hidden>{s.short || s.label}</span>
+              <span className="rs-click-scale-ref-label" aria-hidden>{(() => { const loc = localizeStep(s, lang); return loc.short || loc.label })()}</span>
             </div>
           )
         })}

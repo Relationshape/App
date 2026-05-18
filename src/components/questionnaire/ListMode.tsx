@@ -19,6 +19,7 @@ import { dialog } from '@/lib/dialog/dialog'
 import { useToast } from '@/lib/hooks/useToast'
 import type { Result, Profile } from '@/lib/storage/types'
 import type { MutableScaleStep } from '@/lib/data/types'
+import { localizeStep } from '@/lib/data/locale'
 import { t, getLang } from '@/lib/i18n/i18n'
 
 interface Props { result: Result; profile: Profile }
@@ -91,9 +92,11 @@ export function ListMode({ result, profile }: Props) {
       return
     }
 
-    // Step 2: scale selection
+    // Step 2: scale selection — dismissable: false so clicking outside doesn't
+    // resolve with null (indistinguishable from the "use default" button).
     const itemScale = await dialog<MutableScaleStep[] | null | false>({
       title: t('q_add_custom_scale_title'),
+      dismissable: false,
       body: (close) => <ListModeScalePicker defaultScale={scale} onClose={close} />,
       actions: [],
     })
@@ -186,6 +189,7 @@ function ListModeScalePicker({
   defaultScale: MutableScaleStep[]
   onClose: (v: MutableScaleStep[] | null | false) => void
 }) {
+  const lang = getLang()
   const [customizing, setCustomizing] = useState(false)
   const [customScale, setCustomScale] = useState<MutableScaleStep[]>(() => defaultScale.map((s) => ({ ...s })))
 
@@ -195,13 +199,16 @@ function ListModeScalePicker({
       {!customizing ? (
         <>
           <div className="scale-preview-list">
-            {defaultScale.map((s) => (
-              <div key={s.key} className="scale-preview-row">
-                <div className="scale-preview-swatch" style={{ background: s.color }} />
-                <span className="scale-preview-label">{s.label}</span>
-                <span className="scale-preview-short">{s.short}</span>
-              </div>
-            ))}
+            {defaultScale.map((s) => {
+              const loc = localizeStep(s, lang)
+              return (
+                <div key={s.key} className="scale-preview-row">
+                  <div className="scale-preview-swatch" style={{ background: s.color }} />
+                  <span className="scale-preview-label">{loc.label}</span>
+                  <span className="scale-preview-short">{loc.short}</span>
+                </div>
+              )
+            })}
           </div>
           <div className="flex gap-2 justify-end">
             <Button variant="ghost" onClick={() => onClose(false)} data-testid="add-custom-scale-cancel">

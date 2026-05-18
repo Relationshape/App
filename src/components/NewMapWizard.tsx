@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button'
 import { CATEGORIES, CATEGORY_GROUPS } from '@/lib/data/data'
 import { useStore } from '@/lib/storage/store'
 import { ScaleEditor } from '@/components/ScaleEditor'
+import { localizeStep } from '@/lib/data/locale'
 import { t, getLang } from '@/lib/i18n/i18n'
 import type { MutableScaleStep } from '@/lib/data/types'
 import type { Import, Profile } from '@/lib/storage/types'
@@ -350,13 +351,16 @@ export function NewMapWizard({ profile }: Props) {
             <div className="scale-dialog-body flex-1 overflow-y-auto min-h-0" data-testid="wizard-scale-step">
               {!customizeScale ? (
                 <div className="scale-preview-list">
-                  {scale.map((s) => (
-                    <div key={s.key} className="scale-preview-row">
-                      <div className="scale-preview-swatch" style={{ background: s.color }} />
-                      <span className="scale-preview-label">{s.label}</span>
-                      <span className="scale-preview-short">{s.short}</span>
-                    </div>
-                  ))}
+                  {scale.map((s) => {
+                    const loc = localizeStep(s, lang)
+                    return (
+                      <div key={s.key} className="scale-preview-row">
+                        <div className="scale-preview-swatch" style={{ background: s.color }} />
+                        <span className="scale-preview-label">{loc.label}</span>
+                        <span className="scale-preview-short">{loc.short}</span>
+                      </div>
+                    )
+                  })}
                 </div>
               ) : (
                 <ScaleEditor scale={scale} onChange={setScale} />

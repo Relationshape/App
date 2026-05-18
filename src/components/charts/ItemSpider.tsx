@@ -7,6 +7,8 @@ import { useState } from 'react'
 import { polarToCartesian, scaleMaxValue, wrapLabel } from '@/lib/charts/math'
 import { enabledItemsForCat } from '@/lib/charts/items'
 import { CATEGORIES } from '@/lib/data/data'
+import { getItemLabel, localizeStep } from '@/lib/data/locale'
+import { getLang } from '@/lib/i18n/i18n'
 import type { ChartDataset } from './types'
 
 interface Props {
@@ -15,16 +17,21 @@ interface Props {
   size?: number
 }
 
-// Scales linearly with chart size. Cap raised to 28px for fullscreen readability.
-// size=520 (modal):       10 items → 14px,  5 items → 28px (capped)
-// size=800 (fullscreen):  10 items → 22px,  5 items → 28px (capped)
-// size=1200 (enlarged):   10 items → 28px (capped), 5 items → 28px (capped)
+// Scales linearly with chart size. Cap is proportional to size so fullscreen
+// labels stay large relative to the viewBox.
+// size=520 (modal):    10 items → 14px,  5 items → 18px (capped at ~18)
+// size=1200 (enlarged):10 items → 33px,  5 items → 42px (capped at ~42)
 function itemLabelFontSize(itemCount: number, size: number): number {
-  return Math.round(Math.max(10, Math.min(28, (130 * size / 480) / itemCount)))
+  const cap = Math.round(size * 0.035)
+  return Math.round(Math.max(10, Math.min(cap, (130 * size / 480) / itemCount)))
 }
 
 export function ItemSpider({ datasets, catId, size = 480 }: Props) {
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null)
+  const [clickedIdx, setClickedIdx] = useState<number | null>(null)
+  // clickedIdx takes precedence — persists tooltip after touch/tap
+  const activeIdx = clickedIdx ?? hoveredIdx
+  const lang = getLang()
   const cat = CATEGORIES.find((c) => c.id === catId)
   if (!cat) return null
 
@@ -64,20 +71,24 @@ export function ItemSpider({ datasets, catId, size = 480 }: Props) {
   })
 
   // Build tooltip data when an axis is hovered
-  const tooltipData = hoveredIdx !== null ? {
-    label: items[hoveredIdx] ?? '',
+  const tooltipData = activeIdx !== null ? {
+    label: (() => {
+      const raw = items[activeIdx] ?? ''
+      const isCustom = raw.startsWith('✶ ')
+      return isCustom ? raw : getItemLabel(catId, raw, lang)
+    })(),
     rows: truncated
       .map((ds, di) => {
-        const pt = dataPoints[di]?.[hoveredIdx]
+        const pt = dataPoints[di]?.[activeIdx]
         return pt?.step && pt.v > 0
-          ? { name: ds.name, color: ds.color, stepLabel: pt.step.label }
+          ? { name: ds.name, color: ds.color, stepLabel: localizeStep(pt.step, lang).label }
           : null
       })
       .filter((x): x is { name: string; color: string; stepLabel: string } => x !== null),
   } : null
 
   return (
-    <div className="rs-chart-wrap rs-item-spider" data-testid={`item-spider-${catId}`}>
+    <div className="rs-chart-wrap rs-item-spider" data-testid={`item-spider-${catId}`} onClick={() => setClickedIdx(null)}>
       <svg
         viewBox={`0 0 ${size} ${size}`}
         role="img"
@@ -130,7 +141,7 @@ export function ItemSpider({ datasets, catId, size = 480 }: Props) {
             const pt = dataPoints[di]?.[i]
             if (!pt?.step || pt.v === 0) return null
             const [px, py] = polarToCartesian(i, items.length, r * pt.norm, cx, cy)
-            const active = hoveredIdx === i
+            const active = activeIdx === i
             return (
               <circle
                 key={`dot-${di}-${i}`}
@@ -142,6 +153,7 @@ export function ItemSpider({ datasets, catId, size = 480 }: Props) {
                 strokeWidth={active ? 2 : 1.5}
                 onPointerEnter={() => setHoveredIdx(i)}
                 onPointerLeave={() => setHoveredIdx(null)}
+                onClick={(e) => { e.stopPropagation(); setClickedIdx(clickedIdx === i ? null : i) }}
                 style={{ cursor: 'pointer' }}
               />
             )
@@ -152,9 +164,11 @@ export function ItemSpider({ datasets, catId, size = 480 }: Props) {
         {items.map((displayItem, i) => {
           const [lx, ly] = polarToCartesian(i, items.length, r + fs * 1.7, cx, cy)
           const anchor = Math.abs(lx - cx) < 4 ? 'middle' : lx > cx ? 'start' : 'end'
-          const lines = wrapLabel(displayItem, maxCharsPerLine).slice(0, 3)
+          const isCustom = displayItem.startsWith('✶ ')
+          const localizedItem = isCustom ? displayItem : getItemLabel(catId, displayItem, lang)
+          const lines = wrapLabel(localizedItem, maxCharsPerLine).slice(0, 3)
           const yOffset = ((lines.length - 1) * lineHeight) / 2
-          const isHovered = hoveredIdx === i
+          const isHovered = activeIdx === i
           return (
             <text
               key={`label-${i}`}

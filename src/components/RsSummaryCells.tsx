@@ -7,6 +7,8 @@
 
 import type { ChartDataset } from '@/components/charts/types'
 import { categoryAverage, closestScaleEntry } from '@/lib/charts/math'
+import { localizeStep } from '@/lib/data/locale'
+import { getLang } from '@/lib/i18n/i18n'
 
 export interface RsSummaryCellsProps {
   datasets: readonly ChartDataset[]
@@ -14,6 +16,7 @@ export interface RsSummaryCellsProps {
 }
 
 export function RsSummaryCells({ datasets, catId }: RsSummaryCellsProps) {
+  const lang = getLang()
   return (
     <div className="cat-card-summary" data-testid="cat-card-summary">
       {datasets.map((ds, i) => {
@@ -28,7 +31,7 @@ export function RsSummaryCells({ datasets, catId }: RsSummaryCellsProps) {
         }
         const step = closestScaleEntry(avg.value, scale)
         const color = step?.color ?? '#7c3aed'
-        const short = step?.short ?? ''
+        const short = step ? localizeStep(step, lang).short : ''
         return (
           <span
             key={`${ds.id}-${i}`}

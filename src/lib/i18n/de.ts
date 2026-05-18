@@ -538,7 +538,7 @@ export const DE: Record<TranslationKey, string> = {
   wizard_pick_own_section: 'Eigene Karten',
   wizard_pick_import_section: 'Importierte Vorlagen',
   spider_click_to_enlarge: 'Zum Vergrößern klicken',
-  spider_hover_hint: 'Über einen Netzpunkt hovern, um das Element genauer zu inspizieren',
+  spider_hover_hint: 'Über einen Netzpunkt hovern/klicken, um das Element genauer zu inspizieren',
   q_overview_title: 'Kategorien auswählen',
   q_overview_sub: 'Schalte die Dimensionen ein, die du für diese Person abbilden willst.',
   q_overview_start: 'Fragebogen starten →',
@@ -628,4 +628,6 @@ export const DE: Record<TranslationKey, string> = {
   q_edit_format_change_warn: 'Das Format zu ändern löscht die bestehende Antwort für dieses Element.',
   q_edit_format_options_label: 'Optionen (eine pro Zeile, min. 2)',
   q_edit_format_options_min: 'Bitte mindestens 2 Optionen eingeben.',
+  q_format_non_scale_hint: 'Elemente ohne Skala erscheinen nur in der Element-Ansicht – nicht im Netzdiagramm.',
+  spider_scale_only_hint: 'Nur skalenbasierte Elemente werden angezeigt.',
 }

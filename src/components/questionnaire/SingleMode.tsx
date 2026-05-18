@@ -22,8 +22,9 @@ import { QuestionnaireHeader } from './QuestionnaireHeader'
 import { QuestionnaireNav } from './QuestionnaireNav'
 import { enabledItemsForCat, type FlatItem } from '@/lib/charts/items'
 import { CATEGORIES } from '@/lib/data/data'
+import { getItemLabel } from '@/lib/data/locale'
 import type { Result, Profile, AnswerCell } from '@/lib/storage/types'
-import { t } from '@/lib/i18n/i18n'
+import { t, getLang } from '@/lib/i18n/i18n'
 
 type Dir = 'left' | 'right'
 interface State { cursor: number; dir: Dir }
@@ -267,7 +268,7 @@ export function SingleMode({ result, profile }: Props) {
                 {t('item_edit_scale')}
               </Button>
             </div>
-            <h1 className="q-card-item">{cell?.customLabel || cur.item}</h1>
+            <h1 className="q-card-item">{cell?.customLabel || (cur.isCustom ? cur.item : getItemLabel(cur.catId, cur.item, getLang()))}</h1>
             <div className="q-card-slider">
               <ScalePicker
                 scale={cell?.itemScale ?? scale}
@@ -310,7 +311,7 @@ export function SingleMode({ result, profile }: Props) {
           <Dialog open={true} onOpenChange={setEditScaleOpen}>
             <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>{t('q_edit_item_scale')}: {cur.item}</DialogTitle>
+                <DialogTitle>{t('q_edit_item_scale')}: {cur.isCustom ? cur.item : getItemLabel(cur.catId, cur.item, getLang())}</DialogTitle>
               </DialogHeader>
               <div className="flex flex-col gap-4 py-2">
                 <label className="flex flex-col gap-1">

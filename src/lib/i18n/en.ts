@@ -519,7 +519,7 @@ export const EN = {
   wizard_pick_own_section: 'Your maps',
   wizard_pick_import_section: 'Imported templates',
   spider_click_to_enlarge: 'Click to enlarge',
-  spider_hover_hint: 'Hover over a data point to inspect the item in detail',
+  spider_hover_hint: 'Hover over or tap a data point to inspect the item in detail',
   q_overview_title: 'Select categories',
   q_overview_sub: 'Toggle on the dimensions you want to map for this person.',
   q_overview_start: 'Start questionnaire →',
@@ -609,6 +609,8 @@ export const EN = {
   q_edit_format_change_warn: 'Changing the format will delete any existing answer for this item.',
   q_edit_format_options_label: 'Options (one per line, min. 2)',
   q_edit_format_options_min: 'Please enter at least 2 options.',
+  q_format_non_scale_hint: 'Non-scale items only appear in the item-by-item view — they are not shown in the network diagram.',
+  spider_scale_only_hint: 'Only scale-rated items are shown here.',
 } as const
 
 export type TranslationKey = keyof typeof EN

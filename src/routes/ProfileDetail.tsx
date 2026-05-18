@@ -130,15 +130,17 @@ export function ProfileDetail() {
         style={{ ['--c' as 'color']: profile.color } as React.CSSProperties}
       >
         <div className="avatar avatar-lg">{profile.emoji}</div>
-        <div>
+        <div className="profile-head-info">
           <h1 data-testid="profile-name">{profile.name}</h1>
           {profile.pronouns && <p className="muted">{profile.pronouns}</p>}
         </div>
         <div className="flex-spacer" />
-        <Button asChild variant="outline" data-testid="profile-edit-btn">
-          <Link to={`/profile/${profile.id}/edit`}>{t('btn_edit')}</Link>
-        </Button>
-        <Button variant="destructive" onClick={onDelete} data-testid="profile-delete-btn">{t('btn_delete')}</Button>
+        <div className="profile-head-actions">
+          <Button asChild variant="outline" data-testid="profile-edit-btn">
+            <Link to={`/profile/${profile.id}/edit`}>{t('btn_edit')}</Link>
+          </Button>
+          <Button variant="destructive" onClick={onDelete} data-testid="profile-delete-btn">{t('btn_delete')}</Button>
+        </div>
       </header>
       <section className="page-section">
         <header className="section-head">
