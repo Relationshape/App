@@ -7,6 +7,8 @@ import { useState } from 'react'
 import { polarToCartesian, scaleMaxValue, wrapLabel } from '@/lib/charts/math'
 import { enabledItemsForCat } from '@/lib/charts/items'
 import { CATEGORIES } from '@/lib/data/data'
+import { getItemLabel, localizeStep } from '@/lib/data/locale'
+import { getLang } from '@/lib/i18n/i18n'
 import type { ChartDataset } from './types'
 
 interface Props {
@@ -25,6 +27,7 @@ function itemLabelFontSize(itemCount: number, size: number): number {
 
 export function ItemSpider({ datasets, catId, size = 480 }: Props) {
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null)
+  const lang = getLang()
   const cat = CATEGORIES.find((c) => c.id === catId)
   if (!cat) return null
 
@@ -65,12 +68,16 @@ export function ItemSpider({ datasets, catId, size = 480 }: Props) {
 
   // Build tooltip data when an axis is hovered
   const tooltipData = hoveredIdx !== null ? {
-    label: items[hoveredIdx] ?? '',
+    label: (() => {
+      const raw = items[hoveredIdx] ?? ''
+      const isCustom = raw.startsWith('✶ ')
+      return isCustom ? raw : getItemLabel(catId, raw, lang)
+    })(),
     rows: truncated
       .map((ds, di) => {
         const pt = dataPoints[di]?.[hoveredIdx]
         return pt?.step && pt.v > 0
-          ? { name: ds.name, color: ds.color, stepLabel: pt.step.label }
+          ? { name: ds.name, color: ds.color, stepLabel: localizeStep(pt.step, lang).label }
           : null
       })
       .filter((x): x is { name: string; color: string; stepLabel: string } => x !== null),
@@ -152,7 +159,9 @@ export function ItemSpider({ datasets, catId, size = 480 }: Props) {
         {items.map((displayItem, i) => {
           const [lx, ly] = polarToCartesian(i, items.length, r + fs * 1.7, cx, cy)
           const anchor = Math.abs(lx - cx) < 4 ? 'middle' : lx > cx ? 'start' : 'end'
-          const lines = wrapLabel(displayItem, maxCharsPerLine).slice(0, 3)
+          const isCustom = displayItem.startsWith('✶ ')
+          const localizedItem = isCustom ? displayItem : getItemLabel(catId, displayItem, lang)
+          const lines = wrapLabel(localizedItem, maxCharsPerLine).slice(0, 3)
           const yOffset = ((lines.length - 1) * lineHeight) / 2
           const isHovered = hoveredIdx === i
           return (

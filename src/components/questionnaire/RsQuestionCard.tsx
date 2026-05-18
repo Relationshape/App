@@ -21,9 +21,10 @@ import {
 import { useStore } from '@/lib/storage/store'
 import { dialog } from '@/lib/dialog/dialog'
 import { CATEGORIES } from '@/lib/data/data'
+import { getItemLabel } from '@/lib/data/locale'
 import type { AnswerCell, Result, CustomItemDef, CustomItemFormat } from '@/lib/storage/types'
 import type { MutableScaleStep } from '@/lib/data/types'
-import { t } from '@/lib/i18n/i18n'
+import { t, getLang } from '@/lib/i18n/i18n'
 
 interface Props {
   result: Result
@@ -71,7 +72,7 @@ export function RsQuestionCard({
   const format: CustomItemFormat = (isCustom && customItemDef?.format) ? customItemDef.format : 'scale'
   const showGR = variant === 'list' && Boolean((catDef as { gr?: boolean } | undefined)?.gr) && format === 'scale'
 
-  const displayName = cell?.customLabel || item
+  const displayName = cell?.customLabel || (isCustom ? item : getItemLabel(catId, item, getLang()))
 
   function openEditDialog() {
     setPendingLabel(cell?.customLabel ?? '')
@@ -377,7 +378,7 @@ export function RsQuestionCard({
       <Dialog open={editOpen} onOpenChange={(o) => { if (!o) setEditOpen(false) }}>
         <DialogContent className="max-w-2xl flex flex-col" style={{ maxHeight: 'min(90vh, 800px)' }}>
           <DialogHeader>
-            <DialogTitle>{t('q_edit_item_scale')}: {item}</DialogTitle>
+            <DialogTitle>{t('q_edit_item_scale')}: {displayName}</DialogTitle>
           </DialogHeader>
           <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-4 py-2 pr-1">
             <label className="flex flex-col gap-1">

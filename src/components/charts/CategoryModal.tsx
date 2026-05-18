@@ -18,6 +18,7 @@ import type { ChartDataset } from './types'
 import type { CATEGORIES } from '@/lib/data/data'
 import type { Result, CustomItemDef, CustomItemFormat } from '@/lib/storage/types'
 import type { MutableScaleStep } from '@/lib/data/types'
+import { localizeStep } from '@/lib/data/locale'
 import { t, getLang } from '@/lib/i18n/i18n'
 import { CATEGORIES as ALL_CATS } from '@/lib/data/data'
 
@@ -534,6 +535,7 @@ function CustomScalePicker({
   defaultScale: MutableScaleStep[]
   onClose: (v: MutableScaleStep[] | null | false) => void
 }) {
+  const lang = getLang()
   const [customizing, setCustomizing] = useState(false)
   const [customScale, setCustomScale] = useState<MutableScaleStep[]>(() => defaultScale.map((s) => ({ ...s })))
 
@@ -543,13 +545,16 @@ function CustomScalePicker({
       {!customizing ? (
         <>
           <div className="scale-preview-list">
-            {defaultScale.map((s) => (
-              <div key={s.key} className="scale-preview-row">
-                <div className="scale-preview-swatch" style={{ background: s.color }} />
-                <span className="scale-preview-label">{s.label}</span>
-                <span className="scale-preview-short">{s.short}</span>
-              </div>
-            ))}
+            {defaultScale.map((s) => {
+              const loc = localizeStep(s, lang)
+              return (
+                <div key={s.key} className="scale-preview-row">
+                  <div className="scale-preview-swatch" style={{ background: s.color }} />
+                  <span className="scale-preview-label">{loc.label}</span>
+                  <span className="scale-preview-short">{loc.short}</span>
+                </div>
+              )
+            })}
           </div>
           <div className="flex gap-2 justify-end">
             <Button variant="ghost" onClick={() => onClose(false)} data-testid="modal-add-custom-scale-cancel">

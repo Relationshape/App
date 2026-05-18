@@ -5,14 +5,17 @@
 
 import { CATEGORIES } from '@/lib/data/data'
 import { enabledItemsForCat } from '@/lib/charts/items'
+import { getItemLabel, localizeStep } from '@/lib/data/locale'
 import { scaleMaxValue, closestScaleEntry } from '@/lib/charts/math'
 import type { ChartDataset } from './types'
 import type { AnswerCell } from '@/lib/storage/types'
+import { getLang } from '@/lib/i18n/i18n'
 
 interface Props { datasets: readonly ChartDataset[]; catId: string }
 
 export function CategoryBars({ datasets, catId }: Props) {
   const cat = CATEGORIES.find((c) => c.id === catId)
+  const lang = getLang()
   if (!cat) return null
   const truncated = datasets.slice(0, 4)
   const itemSet = new Set<string>()
@@ -63,10 +66,11 @@ export function CategoryBars({ datasets, catId }: Props) {
       {items.map((displayItem) => {
         const isCustom = displayItem.startsWith('✶ ')
         const key = isCustom ? displayItem.slice(2) : displayItem
+        const itemLabel = isCustom ? displayItem : getItemLabel(catId, key, lang)
         return (
           <div className="rs-bar-item" key={displayItem}>
-            <div className="rs-bar-item-label" title={displayItem}>
-              {displayItem}
+            <div className="rs-bar-item-label" title={itemLabel}>
+              {itemLabel}
             </div>
             <div className="rs-bar-item-rows">
               {truncated.map((ds, di) => {
@@ -111,7 +115,7 @@ export function CategoryBars({ datasets, catId }: Props) {
                       />
                     </div>
                     <span className="rs-bar-label-text">
-                      {step.label}
+                      {localizeStep(step, lang).label}
                     </span>
                   </div>
                 )
