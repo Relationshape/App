@@ -270,7 +270,7 @@ export function CategoryModal({ open, onOpenChange, datasets, cat, result, initi
         )}
 
         {/* Footer */}
-        <div className="rs-modal-actions">
+        <div className="rs-modal-actions cat-modal-footer">
           <button
             type="button"
             className="btn btn-ghost"
