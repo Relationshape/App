@@ -578,6 +578,8 @@ export const EN = {
   imports_with_answers_sub: 'Imported maps whose answers are visible.',
   imports_locked_title: '🔒 Maps with Locked Answers',
   imports_locked_sub: 'The answers in these maps are encrypted with a second passphrase. Re-import the file with the reveal passphrase to unlock them.',
+  imports_section_title: '📥 Imported Cards',
+  btn_import_cards: '📥 Receive / import cards from a counterpart',
   cat_details_filter_hint: 'Only categories that contain at least one answer in all selected maps are shown here.',
   wizard_pick_imported_maps_section: 'Imported maps',
 } as const

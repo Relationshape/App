@@ -1,5 +1,7 @@
 // PROFILE-05, D-23. First-visit wizard. Reads settings.wizardSeen.
-import { useReducer, useEffect, useMemo } from 'react'
+// After the final "Los geht's" button, opens CreateProfileModal if no profile exists yet.
+import { useReducer, useEffect, useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription,
 } from '@/components/ui/dialog'
@@ -7,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { useStore } from '@/lib/storage/store'
 import { useSwipe } from '@/lib/hooks/useSwipe'
 import { useKeydown } from '@/lib/hooks/useKeydown'
+import { CreateProfileModal } from './CreateProfileModal'
 import { t } from '@/lib/i18n/i18n'
 import type { TranslationKey } from '@/lib/i18n/en'
 
@@ -40,8 +43,11 @@ function reducer(state: State, action: Action): State {
 export function WizardHost() {
   const wizardSeen = useStore((s) => s.settings.wizardSeen)
   const ageConfirmed = useStore((s) => s.settings.ageConfirmed)
+  const hasProfile = useStore((s) => s.profiles.length > 0)
   const setSettings = useStore((s) => s.setSettings)
   const [state, dispatch] = useReducer(reducer, { step: 0, finished: false })
+  const [createProfileOpen, setCreateProfileOpen] = useState(false)
+  const navigate = useNavigate()
 
   const stepCfg = WIZARD_STEPS[state.step]!
   const isLast = state.step === WIZARD_STEPS.length - 1
@@ -64,28 +70,49 @@ export function WizardHost() {
     }
   }, [state.finished, wizardSeen, setSettings])
 
-  // Gate: only render when age confirmed AND wizard never seen AND not yet finished
+  // Gate: only render when age confirmed AND wizard never seen AND not yet done
   if (!ageConfirmed) return null
-  if (wizardSeen) return null
-  if (state.finished) return null
+  // Keep rendering if we still need to show the create-profile modal
+  if (wizardSeen && !createProfileOpen) return null
+  if (state.finished && !createProfileOpen) return null
+
+  function handleFinish() {
+    dispatch({ type: 'finish' })
+    if (!hasProfile) setCreateProfileOpen(true)
+  }
+
+  function handleSkip() {
+    dispatch({ type: 'finish' })
+    // Skip does NOT prompt profile creation
+  }
 
   return (
-    <Dialog open={true} onOpenChange={(o) => { if (!o) dispatch({ type: 'finish' }) }}>
-      <DialogContent data-testid="wizard-host" {...bind()} style={{ touchAction: 'pan-y' }}>
-        <DialogHeader>
-          <DialogTitle data-testid="wizard-step-title">
-            {t(stepCfg.title)}
-          </DialogTitle>
-          <DialogDescription data-testid="wizard-step-body">{t(stepCfg.body)}</DialogDescription>
-        </DialogHeader>
-        <DialogFooter>
-          <Button variant="ghost" onClick={() => dispatch({ type: 'finish' })} data-testid="wizard-skip">{t('wizard_skip')}</Button>
-          <Button variant="ghost" onClick={() => dispatch({ type: 'prev' })} disabled={state.step === 0} data-testid="wizard-prev">{t('btn_back')}</Button>
-          <Button onClick={() => dispatch({ type: isLast ? 'finish' : 'next' })} data-testid="wizard-next">
-            {isLast ? t('wizard_finish') : t('wizard_next')}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+    <>
+      {!state.finished && (
+        <Dialog open={true} onOpenChange={(o) => { if (!o) handleSkip() }}>
+          <DialogContent data-testid="wizard-host" {...bind()} style={{ touchAction: 'pan-y' }}>
+            <DialogHeader>
+              <DialogTitle data-testid="wizard-step-title">
+                {t(stepCfg.title)}
+              </DialogTitle>
+              <DialogDescription data-testid="wizard-step-body">{t(stepCfg.body)}</DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button variant="ghost" onClick={handleSkip} data-testid="wizard-skip">{t('wizard_skip')}</Button>
+              <Button variant="ghost" onClick={() => dispatch({ type: 'prev' })} disabled={state.step === 0} data-testid="wizard-prev">{t('btn_back')}</Button>
+              <Button onClick={() => { if (isLast) { handleFinish() } else { dispatch({ type: 'next' }) } }} data-testid="wizard-next">
+                {isLast ? t('wizard_finish') : t('wizard_next')}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      <CreateProfileModal
+        open={createProfileOpen}
+        onOpenChange={setCreateProfileOpen}
+        onCreated={(id) => navigate(`/profile/${id}`)}
+      />
+    </>
   )
 }

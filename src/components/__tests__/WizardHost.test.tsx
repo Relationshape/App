@@ -2,8 +2,13 @@
 // src/components/__tests__/WizardHost.test.tsx
 // PROFILE-05, D-23: WizardHost shows on first visit, responds to nav, sets wizardSeen on finish.
 import { render, screen, act, fireEvent, cleanup, waitFor } from '@testing-library/react'
+import { MemoryRouter } from 'react-router-dom'
 import { describe, it, expect, afterEach, vi } from 'vitest'
 import { MemoryLocalStorage } from '../../../tests/helpers/MemoryLocalStorage'
+
+function Wrapper({ children }: { children: React.ReactNode }) {
+  return <MemoryRouter>{children}</MemoryRouter>
+}
 
 describe('<WizardHost />', () => {
   afterEach(() => {
@@ -17,7 +22,7 @@ describe('<WizardHost />', () => {
     const { useStore } = await import('@/lib/storage/store')
     useStore.setState({ settings: { theme: 'auto' } }) // no ageConfirmed
     await act(async () => {
-      render(<WizardHost />)
+      render(<WizardHost />, { wrapper: Wrapper })
     })
     expect(screen.queryByTestId('wizard-host')).toBeNull()
   })
@@ -29,7 +34,7 @@ describe('<WizardHost />', () => {
     const { useStore } = await import('@/lib/storage/store')
     useStore.setState({ settings: { theme: 'auto', ageConfirmed: true } })
     await act(async () => {
-      render(<WizardHost />)
+      render(<WizardHost />, { wrapper: Wrapper })
     })
     expect(screen.queryByTestId('wizard-host')).not.toBeNull()
     // The step title shows v1.0 wizard_s1_title value
@@ -44,7 +49,7 @@ describe('<WizardHost />', () => {
     const { useStore } = await import('@/lib/storage/store')
     useStore.setState({ settings: { theme: 'auto', ageConfirmed: true } })
     await act(async () => {
-      render(<WizardHost />)
+      render(<WizardHost />, { wrapper: Wrapper })
     })
     // Click Next to advance
     await act(async () => {
@@ -60,9 +65,9 @@ describe('<WizardHost />', () => {
     vi.stubGlobal('localStorage', new MemoryLocalStorage())
     const { WizardHost } = await import('../WizardHost')
     const { useStore } = await import('@/lib/storage/store')
-    useStore.setState({ settings: { theme: 'auto', ageConfirmed: true } })
+    useStore.setState({ settings: { theme: 'auto', ageConfirmed: true }, profiles: [{ id: 'p1', name: 'Alice', pronouns: '', color: '#7c3aed', emoji: '🌷', notes: '', createdAt: 1 }] })
     await act(async () => {
-      render(<WizardHost />)
+      render(<WizardHost />, { wrapper: Wrapper })
     })
     // Advance to last step (7 steps, click Next 6 times)
     for (let i = 0; i < 6; i++) {
@@ -86,7 +91,7 @@ describe('<WizardHost />', () => {
     const { useStore } = await import('@/lib/storage/store')
     useStore.setState({ settings: { theme: 'auto', ageConfirmed: true } })
     await act(async () => {
-      render(<WizardHost />)
+      render(<WizardHost />, { wrapper: Wrapper })
     })
     // Fire ArrowRight key on document
     await act(async () => {
