@@ -890,19 +890,33 @@ a:hover { text-decoration: underline; }
 .compare-group-items { display: flex; flex-direction: column; gap: 4px; }
 .compare-row {
   --c: var(--primary);
-  display: flex; align-items: center; gap: 10px;
-  padding: 10px 14px; border-radius: 12px;
+  display: flex; align-items: stretch;
+  border-radius: 12px;
   background: var(--surface); border: 1.5px solid var(--glass-border);
-  font: inherit; font-size: 13.5px; cursor: pointer; text-align: left;
+  font: inherit; font-size: 13.5px;
   transition: border-color .15s, background .15s;
-  width: 100%;
+  width: 100%; overflow: hidden;
 }
-.compare-row:hover:not(:disabled) { border-color: color-mix(in oklab, var(--c) 60%, transparent); }
+.compare-row:hover:not(.compare-row--disabled) { border-color: color-mix(in oklab, var(--c) 60%, transparent); }
 .compare-row--on {
   background: color-mix(in oklab, var(--c) 10%, var(--surface));
   border-color: var(--c);
 }
-.compare-row--disabled { opacity: 0.4; cursor: default; }
+.compare-row--disabled { opacity: 0.4; }
+.compare-row-select {
+  display: flex; align-items: center; gap: 10px;
+  flex: 1; min-width: 0;
+  padding: 10px 14px;
+}
+.compare-row-export {
+  flex-shrink: 0;
+  display: flex; align-items: center;
+  padding: 0 12px;
+  background: none; border: none; border-left: 1px solid var(--glass-border);
+  font-size: 15px; cursor: pointer; opacity: 0.55;
+  transition: opacity .15s, background .15s;
+}
+.compare-row-export:hover { opacity: 1; background: color-mix(in oklab, var(--c) 8%, transparent); }
 .compare-row-check {
   width: 18px; height: 18px; border-radius: 50%;
   border: 1.5px solid var(--glass-border);
