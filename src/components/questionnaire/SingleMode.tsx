@@ -242,7 +242,6 @@ export function SingleMode({ result, profile }: Props) {
           {coarse ? t('q_single_hint_mobile') : t('q_single_hint_desktop')}
         </p>
         <div className="q-stack">
-
           <article
             className={`q-card in single-card${swipeClass ? ` ${swipeClass}` : dragX !== 0 ? ' dragging' : ''}`}
             data-state={reduced ? undefined : `entering-${state.dir}`}

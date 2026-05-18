@@ -1,5 +1,5 @@
 // SETTINGS-03, D-41. Port of public/legacy/js/app.js:3758-3850.
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { useStore } from '@/lib/storage/store'
 import { Button } from '@/components/ui/button'
@@ -26,12 +26,9 @@ export function MapSettings() {
   const [subjectColor, setSubjectColor] = useState(result?.subjectColor ?? PALETTE[0]!)
   const [scale, setScale] = useState<MutableScaleStep[] | undefined>(result?.scale ? result.scale.map((s) => ({ ...s })) : undefined)
 
-  // knownCatIds: session-local pool of categories visible in this settings view.
-  // Initialized from the map's current enabledCategories; grows when the picker adds new ones.
-  // Shrinks are intentionally deferred to next page load (toggling off keeps the row visible).
-  const initialCatIds = result?.enabledCategories ?? CATEGORIES.map((c) => c.id)
-  const [knownCatIds, setKnownCatIds] = useState(initialCatIds)
-  const [enabledCategories, setEnabledCategories] = useState(initialCatIds)
+  // Toggling off keeps the row visible this session so users can re-enable before saving.
+  const [knownCatIds, setKnownCatIds] = useState(() => result?.enabledCategories ?? CATEGORIES.map((c) => c.id))
+  const [enabledCategories, setEnabledCategories] = useState(() => result?.enabledCategories ?? CATEGORIES.map((c) => c.id))
 
   const [pickerOpen, setPickerOpen] = useState(false)
 
@@ -78,7 +75,8 @@ export function MapSettings() {
     setScale(globalScale.map((s) => ({ ...s })))
   }
 
-  const visibleCats = CATEGORIES.filter((cat) => knownCatIds.includes(cat.id))
+  const knownSet = useMemo(() => new Set(knownCatIds), [knownCatIds])
+  const visibleCats = useMemo(() => CATEGORIES.filter((cat) => knownSet.has(cat.id)), [knownSet])
 
   return (
     <section className="page narrow" data-testid="map-settings-page">
