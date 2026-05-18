@@ -159,68 +159,81 @@ export function ProfileDetail() {
         </div>
       </section>
 
-      {withAnswers.length > 0 && (
-        <section className="page-section" data-testid="profile-imports">
-          <header className="section-head">
-            <h2>{t('imports_with_answers_title')}</h2>
-            <p className="muted">{t('imports_with_answers_sub')}</p>
-          </header>
-          <div className="list">
-            {withAnswers.map((i) => (
-              <ImportListRow
-                key={i.id}
-                imp={i}
-                category="answers"
-                testIdBase={`profile-import-${i.id}`}
-                onUseTemplate={openTemplateWizard}
-                onUnlock={handleUnlockImport}
-              />
-            ))}
-          </div>
-        </section>
-      )}
+      {/* Imports section — always visible; shows subsections only when they have content */}
+      <section className="page-section" data-testid="profile-imports-section">
+        <header className="section-head">
+          <h2>{t('imports_section_title')}</h2>
+        </header>
 
-      {lockedImports.length > 0 && (
-        <section className="page-section" data-testid="profile-locked-imports">
-          <header className="section-head">
-            <h2>{t('imports_locked_title')}</h2>
-            <p className="muted">{t('imports_locked_sub')}</p>
-          </header>
-          <div className="list">
-            {lockedImports.map((i) => (
-              <ImportListRow
-                key={i.id}
-                imp={i}
-                category="locked"
-                testIdBase={`profile-locked-${i.id}`}
-                onUseTemplate={openTemplateWizard}
-                onUnlock={handleUnlockImport}
-              />
-            ))}
+        {withAnswers.length > 0 && (
+          <div data-testid="profile-imports">
+            <h3 className="section-sub-head">{t('imports_with_answers_title')}</h3>
+            <p className="muted small mb-2">{t('imports_with_answers_sub')}</p>
+            <div className="list">
+              {withAnswers.map((i) => (
+                <ImportListRow
+                  key={i.id}
+                  imp={i}
+                  category="answers"
+                  testIdBase={`profile-import-${i.id}`}
+                  onUseTemplate={openTemplateWizard}
+                  onUnlock={handleUnlockImport}
+                />
+              ))}
+            </div>
           </div>
-        </section>
-      )}
+        )}
 
-      {templateImports.length > 0 && (
-        <section className="page-section" data-testid="profile-templates">
-          <header className="section-head">
-            <h2>{t('templates_title')}</h2>
-            <p className="muted">{t('templates_sub')}</p>
-          </header>
-          <div className="list">
-            {templateImports.map((i) => (
-              <ImportListRow
-                key={i.id}
-                imp={i}
-                category="template"
-                testIdBase={`profile-template-${i.id}`}
-                onUseTemplate={openTemplateWizard}
-                onUnlock={handleUnlockImport}
-              />
-            ))}
+        {lockedImports.length > 0 && (
+          <div data-testid="profile-locked-imports" className="mt-4">
+            <h3 className="section-sub-head">{t('imports_locked_title')}</h3>
+            <p className="muted small mb-2">{t('imports_locked_sub')}</p>
+            <div className="list">
+              {lockedImports.map((i) => (
+                <ImportListRow
+                  key={i.id}
+                  imp={i}
+                  category="locked"
+                  testIdBase={`profile-locked-${i.id}`}
+                  onUseTemplate={openTemplateWizard}
+                  onUnlock={handleUnlockImport}
+                />
+              ))}
+            </div>
           </div>
-        </section>
-      )}
+        )}
+
+        {templateImports.length > 0 && (
+          <div data-testid="profile-templates" className="mt-4">
+            <h3 className="section-sub-head">{t('templates_title')}</h3>
+            <p className="muted small mb-2">{t('templates_sub')}</p>
+            <div className="list">
+              {templateImports.map((i) => (
+                <ImportListRow
+                  key={i.id}
+                  imp={i}
+                  category="template"
+                  testIdBase={`profile-template-${i.id}`}
+                  onUseTemplate={openTemplateWizard}
+                  onUnlock={handleUnlockImport}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Always-visible import CTA */}
+        <div className="list mt-4">
+          <button
+            type="button"
+            className="list-add"
+            onClick={() => navigate('/import')}
+            data-testid="profile-import-btn"
+          >
+            {t('btn_import_cards')}
+          </button>
+        </div>
+      </section>
 
       <Dialog open={!!templateImp} onOpenChange={(o) => { if (!o) closeTemplateWizard() }}>
         <DialogContent className="max-w-sm" data-testid="profile-use-template-dialog">

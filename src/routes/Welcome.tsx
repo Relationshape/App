@@ -1,9 +1,11 @@
 // PROFILE-02. Port of public/legacy/js/app.js:1399-1457
 
 import type { ReactNode } from 'react'
+import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useStore } from '@/lib/storage/store'
 import { dialog } from '@/lib/dialog/dialog'
+import { CreateProfileModal } from '@/components/CreateProfileModal'
 import { t } from '@/lib/i18n/i18n'
 import { RsHeroConstellation } from '@/components/RsHeroConstellation'
 
@@ -120,22 +122,19 @@ const HOWTO_STEPS: Array<{ num: string; titleKey: HowtoTitleKey; descKey: HowtoD
 export function Welcome() {
   const profiles = useStore((s) => s.profiles)
   const navigate = useNavigate()
+  const [createProfileOpen, setCreateProfileOpen] = useState(false)
 
   async function startNowFlow() {
-    if (profiles.length === 0) { navigate('/profile/new'); return }
-    const choice = await dialog<'new' | 'existing'>({
-      title: t('start_now_title'),
-      body: <p>{t('start_now_sub')}</p>,
-      actions: [
-        { label: t('start_now_existing'), kind: 'ghost', value: 'existing' },
-        { label: t('start_now_new'), kind: 'primary', value: 'new' },
-      ],
-    })
-    if (choice === 'new') navigate('/profile/new')
-    else if (choice === 'existing' && profiles[0]) navigate(`/profile/${profiles[0].id}`)
+    if (profiles.length === 0) {
+      setCreateProfileOpen(true)
+      return
+    }
+    // Profile already exists — navigate to it directly
+    if (profiles[0]) navigate(`/profile/${profiles[0].id}`)
   }
 
   return (
+    <>
     <section className="page" data-testid="welcome-page">
       <div className="hero">
         <div className="hero-blob" />
@@ -183,5 +182,12 @@ export function Welcome() {
         </div>
       </section>
     </section>
+
+    <CreateProfileModal
+      open={createProfileOpen}
+      onOpenChange={setCreateProfileOpen}
+      onCreated={(id) => navigate(`/profile/${id}`)}
+    />
+    </>
   )
 }

@@ -205,15 +205,15 @@ describe('Profile lifecycle (PROFILE-01..04)', () => {
     expect(document.querySelector(`[data-testid="profile-import-${IMPORT_TPL}"]`)).toBeNull()
   })
 
-  it('Welcome CTA navigates to /profile/new when no profiles exist (PROFILE-02)', async () => {
+  it('Welcome CTA opens create-profile modal when no profiles exist (PROFILE-02)', async () => {
     await mountAtHash('#/welcome', makeStore())
     const cta = document.querySelector('[data-testid="welcome-cta"]') as HTMLButtonElement
     expect(cta).not.toBeNull()
     await act(async () => {
       fireEvent.click(cta)
     })
-    // With no profiles, CTA navigates directly to /profile/new
-    expect(window.location.hash).toBe('#/profile/new')
+    // With no profiles, CTA opens the inline create-profile modal
+    expect(document.querySelector('[data-testid="create-profile-modal"]')).not.toBeNull()
   })
 
   it('Threat T-02-08: profile name with XSS payload renders as inert text (not script)', async () => {

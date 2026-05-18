@@ -127,6 +127,7 @@ a:hover { text-decoration: underline; }
 .page-section { display: grid; gap: 14px; }
 .section-head h2 { margin: 0; font-size: 19px; font-family: var(--font-heading); }
 .section-head p { margin: 4px 0 0; }
+.section-sub-head { margin: 0 0 4px; font-size: 15px; font-family: var(--font-heading); opacity: 0.85; }
 .muted { color: var(--muted); }
 .small { font-size: 13px; }
 .flex-spacer { flex: 1; }

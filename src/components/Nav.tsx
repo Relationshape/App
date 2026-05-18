@@ -4,11 +4,12 @@
 // comes from src/styles/legacy-components.css. The id="nav" hook drives the
 // fixed floating-pill positioning. Menu items use the shared RsMenuLink /
 // RsMenuButton primitives (one source of truth for the icon+label shape).
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import type { ReactNode } from 'react'
 import { RsLangDropdown } from './RsLangDropdown'
-import { RsMenuLink } from './RsMenuButton'
+import { RsMenuLink, RsMenuButton } from './RsMenuButton'
+import { CreateProfileModal } from './CreateProfileModal'
 import { useStore } from '@/lib/storage/store'
 import { t } from '@/lib/i18n/i18n'
 import type { TranslationKey } from '@/lib/i18n/en'
@@ -64,9 +65,10 @@ const STATIC_NAV_ITEMS: ReadonlyArray<NavItem> = [
 
 export function Nav() {
   const [open, setOpen] = useState(false)
+  const [createProfileOpen, setCreateProfileOpen] = useState(false)
   const { pathname } = useLocation()
+  const navigate = useNavigate()
   const firstProfileId = useStore((s) => s.profiles[0]?.id)
-  const profileTo = firstProfileId ? `/profile/${firstProfileId}` : '/welcome'
 
   useEffect(() => { setOpen(false) }, [pathname])
 
@@ -78,12 +80,21 @@ export function Nav() {
       </Link>
 
       <div className="nav-links">
-        <RsMenuLink
-          to={profileTo}
-          icon={ICONS.profile}
-          label={cleanLabel(t('nav_profiles'))}
-          testId="nav-link-profile"
-        />
+        {firstProfileId ? (
+          <RsMenuLink
+            to={`/profile/${firstProfileId}`}
+            icon={ICONS.profile}
+            label={cleanLabel(t('nav_profiles'))}
+            testId="nav-link-profile"
+          />
+        ) : (
+          <RsMenuButton
+            icon={ICONS.profile}
+            label={cleanLabel(t('nav_profiles'))}
+            testId="nav-link-profile"
+            onClick={() => setCreateProfileOpen(true)}
+          />
+        )}
         {STATIC_NAV_ITEMS.map((item) => (
           <RsMenuLink
             key={item.to}
@@ -111,6 +122,12 @@ export function Nav() {
         <span className="hb-bar" />
         <span className="hb-bar" />
       </button>
+
+      <CreateProfileModal
+        open={createProfileOpen}
+        onOpenChange={setCreateProfileOpen}
+        onCreated={(id) => navigate(`/profile/${id}`)}
+      />
     </nav>
   )
 }

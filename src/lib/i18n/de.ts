@@ -597,6 +597,8 @@ export const DE: Record<TranslationKey, string> = {
   imports_with_answers_sub: 'Importierte Karten, deren Antworten sichtbar sind.',
   imports_locked_title: '🔒 Karten mit gesperrten Antworten',
   imports_locked_sub: 'Die Antworten in diesen Karten sind mit einem zweiten Passwort verschlüsselt. Importiere die Datei erneut mit dem Freigabe-Passwort, um sie zu entsperren.',
+  imports_section_title: '📥 Importierte Karten',
+  btn_import_cards: '📥 Karten von einem Gegenüber empfangen / importieren',
   cat_details_filter_hint: 'Es werden nur diejenigen Kategorien angezeigt, welche in allen zum Vergleich ausgewählten Karten mindestens eine Antwort enthalten.',
   wizard_pick_imported_maps_section: 'Importierte Karten',
 }
