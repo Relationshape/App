@@ -38,6 +38,9 @@ interface Props {
   onAnswered?: () => void
   onSave?: (next: Result) => void
   customItemDef?: CustomItemDef
+  /** When true, automatically opens the edit dialog once (used after creating a new custom item). */
+  autoOpenEdit?: boolean
+  onAutoOpenDone?: () => void
 }
 
 export function RsQuestionCard({
@@ -52,6 +55,8 @@ export function RsQuestionCard({
   onAnswered,
   onSave,
   customItemDef,
+  autoOpenEdit,
+  onAutoOpenDone,
 }: Props) {
   const storeSaveResult = useStore((s) => s.saveResult)
   const saveResult = onSave ?? storeSaveResult
@@ -82,6 +87,15 @@ export function RsQuestionCard({
     setOptionsError(false)
     setEditOpen(true)
   }
+
+  useEffect(() => {
+    if (autoOpenEdit) {
+      openEditDialog()
+      onAutoOpenDone?.()
+    }
+  // openEditDialog reads from props/state captured at render time — stable enough for one-shot
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoOpenEdit])
 
   async function saveItemEdit() {
     // Validate options if the pending format requires them
