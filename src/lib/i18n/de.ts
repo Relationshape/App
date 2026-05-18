@@ -650,4 +650,11 @@ export const DE: Record<TranslationKey, string> = {
   q_edit_format_options_min: 'Bitte mindestens 2 Optionen eingeben.',
   q_format_non_scale_hint: 'Elemente ohne Skala erscheinen nur in der Element-Ansicht – nicht im Netzdiagramm.',
   spider_scale_only_hint: 'Nur skalenbasierte Elemente werden angezeigt.',
+  confirm_delete_cat_title: 'Kategorie löschen?',
+  confirm_delete_cat_body: 'Kategorie endgültig aus dieser Karte löschen? Deine Antworten gehen verloren. Du kannst die Kategorie jedoch später wieder hinzufügen und erneut bearbeiten und beantworten.',
+  map_cat_delete: 'Löschen',
+  export_hidden_cats_title: 'Versteckte Kategorien',
+  export_hidden_cats_body: 'Deine Karte enthält versteckte Kategorien. Versteckte Kategorien mit exportieren?',
+  export_include_hidden_yes: 'Ja, exportieren',
+  export_include_hidden_no: 'Nein, weglassen',
 }

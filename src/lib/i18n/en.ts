@@ -631,6 +631,13 @@ export const EN = {
   q_edit_format_options_min: 'Please enter at least 2 options.',
   q_format_non_scale_hint: 'Non-scale items only appear in the item-by-item view — they are not shown in the network diagram.',
   spider_scale_only_hint: 'Only scale-rated items are shown here.',
+  confirm_delete_cat_title: 'Delete category?',
+  confirm_delete_cat_body: 'Permanently delete this category from this map? Your answers will be lost. You can add the category again later and fill it in again.',
+  map_cat_delete: 'Delete',
+  export_hidden_cats_title: 'Hidden categories',
+  export_hidden_cats_body: 'Your map contains hidden categories. Include hidden categories in the export?',
+  export_include_hidden_yes: 'Yes, include',
+  export_include_hidden_no: 'No, exclude',
 } as const
 
 export type TranslationKey = keyof typeof EN

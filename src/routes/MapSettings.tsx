@@ -10,6 +10,7 @@ import { RsCategoryPicker } from '@/components/RsCategoryPicker'
 import { CATEGORIES } from '@/lib/data/data'
 import { resolveAnyCat } from '@/lib/data/customCategories'
 import { t } from '@/lib/i18n/i18n'
+import { dialog } from '@/lib/dialog/dialog'
 import { useTemplateWarning } from '@/lib/hooks/useTemplateWarning'
 import type { MutableScaleStep } from '@/lib/data/types'
 import type { CustomCategoryDef } from '@/lib/storage/types'
@@ -35,6 +36,7 @@ export function MapSettings() {
   const [knownCatIds, setKnownCatIds] = useState(() => result?.enabledCategories ?? CATEGORIES.map((c) => c.id))
   const [enabledCategories, setEnabledCategories] = useState(() => result?.enabledCategories ?? CATEGORIES.map((c) => c.id))
 
+  const [deletedCatIds, setDeletedCatIds] = useState<Set<string>>(() => new Set())
   const [pickerOpen, setPickerOpen] = useState(false)
   const [resultCustomCats, setResultCustomCats] = useState<CustomCategoryDef[]>(() => result?.customCategories ?? [])
 
@@ -47,6 +49,22 @@ export function MapSettings() {
 
   function toggleCat(catId: string) {
     setEnabledCategories((prev) => prev.includes(catId) ? prev.filter((c) => c !== catId) : [...prev, catId])
+  }
+
+  async function deleteCat(catId: string) {
+    const ok = await dialog<boolean>({
+      title: t('confirm_delete_cat_title'),
+      body: t('confirm_delete_cat_body'),
+      actions: [
+        { label: t('btn_cancel'), kind: 'ghost', value: false },
+        { label: t('map_cat_delete'), kind: 'danger', value: true },
+      ],
+    })
+    if (!ok) return
+    setDeletedCatIds((prev) => new Set([...prev, catId]))
+    setKnownCatIds((prev) => prev.filter((id) => id !== catId))
+    setEnabledCategories((prev) => prev.filter((id) => id !== catId))
+    setResultCustomCats((prev) => prev.filter((c) => c.id !== catId))
   }
 
   function handlePickerSubmit(mergedIds: string[], newResultCats: CustomCategoryDef[], newProfileCats: CustomCategoryDef[]) {
@@ -69,12 +87,16 @@ export function MapSettings() {
       (scale !== undefined && JSON.stringify(scale) !== JSON.stringify(r.scale ?? globalScale))
     if (structuralChange && !await confirmIfTemplate()) return
     const trimmedSubject = subject.trim()
+    const cleanedAnswers = deletedCatIds.size > 0
+      ? Object.fromEntries(Object.entries(r.answers).filter(([cid]) => !deletedCatIds.has(cid))) as typeof r.answers
+      : r.answers
     saveResult({
       ...r,
       ...(trimmedSubject ? { subject: trimmedSubject } : {}),
       subjectEmoji,
       subjectColor,
       enabledCategories,
+      answers: cleanedAnswers,
       ...(scale !== undefined ? { scale } : {}),
       ...(resultCustomCats.length > 0 ? { customCategories: resultCustomCats } : {}),
     })
@@ -157,16 +179,26 @@ export function MapSettings() {
           {visibleCats.map((cat) => {
             const on = enabledCategories.includes(cat.id)
             return (
-              <RsTile
-                key={cat.id}
-                color={cat.color}
-                active={on}
-                onClick={() => toggleCat(cat.id)}
-                testId={`map-cat-toggle-${cat.id}`}
-                icon={cat.icon}
-                title={cat.title}
-                trailing={<span>{on ? '✓' : '–'}</span>}
-              />
+              <div key={cat.id} className="relative">
+                <RsTile
+                  color={cat.color}
+                  active={on}
+                  onClick={() => toggleCat(cat.id)}
+                  testId={`map-cat-toggle-${cat.id}`}
+                  icon={cat.icon}
+                  title={cat.title}
+                  trailing={<span>{on ? '✓' : '–'}</span>}
+                />
+                <button
+                  type="button"
+                  className="absolute bottom-1 right-1 text-xs opacity-40 hover:opacity-100 hover:text-red-400 transition-opacity px-1"
+                  title={t('map_cat_delete')}
+                  onClick={(e) => { e.stopPropagation(); void deleteCat(cat.id) }}
+                  data-testid={`map-cat-delete-${cat.id}`}
+                >
+                  🗑
+                </button>
+              </div>
             )
           })}
         </div>

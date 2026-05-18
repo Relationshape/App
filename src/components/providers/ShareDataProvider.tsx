@@ -11,6 +11,7 @@ import type { ReactNode } from 'react'
 import { useStore } from '@/lib/storage/store'
 import type { Result, Profile } from '@/lib/storage/types'
 import { encryptResult } from '@/lib/crypto/crypto'
+import { dialog } from '@/lib/dialog/dialog'
 import {
   buildBaseSharePayload,
   buildExportAskedItems,
@@ -31,7 +32,7 @@ type Step = 'mode' | 'pass' | 'output'
 
 interface ShareDataContextValue {
   /** Open the share modal for the given result id. No-op if the id can't be resolved. */
-  openShare(resultId: string): void
+  openShare(resultId: string): void | Promise<void>
   /** Open the share modal pre-set to template mode. onDone is called after the modal closes. */
   openShareTemplate(resultId: string, onDone?: () => void): void
 }
@@ -42,6 +43,26 @@ export function useShareData(): ShareDataContextValue {
   const ctx = useContext(ShareDataContext)
   if (!ctx) throw new Error('useShareData must be used within ShareDataProvider')
   return ctx
+}
+
+function getHiddenCatsWithAnswers(result: Result): string[] {
+  if (!result.enabledCategories) return []
+  const enabled = new Set(result.enabledCategories)
+  return Object.keys(result.answers).filter((catId) => {
+    if (enabled.has(catId)) return false
+    const slot = result.answers[catId]
+    if (!slot) return false
+    const hasScaleAnswer = Object.entries(slot).some(([k, v]) =>
+      k !== '__hidden' && k !== '__custom' &&
+      v != null && typeof v === 'object' && 'scale' in v &&
+      (v as { scale: string }).scale !== 'open'
+    )
+    if (hasScaleAnswer) return true
+    return Object.values(slot.__custom ?? {}).some((v) =>
+      v != null && typeof v === 'object' && 'scale' in v &&
+      (v as { scale: string }).scale !== 'open'
+    )
+  })
 }
 
 function slug(s: string | undefined): string {
@@ -95,6 +116,7 @@ export function ShareDataProvider({ children }: { children: ReactNode }) {
 
   const [busy, setBusy] = useState(false)
   const [armor, setArmor] = useState<string | null>(null)
+  const [includeHiddenCats, setIncludeHiddenCats] = useState<boolean | null>(null)
 
   const passInputRef = useRef<HTMLInputElement | null>(null)
   const onDoneRef = useRef<(() => void) | undefined>(undefined)
@@ -111,6 +133,7 @@ export function ShareDataProvider({ children }: { children: ReactNode }) {
     setPassError(null)
     setBusy(false)
     setArmor(null)
+    setIncludeHiddenCats(null)
   }, [])
 
   const close = useCallback(() => {
@@ -120,16 +143,29 @@ export function ShareDataProvider({ children }: { children: ReactNode }) {
     setTimeout(() => { reset(); cb?.() }, 200)
   }, [reset])
 
-  const openShare = useCallback((resultId: string) => {
+  const openShare = useCallback(async (resultId: string) => {
     const s = useStore.getState()
     const r = s.results.find((x) => x.id === resultId) ?? null
     const p = r ? s.profiles.find((x) => x.id === r.profileId) ?? null : null
     if (!r || !p) {
-      // Nothing to share — surface a toast instead of silently failing.
       toast.error(t('import_no_results') as string)
       return
     }
     reset()
+    let hiddenChoice: boolean | null = null
+    const hiddenCats = getHiddenCatsWithAnswers(r)
+    if (hiddenCats.length > 0) {
+      const ans = await dialog<boolean>({
+        title: t('export_hidden_cats_title'),
+        body: t('export_hidden_cats_body'),
+        actions: [
+          { label: t('export_include_hidden_no'), kind: 'ghost', value: false },
+          { label: t('export_include_hidden_yes'), kind: 'primary', value: true },
+        ],
+      })
+      hiddenChoice = ans
+    }
+    setIncludeHiddenCats(hiddenChoice)
     setResult(r)
     setProfile(p)
     setOpen(true)
@@ -178,25 +214,40 @@ export function ShareDataProvider({ children }: { children: ReactNode }) {
 
     setBusy(true)
     try {
-      const base = buildBaseSharePayload(result, profile)
+      // Apply hidden-cats choice: if includeHiddenCats is true, expand enabledCategories to include them;
+      // if false, strip hidden-cat answers from the export payload.
+      let exportResult = result
+      if (includeHiddenCats !== null && result.enabledCategories) {
+        if (includeHiddenCats) {
+          const hiddenCats = getHiddenCatsWithAnswers(result)
+          exportResult = { ...result, enabledCategories: [...result.enabledCategories, ...hiddenCats] }
+        } else {
+          const enabled = new Set(result.enabledCategories)
+          const strippedAnswers = Object.fromEntries(
+            Object.entries(result.answers).filter(([catId]) => enabled.has(catId))
+          ) as typeof result.answers
+          exportResult = { ...result, answers: strippedAnswers }
+        }
+      }
+      const base = buildBaseSharePayload(exportResult, profile)
       let payload: SharePayload
       if (mode === 'unrestricted') {
-        payload = { ...base, answers: result.answers, exportMode: 'unrestricted' }
+        payload = { ...base, answers: exportResult.answers, exportMode: 'unrestricted' }
       } else if (mode === 'restricted') {
-        const lockedAnswers = await encryptResult({ answers: result.answers }, revealPass)
+        const lockedAnswers = await encryptResult({ answers: exportResult.answers }, revealPass)
         payload = {
           ...base,
           answers: {},
           lockedAnswers,
           exportMode: 'restricted',
-          askedItems: buildExportAskedItems(result),
+          askedItems: buildExportAskedItems(exportResult),
         }
       } else {
         payload = {
           ...base,
           answers: {},
           exportMode: 'template',
-          askedItems: buildExportAskedItems(result),
+          askedItems: buildExportAskedItems(exportResult),
         }
       }
       const out = await encryptResult(payload, pass)
