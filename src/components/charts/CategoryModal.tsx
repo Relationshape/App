@@ -2,7 +2,7 @@
 // Port of public/legacy/js/app.js:2879-3050 openCategoryModal.
 // Built on shadcn Dialog. Legacy `cat-modal-*` CSS in legacy-components.css.
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { ItemSpider } from './ItemSpider'
@@ -46,6 +46,10 @@ export function CategoryModal({ open, onOpenChange, datasets, cat, result, initi
   // Local answer state for the Edit tab
   const [localResult, setLocalResult] = useState<Result | null>(null)
   const [isDirty, setIsDirty] = useState(false)
+  // Guards against re-entrant confirmDiscard calls: onInteractOutside fires for
+  // every click inside the discard dialog (portal = "outside" the modal), which
+  // would otherwise stack a second dialog before the first one resolves.
+  const confirmingRef = useRef(false)
 
   // When edit tab opens, clone the result into local state.
   useEffect(() => {
@@ -85,19 +89,25 @@ export function CategoryModal({ open, onOpenChange, datasets, cat, result, initi
   }
 
   async function confirmDiscard(): Promise<boolean> {
-    const choice = await dialog<string | null>({
-      title: t('confirm_discard_changes') as string,
-      body: () => null,
-      actions: [
-        { label: t('btn_cancel') as string, kind: 'ghost', value: null },
-        { label: t('btn_discard') as string, kind: 'danger', value: 'discard' },
-        { label: t('btn_save_changes') as string, kind: 'primary', value: 'save' },
-      ],
-    })
-    if (!choice || choice === null) return false
-    if (choice === 'save') { doSave(); return true }
-    if (choice === 'discard') { setIsDirty(false); return true }
-    return false
+    if (confirmingRef.current) return false
+    confirmingRef.current = true
+    try {
+      const choice = await dialog<string | null>({
+        title: t('confirm_discard_changes') as string,
+        body: () => null,
+        actions: [
+          { label: t('btn_cancel') as string, kind: 'ghost', value: null },
+          { label: t('btn_discard') as string, kind: 'danger', value: 'discard' },
+          { label: t('btn_save_changes') as string, kind: 'primary', value: 'save' },
+        ],
+      })
+      if (!choice || choice === null) return false
+      if (choice === 'save') { doSave(); return true }
+      if (choice === 'discard') { setIsDirty(false); return true }
+      return false
+    } finally {
+      confirmingRef.current = false
+    }
   }
 
   async function handleTabChange(newTab: Tab) {
@@ -146,8 +156,8 @@ export function CategoryModal({ open, onOpenChange, datasets, cat, result, initi
         style={{ ['--c' as 'color']: cat.color } as React.CSSProperties}
         showCloseButton={false}
         data-testid="category-modal"
-        onPointerDownOutside={(e) => { if (isDirty) e.preventDefault() }}
-        onInteractOutside={(e) => { e.preventDefault(); void handleOpenChange(false) }}
+        onPointerDownOutside={(e) => { if (isDirty || confirmingRef.current) e.preventDefault() }}
+        onInteractOutside={(e) => { e.preventDefault(); if (!confirmingRef.current) void handleOpenChange(false) }}
       >
         {/* Header row */}
         <div className="cat-modal-head-row">
@@ -220,11 +230,14 @@ export function CategoryModal({ open, onOpenChange, datasets, cat, result, initi
             </button>
             <Dialog open={spiderEnlarged} onOpenChange={setSpiderEnlarged}>
               <DialogContent
-                className="max-w-[min(860px,96vw)] max-h-[min(92vh,860px)] p-4 overflow-auto"
+                className="max-w-[min(1400px,96vw)] max-h-[min(96vh,1400px)] p-4 overflow-auto"
                 data-testid="cat-modal-spider-fullscreen"
               >
                 <DialogTitle className="sr-only">{title}</DialogTitle>
-                <ItemSpider datasets={datasets} catId={cat.id} size={800} />
+                <ItemSpider datasets={datasets} catId={cat.id} size={1200} />
+                <p className="text-center muted small mt-3" style={{ opacity: 0.65 }}>
+                  {t('spider_hover_hint')}
+                </p>
               </DialogContent>
             </Dialog>
           </div>

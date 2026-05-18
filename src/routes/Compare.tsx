@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useStore } from '@/lib/storage/store'
+import { useShareData } from '@/components/providers/ShareDataProvider'
 import { Spider } from '@/components/charts/Spider'
 import { Alignment } from '@/components/charts/Alignment'
 import { CategoryModal } from '@/components/charts/CategoryModal'
@@ -23,6 +24,7 @@ export function Compare() {
   const rawIds = idsParam.split(',').map((s) => s.trim()).filter(Boolean)
   const truncatedRaw = rawIds.slice(0, 4)
   const { toast } = useToast()
+  const { openShare } = useShareData()
 
   useEffect(() => {
     if (rawIds.length > 4) toast.message(t('compare_too_many_truncated', { n: rawIds.length }) as string)
@@ -168,25 +170,37 @@ export function Compare() {
                 const selected = effectiveIds.includes(o.id)
                 const disabled = atMax && !selected
                 return (
-                  <button
+                  <div
                     key={o.id}
-                    type="button"
+                    role="button"
+                    tabIndex={disabled ? -1 : 0}
+                    aria-pressed={selected}
                     className={`compare-row${selected ? ' compare-row--on' : ''}${disabled ? ' compare-row--disabled' : ''}`}
                     style={{ ['--c' as 'color']: o.color } as React.CSSProperties}
                     onClick={() => !disabled && toggleId(o.id)}
+                    onKeyDown={(e) => { if ((e.key === 'Enter' || e.key === ' ') && !disabled) { e.preventDefault(); toggleId(o.id) } }}
                     data-testid={`compare-chip-${o.id}`}
-                    aria-pressed={selected}
-                    disabled={disabled}
                   >
-                    <span className="compare-row-check" aria-hidden="true">
-                      {selected ? '✓' : ''}
+                    <span className="compare-row-select">
+                      <span className="compare-row-check" aria-hidden="true">
+                        {selected ? '✓' : ''}
+                      </span>
+                      <span className="compare-row-emoji" aria-hidden="true">{o.emoji}</span>
+                      <span className="compare-row-text">
+                        <span className="compare-row-name">{o.subject || o.name}</span>
+                        {o.subject && <span className="compare-row-sub">{o.name}</span>}
+                      </span>
                     </span>
-                    <span className="compare-row-emoji" aria-hidden="true">{o.emoji}</span>
-                    <span className="compare-row-text">
-                      <span className="compare-row-name">{o.subject || o.name}</span>
-                      {o.subject && <span className="compare-row-sub">{o.name}</span>}
-                    </span>
-                  </button>
+                    <button
+                      type="button"
+                      className="compare-row-export"
+                      onClick={(e) => { e.stopPropagation(); openShare(o.id) }}
+                      data-testid={`compare-export-${o.id}`}
+                      title={t('btn_share')}
+                    >
+                      📤
+                    </button>
+                  </div>
                 )
               })}
             </div>
