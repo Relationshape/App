@@ -496,6 +496,7 @@ export const EN = {
   q_mode_list: '📋 List',
   q_mode_single: '📱 Single',
   q_nav_see_results: 'See results',
+  q_nav_next_cat: 'Next category →',
   q_add_custom: '+ Add custom item',
   q_add_custom_title: 'Add a custom item',
   q_add_custom_placeholder: 'Item name…',

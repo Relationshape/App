@@ -45,6 +45,14 @@ export function ListMode({ result, profile }: Props) {
 
   const safeIdx = Math.min(Math.max(0, result.progress?.catIndex ?? 0), enabledCats.length - 1)
   const cat = enabledCats[safeIdx]!
+  const hasNextCat = safeIdx + 1 < enabledCats.length
+
+  function goToNextCat() {
+    saveResult({
+      ...result,
+      progress: { ...(result.progress ?? { mode: 'list' }), catIndex: safeIdx + 1 },
+    })
+  }
   const { base, custom } = enabledItemsForCat(result.answers, cat.id)
   const catTitle = lang === 'de' && cat.de ? cat.de : cat.title
   const catBlurb = lang === 'de' && cat.deBlurb ? cat.deBlurb : cat.blurb
@@ -134,7 +142,12 @@ export function ListMode({ result, profile }: Props) {
           </div>
         </section>
       </main>
-      <QuestionnaireNav result={result} profileId={profile.id} activeCat={cat} />
+      <QuestionnaireNav
+        result={result}
+        profileId={profile.id}
+        activeCat={cat}
+        onNextCat={hasNextCat ? goToNextCat : undefined}
+      />
     </div>
   )
 }
