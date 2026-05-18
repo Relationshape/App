@@ -30,6 +30,7 @@ export function mapResultToDataset(result: Result, profile: Profile | null): Cha
     answers: result.answers,
     scale: resolveScale(result.scale),
     ...(result.customItemDefs ? { customItemDefs: result.customItemDefs } : {}),
+    ...(result.customCategories ? { customCategories: result.customCategories } : {}),
   }
 }
 
@@ -42,5 +43,6 @@ export function mapImportToDataset(imp: Import): ChartDataset {
     answers: imp.answers,
     scale: resolveScale(imp.scale),
     ...(imp.customItemDefs ? { customItemDefs: imp.customItemDefs } : {}),
+    ...(imp.customCategories ? { customCategories: imp.customCategories } : {}),
   }
 }

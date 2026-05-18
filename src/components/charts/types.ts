@@ -1,6 +1,6 @@
 // Shared dataset shape for all chart components. D-04.
 
-import type { AnswersBlob, CustomItemDef } from '@/lib/storage/types'
+import type { AnswersBlob, CustomItemDef, CustomCategoryDef } from '@/lib/storage/types'
 import type { MutableScaleStep } from '@/lib/data/types'
 
 export interface ChartDataset {
@@ -18,4 +18,6 @@ export interface ChartDataset {
   id?: string
   /** Custom item format definitions: catId → itemName → def */
   customItemDefs?: Record<string, Record<string, CustomItemDef>>
+  /** Custom category definitions for this dataset */
+  customCategories?: CustomCategoryDef[]
 }

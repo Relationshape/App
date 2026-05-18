@@ -5,6 +5,13 @@
 
 import type { MutableScaleStep } from '@/lib/data/types'
 
+export interface CustomCategoryDef {
+  id: string    // format: 'ccat-<random8>'
+  title: string // user-provided
+  icon: string  // emoji, default '✶'
+  color: string // hex from palette
+}
+
 export interface Profile {
   id: string
   name: string
@@ -13,6 +20,7 @@ export interface Profile {
   emoji: string
   notes?: string
   createdAt: number
+  customCategories?: CustomCategoryDef[]
 }
 
 export type GROfBoth = 'G' | 'R' | 'Both'
@@ -78,6 +86,7 @@ export interface Result {
   createdAt: number
   updatedAt: number
   customItemDefs?: Record<string, Record<string, CustomItemDef>>  // catId → itemName → def
+  customCategories?: CustomCategoryDef[]
 }
 
 export interface Import {
@@ -103,6 +112,7 @@ export interface Import {
   lockedAnswers?: string
   templateWarningDisabled?: boolean
   customItemDefs?: Record<string, Record<string, CustomItemDef>>
+  customCategories?: CustomCategoryDef[]
 }
 
 export interface Settings {

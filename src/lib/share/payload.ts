@@ -1,7 +1,7 @@
 // SHARE-01/03/04. The v1.0 bundle envelope: type:"relationshape-result"; subject; name; pronouns; emoji; color; answers; scale; version.
 // Port of public/legacy/js/app.js sendable-payload assembly (search for "relationshape-result" in v1.0 source).
 
-import type { Result, Profile, Import, CustomItemDef } from '@/lib/storage/types'
+import type { Result, Profile, Import, CustomItemDef, CustomCategoryDef } from '@/lib/storage/types'
 import type { MutableScaleStep } from '@/lib/data/types'
 import { CATEGORIES } from '@/lib/data/data'
 import { useStore } from '@/lib/storage/store'
@@ -32,6 +32,7 @@ export interface SharePayload {
   /** v1.0 restricted-mode field: encrypted answers bundle, gated by a second passphrase. */
   lockedAnswers?: string
   customItemDefs?: Record<string, Record<string, CustomItemDef>> | null
+  customCategories?: CustomCategoryDef[] | null
 }
 
 export function buildSharePayload(result: Result, profile: Profile): SharePayload {
@@ -53,6 +54,7 @@ export function buildSharePayload(result: Result, profile: Profile): SharePayloa
   if (result.subjectEmoji !== undefined) payload.subjectEmoji = result.subjectEmoji
   if (result.subjectColor !== undefined) payload.subjectColor = result.subjectColor
   if (result.customItemDefs) payload.customItemDefs = result.customItemDefs
+  if (result.customCategories) payload.customCategories = result.customCategories
   return payload
 }
 
