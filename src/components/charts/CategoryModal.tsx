@@ -336,107 +336,116 @@ function EditTabContent({ result, cat, onLocalChange, onImmediateSave, addingRef
   }
 
   async function runAddCustom() {
-    // Step 1: name
-    const name = await dialog<string | null>({
-      title: t('q_add_custom_title'),
-      dismissable: false,
-      body: (close) => {
-        let value = ''
-        const submit = () => close(value.trim() || null)
-        return (
-          <div className="flex flex-col gap-2">
-            <input
-              autoFocus
-              placeholder={t('q_add_custom_placeholder')}
-              onChange={(e) => { value = e.target.value }}
-              onKeyDown={(e) => { if (e.key === 'Enter') submit() }}
-              className="w-full rounded border border-line px-2 py-1"
-              data-testid="modal-add-custom-input"
-            />
-            <button
-              type="button"
-              onClick={submit}
-              className="self-end px-3 py-1 rounded bg-accent text-on-accent"
-              data-testid="modal-add-custom-ok"
-            >
-              {t('btn_ok')}
-            </button>
-          </div>
-        )
-      },
-      actions: [{ label: t('btn_cancel'), kind: 'ghost', value: null }],
-    })
-    if (!name) return
+    let initialName = ''
 
-    const c = ALL_CATS.find((x) => x.id === cat.id)
-    if ((c ? (c.items as readonly string[]).includes(name) : false) || (slot.__custom ?? {})[name]) {
-      toast.message(t('q_item_already_exists'))
-      return
-    }
-
-    // Step 2: format selection
-    const format = await dialog<CustomItemFormat | false>({
-      title: t('q_add_custom_format_title'),
-      dismissable: false,
-      body: (close) => <FormatPicker onClose={close} />,
-      actions: [],
-    })
-    if (!format) return
-
-    // Step 3: for single/multi/ranking, collect options
-    let options: string[] | undefined
-    if (format === 'single' || format === 'multi' || format === 'ranking') {
-      const rawOptions = await dialog<string[] | false>({
-        title: t('q_add_custom_options_title'),
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      // Step 1: name
+      const nameCapture = initialName
+      const nameResult = await dialog<string | null>({
+        title: t('q_add_custom_title'),
         dismissable: false,
-        body: (close) => <OptionsInput onClose={close} />,
-        actions: [],
-      })
-      if (!rawOptions) return
-      options = rawOptions
-    }
-
-    // Step 4 (only for scale format): scale selection
-    // dismissable: false so clicking outside doesn't resolve with null (which
-    // would be indistinguishable from the "use default" button value).
-    let itemScale: MutableScaleStep[] | null = null
-    if (format === 'scale') {
-      const scaleResult = await dialog<MutableScaleStep[] | null | false>({
-        title: t('q_add_custom_scale_title'),
-        dismissable: false,
-        body: (close) => <CustomScalePicker defaultScale={scale} onClose={close} />,
-        actions: [],
-      })
-      // false = cancel (abort entire flow), null = use default, array = custom scale
-      if (scaleResult === false) return
-      itemScale = scaleResult
-    }
-
-    const next = structuredClone(result)
-    if (storeTemplateWarningDisabled) next.templateWarningDisabled = true
-    const ns = next.answers[cat.id] ?? {}
-    const cell = (format === 'scale' && itemScale) ? { scale: 'open', itemScale } : { scale: 'open' }
-    ns.__custom = { ...(ns.__custom ?? {}), [name]: cell }
-    next.answers[cat.id] = ns
-
-    // Save customItemDef for non-default formats
-    if (format !== 'scale' || options) {
-      const def: CustomItemDef = { format, ...(options ? { options } : {}) }
-      next.customItemDefs = {
-        ...(next.customItemDefs ?? {}),
-        [cat.id]: {
-          ...(next.customItemDefs?.[cat.id] ?? {}),
-          [name]: def,
+        body: (close) => {
+          let value = nameCapture
+          const submit = () => close(value.trim() || null)
+          return (
+            <div className="flex flex-col gap-2">
+              <input
+                autoFocus
+                defaultValue={nameCapture}
+                placeholder={t('q_add_custom_placeholder')}
+                onChange={(e) => { value = e.target.value }}
+                onKeyDown={(e) => { if (e.key === 'Enter') submit() }}
+                className="w-full rounded border border-line px-2 py-1"
+                data-testid="modal-add-custom-input"
+              />
+              <button
+                type="button"
+                onClick={submit}
+                className="self-end px-3 py-1 rounded bg-accent text-on-accent"
+                data-testid="modal-add-custom-ok"
+              >
+                {t('btn_ok')}
+              </button>
+            </div>
+          )
         },
-      }
-    }
+        actions: [{ label: t('btn_cancel'), kind: 'ghost', value: null }],
+      })
+      if (!nameResult) return
+      const name = nameResult
 
-    if (onImmediateSave) {
-      onImmediateSave(next)
-    } else if (onLocalChange) {
-      onLocalChange(next)
-    } else {
-      saveResult(next)
+      const c = ALL_CATS.find((x) => x.id === cat.id)
+      if ((c ? (c.items as readonly string[]).includes(name) : false) || (slot.__custom ?? {})[name]) {
+        toast.message(t('q_item_already_exists'))
+        return
+      }
+
+      // Step 2: format selection
+      const format = await dialog<CustomItemFormat | false | 'back'>({
+        title: t('q_add_custom_format_title'),
+        dismissable: false,
+        body: (close) => <FormatPicker onClose={close} />,
+        actions: [],
+      })
+      // null = X button (cancel), false = cancel button (cancel), 'back' = go back to name step
+      if (format === null || format === false) return
+      if (format === 'back') { initialName = name; continue }
+
+      // Step 3: for single/multi/ranking, collect options
+      let options: string[] | undefined
+      if (format === 'single' || format === 'multi' || format === 'ranking') {
+        const rawOptions = await dialog<string[] | false>({
+          title: t('q_add_custom_options_title'),
+          dismissable: false,
+          body: (close) => <OptionsInput onClose={close} />,
+          actions: [],
+        })
+        if (rawOptions === null || rawOptions === false) return
+        options = rawOptions
+      }
+
+      // Step 4 (only for scale format): scale selection
+      let itemScale: MutableScaleStep[] | null = null
+      if (format === 'scale') {
+        const scaleResult = await dialog<MutableScaleStep[] | 'default' | false>({
+          title: t('q_add_custom_scale_title'),
+          dismissable: false,
+          body: (close) => <CustomScalePicker defaultScale={scale} onClose={close} />,
+          actions: [],
+        })
+        // null = X button (cancel), false = cancel button (cancel), 'default' = use default, array = custom
+        if (scaleResult === null || scaleResult === false) return
+        itemScale = scaleResult === 'default' ? null : scaleResult
+      }
+
+      const next = structuredClone(result)
+      if (storeTemplateWarningDisabled) next.templateWarningDisabled = true
+      const ns = next.answers[cat.id] ?? {}
+      const cell = (format === 'scale' && itemScale) ? { scale: 'open', itemScale } : { scale: 'open' }
+      ns.__custom = { ...(ns.__custom ?? {}), [name]: cell }
+      next.answers[cat.id] = ns
+
+      // Save customItemDef for non-default formats
+      if (format !== 'scale' || options) {
+        const def: CustomItemDef = { format, ...(options ? { options } : {}) }
+        next.customItemDefs = {
+          ...(next.customItemDefs ?? {}),
+          [cat.id]: {
+            ...(next.customItemDefs?.[cat.id] ?? {}),
+            [name]: def,
+          },
+        }
+      }
+
+      if (onLocalChange) {
+        onLocalChange(next)
+      } else if (onImmediateSave) {
+        onImmediateSave(next)
+      } else {
+        saveResult(next)
+      }
+      break
     }
   }
 
@@ -489,7 +498,7 @@ function EditTabContent({ result, cat, onLocalChange, onImmediateSave, addingRef
   )
 }
 
-function FormatPicker({ onClose }: { onClose: (v: CustomItemFormat | false) => void }) {
+function FormatPicker({ onClose }: { onClose: (v: CustomItemFormat | false | 'back') => void }) {
   const formats: { key: CustomItemFormat; labelKey: 'q_format_scale' | 'q_format_text' | 'q_format_single' | 'q_format_multi' | 'q_format_ranking'; descKey: 'q_format_scale_desc' | 'q_format_text_desc' | 'q_format_single_desc' | 'q_format_multi_desc' | 'q_format_ranking_desc' }[] = [
     { key: 'scale', labelKey: 'q_format_scale', descKey: 'q_format_scale_desc' },
     { key: 'text', labelKey: 'q_format_text', descKey: 'q_format_text_desc' },
@@ -510,7 +519,10 @@ function FormatPicker({ onClose }: { onClose: (v: CustomItemFormat | false) => v
           <span className="format-picker-tile-desc muted small">{t(descKey)}</span>
         </button>
       ))}
-      <div className="flex justify-end">
+      <div className="flex justify-between">
+        <Button variant="ghost" onClick={() => onClose('back')} data-testid="modal-format-picker-back">
+          {t('btn_back')}
+        </Button>
         <Button variant="ghost" onClick={() => onClose(false)} data-testid="modal-format-picker-cancel">
           {t('btn_cancel')}
         </Button>
@@ -558,7 +570,7 @@ function CustomScalePicker({
   onClose,
 }: {
   defaultScale: MutableScaleStep[]
-  onClose: (v: MutableScaleStep[] | null | false) => void
+  onClose: (v: MutableScaleStep[] | 'default' | false) => void
 }) {
   const lang = getLang()
   const [customizing, setCustomizing] = useState(false)
@@ -588,7 +600,7 @@ function CustomScalePicker({
             <Button variant="ghost" onClick={() => setCustomizing(true)}>
               {t('q_add_custom_scale_customize')}
             </Button>
-            <Button onClick={() => onClose(null)} data-testid="modal-add-custom-scale-default">
+            <Button onClick={() => onClose('default')} data-testid="modal-add-custom-scale-default">
               {t('q_add_custom_scale_use_default')}
             </Button>
           </div>
