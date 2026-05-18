@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { ScaleEditor } from '@/components/ScaleEditor'
 import { EmojiPicker } from '@/components/EmojiPicker'
 import { RsTile } from '@/components/RsTile'
+import { RsCategoryPicker } from '@/components/RsCategoryPicker'
 import { CATEGORIES } from '@/lib/data/data'
 import { t } from '@/lib/i18n/i18n'
 import { useTemplateWarning } from '@/lib/hooks/useTemplateWarning'
@@ -24,7 +25,15 @@ export function MapSettings() {
   const [subjectEmoji, setSubjectEmoji] = useState(result?.subjectEmoji ?? '💞')
   const [subjectColor, setSubjectColor] = useState(result?.subjectColor ?? PALETTE[0]!)
   const [scale, setScale] = useState<MutableScaleStep[] | undefined>(result?.scale ? result.scale.map((s) => ({ ...s })) : undefined)
-  const [enabledCategories, setEnabledCategories] = useState(result?.enabledCategories ?? CATEGORIES.map((c) => c.id))
+
+  // knownCatIds: session-local pool of categories visible in this settings view.
+  // Initialized from the map's current enabledCategories; grows when the picker adds new ones.
+  // Shrinks are intentionally deferred to next page load (toggling off keeps the row visible).
+  const initialCatIds = result?.enabledCategories ?? CATEGORIES.map((c) => c.id)
+  const [knownCatIds, setKnownCatIds] = useState(initialCatIds)
+  const [enabledCategories, setEnabledCategories] = useState(initialCatIds)
+
+  const [pickerOpen, setPickerOpen] = useState(false)
 
   const { confirmIfTemplate } = useTemplateWarning(result)
 
@@ -36,6 +45,14 @@ export function MapSettings() {
   function toggleCat(catId: string) {
     setEnabledCategories((prev) => prev.includes(catId) ? prev.filter((c) => c !== catId) : [...prev, catId])
   }
+
+  function handlePickerSubmit(mergedIds: string[]) {
+    const newIds = mergedIds.filter((id) => !knownCatIds.includes(id))
+    if (newIds.length === 0) return
+    setKnownCatIds((prev) => [...prev, ...newIds])
+    setEnabledCategories((prev) => [...prev, ...newIds])
+  }
+
   async function onSave() {
     const r = result
     if (!r) return
@@ -60,6 +77,8 @@ export function MapSettings() {
   function adoptGlobalScale() {
     setScale(globalScale.map((s) => ({ ...s })))
   }
+
+  const visibleCats = CATEGORIES.filter((cat) => knownCatIds.includes(cat.id))
 
   return (
     <section className="page narrow" data-testid="map-settings-page">
@@ -100,15 +119,15 @@ export function MapSettings() {
         </fieldset>
       </section>
       <section className="page-section" data-testid="map-settings-scale">
-        <h2>{t('settings_scale_title')}</h2>
+        <h2>{t('map_scale_title')}</h2>
         <div className="flex gap-2 mb-2">
-          <Button type="button" variant="outline" onClick={adoptGlobalScale} data-testid="map-scale-adopt-global">Use global scale</Button>
-          {scale && <Button type="button" variant="ghost" onClick={clearScaleOverride} data-testid="map-scale-clear-override">Clear override</Button>}
+          <Button type="button" variant="outline" onClick={adoptGlobalScale} data-testid="map-scale-adopt-global">{t('map_scale_use_global')}</Button>
+          {scale && <Button type="button" variant="ghost" onClick={clearScaleOverride} data-testid="map-scale-clear-override">{t('map_scale_clear_override')}</Button>}
         </div>
         {scale ? (
           <ScaleEditor scale={scale} onChange={setScale} />
         ) : (
-          <p className="muted">Using global scale ({globalScale.length} steps).</p>
+          <p className="muted">{t('map_scale_using_global', { n: globalScale.length })}</p>
         )}
       </section>
       <section className="page-section" data-testid="map-settings-categories">
@@ -118,7 +137,7 @@ export function MapSettings() {
           ℹ️ {t('map_settings_cat_hidden_info')}
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-2" data-testid="map-cat-grid">
-          {CATEGORIES.map((cat) => {
+          {visibleCats.map((cat) => {
             const on = enabledCategories.includes(cat.id)
             return (
               <RsTile
@@ -134,8 +153,25 @@ export function MapSettings() {
             )
           })}
         </div>
+        <div className="mt-3">
+          <button
+            type="button"
+            className="list-add"
+            onClick={() => setPickerOpen(true)}
+            data-testid="map-cat-add-btn"
+          >
+            {t('map_settings_add_cat')}
+          </button>
+        </div>
       </section>
       <Button type="button" onClick={() => { void onSave() }} data-testid="map-save-btn">{t('btn_save')}</Button>
+
+      <RsCategoryPicker
+        open={pickerOpen}
+        onOpenChange={setPickerOpen}
+        existingIds={knownCatIds}
+        onSubmit={handlePickerSubmit}
+      />
     </section>
   )
 }
