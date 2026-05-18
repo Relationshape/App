@@ -230,9 +230,6 @@ export function RsQuestionCard({
       >
         <div className="q-item-name">
           <strong>{displayName}</strong>
-          {cell?.customLabel && (
-            <span className="q-item-original-key muted small">({item})</span>
-          )}
           <Button
             variant="ghost"
             size="sm"
@@ -294,11 +291,11 @@ export function RsQuestionCard({
       </div>
 
       <Dialog open={editOpen} onOpenChange={(o) => { if (!o) setEditOpen(false) }}>
-        <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
+        <DialogContent className="max-w-2xl flex flex-col" style={{ maxHeight: 'min(90vh, 800px)' }}>
           <DialogHeader>
             <DialogTitle>{t('q_edit_item_scale')}: {item}</DialogTitle>
           </DialogHeader>
-          <div className="flex flex-col gap-4 py-2">
+          <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-4 py-2 pr-1">
             <label className="flex flex-col gap-1">
               <span className="text-sm font-medium">{t('q_item_rename_label')}</span>
               <input
