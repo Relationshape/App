@@ -230,11 +230,14 @@ export function CategoryModal({ open, onOpenChange, datasets, cat, result, initi
             </button>
             <Dialog open={spiderEnlarged} onOpenChange={setSpiderEnlarged}>
               <DialogContent
-                className="max-w-[min(860px,96vw)] max-h-[min(92vh,860px)] p-4 overflow-auto"
+                className="max-w-[min(1400px,96vw)] max-h-[min(96vh,1400px)] p-4 overflow-auto"
                 data-testid="cat-modal-spider-fullscreen"
               >
                 <DialogTitle className="sr-only">{title}</DialogTitle>
-                <ItemSpider datasets={datasets} catId={cat.id} size={800} />
+                <ItemSpider datasets={datasets} catId={cat.id} size={1200} />
+                <p className="text-center muted small mt-3" style={{ opacity: 0.65 }}>
+                  {t('spider_hover_hint')}
+                </p>
               </DialogContent>
             </Dialog>
           </div>

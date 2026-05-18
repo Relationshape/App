@@ -15,11 +15,12 @@ interface Props {
   size?: number
 }
 
-// Scales linearly with chart size. Raised cap to 20px for better readability.
-// size=520 (modal):      10 items → 13px,  5 items → 20px (capped)
-// size=800 (fullscreen): 10 items → 20px,  5 items → 20px (capped)
+// Scales linearly with chart size. Cap raised to 28px for fullscreen readability.
+// size=520 (modal):       10 items → 14px,  5 items → 28px (capped)
+// size=800 (fullscreen):  10 items → 22px,  5 items → 28px (capped)
+// size=1200 (enlarged):   10 items → 28px (capped), 5 items → 28px (capped)
 function itemLabelFontSize(itemCount: number, size: number): number {
-  return Math.round(Math.max(10, Math.min(20, (120 * size / 480) / itemCount)))
+  return Math.round(Math.max(10, Math.min(28, (130 * size / 480) / itemCount)))
 }
 
 export function ItemSpider({ datasets, catId, size = 480 }: Props) {
@@ -38,13 +39,12 @@ export function ItemSpider({ datasets, catId, size = 480 }: Props) {
   if (items.length < 3) return null
 
   const fs = itemLabelFontSize(items.length, size)
-  const pad = Math.max(110, Math.ceil(fs * 9.0))
+  const pad = Math.max(120, Math.ceil(fs * 10.5))
   const r = size / 2 - pad
   const cx = size / 2
   const cy = size / 2
   const lineHeight = fs * 1.15
-  // Allow slightly more chars per line so shorter items stay on 1 line
-  const maxCharsPerLine = Math.round(11 * Math.sqrt(size / 480))
+  const maxCharsPerLine = Math.round(9 * Math.sqrt(size / 480))
 
   // Pre-compute per-dataset per-axis values so we don't repeat lookups
   const dataPoints = truncated.map((ds) => {

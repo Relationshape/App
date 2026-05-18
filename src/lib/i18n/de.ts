@@ -538,6 +538,7 @@ export const DE: Record<TranslationKey, string> = {
   wizard_pick_own_section: 'Eigene Karten',
   wizard_pick_import_section: 'Importierte Vorlagen',
   spider_click_to_enlarge: 'Zum Vergrößern klicken',
+  spider_hover_hint: 'Über einen Netzpunkt hovern, um das Element genauer zu inspizieren',
   q_overview_title: 'Kategorien auswählen',
   q_overview_sub: 'Schalte die Dimensionen ein, die du für diese Person abbilden willst.',
   q_overview_start: 'Fragebogen starten →',
