@@ -369,7 +369,7 @@ export function NewMapWizard({ profile }: Props) {
             <div className="rs-modal-actions">
               <Button
                 variant="ghost"
-                onClick={() => { setStep(1); setCustomizeScale(false) }}
+                onClick={() => { if (customizeScale) setCustomizeScale(false); else setStep(1) }}
                 data-testid="wizard-scale-back"
               >
                 {t('btn_back')}

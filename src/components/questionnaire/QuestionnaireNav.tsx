@@ -15,9 +15,10 @@ interface Props {
   profileId: string
   activeCat?: Category | ResolvedCat
   onNextCat?: (() => void) | undefined
+  onPrevCat?: (() => void) | undefined
 }
 
-export function QuestionnaireNav({ result, profileId, activeCat, onNextCat }: Props) {
+export function QuestionnaireNav({ result, profileId, activeCat, onNextCat, onPrevCat }: Props) {
   const resultsHref = activeCat
     ? `/result/${result.id}/${activeCat.id}`
     : `/result/${result.id}`
@@ -33,6 +34,16 @@ export function QuestionnaireNav({ result, profileId, activeCat, onNextCat }: Pr
           </Link>
         </Button>
         <div className="ml-auto flex items-center gap-2">
+          {onPrevCat && (
+            <button
+              type="button"
+              className="btn btn-outline"
+              onClick={onPrevCat}
+              data-testid="q-nav-prev-cat"
+            >
+              {t('q_nav_prev_cat')}
+            </button>
+          )}
           {onNextCat && (
             <button
               type="button"

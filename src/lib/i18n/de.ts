@@ -517,6 +517,7 @@ export const DE: Record<TranslationKey, string> = {
   q_mode_single: '📱 Einzeln',
   q_nav_see_results: 'Ergebnisse anzeigen',
   q_nav_next_cat: 'Nächste Kategorie →',
+  q_nav_prev_cat: '← Vorherige Kategorie',
   q_add_custom: '+ Eigenen Punkt hinzufügen',
   q_add_custom_title: 'Eigenen Punkt hinzufügen',
   q_add_custom_placeholder: 'Name des Punkts…',

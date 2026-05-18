@@ -46,7 +46,7 @@ export function FormatPicker({ onClose }: { onClose: (v: CustomItemFormat | fals
   )
 }
 
-export function OptionsInput({ onClose }: { onClose: (v: string[] | false) => void }) {
+export function OptionsInput({ onClose }: { onClose: (v: string[] | false | 'back') => void }) {
   const [text, setText] = useState('')
   const [error, setError] = useState(false)
 
@@ -68,13 +68,18 @@ export function OptionsInput({ onClose }: { onClose: (v: string[] | false) => vo
         data-testid="modal-options-input"
       />
       {error && <p className="text-sm text-destructive">{t('q_add_custom_options_min')}</p>}
-      <div className="flex gap-2 justify-end">
-        <Button variant="ghost" onClick={() => onClose(false)} data-testid="modal-options-cancel">
-          {t('btn_cancel')}
+      <div className="flex justify-between">
+        <Button variant="ghost" onClick={() => onClose('back')} data-testid="modal-options-back">
+          {t('btn_back')}
         </Button>
-        <Button onClick={submit} data-testid="modal-options-ok">
-          {t('btn_ok')}
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="ghost" onClick={() => onClose(false)} data-testid="modal-options-cancel">
+            {t('btn_cancel')}
+          </Button>
+          <Button onClick={submit} data-testid="modal-options-ok">
+            {t('btn_ok')}
+          </Button>
+        </div>
       </div>
     </div>
   )
@@ -210,29 +215,42 @@ export async function runAddCustomItemFlow({
       return null
     }
 
-    // Step 2: format selection
-    const format = await dialog<CustomItemFormat | false | 'back'>({
-      title: t('q_add_custom_format_title'),
-      dismissable: false,
-      body: (close) => <FormatPicker onClose={close} />,
-      actions: [],
-    })
-    // null = X button (cancel), false = cancel button, 'back' = go back to name step
-    if (format === null || format === false) return null
-    if (format === 'back') { initialName = name; continue }
-
-    // Step 3: collect options for choice-based formats
+    // Step 2: format selection + step 3: options (inner loop handles back from options → format)
+    let format: CustomItemFormat | null = null
     let options: string[] | undefined
-    if (format === 'single' || format === 'multi' || format === 'ranking') {
-      const rawOptions = await dialog<string[] | false>({
-        title: t('q_add_custom_options_title'),
+    let backToName = false
+
+    while (true) {
+      const fmtResult = await dialog<CustomItemFormat | false | 'back'>({
+        title: t('q_add_custom_format_title'),
         dismissable: false,
-        body: (close) => <OptionsInput onClose={close} />,
+        body: (close) => <FormatPicker onClose={close} />,
         actions: [],
       })
-      if (rawOptions === null || rawOptions === false) return null
-      options = rawOptions
+      // null = X button (cancel), false = cancel button, 'back' = go back to name step
+      if (fmtResult === null || fmtResult === false) return null
+      if (fmtResult === 'back') { backToName = true; break }
+
+      format = fmtResult
+
+      // Step 3: collect options for choice-based formats
+      if (format === 'single' || format === 'multi' || format === 'ranking') {
+        const rawOptions = await dialog<string[] | false | 'back'>({
+          title: t('q_add_custom_options_title'),
+          dismissable: false,
+          body: (close) => <OptionsInput onClose={close} />,
+          actions: [],
+        })
+        if (rawOptions === null || rawOptions === false) return null
+        if (rawOptions === 'back') { format = null; continue }
+        options = rawOptions
+      }
+
+      break
     }
+
+    if (backToName) { initialName = name; continue }
+    if (!format) continue
 
     // Step 4: scale selection (scale format only)
     let itemScale: MutableScaleStep[] | null = null
