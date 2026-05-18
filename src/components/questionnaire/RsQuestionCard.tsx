@@ -322,25 +322,26 @@ export function RsQuestionCard({
       >
         <div className="q-item-name">
           <strong>{displayName}</strong>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={openEditDialog}
-            data-testid={`item-edit-${catId}-${item}`}
-          >
-            {t('item_edit_scale')}
-          </Button>
-          {variant === 'list' && (
+          <div className="q-item-name-btns">
             <Button
               variant="ghost"
               size="sm"
-              onClick={hide}
-              data-testid={`item-hide-${catId}-${item}`}
-              className="ml-auto"
+              onClick={openEditDialog}
+              data-testid={`item-edit-${catId}-${item}`}
             >
-              {t('btn_hide_item')}
+              {t('item_edit_scale')}
             </Button>
-          )}
+            {variant === 'list' && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={hide}
+                data-testid={`item-hide-${catId}-${item}`}
+              >
+                {t('btn_hide_item')}
+              </Button>
+            )}
+          </div>
         </div>
 
         {showGR && (

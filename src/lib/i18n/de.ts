@@ -144,6 +144,7 @@ export const DE: Record<TranslationKey, string> = {
   btn_continue: 'Weiter',
   btn_view: '📊 Ansehen',
   btn_share: '📤 Teilen',
+  btn_export_result: '📤 Ergebnis Exportieren',
   confirm_delete_map: 'Diese Beziehungskarte löschen?',
 
   // New result
@@ -234,7 +235,9 @@ export const DE: Record<TranslationKey, string> = {
   compare_title: '📊 Vergleichen',
   compare_sub:
     'Wähle bis zu vier Ergebnisse zum Überlagern aus. Öffne eine Kategorie für ein Netzdiagramm.',
-  compare_import_btn: 'Ergebnis importieren',
+  compare_import_btn: '📥 Ergebnis Importieren',
+  compare_no_imports_yet: 'Du hast noch keine Beziehungskarten importiert.',
+  profile_no_imports_yet: 'Du hast noch keine Beziehungskarten importiert.',
   compare_import_title: 'Ergebnis importieren',
   compare_own_section: 'Eigene Karten',
   compare_imported_section: 'Importierte Ergebnisse',

@@ -250,13 +250,16 @@ export function Compare() {
             <p className="compare-group-label">{t('compare_imported_section')}</p>
             <button
               type="button"
-              className="btn btn-ghost compare-import-inline-btn"
+              className="btn btn-outline compare-import-inline-btn"
               onClick={() => setImportOpen(true)}
               data-testid="compare-import-btn"
             >
-              📥 {t('compare_import_btn')}
+              {t('compare_import_btn')}
             </button>
           </div>
+          {importedOptions.length === 0 && (
+            <p className="muted small px-1" data-testid="compare-no-imports">{t('compare_no_imports_yet')}</p>
+          )}
           {importedOptions.length > 0 && (
             <div className="compare-group-items">
               {importedOptions.map((o) => {

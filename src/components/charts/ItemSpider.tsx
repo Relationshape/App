@@ -19,11 +19,11 @@ interface Props {
 
 // Scales linearly with chart size. Cap is proportional to size so fullscreen
 // labels stay large relative to the viewBox.
-// size=520 (modal):    10 items → 14px,  5 items → 18px (capped at ~18)
-// size=1200 (enlarged):10 items → 33px,  5 items → 42px (capped at ~42)
+// size=520 (modal):    10 items → 17px,  5 items → 23px (capped)
+// size=1200 (enlarged):10 items → 40px,  5 items → 54px (capped)
 function itemLabelFontSize(itemCount: number, size: number): number {
-  const cap = Math.round(size * 0.035)
-  return Math.round(Math.max(10, Math.min(cap, (130 * size / 480) / itemCount)))
+  const cap = Math.round(size * 0.045)
+  return Math.round(Math.max(10, Math.min(cap, (160 * size / 480) / itemCount)))
 }
 
 export function ItemSpider({ datasets, catId, size = 480 }: Props) {
