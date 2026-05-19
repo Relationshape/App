@@ -5,7 +5,7 @@
 // CSS comes from src/styles/legacy-components.css (`.cat-picker-*`, `.onboarding-body`).
 // Removal of categories lives in MapSettings — out of scope for this modal.
 
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { CATEGORIES, CATEGORY_GROUPS } from '@/lib/data/data'
@@ -14,7 +14,6 @@ import {
   makeCustomCatId,
   nextCustomCatColor,
 } from '@/lib/data/customCategories'
-import { dialog } from '@/lib/dialog/dialog'
 import { ScaleEditor } from '@/components/ScaleEditor'
 import { useStore } from '@/lib/storage/store'
 import { t, getLang } from '@/lib/i18n/i18n'
@@ -28,7 +27,7 @@ export interface PendingCustomItem {
   itemScale?: MutableScaleStep[]
 }
 
-type WizardStep = 'list' | 'create' | 'items'
+type WizardStep = 'list' | 'create' | 'items' | 'item-form'
 
 export interface PendingItemsByCat {
   [catId: string]: PendingCustomItem[]
@@ -96,8 +95,11 @@ export function RsCategoryPicker({ open, onOpenChange, existingIds, result, prof
   const [createIcon, setCreateIcon] = useState(QUICK_EMOJIS[0]!)
   const [createScope, setCreateScope] = useState<'result' | 'profile'>('result')
 
-  // Guard for dialog flow inside a Radix Dialog
-  const addingItemRef = useRef(false)
+  // Inline item-form state
+  const [itemFormName, setItemFormName] = useState('')
+  const [itemFormFormat, setItemFormFormat] = useState<CustomItemFormat>('scale')
+  const [itemFormOptions, setItemFormOptions] = useState('')
+  const [itemFormError, setItemFormError] = useState('')
 
   // Reset selection whenever the modal (re)opens or the locked set changes.
   useEffect(() => {
@@ -112,6 +114,10 @@ export function RsCategoryPicker({ open, onOpenChange, existingIds, result, prof
       setCreateTitle('')
       setCreateIcon(QUICK_EMOJIS[0]!)
       setCreateScope('result')
+      setItemFormName('')
+      setItemFormFormat('scale')
+      setItemFormOptions('')
+      setItemFormError('')
     }
   }, [open, existingIds])
 
@@ -153,89 +159,27 @@ export function RsCategoryPicker({ open, onOpenChange, existingIds, result, prof
     setWizardStep('items')
   }
 
-  async function addItemFlow() {
-    if (addingItemRef.current) return
-    addingItemRef.current = true
-    try {
-      // Step 1: name
-      const name = await dialog<string | null>({
-        title: t('q_add_custom_title'),
-        dismissable: false,
-        body: (close) => {
-          let value = ''
-          const submit = () => close(value.trim() || null)
-          return (
-            <div className="flex flex-col gap-2">
-              <input
-                autoFocus
-                placeholder={t('q_add_custom_placeholder')}
-                onChange={(e) => { value = e.target.value }}
-                onKeyDown={(e) => { if (e.key === 'Enter') submit() }}
-                className="w-full rounded border border-line px-2 py-1"
-              />
-              <button
-                type="button"
-                onClick={submit}
-                className="self-end px-3 py-1 rounded bg-accent text-on-accent"
-              >
-                {t('btn_ok')}
-              </button>
-            </div>
-          )
-        },
-        actions: [{ label: t('btn_cancel'), kind: 'ghost', value: null }],
-      })
-      if (!name) return
+  function startItemForm() {
+    setItemFormName('')
+    setItemFormFormat('scale')
+    setItemFormOptions('')
+    setItemFormError('')
+    setWizardStep('item-form')
+  }
 
-      // Step 2: format
-      const format = await dialog<CustomItemFormat | false>({
-        title: t('q_add_custom_format_title'),
-        dismissable: false,
-        body: (close) => <FormatPickerInline onClose={close} />,
-        actions: [],
-      })
-      if (!format) return
-
-      // Step 3: options (if applicable)
-      let options: string[] | undefined
-      if (format === 'single' || format === 'multi' || format === 'ranking') {
-        const rawOptions = await dialog<string[] | false>({
-          title: t('q_add_custom_options_title'),
-          dismissable: false,
-          body: (close) => <OptionsInputInline onClose={close} />,
-          actions: [],
-        })
-        if (rawOptions === null || rawOptions === false) return
-        options = rawOptions as string[]
-      }
-
-      // Step 4: scale (if scale format)
-      let itemScale: MutableScaleStep[] | undefined
-      if (format === 'scale') {
-        const scaleResult = await dialog<MutableScaleStep[] | null | false>({
-          title: t('q_add_custom_scale_title'),
-          dismissable: false,
-          body: (close) => <ScalePickerInline defaultScale={scale} onClose={close} />,
-          actions: [],
-        })
-        if (scaleResult === false || scaleResult === null) {
-          if (scaleResult === false) return
-          // null means use default, itemScale stays undefined
-        } else {
-          itemScale = scaleResult as MutableScaleStep[]
-        }
-      }
-
-      const item: PendingCustomItem = {
-        name,
-        format,
-        ...(options !== undefined ? { options } : {}),
-        ...(itemScale !== undefined ? { itemScale } : {}),
-      }
-      setPendingItems((prev) => [...prev, item])
-    } finally {
-      addingItemRef.current = false
+  function submitItemForm() {
+    const name = itemFormName.trim()
+    if (!name) { setItemFormError(t('q_add_custom_name_empty') as string); return }
+    const needsOptions = itemFormFormat === 'single' || itemFormFormat === 'multi' || itemFormFormat === 'ranking'
+    let options: string[] | undefined
+    if (needsOptions) {
+      const lines = itemFormOptions.split('\n').map((l) => l.trim()).filter(Boolean)
+      if (lines.length < 2) { setItemFormError(t('q_add_custom_options_min') as string); return }
+      options = lines
     }
+    const item: PendingCustomItem = { name, format: itemFormFormat, ...(options ? { options } : {}) }
+    setPendingItems((prev) => [...prev, item])
+    setWizardStep('items')
   }
 
   function confirmCreate() {
@@ -286,9 +230,8 @@ export function RsCategoryPicker({ open, onOpenChange, existingIds, result, prof
 
   return (
     <Dialog open={open} onOpenChange={(next) => {
-      if (!next && (wizardStep !== 'list')) {
-        // go back to list on close attempt mid-wizard
-        setWizardStep('list')
+      if (!next && wizardStep !== 'list') {
+        setWizardStep(wizardStep === 'item-form' ? 'items' : 'list')
         return
       }
       onOpenChange(next)
@@ -297,7 +240,6 @@ export function RsCategoryPicker({ open, onOpenChange, existingIds, result, prof
         className="max-w-[min(560px,96vw)] max-h-[min(90vh,720px)] p-6 flex flex-col gap-3"
         showCloseButton={true}
         data-testid="cat-picker"
-        onInteractOutside={(e) => { if (addingItemRef.current) e.preventDefault() }}
       >
         {wizardStep === 'list' && (
           <>
@@ -521,6 +463,79 @@ export function RsCategoryPicker({ open, onOpenChange, existingIds, result, prof
           </>
         )}
 
+        {wizardStep === 'item-form' && pendingCat && (
+          <>
+            <DialogTitle asChild>
+              <h2 className="rs-modal-title">{t('cat_items_add_btn')}</h2>
+            </DialogTitle>
+            <div className="flex-1 overflow-y-auto min-h-0 flex flex-col gap-4">
+              <div className="flex flex-col gap-1">
+                <label className="text-sm font-medium">{t('q_add_custom_title')}</label>
+                <input
+                  autoFocus
+                  type="text"
+                  value={itemFormName}
+                  onChange={(e) => { setItemFormName(e.target.value); setItemFormError('') }}
+                  onKeyDown={(e) => { if (e.key === 'Enter') submitItemForm() }}
+                  placeholder={t('q_add_custom_placeholder') as string}
+                  className="w-full rounded border border-line px-2 py-1"
+                  data-testid="cat-item-form-name"
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-sm font-medium">{t('q_edit_format_section')}</label>
+                <div className="flex flex-col gap-1">
+                  {(['scale', 'text', 'single', 'multi', 'ranking'] as CustomItemFormat[]).map((f) => (
+                    <label key={f} className={`format-picker-tile${itemFormFormat === f ? ' is-active' : ''}`} style={{ cursor: 'pointer' }}>
+                      <input
+                        type="radio"
+                        className="sr-only"
+                        name="cat-item-format"
+                        checked={itemFormFormat === f}
+                        onChange={() => { setItemFormFormat(f); setItemFormError('') }}
+                      />
+                      <span className="format-picker-tile-label">{t(`q_format_${f}` as Parameters<typeof t>[0])}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+              {(itemFormFormat === 'single' || itemFormFormat === 'multi' || itemFormFormat === 'ranking') && (
+                <div className="flex flex-col gap-1">
+                  <label className="text-sm font-medium">{t('q_edit_format_options_label')}</label>
+                  <p className="muted small">{t('q_add_custom_options_sub')}</p>
+                  <textarea
+                    rows={5}
+                    className="w-full rounded border border-line px-2 py-1 font-mono text-sm"
+                    value={itemFormOptions}
+                    onChange={(e) => { setItemFormOptions(e.target.value); setItemFormError('') }}
+                    placeholder={'Option A\nOption B\nOption C'}
+                    data-testid="cat-item-form-options"
+                  />
+                </div>
+              )}
+              {itemFormError && <p className="text-sm text-destructive">{itemFormError}</p>}
+            </div>
+            <div className="rs-modal-actions">
+              <button
+                type="button"
+                className="btn btn-ghost"
+                onClick={() => setWizardStep('items')}
+                data-testid="cat-item-form-cancel"
+              >
+                {t('btn_cancel')}
+              </button>
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={submitItemForm}
+                data-testid="cat-item-form-submit"
+              >
+                {t('btn_ok')}
+              </button>
+            </div>
+          </>
+        )}
+
         {wizardStep === 'items' && pendingCat && (
           <>
             <DialogTitle asChild>
@@ -531,7 +546,7 @@ export function RsCategoryPicker({ open, onOpenChange, existingIds, result, prof
               <button
                 type="button"
                 className="cat-picker-create-btn"
-                onClick={() => { void addItemFlow() }}
+                onClick={startItemForm}
                 data-testid="cat-items-add-btn"
               >
                 + {t('cat_items_add_btn')}

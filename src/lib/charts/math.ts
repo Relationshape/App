@@ -250,7 +250,7 @@ export function catProgress(
       (k) => !slot.__hidden?.[k],
     )
     let answered = 0
-    for (const key of itemKeys) if (slot[key]) answered++
+    for (const key of itemKeys) if (slot.__custom?.[key]) answered++
     return { answered, total: itemKeys.length }
   }
   const baseItems = cat.items.filter((it) => !slot.__hidden?.[it])
