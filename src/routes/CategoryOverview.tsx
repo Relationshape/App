@@ -154,7 +154,7 @@ export function CategoryOverview() {
           )
         })}
       </div>
-      <div className="mt-6 flex justify-end gap-3">
+      <div className="mt-6 flex flex-wrap justify-end gap-3">
         <Button
           type="button"
           variant="outline"
@@ -163,6 +163,16 @@ export function CategoryOverview() {
           data-testid="open-cat-picker"
         >
           {t('btn_add_categories')}
+        </Button>
+        <Button
+          asChild
+          type="button"
+          variant="outline"
+          data-testid="cat-overview-compare-btn"
+        >
+          <a href={`/compare?ids=${result.id}`} onClick={(e) => { e.preventDefault(); navigate(`/compare?ids=${result.id}`) }}>
+            {t('btn_compare_overview')}
+          </a>
         </Button>
         <Button
           type="button"

@@ -236,7 +236,8 @@ export const DE: Record<TranslationKey, string> = {
   compare_sub:
     'Wähle bis zu vier Ergebnisse zum Überlagern aus. Öffne eine Kategorie für ein Netzdiagramm.',
   compare_import_btn: '📥 Ergebnis Importieren',
-  compare_no_imports_yet: 'Du hast noch keine Beziehungskarten importiert.',
+  compare_no_imports_yet: 'Du hast noch keine Beziehungskarten importiert. Importiere ein Ergebnis von einem Mitmenschen, um eure Antworten übereinander zu legen und zu vergleichen. Du benötigst dazu das geteilte Paket und ein Passwort von deinem Gegenüber.',
+  btn_compare_overview: 'Vergleich mit anderen Karten/Personen',
   cat_no_answers: 'Für diese Kategorie wurden noch keine Antworten gespeichert.',
   profile_no_imports_yet: 'Du hast noch keine Beziehungskarten importiert.',
   compare_import_title: 'Ergebnis importieren',
