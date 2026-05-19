@@ -139,17 +139,28 @@ a:hover { text-decoration: underline; }
 .page-head h1 { margin: 0 0 6px; font-size: 30px; letter-spacing: -.4px; font-family: var(--font-heading); }
 
 /* Category overview header */
-.cat-overview-head { display: flex; flex-direction: column; gap: 10px; padding-bottom: 4px; border-bottom: 1px solid var(--line); margin-bottom: 4px; }
-.cat-overview-head-top { display: flex; align-items: center; gap: 10px; }
-.cat-overview-back-btn { flex-shrink: 0; }
-.cat-overview-context { flex: 1 1 0; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cat-overview-head { display: flex; flex-direction: column; gap: 16px; padding-bottom: 20px; border-bottom: 1px solid var(--line); margin-bottom: 8px; }
+.cat-overview-back-btn { align-self: flex-start; }
+.cat-overview-context-card {
+  display: flex; align-items: center; gap: 14px;
+  background: var(--surface-2, color-mix(in srgb, var(--accent) 6%, var(--surface)));
+  border: 1.5px solid var(--line);
+  border-radius: 14px;
+  padding: 14px 18px;
+}
+.cat-overview-context-emoji { font-size: 2.4rem; line-height: 1; flex-shrink: 0; }
+.cat-overview-context-info { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.cat-overview-context-name { font-size: 17px; font-weight: 600; font-family: var(--font-heading); line-height: 1.2; }
+.cat-overview-context-subject { font-size: 13px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .cat-overview-head-body { display: flex; flex-direction: column; gap: 4px; }
 .cat-overview-title { margin: 0; font-size: 26px; letter-spacing: -.3px; font-family: var(--font-heading); }
 .cat-overview-sub { font-size: 14px; line-height: 1.55; margin: 0; max-width: 680px; }
 @media (max-width: 600px) {
+  .cat-overview-context-card { padding: 12px 14px; gap: 12px; }
+  .cat-overview-context-emoji { font-size: 2rem; }
+  .cat-overview-context-name { font-size: 15px; }
   .cat-overview-title { font-size: 20px; }
   .cat-overview-sub { font-size: 13px; }
-  .cat-overview-context { font-size: 12px; }
 }
 .page-section { display: grid; gap: 14px; }
 .section-head h2 { margin: 0; font-size: 19px; font-family: var(--font-heading); }
