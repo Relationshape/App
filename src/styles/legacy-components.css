@@ -1414,16 +1414,16 @@ a:hover { text-decoration: underline; }
   max-width: 84px; overflow: hidden; text-overflow: ellipsis; text-align: center;
 }
 @media (max-width: 680px) {
-  .rs-click-scale { padding-bottom: 80px; }
+  .rs-click-scale { padding-bottom: 96px; }
   .rs-click-scale-ref-label {
-    top: 20px; font-size: 10px;
+    top: 34px; font-size: 10px;
   }
 }
 @media (max-width: 560px) {
-  .rs-click-scale { padding-bottom: 90px; }
+  .rs-click-scale { padding-bottom: 108px; }
   .rs-click-scale-ref-label {
     transform: rotate(-30deg); transform-origin: top left;
-    top: 24px; max-width: 100px; text-align: left; font-size: 10px;
+    top: 38px; max-width: 100px; text-align: left; font-size: 10px;
   }
 }
 

@@ -654,6 +654,7 @@ export const DE: Record<TranslationKey, string> = {
   q_add_custom_options_title: 'Optionen definieren',
   q_add_custom_options_sub: 'Eine Option pro Zeile eingeben (min. 2)',
   q_add_custom_options_min: 'Bitte mindestens 2 Optionen eingeben.',
+  q_add_custom_name_empty: 'Bitte einen Namen eingeben.',
   q_text_answer_placeholder: 'Deine Antwort…',
   item_rename_btn: '✏️ Umbenennen',
   q_edit_format_section: 'Antwortformat',

@@ -17,7 +17,7 @@ import {
   QUICK_EMOJIS, makeCustomCatId, nextCustomCatColor,
 } from '@/lib/data/customCategories'
 import {
-  applyPendingItems, FormatPickerInline, OptionsInputInline, ScalePickerInline,
+  applyPendingItems,
   type PendingCustomItem, type PendingItemsByCat,
 } from '@/components/RsCategoryPicker'
 import { ImportForm } from '@/components/ImportForm'
@@ -71,7 +71,7 @@ export function NewMapWizard({ profile }: Props) {
   const [templateSource, setTemplateSource] = useState<TemplateSource | null>(null)
 
   // Custom category sub-wizard (shown within step 1)
-  type CatSubStep = 'list' | 'create' | 'items'
+  type CatSubStep = 'list' | 'create' | 'items' | 'item-form'
   const [catSubStep, setCatSubStep] = useState<CatSubStep>('list')
   const [createTitle, setCreateTitle] = useState('')
   const [createIcon, setCreateIcon] = useState(QUICK_EMOJIS[0]!)
@@ -80,6 +80,12 @@ export function NewMapWizard({ profile }: Props) {
   const [customCats, setCustomCats] = useState<CustomCategoryDef[]>([])
   const [itemsByCat, setItemsByCat] = useState<PendingItemsByCat>({})
   const addingItemRef = useRef(false)
+
+  // Inline item-form state (replaces dialog-based addItemFlow)
+  const [itemFormName, setItemFormName] = useState('')
+  const [itemFormFormat, setItemFormFormat] = useState<CustomItemFormat>('scale')
+  const [itemFormOptions, setItemFormOptions] = useState('')
+  const [itemFormError, setItemFormError] = useState('')
 
   function onCancel() {
     navigate(`/profile/${profile.id}`)
@@ -190,80 +196,27 @@ export function NewMapWizard({ profile }: Props) {
     setCatSubStep('items')
   }
 
-  async function addItemFlow() {
-    if (addingItemRef.current) return
-    addingItemRef.current = true
-    try {
-      const name = await dialog<string | null>({
-        title: t('q_add_custom_title'),
-        dismissable: false,
-        body: (close) => {
-          let value = ''
-          const submit = () => close(value.trim() || null)
-          return (
-            <div className="flex flex-col gap-2">
-              <input
-                autoFocus
-                placeholder={t('q_add_custom_placeholder')}
-                onChange={(e) => { value = e.target.value }}
-                onKeyDown={(e) => { if (e.key === 'Enter') submit() }}
-                className="w-full rounded border border-line px-2 py-1"
-              />
-              <button type="button" onClick={submit} className="self-end px-3 py-1 rounded bg-accent text-on-accent">
-                {t('btn_ok')}
-              </button>
-            </div>
-          )
-        },
-        actions: [{ label: t('btn_cancel'), kind: 'ghost', value: null }],
-      })
-      if (!name) return
+  function startItemForm() {
+    setItemFormName('')
+    setItemFormFormat('scale')
+    setItemFormOptions('')
+    setItemFormError('')
+    setCatSubStep('item-form')
+  }
 
-      const format = await dialog<CustomItemFormat | false>({
-        title: t('q_add_custom_format_title'),
-        dismissable: false,
-        body: (close) => <FormatPickerInline onClose={close} />,
-        actions: [],
-      })
-      if (!format) return
-
-      let options: string[] | undefined
-      if (format === 'single' || format === 'multi' || format === 'ranking') {
-        const rawOptions = await dialog<string[] | false>({
-          title: t('q_add_custom_options_title'),
-          dismissable: false,
-          body: (close) => <OptionsInputInline onClose={close} />,
-          actions: [],
-        })
-        if (rawOptions === null || rawOptions === false) return
-        options = rawOptions as string[]
-      }
-
-      let itemScale: MutableScaleStep[] | undefined
-      if (format === 'scale') {
-        const scaleResult = await dialog<MutableScaleStep[] | null | false>({
-          title: t('q_add_custom_scale_title'),
-          dismissable: false,
-          body: (close) => <ScalePickerInline defaultScale={scale} onClose={close} />,
-          actions: [],
-        })
-        if (scaleResult === false || scaleResult === null) {
-          if (scaleResult === false) return
-        } else {
-          itemScale = scaleResult as MutableScaleStep[]
-        }
-      }
-
-      const item: PendingCustomItem = {
-        name,
-        format,
-        ...(options !== undefined ? { options } : {}),
-        ...(itemScale !== undefined ? { itemScale } : {}),
-      }
-      setPendingItems((prev) => [...prev, item])
-    } finally {
-      addingItemRef.current = false
+  function submitItemForm() {
+    const name = itemFormName.trim()
+    if (!name) { setItemFormError(t('q_add_custom_name_empty') as string); return }
+    const needsOptions = itemFormFormat === 'single' || itemFormFormat === 'multi' || itemFormFormat === 'ranking'
+    let options: string[] | undefined
+    if (needsOptions) {
+      const lines = itemFormOptions.split('\n').map((l) => l.trim()).filter(Boolean)
+      if (lines.length < 2) { setItemFormError(t('q_add_custom_options_min') as string); return }
+      options = lines
     }
+    const item: PendingCustomItem = { name, format: itemFormFormat, ...(options ? { options } : {}) }
+    setPendingItems((prev) => [...prev, item])
+    setCatSubStep('items')
   }
 
   function confirmCustomCat() {
@@ -287,7 +240,7 @@ export function NewMapWizard({ profile }: Props) {
   return (
     <Dialog open={true} onOpenChange={(o) => { if (!o) onCancel() }}>
       <DialogContent
-        className="max-w-[min(560px,96vw)] max-h-[min(90vh,720px)] p-6 flex flex-col gap-3"
+        className="max-w-[min(640px,96vw)] max-h-[min(92vh,780px)] p-6 flex flex-col gap-3"
         showCloseButton={false}
         data-testid="new-map-wizard"
         onInteractOutside={(e) => { if (addingItemRef.current) e.preventDefault() }}
@@ -297,7 +250,7 @@ export function NewMapWizard({ profile }: Props) {
             <DialogHeader>
               <DialogTitle data-testid="wizard-step-source-title">{t('new_map_title')}</DialogTitle>
             </DialogHeader>
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-3 flex-1 overflow-y-auto min-h-0">
               <button
                 type="button"
                 className="list-item list-item--selectable"
@@ -622,21 +575,23 @@ export function NewMapWizard({ profile }: Props) {
               <DialogTitle>{t('cat_items_step_title')}: {pendingCatMeta.title}</DialogTitle>
             </DialogHeader>
             <div className="flex-1 overflow-y-auto min-h-0 flex flex-col gap-3">
-              <p className="muted small">{t('cat_items_step_sub')}</p>
               <button
                 type="button"
                 className="cat-picker-create-btn"
-                onClick={() => { void addItemFlow() }}
+                onClick={startItemForm}
                 data-testid="wizard-cat-items-add"
               >
                 + {t('cat_items_add_btn')}
               </button>
+              {pendingItems.length === 0 && (
+                <p className="muted small">{t('cat_items_step_sub')}</p>
+              )}
               {pendingItems.length > 0 && (
                 <div className="cat-wizard-items-list">
                   {pendingItems.map((item, idx) => (
                     <div key={`${item.name}-${idx}`} className="cat-wizard-item-row">
                       <span className="flex-1 text-sm">{item.name}</span>
-                      <span className="cat-wizard-item-format">{item.format}</span>
+                      <span className="cat-wizard-item-format">{t(`q_format_${item.format}` as Parameters<typeof t>[0])}</span>
                     </div>
                   ))}
                 </div>
@@ -648,6 +603,72 @@ export function NewMapWizard({ profile }: Props) {
               </Button>
               <Button onClick={confirmCustomCat} disabled={pendingItems.length === 0} data-testid="wizard-cat-items-done">
                 {t('cat_items_done_btn')}
+              </Button>
+            </div>
+          </>
+        )}
+
+        {step === 1 && catSubStep === 'item-form' && pendingCatMeta && (
+          <>
+            <DialogHeader>
+              <DialogTitle>{t('cat_items_add_btn')}</DialogTitle>
+            </DialogHeader>
+            <div className="flex-1 overflow-y-auto min-h-0 flex flex-col gap-4">
+              {/* Name */}
+              <div className="flex flex-col gap-1">
+                <label className="text-sm font-medium">{t('q_add_custom_title')}</label>
+                <input
+                  autoFocus
+                  type="text"
+                  value={itemFormName}
+                  onChange={(e) => { setItemFormName(e.target.value); setItemFormError('') }}
+                  onKeyDown={(e) => { if (e.key === 'Enter') submitItemForm() }}
+                  placeholder={t('q_add_custom_placeholder') as string}
+                  className="w-full rounded border border-line px-2 py-1"
+                  data-testid="wizard-item-form-name"
+                />
+              </div>
+              {/* Format */}
+              <div className="flex flex-col gap-1">
+                <label className="text-sm font-medium">{t('q_edit_format_section')}</label>
+                <div className="flex flex-col gap-1">
+                  {(['scale', 'text', 'single', 'multi', 'ranking'] as CustomItemFormat[]).map((f) => (
+                    <label key={f} className={`format-picker-tile${itemFormFormat === f ? ' is-active' : ''}`} style={{ cursor: 'pointer' }}>
+                      <input
+                        type="radio"
+                        className="sr-only"
+                        name="wizard-item-format"
+                        checked={itemFormFormat === f}
+                        onChange={() => { setItemFormFormat(f); setItemFormError('') }}
+                      />
+                      <span className="format-picker-tile-label">{t(`q_format_${f}` as Parameters<typeof t>[0])}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+              {/* Options */}
+              {(itemFormFormat === 'single' || itemFormFormat === 'multi' || itemFormFormat === 'ranking') && (
+                <div className="flex flex-col gap-1">
+                  <label className="text-sm font-medium">{t('q_edit_format_options_label')}</label>
+                  <p className="muted small">{t('q_add_custom_options_sub')}</p>
+                  <textarea
+                    rows={5}
+                    className="w-full rounded border border-line px-2 py-1 font-mono text-sm"
+                    value={itemFormOptions}
+                    onChange={(e) => { setItemFormOptions(e.target.value); setItemFormError('') }}
+                    placeholder="Option A&#10;Option B&#10;Option C"
+                    data-testid="wizard-item-form-options"
+                  />
+                </div>
+              )}
+              {itemFormError && <p className="text-sm text-destructive">{itemFormError}</p>}
+            </div>
+            <div className="rs-modal-actions">
+              <Button variant="ghost" onClick={() => setCatSubStep('items')} data-testid="wizard-item-form-cancel">
+                {t('btn_cancel')}
+              </Button>
+              <Button onClick={submitItemForm} data-testid="wizard-item-form-submit">
+                {t('btn_ok')}
               </Button>
             </div>
           </>
