@@ -20,6 +20,8 @@ import {
   applyPendingItems, FormatPickerInline, OptionsInputInline, ScalePickerInline,
   type PendingCustomItem, type PendingItemsByCat,
 } from '@/components/RsCategoryPicker'
+import { ImportForm } from '@/components/ImportForm'
+import { useShareData } from '@/components/providers/ShareDataProvider'
 import { t, getLang } from '@/lib/i18n/i18n'
 import type { MutableScaleStep } from '@/lib/data/types'
 import type { CustomCategoryDef, CustomItemFormat, Import, Profile } from '@/lib/storage/types'
@@ -28,7 +30,7 @@ interface Props {
   profile: Profile
 }
 
-type Step = 'source' | 'pick' | 0 | 1 | 2
+type Step = 'source' | 'import' | 'pick' | 0 | 1 | 2
 
 type TemplateSource =
   | { kind: 'import'; id: string }
@@ -46,6 +48,7 @@ export function NewMapWizard({ profile }: Props) {
   const navigate = useNavigate()
   const globalScale = useStore((s) => s.scale)
   const saveResult = useStore((s) => s.saveResult)
+  const { openShareTemplate } = useShareData()
   const lang = getLang()
   const allResults = useStore((s) => s.results)
   const allImports = useStore((s) => s.imports)
@@ -60,7 +63,7 @@ export function NewMapWizard({ profile }: Props) {
   )
   const hasTemplates = profileResults.length > 0 || allImports.length > 0
 
-  const [step, setStep] = useState<Step>(hasTemplates ? 'source' : 0)
+  const [step, setStep] = useState<Step>('source')
   const [subject, setSubject] = useState('')
   const [checkedIds, setCheckedIds] = useState<Set<string>>(() => new Set())
   const [scale, setScale] = useState<MutableScaleStep[]>(() => globalScale.map((s) => ({ ...s })))
@@ -82,7 +85,7 @@ export function NewMapWizard({ profile }: Props) {
     navigate(`/profile/${profile.id}`)
   }
 
-  function onComplete() {
+  async function onComplete() {
     const id = crypto.randomUUID()
 
     if (templateSource) {
@@ -108,7 +111,7 @@ export function NewMapWizard({ profile }: Props) {
         createdAt: Date.now(),
         updatedAt: Date.now(),
       })
-      navigate(`/q-categories/${profile.id}/${id}`, { replace: true })
+      await promptShareTemplate(id)
       return
     }
 
@@ -132,7 +135,27 @@ export function NewMapWizard({ profile }: Props) {
       updatedAt: Date.now(),
     }
     saveResult(applyPendingItems(base, itemsByCat))
-    navigate(`/q-categories/${profile.id}/${id}`, { replace: true })
+    await promptShareTemplate(id)
+  }
+
+  async function promptShareTemplate(id: string) {
+    const choice = await dialog<string | null>({
+      title: t('wizard_share_template_prompt_title') as string,
+      body: () => (
+        <p className="muted small" style={{ lineHeight: 1.5 }}>
+          {t('wizard_share_template_prompt_body')}
+        </p>
+      ),
+      actions: [
+        { label: t('btn_skip') as string, kind: 'ghost', value: 'skip' },
+        { label: t('wizard_share_template_btn') as string, kind: 'primary', value: 'share' },
+      ],
+    })
+    if (choice === 'share') {
+      openShareTemplate(id, () => navigate(`/q-categories/${profile.id}/${id}`, { replace: true }))
+    } else {
+      navigate(`/q-categories/${profile.id}/${id}`, { replace: true })
+    }
   }
 
   function toggleCategory(id: string) {
@@ -145,7 +168,12 @@ export function NewMapWizard({ profile }: Props) {
   }
 
   function selectAllAndContinue() {
-    setCheckedIds(new Set(CATEGORIES.map((c) => c.id)))
+    // Keep any custom cat IDs already checked, add all builtin cats
+    setCheckedIds((prev) => {
+      const next: Set<string> = new Set(CATEGORIES.map((c) => c.id))
+      for (const id of prev) if (!CATEGORIES.some((c) => c.id === id)) next.add(id)
+      return next
+    })
     setStep(2)
   }
 
@@ -262,6 +290,7 @@ export function NewMapWizard({ profile }: Props) {
         className="max-w-[min(560px,96vw)] max-h-[min(90vh,720px)] p-6 flex flex-col gap-3"
         showCloseButton={false}
         data-testid="new-map-wizard"
+        onInteractOutside={(e) => { if (addingItemRef.current) e.preventDefault() }}
       >
         {step === 'source' && (
           <>
@@ -280,21 +309,54 @@ export function NewMapWizard({ profile }: Props) {
                   <p className="muted small">{t('wizard_source_blank_sub')}</p>
                 </div>
               </button>
+              {hasTemplates && (
+                <button
+                  type="button"
+                  className="list-item list-item--selectable"
+                  onClick={() => setStep('pick')}
+                  data-testid="wizard-source-template"
+                >
+                  <div className="li-body">
+                    <strong>{t('wizard_source_template')}</strong>
+                    <p className="muted small">{t('wizard_source_template_sub')}</p>
+                  </div>
+                </button>
+              )}
               <button
                 type="button"
                 className="list-item list-item--selectable"
-                onClick={() => setStep('pick')}
-                data-testid="wizard-source-template"
+                onClick={() => setStep('import')}
+                data-testid="wizard-source-import"
               >
                 <div className="li-body">
-                  <strong>{t('wizard_source_template')}</strong>
-                  <p className="muted small">{t('wizard_source_template_sub')}</p>
+                  <strong>{t('wizard_source_import')}</strong>
+                  <p className="muted small">{t('wizard_source_import_sub')}</p>
                 </div>
               </button>
             </div>
             <DialogFooter>
               <Button variant="ghost" onClick={onCancel} data-testid="wizard-cancel">
                 {t('btn_cancel')}
+              </Button>
+            </DialogFooter>
+          </>
+        )}
+
+        {step === 'import' && (
+          <>
+            <DialogHeader>
+              <DialogTitle data-testid="wizard-step-import-title">{t('wizard_source_import')}</DialogTitle>
+            </DialogHeader>
+            <ImportForm
+              onSuccess={(imp: Import) => {
+                setTemplateSource({ kind: 'import', id: imp.id })
+                setStep(0)
+              }}
+              testIdPrefix="wizard-import"
+            />
+            <DialogFooter>
+              <Button variant="ghost" onClick={() => setStep('source')} data-testid="wizard-import-back">
+                {t('btn_back')}
               </Button>
             </DialogFooter>
           </>
@@ -371,7 +433,7 @@ export function NewMapWizard({ profile }: Props) {
                 onChange={(e) => setSubject(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && subject.trim()) {
-                    if (templateSource) { onComplete() } else { setStep(1) }
+                    if (templateSource) { void onComplete() } else { setStep(1) }
                   }
                 }}
                 placeholder="e.g. Sam, my best friend"
@@ -384,15 +446,14 @@ export function NewMapWizard({ profile }: Props) {
                 variant="ghost"
                 onClick={() => {
                   if (templateSource) { setStep('pick') }
-                  else if (hasTemplates) { setStep('source') }
-                  else { onCancel() }
+                  else { setStep('source') }
                 }}
                 data-testid="wizard-cancel"
               >
-                {templateSource || hasTemplates ? t('btn_back') : t('btn_cancel')}
+                {t('btn_back')}
               </Button>
               <Button
-                onClick={() => { if (templateSource) { onComplete() } else { setStep(1) } }}
+                onClick={() => { if (templateSource) { void onComplete() } else { setStep(1) } }}
                 disabled={!subject.trim()}
                 data-testid="wizard-name-next"
               >
@@ -449,8 +510,16 @@ export function NewMapWizard({ profile }: Props) {
               </div>
               <div className="cat-picker-custom-section">
                 <h3 className="cat-picker-group-title">{t('cat_picker_custom_section')}</h3>
+                <button
+                  type="button"
+                  className="cat-picker-create-btn"
+                  onClick={startCreateCat}
+                  data-testid="wizard-cat-create-btn"
+                >
+                  + {t('cat_picker_create_btn')}
+                </button>
                 {customCats.length > 0 && (
-                  <div className="cat-picker-items">
+                  <div className="cat-picker-items mt-2">
                     {customCats.map((cat) => {
                       const isChecked = checkedIds.has(cat.id)
                       return (
@@ -473,14 +542,6 @@ export function NewMapWizard({ profile }: Props) {
                     })}
                   </div>
                 )}
-                <button
-                  type="button"
-                  className="cat-picker-create-btn"
-                  onClick={startCreateCat}
-                  data-testid="wizard-cat-create-btn"
-                >
-                  + {t('cat_picker_create_btn')}
-                </button>
               </div>
             </div>
             <div className="rs-modal-actions">
@@ -562,6 +623,14 @@ export function NewMapWizard({ profile }: Props) {
             </DialogHeader>
             <div className="flex-1 overflow-y-auto min-h-0 flex flex-col gap-3">
               <p className="muted small">{t('cat_items_step_sub')}</p>
+              <button
+                type="button"
+                className="cat-picker-create-btn"
+                onClick={() => { void addItemFlow() }}
+                data-testid="wizard-cat-items-add"
+              >
+                + {t('cat_items_add_btn')}
+              </button>
               {pendingItems.length > 0 && (
                 <div className="cat-wizard-items-list">
                   {pendingItems.map((item, idx) => (
@@ -572,14 +641,6 @@ export function NewMapWizard({ profile }: Props) {
                   ))}
                 </div>
               )}
-              <button
-                type="button"
-                className="cat-picker-create-btn"
-                onClick={() => { void addItemFlow() }}
-                data-testid="wizard-cat-items-add"
-              >
-                + {t('cat_items_add_btn')}
-              </button>
             </div>
             <div className="rs-modal-actions">
               <Button variant="ghost" onClick={() => setCatSubStep('create')} data-testid="wizard-cat-items-back">
@@ -637,7 +698,7 @@ export function NewMapWizard({ profile }: Props) {
                   {t('new_card_scale_customize')}
                 </Button>
               )}
-              <Button onClick={onComplete} data-testid="wizard-scale-confirm">
+              <Button onClick={() => { void onComplete() }} data-testid="wizard-scale-confirm">
                 {t('new_card_scale_confirm')}
               </Button>
             </div>
