@@ -87,7 +87,7 @@ export function QuestionnaireHeader({ result, profileId, activeCat }: Props) {
           })}
         </div>
         <Button asChild variant="ghost" size="sm" data-testid="q-results-shortcut">
-          <Link to={resultsHref}>{t('btn_results')}</Link>
+          <Link to={resultsHref} replace>{t('btn_results')}</Link>
         </Button>
       </div>
     </header>

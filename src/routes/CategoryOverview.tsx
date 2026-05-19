@@ -103,26 +103,28 @@ export function CategoryOverview() {
     saveResult(next)
   }
 
-  const resultLabel = result.subject
-    ? `${profile.emoji} ${profile.name} → ${result.subject}`
-    : `${profile.emoji} ${profile.name}`
-
   return (
     <section className="page" data-testid="category-overview-page">
       <header className="cat-overview-head">
-        <div className="cat-overview-head-top">
-          <Button
-            asChild
-            variant="ghost"
-            size="sm"
-            className="cat-overview-back-btn"
-            data-testid="cat-overview-back"
-          >
-            <a href="#" onClick={(e) => { e.preventDefault(); navigate(`/profile/${profile.id}`) }}>
-              {t('btn_back')}
-            </a>
-          </Button>
-          <span className="cat-overview-context muted small">{resultLabel}</span>
+        <Button
+          asChild
+          variant="ghost"
+          size="sm"
+          className="cat-overview-back-btn"
+          data-testid="cat-overview-back"
+        >
+          <a href="#" onClick={(e) => { e.preventDefault(); navigate(`/profile/${profile.id}`) }}>
+            {t('btn_back')}
+          </a>
+        </Button>
+        <div className="cat-overview-context-card" data-testid="cat-overview-context">
+          <span className="cat-overview-context-emoji" aria-hidden>{profile.emoji}</span>
+          <div className="cat-overview-context-info">
+            <span className="cat-overview-context-name">{profile.name}</span>
+            {result.subject && (
+              <span className="cat-overview-context-subject">{result.subject}</span>
+            )}
+          </div>
         </div>
         <div className="cat-overview-head-body">
           <h1 className="cat-overview-title">{t('q_overview_title')}</h1>
@@ -152,7 +154,7 @@ export function CategoryOverview() {
           )
         })}
       </div>
-      <div className="mt-6 flex justify-end gap-3">
+      <div className="mt-6 flex flex-wrap justify-end gap-3">
         <Button
           type="button"
           variant="outline"
@@ -161,6 +163,16 @@ export function CategoryOverview() {
           data-testid="open-cat-picker"
         >
           {t('btn_add_categories')}
+        </Button>
+        <Button
+          asChild
+          type="button"
+          variant="outline"
+          data-testid="cat-overview-compare-btn"
+        >
+          <a href={`/compare?ids=${result.id}`} onClick={(e) => { e.preventDefault(); navigate(`/compare?ids=${result.id}`) }}>
+            {t('btn_compare_overview')}
+          </a>
         </Button>
         <Button
           type="button"

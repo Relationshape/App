@@ -198,15 +198,17 @@ export function ItemSpider({ datasets, catId, size = 480 }: Props) {
 
         {/* Tooltip shown in chart centre when a data-point dot is hovered */}
         {tooltipData && (() => {
-          const tFs = Math.round(Math.max(24, Math.min(44, size / 13)))
-          const tSmFs = Math.round(tFs * 0.82)
-          const titleLines = wrapLabel(tooltipData.label, Math.round(24 * Math.sqrt(size / 480)))
-          const rowH = tFs * 1.55
-          const totalRows = titleLines.length
-            + (tooltipData.rows.length > 0 ? 0.4 : 0)  // small gap
-            + tooltipData.rows.length
+          // 30% smaller than the previous sizing formula
+          const tFs = Math.round(Math.max(17, Math.min(31, size / 13 * 0.7)))
+          const tSmFs = Math.round(tFs * 0.88)
+          const titleLines = wrapLabel(tooltipData.label, Math.round(26 * Math.sqrt(size / 480)))
+          const titleLineH = tFs * 1.45
+          const subLineH = tSmFs * 1.38
+          // Each dataset row: 2 sub-lines (name + scale value) + small gap after
+          const rowBlockH = subLineH * 2.1
+          const gapH = tooltipData.rows.length > 0 ? subLineH * 0.55 : 0
           const boxW = Math.min(size * 0.62, size - 40)
-          const boxH = totalRows * rowH + 20
+          const boxH = titleLines.length * titleLineH + gapH + tooltipData.rows.length * rowBlockH + 20
           const boxX = cx - boxW / 2
           const boxY = cy - boxH / 2
 
@@ -228,7 +230,7 @@ export function ItemSpider({ datasets, catId, size = 480 }: Props) {
                 <text
                   key={`tl-${li}`}
                   x={cx}
-                  y={boxY + 10 + tFs * (li + 0.88)}
+                  y={boxY + 10 + tFs * 0.88 + li * titleLineH}
                   textAnchor="middle"
                   fontSize={tFs}
                   fontWeight={700}
@@ -237,21 +239,21 @@ export function ItemSpider({ datasets, catId, size = 480 }: Props) {
                   {line}
                 </text>
               ))}
-              {/* Per-dataset answer rows */}
+              {/* Per-dataset answer rows — name and scale value on separate lines */}
               {tooltipData.rows.map((row, ri) => {
-                const rowY = boxY + 12
-                  + tFs * (titleLines.length + 0.4 + ri) * 1.55
+                const nameY = boxY + 12 + titleLines.length * titleLineH + gapH + ri * rowBlockH + tSmFs * 0.88
+                const valY = nameY + subLineH
                 return (
                   <g key={`tr-${ri}`}>
                     <circle
                       cx={boxX + 14}
-                      cy={rowY - tSmFs * 0.28}
-                      r={tSmFs * 0.33}
+                      cy={nameY - tSmFs * 0.28}
+                      r={tSmFs * 0.35}
                       fill={row.color}
                     />
                     <text
-                      x={boxX + 26}
-                      y={rowY}
+                      x={boxX + 28}
+                      y={nameY}
                       fontSize={tSmFs}
                       fontWeight={600}
                       fill={row.color}
@@ -259,11 +261,11 @@ export function ItemSpider({ datasets, catId, size = 480 }: Props) {
                       {row.name}
                     </text>
                     <text
-                      x={boxX + boxW - 10}
-                      y={rowY}
+                      x={boxX + 28}
+                      y={valY}
                       fontSize={tSmFs}
-                      textAnchor="end"
                       fill="currentColor"
+                      fillOpacity={0.85}
                     >
                       {row.stepLabel}
                     </text>

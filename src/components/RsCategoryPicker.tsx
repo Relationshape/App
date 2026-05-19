@@ -491,16 +491,14 @@ export function RsCategoryPicker({ open, onOpenChange, existingIds, result, prof
                 <label className="text-sm font-medium">{t('q_edit_format_section')}</label>
                 <div className="flex flex-col gap-1">
                   {(['scale', 'text', 'single', 'multi', 'ranking'] as CustomItemFormat[]).map((f) => (
-                    <label key={f} className={`format-picker-tile${itemFormFormat === f ? ' is-active' : ''}`} style={{ cursor: 'pointer' }}>
-                      <input
-                        type="radio"
-                        className="sr-only"
-                        name="cat-item-format"
-                        checked={itemFormFormat === f}
-                        onChange={() => { setItemFormFormat(f); setItemFormError('') }}
-                      />
+                    <button
+                      key={f}
+                      type="button"
+                      className={`format-picker-tile${itemFormFormat === f ? ' is-active' : ''}`}
+                      onClick={() => { setItemFormFormat(f); setItemFormError('') }}
+                    >
                       <span className="format-picker-tile-label">{t(`q_format_${f}` as Parameters<typeof t>[0])}</span>
-                    </label>
+                    </button>
                   ))}
                 </div>
               </div>

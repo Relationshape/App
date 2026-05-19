@@ -202,7 +202,7 @@ export function Compare() {
         {/* Own maps */}
         {ownOptions.length > 0 && (
           <div className="compare-group">
-            <p className="compare-group-label">{t('compare_own_section')}</p>
+            <h2 className="compare-group-label">{t('compare_own_section')}</h2>
             <div className="compare-group-items">
               {ownOptions.map((o) => {
                 const selected = effectiveIds.includes(o.id)
@@ -247,7 +247,7 @@ export function Compare() {
         {/* Imported results */}
         <div className="compare-group">
           <div className="compare-group-header">
-            <p className="compare-group-label">{t('compare_imported_section')}</p>
+            <h2 className="compare-group-label">{t('compare_imported_section')}</h2>
             <button
               type="button"
               className="btn btn-outline compare-import-inline-btn"
