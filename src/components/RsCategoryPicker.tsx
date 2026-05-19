@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button'
 import { CATEGORIES, CATEGORY_GROUPS } from '@/lib/data/data'
 import {
   QUICK_EMOJIS,
+  EMOJI_GROUPS,
   makeCustomCatId,
   nextCustomCatColor,
 } from '@/lib/data/customCategories'
@@ -386,17 +387,24 @@ export function RsCategoryPicker({ open, onOpenChange, existingIds, result, prof
 
               <div className="flex flex-col gap-1">
                 <label className="text-sm font-medium">{t('cat_create_emoji_label')}</label>
-                <div className="cat-wizard-emoji-grid">
-                  {QUICK_EMOJIS.map((emoji) => (
-                    <button
-                      key={emoji}
-                      type="button"
-                      className={`cat-wizard-emoji-btn${createIcon === emoji ? ' is-selected' : ''}`}
-                      onClick={() => setCreateIcon(emoji)}
-                      data-testid={`cat-emoji-${emoji}`}
-                    >
-                      {emoji}
-                    </button>
+                <div className="cat-wizard-emoji-palette overflow-y-auto" style={{ maxHeight: '280px' }}>
+                  {EMOJI_GROUPS.map((group) => (
+                    <div key={group.label} className="cat-wizard-emoji-group">
+                      <div className="cat-wizard-emoji-group-label">{group.label}</div>
+                      <div className="cat-wizard-emoji-grid">
+                        {group.emojis.map((emoji) => (
+                          <button
+                            key={emoji}
+                            type="button"
+                            className={`cat-wizard-emoji-btn${createIcon === emoji ? ' is-selected' : ''}`}
+                            onClick={() => setCreateIcon(emoji)}
+                            data-testid={`cat-emoji-${emoji}`}
+                          >
+                            {emoji}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
                   ))}
                 </div>
                 <input

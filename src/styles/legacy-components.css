@@ -3503,8 +3503,11 @@ button.rs-tile:hover {
 .cat-picker-custom-section { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--line); }
 .cat-picker-create-btn { width: 100%; margin-top: 8px; padding: 8px 12px; border-radius: 8px; border: 1.5px dashed var(--line); background: none; color: var(--muted); cursor: pointer; font-size: 14px; text-align: center; transition: border-color 0.15s, color 0.15s; }
 .cat-picker-create-btn:hover { border-color: var(--accent); color: var(--accent); }
-.cat-wizard-emoji-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
-.cat-wizard-emoji-btn { width: 36px; height: 36px; border-radius: 8px; border: 1.5px solid var(--line); background: none; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: border-color 0.15s; }
+.cat-wizard-emoji-palette { display: flex; flex-direction: column; gap: 12px; border: 1px solid var(--line); border-radius: 8px; padding: 8px; }
+.cat-wizard-emoji-group { display: flex; flex-direction: column; gap: 4px; }
+.cat-wizard-emoji-group-label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; padding: 0 2px; }
+.cat-wizard-emoji-grid { display: flex; flex-wrap: wrap; gap: 4px; }
+.cat-wizard-emoji-btn { width: 34px; height: 34px; border-radius: 7px; border: 1.5px solid var(--line); background: none; font-size: 17px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: border-color 0.15s; }
 .cat-wizard-emoji-btn.is-selected, .cat-wizard-emoji-btn:hover { border-color: var(--accent); background: var(--accent-light, color-mix(in srgb, var(--accent) 10%, transparent)); }
 .cat-wizard-items-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; }
 .cat-wizard-item-row { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 8px; background: var(--surface-raised, var(--surface)); }
