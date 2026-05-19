@@ -62,8 +62,8 @@ export function SingleMode({ result, profile }: Props) {
     if (!cat) return []
     const { base, custom } = enabledItemsForCat(result.answers, cat.id)
     return [
-      ...base.map((item) => ({ catId: cat.id, item, isCustom: false })),
       ...custom.map((item) => ({ catId: cat.id, item, isCustom: true })),
+      ...base.map((item) => ({ catId: cat.id, item, isCustom: false })),
     ]
   }, [cat, result.answers])
 
@@ -216,6 +216,40 @@ export function SingleMode({ result, profile }: Props) {
     saveResult(next)
   }
 
+  async function hideItem() {
+    if (!cur) return
+    if (!(await confirmIfTemplate())) return
+    const confirmed = await dialog<boolean>({
+      title: t('confirm_hide_item_title'),
+      body: () => <p>{t('confirm_hide_item_body')}</p>,
+      actions: [
+        { label: t('btn_cancel'), kind: 'ghost', value: false },
+        { label: t('btn_delete'), kind: 'danger', value: true },
+      ],
+    })
+    if (!confirmed) return
+    const next = structuredClone(result)
+    const slot = next.answers[cur.catId] ?? {}
+    if (cur.isCustom) {
+      const customs = { ...(slot.__custom ?? {}) }
+      delete customs[cur.item]
+      slot.__custom = customs
+      if (next.customItemDefs?.[cur.catId]?.[cur.item]) {
+        const defs = { ...next.customItemDefs }
+        const catDefs = { ...defs[cur.catId] }
+        delete catDefs[cur.item]
+        defs[cur.catId] = catDefs
+        next.customItemDefs = defs
+      }
+    } else {
+      slot.__hidden = { ...(slot.__hidden ?? {}), [cur.item]: true }
+      delete (slot as Record<string, unknown>)[cur.item]
+    }
+    next.answers[cur.catId] = slot
+    saveResult(next)
+    // Don't advance — the item disappears and the list shrinks; cursor stays valid
+  }
+
   async function setNoteValue(value: string) {
     if (!cur) return
     if (value === (cell?.note ?? '')) return
@@ -299,18 +333,28 @@ export function SingleMode({ result, profile }: Props) {
             {...bind()}
           >
             <div className="q-card-cat">
-              {cur.isCustom && <span className="q-item-tag">{t('custom_tag')}</span>}
-              {format === 'scale' && (
+              <div className="q-card-cat-actions">
+                {format === 'scale' && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="item-scale-btn"
+                    onClick={() => { void openEditScaleDialog() }}
+                    data-testid={`item-edit-scale-${cur.catId}-${cur.item}`}
+                  >
+                    {t('item_edit_scale')}
+                  </Button>
+                )}
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="item-scale-btn"
-                  onClick={() => { void openEditScaleDialog() }}
-                  data-testid={`item-edit-scale-${cur.catId}-${cur.item}`}
+                  className="item-hide-btn"
+                  onClick={() => { void hideItem() }}
+                  data-testid={`single-hide-${cur.catId}-${cur.item}`}
                 >
-                  {t('item_edit_scale')}
+                  {t('btn_hide_item')}
                 </Button>
-              )}
+              </div>
             </div>
             <h1 className="q-card-item">{cell?.customLabel || (cur.isCustom ? cur.item : getItemLabel(cur.catId, cur.item, getLang()))}</h1>
             <div className="q-card-slider">

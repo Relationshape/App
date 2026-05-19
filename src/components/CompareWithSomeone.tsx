@@ -16,6 +16,7 @@
 import { useNavigate } from 'react-router-dom'
 import { useStore } from '@/lib/storage/store'
 import { RsCompareTile } from '@/components/RsCompareTile'
+import { Button } from '@/components/ui/button'
 import { fmtDate } from '@/lib/format/date'
 import { t } from '@/lib/i18n/i18n'
 
@@ -34,7 +35,14 @@ export function CompareWithSomeone({ currentResultId }: CompareWithSomeoneProps)
 
   // Empty state — neither own-maps NOR imports to show.
   if (others.length === 0 && imports.length === 0) {
-    return <p className="muted" data-testid="compare-with-empty">{t('no_compare')}</p>
+    return (
+      <div className="flex flex-col gap-3 items-start" data-testid="compare-with-empty">
+        <p className="muted">{t('no_compare')}</p>
+        <Button onClick={() => navigate('/import')} data-testid="compare-empty-import-btn">
+          {t('btn_import_map')}
+        </Button>
+      </div>
+    )
   }
 
   return (

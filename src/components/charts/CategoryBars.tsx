@@ -22,8 +22,8 @@ export function CategoryBars({ datasets, catId }: Props) {
   const itemSet = new Set<string>()
   for (const ds of truncated) {
     const { base, custom } = enabledItemsForCat(ds.answers, catId)
-    base.forEach((i) => itemSet.add(i))
     custom.forEach((i) => itemSet.add(`✶ ${i}`))
+    base.forEach((i) => itemSet.add(i))
   }
   const items = Array.from(itemSet).filter((item) => {
     const isCustom = item.startsWith('✶ ')
@@ -77,7 +77,7 @@ export function CategoryBars({ datasets, catId }: Props) {
       {items.map((displayItem) => {
         const isCustom = displayItem.startsWith('✶ ')
         const key = isCustom ? displayItem.slice(2) : displayItem
-        const itemLabel = isCustom ? displayItem : getItemLabel(catId, key, lang)
+        const itemLabel = isCustom ? key : getItemLabel(catId, key, lang)
         return (
           <div className="rs-bar-item" key={displayItem}>
             <div className="rs-bar-item-label" title={itemLabel}>
@@ -136,7 +136,7 @@ export function CategoryBars({ datasets, catId }: Props) {
         <div className="rs-non-scale-section">
           {nonScaleItems.map((itemName) => (
             <div key={itemName} className="rs-non-scale-item">
-              <div className="rs-non-scale-item-label">✶ {itemName}</div>
+              <div className="rs-non-scale-item-label">{itemName}</div>
               {truncated.map((ds, di) => {
                 const def = ds.customItemDefs?.[catId]?.[itemName]
                 const cell = ds.answers[catId]?.__custom?.[itemName]

@@ -107,25 +107,9 @@ export function ListMode({ result, profile }: Props) {
             </div>
             <RsScaleLegend scale={scale} />
             <div className="q-items">
-              <Button variant="ghost" onClick={() => addCustom(cat.id)} data-testid={`add-custom-${cat.id}`}>
+              <Button variant="outline" className="add-custom-btn" onClick={() => addCustom(cat.id)} data-testid={`add-custom-${cat.id}`}>
                 {t('q_add_custom')}
               </Button>
-              {base.map((item) => {
-                const slot = result.answers[cat.id] ?? {}
-                return (
-                  <RsQuestionCard
-                    key={item}
-                    result={result}
-                    catId={cat.id}
-                    item={item}
-                    isCustom={false}
-                    cell={slot[item]}
-                    scale={scale}
-                    onBeforeMutate={confirmIfTemplate}
-                    variant="list"
-                  />
-                )
-              })}
               {custom.map((item) => {
                 const slot = result.answers[cat.id] ?? {}
                 const customItemDef = result.customItemDefs?.[cat.id]?.[item]
@@ -143,6 +127,22 @@ export function ListMode({ result, profile }: Props) {
                     {...(customItemDef !== undefined ? { customItemDef } : {})}
                     autoOpenEdit={autoOpenItem === item}
                     onAutoOpenDone={() => setAutoOpenItem(null)}
+                  />
+                )
+              })}
+              {base.map((item) => {
+                const slot = result.answers[cat.id] ?? {}
+                return (
+                  <RsQuestionCard
+                    key={item}
+                    result={result}
+                    catId={cat.id}
+                    item={item}
+                    isCustom={false}
+                    cell={slot[item]}
+                    scale={scale}
+                    onBeforeMutate={confirmIfTemplate}
+                    variant="list"
                   />
                 )
               })}

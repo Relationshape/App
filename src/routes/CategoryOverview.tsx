@@ -59,11 +59,15 @@ export function CategoryOverview() {
 
   const hasAnswers = useMemo(() => {
     if (!result) return false
-    return Object.values(result.answers).some((cat) =>
-      Object.entries(cat).some(([k, v]) =>
+    return Object.values(result.answers).some((cat) => {
+      const hasBase = Object.entries(cat).some(([k, v]) =>
         k !== '__hidden' && k !== '__custom' && v !== null && typeof v === 'object' && 'scale' in (v as object)
       )
-    )
+      const hasCustom = Object.values(cat.__custom ?? {}).some(
+        (cell) => cell?.scale && cell.scale !== 'open',
+      )
+      return hasBase || hasCustom
+    })
   }, [result?.answers])
 
   if (!profile) return null
@@ -99,11 +103,31 @@ export function CategoryOverview() {
     saveResult(next)
   }
 
+  const resultLabel = result.subject
+    ? `${profile.emoji} ${profile.name} → ${result.subject}`
+    : `${profile.emoji} ${profile.name}`
+
   return (
     <section className="page" data-testid="category-overview-page">
-      <header className="page-head">
-        <h1>{t('q_overview_title')}</h1>
-        <p className="muted">{t('q_overview_sub')}</p>
+      <header className="cat-overview-head">
+        <div className="cat-overview-head-top">
+          <Button
+            asChild
+            variant="ghost"
+            size="sm"
+            className="cat-overview-back-btn"
+            data-testid="cat-overview-back"
+          >
+            <a href="#" onClick={(e) => { e.preventDefault(); navigate(`/profile/${profile.id}`) }}>
+              {t('btn_back')}
+            </a>
+          </Button>
+          <span className="cat-overview-context muted small">{resultLabel}</span>
+        </div>
+        <div className="cat-overview-head-body">
+          <h1 className="cat-overview-title">{t('q_overview_title')}</h1>
+          <p className="cat-overview-sub muted">{t('q_overview_sub')}</p>
+        </div>
       </header>
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3" data-testid="cat-grid">
         {enabledCats.map((cat) => {
@@ -132,6 +156,7 @@ export function CategoryOverview() {
         <Button
           type="button"
           variant="outline"
+          className="add-custom-btn"
           onClick={() => setPickerOpen(true)}
           data-testid="open-cat-picker"
         >
@@ -142,7 +167,7 @@ export function CategoryOverview() {
           onClick={handleStartClick}
           data-testid="confirm-start-questionnaire"
         >
-          {t('q_overview_start')}
+          {hasAnswers ? t('q_overview_continue') : t('q_overview_start')}
         </Button>
       </div>
       <RsCategoryPicker

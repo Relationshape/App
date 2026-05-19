@@ -27,7 +27,16 @@ export function QuestionnaireHeader({ result, profileId, activeCat }: Props) {
   const lang = getLang()
 
   function setMode(next: 'list' | 'single') {
-    saveResult({ ...result, progress: { ...result.progress, mode: next } })
+    saveResult({
+      ...result,
+      progress: {
+        ...result.progress,
+        mode: next,
+        // Reset item cursor when entering single mode so stale flatIndex from
+        // a different category can't trigger the "all done" state immediately.
+        ...(next === 'single' ? { flatIndex: 0 } : {}),
+      },
+    })
   }
 
   const catTitle = activeCat
