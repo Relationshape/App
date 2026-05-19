@@ -3428,10 +3428,10 @@ button.rs-tile:hover {
 .rs-tile-icon { font-size: 22px; line-height: 1; flex-shrink: 0; }
 .rs-tile-body { display: grid; gap: 5px; min-width: 0; overflow: hidden; }
 .rs-tile-head {
-  display: flex; align-items: center; gap: 6px;
-  justify-content: space-between; min-width: 0; overflow: hidden;
+  display: flex; align-items: flex-start; gap: 6px;
+  justify-content: space-between; min-width: 0;
 }
-.rs-tile-title { font-size: 14px; font-weight: 600; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rs-tile-title { font-size: 14px; font-weight: 600; min-width: 0; word-break: break-word; }
 .rs-tile-trailing { color: var(--muted); font-size: 13px; flex-shrink: 0; white-space: nowrap; }
 
 /* ================================================================

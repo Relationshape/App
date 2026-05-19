@@ -113,7 +113,7 @@ export function CustomScalePicker({
               )
             })}
           </div>
-          <div className="flex gap-2 justify-end">
+          <div className="flex flex-wrap gap-2 justify-end">
             <Button variant="ghost" onClick={() => onClose(false)} data-testid="modal-add-custom-scale-cancel">
               {t('btn_cancel')}
             </Button>
