@@ -635,6 +635,7 @@ export const EN = {
   q_add_custom_options_title: 'Define options',
   q_add_custom_options_sub: 'Enter one option per line (min. 2)',
   q_add_custom_options_min: 'Please enter at least 2 options.',
+  q_add_custom_name_empty: 'Please enter a name.',
   q_text_answer_placeholder: 'Your answer…',
   item_rename_btn: '✏️ Rename',
   q_edit_format_section: 'Answer format',

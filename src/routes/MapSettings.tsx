@@ -180,6 +180,16 @@ export function MapSettings() {
         <div className="callout" data-testid="map-cat-hidden-info">
           ℹ️ {t('map_settings_cat_hidden_info')}
         </div>
+        <div className="flex justify-end mb-2">
+          <button
+            type="button"
+            className="list-add"
+            onClick={() => setPickerOpen(true)}
+            data-testid="map-cat-add-btn"
+          >
+            {t('map_settings_add_cat')}
+          </button>
+        </div>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-2" data-testid="map-cat-grid">
           {visibleCats.map((cat) => {
             const on = enabledCategories.includes(cat.id)
@@ -206,16 +216,6 @@ export function MapSettings() {
               </div>
             )
           })}
-        </div>
-        <div className="mt-3">
-          <button
-            type="button"
-            className="list-add"
-            onClick={() => setPickerOpen(true)}
-            data-testid="map-cat-add-btn"
-          >
-            {t('map_settings_add_cat')}
-          </button>
         </div>
       </section>
       <Button type="button" onClick={() => { void onSave() }} data-testid="map-save-btn">{t('btn_save')}</Button>
