@@ -21,6 +21,7 @@ import {
   type PendingCustomItem, type PendingItemsByCat,
 } from '@/components/RsCategoryPicker'
 import { ImportForm } from '@/components/ImportForm'
+import { useShareData } from '@/components/providers/ShareDataProvider'
 import { t, getLang } from '@/lib/i18n/i18n'
 import type { MutableScaleStep } from '@/lib/data/types'
 import type { CustomCategoryDef, CustomItemFormat, Import, Profile } from '@/lib/storage/types'
@@ -47,6 +48,7 @@ export function NewMapWizard({ profile }: Props) {
   const navigate = useNavigate()
   const globalScale = useStore((s) => s.scale)
   const saveResult = useStore((s) => s.saveResult)
+  const { openShareTemplate } = useShareData()
   const lang = getLang()
   const allResults = useStore((s) => s.results)
   const allImports = useStore((s) => s.imports)
@@ -83,7 +85,7 @@ export function NewMapWizard({ profile }: Props) {
     navigate(`/profile/${profile.id}`)
   }
 
-  function onComplete() {
+  async function onComplete() {
     const id = crypto.randomUUID()
 
     if (templateSource) {
@@ -109,7 +111,7 @@ export function NewMapWizard({ profile }: Props) {
         createdAt: Date.now(),
         updatedAt: Date.now(),
       })
-      navigate(`/q-categories/${profile.id}/${id}`, { replace: true })
+      await promptShareTemplate(id)
       return
     }
 
@@ -133,7 +135,27 @@ export function NewMapWizard({ profile }: Props) {
       updatedAt: Date.now(),
     }
     saveResult(applyPendingItems(base, itemsByCat))
-    navigate(`/q-categories/${profile.id}/${id}`, { replace: true })
+    await promptShareTemplate(id)
+  }
+
+  async function promptShareTemplate(id: string) {
+    const choice = await dialog<string | null>({
+      title: t('wizard_share_template_prompt_title') as string,
+      body: () => (
+        <p className="muted small" style={{ lineHeight: 1.5 }}>
+          {t('wizard_share_template_prompt_body')}
+        </p>
+      ),
+      actions: [
+        { label: t('btn_skip') as string, kind: 'ghost', value: 'skip' },
+        { label: t('wizard_share_template_btn') as string, kind: 'primary', value: 'share' },
+      ],
+    })
+    if (choice === 'share') {
+      openShareTemplate(id, () => navigate(`/q-categories/${profile.id}/${id}`, { replace: true }))
+    } else {
+      navigate(`/q-categories/${profile.id}/${id}`, { replace: true })
+    }
   }
 
   function toggleCategory(id: string) {
@@ -411,7 +433,7 @@ export function NewMapWizard({ profile }: Props) {
                 onChange={(e) => setSubject(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && subject.trim()) {
-                    if (templateSource) { onComplete() } else { setStep(1) }
+                    if (templateSource) { void onComplete() } else { setStep(1) }
                   }
                 }}
                 placeholder="e.g. Sam, my best friend"
@@ -431,7 +453,7 @@ export function NewMapWizard({ profile }: Props) {
                 {t('btn_back')}
               </Button>
               <Button
-                onClick={() => { if (templateSource) { onComplete() } else { setStep(1) } }}
+                onClick={() => { if (templateSource) { void onComplete() } else { setStep(1) } }}
                 disabled={!subject.trim()}
                 data-testid="wizard-name-next"
               >
@@ -676,7 +698,7 @@ export function NewMapWizard({ profile }: Props) {
                   {t('new_card_scale_customize')}
                 </Button>
               )}
-              <Button onClick={onComplete} data-testid="wizard-scale-confirm">
+              <Button onClick={() => { void onComplete() }} data-testid="wizard-scale-confirm">
                 {t('new_card_scale_confirm')}
               </Button>
             </div>
