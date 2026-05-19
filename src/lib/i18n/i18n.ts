@@ -108,6 +108,8 @@ function detectLanguage(): Lang {
 }
 
 let _lang: Lang = detectLanguage()
+// Keep the HTML lang attribute in sync so CSS hyphens:auto works per locale.
+if (typeof document !== 'undefined') document.documentElement.lang = _lang
 
 export function getLang(): Lang {
   return _lang
@@ -116,6 +118,7 @@ export function getLang(): Lang {
 export function setLang(lang: Lang): void {
   if (!isLang(lang)) return
   _lang = lang
+  if (typeof document !== 'undefined') document.documentElement.lang = lang
   // Persistence to localStorage is the Zustand store's responsibility (plan 06).
   // This function only updates the module-level lang. v1.0 also wrote to localStorage
   // here — we move that side effect into the store action that calls setLang so

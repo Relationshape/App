@@ -47,7 +47,6 @@ export function ItemSpider({ datasets, catId, size = 480 }: Props) {
     base.forEach((item) => itemSet.add(item))
   }
   const items = Array.from(itemSet)
-  if (items.length < 3) return null
 
   const fs = itemLabelFontSize(items.length, size)
   const pad = Math.max(120, Math.ceil(fs * 10.5))
@@ -72,6 +71,19 @@ export function ItemSpider({ datasets, catId, size = 480 }: Props) {
   })
 
   const hasAnyAnswer = dataPoints.some((ds) => ds.some((p) => p.v > 0))
+
+  // Count items with at least one answered value across all datasets
+  const answeredItemCount = items.filter((_, i) => dataPoints.some((ds) => (ds[i]?.v ?? 0) > 0)).length
+
+  if (items.length < 3 || answeredItemCount < 2) {
+    return (
+      <div className="rs-chart-wrap rs-item-spider" data-testid={`item-spider-${catId}`}>
+        <p className="muted small text-center" data-testid={`item-spider-min-data-${catId}`}>
+          {t('spider_min_data_hint')}
+        </p>
+      </div>
+    )
+  }
 
   // Build tooltip data when an axis is hovered
   const tooltipData = activeIdx !== null ? {

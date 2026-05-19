@@ -80,7 +80,7 @@ export function ListMode({ result, profile }: Props) {
   }
 
   return (
-    <div data-testid="list-mode" className="flex flex-col">
+    <div data-testid="list-mode" className="flex flex-col h-[100dvh]">
       <QuestionnaireHeader
         result={result}
         profileId={profile.id}
@@ -88,7 +88,7 @@ export function ListMode({ result, profile }: Props) {
         idx={safeIdx}
         total={enabledCats.length}
       />
-      <main className="mx-auto w-full max-w-[920px] px-4 py-3">
+      <main className="flex-1 overflow-y-auto mx-auto w-full max-w-[920px] px-4 py-3">
         <section
           className="q-cat"
           style={{ ['--c' as string]: cat.color } as React.CSSProperties}

@@ -109,23 +109,6 @@ export function Result() {
         </div>
       </header>
 
-      {/* D-01 Fabi-mode-only Spider overview section (mirrors legacy app.js:2795-2801). */}
-      {fabiMode && (
-        <section className="page-section" data-testid="result-spider-section">
-          <header className="section-head">
-            <h2>{t('result_category_overview')}</h2>
-            <p className="muted">{t('result_category_overview_sub')}</p>
-          </header>
-          <div
-            className="panel rs-chart-clickable"
-            title={t('enlarge_chart')}
-            onClick={() => setEnlargedOpen(true)}
-          >
-            <Spider datasets={datasets} />
-          </div>
-        </section>
-      )}
-
       {/* D-03 Compare-with-someone section (handled by CompareWithSomeone). */}
       <section className="page-section" data-testid="result-compare-with-section">
         <header className="section-head">
@@ -162,6 +145,23 @@ export function Result() {
           ))}
         </div>
       </section>
+
+      {/* D-01 Fabi-mode-only Spider overview section — placed below category details. */}
+      {fabiMode && (
+        <section className="page-section panel" data-testid="result-spider-section">
+          <header className="section-head">
+            <h2>{t('fabi_spider_title')}</h2>
+            <p className="muted small">{t('fabi_spider_sub')}</p>
+          </header>
+          <div
+            className="rs-chart-clickable"
+            title={t('enlarge_chart')}
+            onClick={() => setEnlargedOpen(true)}
+          >
+            <Spider datasets={datasets} />
+          </div>
+        </section>
+      )}
 
       <CategoryModal
         open={modalCat !== null}
