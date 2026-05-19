@@ -147,7 +147,7 @@ export function NewMapWizard({ profile }: Props) {
   function selectAllAndContinue() {
     // Keep any custom cat IDs already checked, add all builtin cats
     setCheckedIds((prev) => {
-      const next = new Set(CATEGORIES.map((c) => c.id))
+      const next: Set<string> = new Set(CATEGORIES.map((c) => c.id))
       for (const id of prev) if (!CATEGORIES.some((c) => c.id === id)) next.add(id)
       return next
     })

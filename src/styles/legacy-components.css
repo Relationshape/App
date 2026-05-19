@@ -10,6 +10,13 @@ html { overflow-x: hidden; }
 @media (hover: none) and (pointer: coarse) {
   body, body::before { background-attachment: scroll; }
 }
+/* backdrop-filter creates GPU compositing layers that render as transparent/black
+   in Android Chrome screenshots. Disable on touch devices and compensate with
+   slightly more opaque backgrounds. */
+@media (hover: none) and (pointer: coarse) {
+  * { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+  :root { --glass-blur: none; --color-glass: rgba(10, 13, 35, 0.88); }
+}
 
 body {
   font-family: var(--font-sans);
@@ -1179,8 +1186,13 @@ a:hover { text-decoration: underline; }
 .scale-preview-short { font-size: 12px; color: var(--muted); }
 
 /* Per-item scale button */
-.item-scale-btn { font-size: 12px !important; padding: 4px 8px !important; opacity: 0.7; }
-.item-scale-btn:hover { opacity: 1; }
+.item-scale-btn {
+  background: var(--surface-3) !important; border: 1px solid var(--glass-border) !important;
+  color: var(--muted) !important; font-size: 11px !important; padding: 3px 10px !important;
+  border-radius: 99px !important; opacity: 1 !important;
+  transition: color .12s ease, border-color .12s ease !important;
+}
+.item-scale-btn:hover { color: var(--primary) !important; border-color: var(--primary) !important; }
 .item-remove-btn { font-size: 11px !important; padding: 2px 6px !important; opacity: 0.45; color: var(--danger, #ef4444) !important; }
 .item-remove-btn:hover { opacity: 1; }
 .show-on-mobile { display: none; }
@@ -1401,11 +1413,17 @@ a:hover { text-decoration: underline; }
   font-size: 11px; color: var(--muted); white-space: nowrap;
   max-width: 84px; overflow: hidden; text-overflow: ellipsis; text-align: center;
 }
+@media (max-width: 680px) {
+  .rs-click-scale { padding-bottom: 80px; }
+  .rs-click-scale-ref-label {
+    top: 20px; font-size: 10px;
+  }
+}
 @media (max-width: 560px) {
-  .rs-click-scale { padding-bottom: 70px; }
+  .rs-click-scale { padding-bottom: 90px; }
   .rs-click-scale-ref-label {
     transform: rotate(-30deg); transform-origin: top left;
-    top: 22px; max-width: 100px; text-align: left; font-size: 10.5px;
+    top: 24px; max-width: 100px; text-align: left; font-size: 10px;
   }
 }
 
@@ -3394,6 +3412,15 @@ button.rs-tile:hover {
 /* Non-scale answer inputs */
 .q-non-scale-wrap { padding: 4px 0 8px; grid-column: 1 / -1; }
 .q-item-actions { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 4px; margin-top: 2px; }
+.q-item-actions .btn,
+.q-item-actions button {
+  background: var(--surface-3) !important; border: 1px solid var(--glass-border) !important;
+  color: var(--muted) !important; font-size: 11px !important; padding: 3px 10px !important;
+  border-radius: 99px !important; height: auto !important;
+  transition: color .12s ease, border-color .12s ease !important;
+}
+.q-item-actions .btn:hover,
+.q-item-actions button:hover { color: var(--primary) !important; border-color: var(--primary) !important; }
 .q-option-pills { display: flex; flex-wrap: wrap; gap: 6px; padding: 2px 0; }
 .q-option-pill {
   padding: 5px 14px; border-radius: 999px; font: inherit; font-size: 13px; cursor: pointer;
