@@ -20,8 +20,8 @@ interface Props {
 
 export function QuestionnaireNav({ result, profileId, activeCat, onNextCat, onPrevCat }: Props) {
   const resultsHref = activeCat
-    ? `/result/${result.id}/${activeCat.id}`
-    : `/result/${result.id}`
+    ? `/q-categories/${profileId}/${result.id}?cat=${activeCat.id}`
+    : `/q-categories/${profileId}/${result.id}`
   return (
     <nav
       className="q-nav sticky bottom-0 z-10 bg-surface border-t border-line"
