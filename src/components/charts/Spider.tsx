@@ -31,7 +31,12 @@ export function Spider({
   const candidates = axesOverride ?? pickCategoryAxes(truncatedDatasets, defaultScale)
   const axes = candidates.map((id) => {
     const c = CATEGORIES.find((x) => x.id === id)
-    return { key: id, title: c?.title ?? id, icon: c?.icon ?? '•' }
+    if (c) return { key: id, title: c.title, icon: c.icon }
+    for (const ds of truncatedDatasets) {
+      const cc = ds.customCategories?.find((x) => x.id === id)
+      if (cc) return { key: id, title: cc.title, icon: cc.icon }
+    }
+    return { key: id, title: id, icon: '•' }
   })
   const fs = labelFontSize(axes.length)
   const lineHeight = fs * 1.2

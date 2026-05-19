@@ -46,7 +46,8 @@ export function ScalePicker({ scale, value, valueFrac, onChange, onClear, compac
   const maxIdx = Math.max(1, N - 1)
 
   // Resolve the active fraction: prefer continuous valueFrac, else derive from snapped key.
-  const activeIdx = value ? scale.findIndex((s) => s.key === value) : -1
+  const scaleValue = value === 'open' ? null : value
+  const activeIdx = scaleValue ? scale.findIndex((s) => s.key === scaleValue) : -1
   const resolvedFrac = valueFrac != null
     ? valueFrac
     : activeIdx >= 0
