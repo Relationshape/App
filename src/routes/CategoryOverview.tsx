@@ -4,14 +4,16 @@
 // selection is managed through the modal RsCategoryPicker (quick task 260516-qva).
 
 import { useEffect, useMemo, useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import { useStore } from '@/lib/storage/store'
 import { CATEGORIES } from '@/lib/data/data'
 import { resolveAnyCat } from '@/lib/data/customCategories'
 import { catProgress } from '@/lib/charts/math'
+import { mapResultToDataset } from '@/lib/charts/datasets'
 import { Button } from '@/components/ui/button'
 import { RsTile } from '@/components/RsTile'
 import { RsCategoryPicker, applyPendingItems, type PendingItemsByCat } from '@/components/RsCategoryPicker'
+import { CategoryModal } from '@/components/charts/CategoryModal'
 import { NewMapWizard } from '@/components/NewMapWizard'
 import { t, getLang } from '@/lib/i18n/i18n'
 import { useShareData } from '@/components/providers/ShareDataProvider'
@@ -30,6 +32,7 @@ export function CategoryOverview() {
   const lang = getLang()
   const [pickerOpen, setPickerOpen] = useState(false)
   const [preShareOpen, setPreShareOpen] = useState(false)
+  const [searchParams, setSearchParams] = useSearchParams()
   const { openShareTemplate } = useShareData()
 
   const profile = profileId ? profiles.find((p) => p.id === profileId) ?? null : null
@@ -73,6 +76,18 @@ export function CategoryOverview() {
   if (!profile) return null
   if (resultId === 'new') return <NewMapWizard profile={profile} />
   if (!result) return null
+
+  const catParam = searchParams.get('cat')
+  const overviewModalCat = catParam
+    ? resolveAnyCat(catParam, result.customCategories, profile.customCategories) ?? null
+    : null
+  const overviewDataset = mapResultToDataset(result, profile)
+
+  function closeOverviewModal() {
+    const next = new URLSearchParams(searchParams)
+    next.delete('cat')
+    setSearchParams(next, { replace: true })
+  }
 
   function startQuestionnaire() {
     navigate(`/q/${profile!.id}/${result!.id}`)
@@ -217,6 +232,14 @@ export function CategoryOverview() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <CategoryModal
+        open={overviewModalCat !== null}
+        onOpenChange={(o) => { if (!o) closeOverviewModal() }}
+        datasets={[overviewDataset]}
+        cat={overviewModalCat}
+        result={result}
+      />
     </section>
   )
 }

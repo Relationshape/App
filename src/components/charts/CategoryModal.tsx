@@ -358,9 +358,9 @@ function EditTabContent({ result, cat, onLocalChange, onImmediateSave, addingRef
     <div className="modal-edit-items q-items" data-testid={`modal-edit-cat-${cat.id}`}>
       <p className="muted small px-1 pb-2">{catLabel}</p>
       <Button
-        variant="ghost"
+        variant="outline"
         onClick={addCustom}
-        className="mb-2"
+        className="add-custom-btn mb-2"
         data-testid={`modal-add-custom-${cat.id}`}
       >
         {t('q_add_custom')}
