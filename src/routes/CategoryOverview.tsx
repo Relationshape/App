@@ -99,11 +99,31 @@ export function CategoryOverview() {
     saveResult(next)
   }
 
+  const resultLabel = result.subject
+    ? `${profile.emoji} ${profile.name} → ${result.subject}`
+    : `${profile.emoji} ${profile.name}`
+
   return (
     <section className="page" data-testid="category-overview-page">
-      <header className="page-head">
-        <h1>{t('q_overview_title')}</h1>
-        <p className="muted">{t('q_overview_sub')}</p>
+      <header className="cat-overview-head">
+        <div className="cat-overview-head-top">
+          <Button
+            asChild
+            variant="ghost"
+            size="sm"
+            className="cat-overview-back-btn"
+            data-testid="cat-overview-back"
+          >
+            <a href="#" onClick={(e) => { e.preventDefault(); navigate(`/profile/${profile.id}`) }}>
+              {t('btn_back')}
+            </a>
+          </Button>
+          <span className="cat-overview-context muted small">{resultLabel}</span>
+        </div>
+        <div className="cat-overview-head-body">
+          <h1 className="cat-overview-title">{t('q_overview_title')}</h1>
+          <p className="cat-overview-sub muted">{t('q_overview_sub')}</p>
+        </div>
       </header>
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3" data-testid="cat-grid">
         {enabledCats.map((cat) => {
