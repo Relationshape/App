@@ -6,6 +6,7 @@
 import { enabledItemsForCat } from '@/lib/charts/items'
 import { getItemLabel, localizeStep } from '@/lib/data/locale'
 import { scaleMaxValue } from '@/lib/charts/math'
+import { CATEGORIES } from '@/lib/data/data'
 import type { ChartDataset } from './types'
 import type { AnswerCell } from '@/lib/storage/types'
 import { getLang, t } from '@/lib/i18n/i18n'
@@ -15,6 +16,9 @@ interface Props { datasets: readonly ChartDataset[]; catId: string }
 export function CategoryBars({ datasets, catId }: Props) {
   const lang = getLang()
   const truncated = datasets.slice(0, 4)
+  const isKnownCat = CATEGORIES.some((c) => c.id === catId) ||
+    truncated.some((ds) => ds.customCategories?.some((cc) => cc.id === catId))
+  if (!isKnownCat) return null
   const itemSet = new Set<string>()
   for (const ds of truncated) {
     const { base, custom } = enabledItemsForCat(ds.answers, catId)
