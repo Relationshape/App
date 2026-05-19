@@ -358,8 +358,16 @@ export function RsCategoryPicker({ open, onOpenChange, existingIds, result, prof
               {/* Custom categories section */}
               <div className="cat-picker-custom-section">
                 <h3 className="cat-picker-group-title">{t('cat_picker_custom_section')}</h3>
+                <button
+                  type="button"
+                  className="cat-picker-create-btn"
+                  onClick={startCreate}
+                  data-testid="cat-picker-create-btn"
+                >
+                  + {t('cat_picker_create_btn')}
+                </button>
                 {allCustomCats.length > 0 && (
-                  <div className="cat-picker-items">
+                  <div className="cat-picker-items mt-2">
                     {allCustomCats.map((cat) => {
                       const locked = lockedIds.has(cat.id)
                       const isChecked = checkedIds.has(cat.id)
@@ -393,14 +401,6 @@ export function RsCategoryPicker({ open, onOpenChange, existingIds, result, prof
                     })}
                   </div>
                 )}
-                <button
-                  type="button"
-                  className="cat-picker-create-btn"
-                  onClick={startCreate}
-                  data-testid="cat-picker-create-btn"
-                >
-                  + {t('cat_picker_create_btn')}
-                </button>
               </div>
             </div>
             <div className="rs-modal-actions">
@@ -528,6 +528,14 @@ export function RsCategoryPicker({ open, onOpenChange, existingIds, result, prof
             </DialogTitle>
             <div className="flex-1 overflow-y-auto min-h-0 flex flex-col gap-3">
               <p className="muted small">{t('cat_items_step_sub')}</p>
+              <button
+                type="button"
+                className="cat-picker-create-btn"
+                onClick={() => { void addItemFlow() }}
+                data-testid="cat-items-add-btn"
+              >
+                + {t('cat_items_add_btn')}
+              </button>
               {pendingItems.length > 0 && (
                 <div className="cat-wizard-items-list">
                   {pendingItems.map((item, idx) => (
@@ -538,14 +546,6 @@ export function RsCategoryPicker({ open, onOpenChange, existingIds, result, prof
                   ))}
                 </div>
               )}
-              <button
-                type="button"
-                className="cat-picker-create-btn"
-                onClick={() => { void addItemFlow() }}
-                data-testid="cat-items-add-btn"
-              >
-                + {t('cat_items_add_btn')}
-              </button>
             </div>
             <div className="rs-modal-actions">
               <button

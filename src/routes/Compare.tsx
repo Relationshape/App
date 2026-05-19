@@ -233,9 +233,8 @@ export function Compare() {
                       className="compare-row-export"
                       onClick={(e) => { e.stopPropagation(); openShare(o.id) }}
                       data-testid={`compare-export-${o.id}`}
-                      title={t('btn_share')}
                     >
-                      📤
+                      {t('btn_export_result')}
                     </button>
                   </div>
                 )
