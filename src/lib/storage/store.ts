@@ -91,10 +91,16 @@ export const useStore = create<AppState>()(
       const now = Date.now()
       const final: Result = { ...result, updatedAt: now }
       set((state) => {
-        const existing = state.results.findIndex((r) => r.id === result.id)
-        if (existing >= 0) {
+        const existingIdx = state.results.findIndex((r) => r.id === result.id)
+        if (existingIdx >= 0) {
+          const existing = state.results[existingIdx]!
+          // Preserve templateWarningDisabled if it was set in the store but
+          // the incoming result doesn't carry it (stale-spread race condition).
+          if (existing.templateWarningDisabled && !final.templateWarningDisabled) {
+            final.templateWarningDisabled = true
+          }
           const next = state.results.slice()
-          next[existing] = final
+          next[existingIdx] = final
           return { results: next }
         }
         return {
