@@ -107,6 +107,9 @@ export function ListMode({ result, profile }: Props) {
             </div>
             <RsScaleLegend scale={scale} />
             <div className="q-items">
+              <Button variant="ghost" onClick={() => addCustom(cat.id)} data-testid={`add-custom-${cat.id}`}>
+                {t('q_add_custom')}
+              </Button>
               {base.map((item) => {
                 const slot = result.answers[cat.id] ?? {}
                 return (
@@ -143,9 +146,6 @@ export function ListMode({ result, profile }: Props) {
                   />
                 )
               })}
-              <Button variant="ghost" onClick={() => addCustom(cat.id)} data-testid={`add-custom-${cat.id}`}>
-                {t('q_add_custom')}
-              </Button>
             </div>
           </div>
         </section>

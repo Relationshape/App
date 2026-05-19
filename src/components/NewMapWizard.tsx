@@ -429,6 +429,41 @@ export function NewMapWizard({ profile }: Props) {
               <DialogDescription>{t('onboarding_sub')}</DialogDescription>
             </DialogHeader>
             <div className="onboarding-body flex-1 overflow-y-auto min-h-0" data-testid="wizard-cat-step">
+              <div className="cat-picker-custom-section">
+                <h3 className="cat-picker-group-title">{t('cat_picker_custom_section')}</h3>
+                <button
+                  type="button"
+                  className="cat-picker-create-btn"
+                  onClick={startCreateCat}
+                  data-testid="wizard-cat-create-btn"
+                >
+                  + {t('cat_picker_create_btn')}
+                </button>
+                {customCats.length > 0 && (
+                  <div className="cat-picker-items mt-2">
+                    {customCats.map((cat) => {
+                      const isChecked = checkedIds.has(cat.id)
+                      return (
+                        <label
+                          key={cat.id}
+                          htmlFor={`nmw-cc-${cat.id}`}
+                          className={`cat-picker-item${isChecked ? ' is-checked' : ''}`}
+                        >
+                          <input
+                            type="checkbox"
+                            id={`nmw-cc-${cat.id}`}
+                            checked={isChecked}
+                            onChange={() => toggleCategory(cat.id)}
+                          />
+                          <span className="cat-picker-icon" aria-hidden>{cat.icon}</span>
+                          <span className="cat-picker-label">{cat.title}</span>
+                          <span className="cat-picker-check" aria-hidden>{isChecked ? '✓' : ''}</span>
+                        </label>
+                      )
+                    })}
+                  </div>
+                )}
+              </div>
               <div className="cat-picker-groups">
                 {CATEGORY_GROUPS.map((group) => {
                   const groupTitle = lang === 'de' ? group.de : group.en
@@ -466,41 +501,6 @@ export function NewMapWizard({ profile }: Props) {
                     </div>
                   )
                 })}
-              </div>
-              <div className="cat-picker-custom-section">
-                <h3 className="cat-picker-group-title">{t('cat_picker_custom_section')}</h3>
-                <button
-                  type="button"
-                  className="cat-picker-create-btn"
-                  onClick={startCreateCat}
-                  data-testid="wizard-cat-create-btn"
-                >
-                  + {t('cat_picker_create_btn')}
-                </button>
-                {customCats.length > 0 && (
-                  <div className="cat-picker-items mt-2">
-                    {customCats.map((cat) => {
-                      const isChecked = checkedIds.has(cat.id)
-                      return (
-                        <label
-                          key={cat.id}
-                          htmlFor={`nmw-cc-${cat.id}`}
-                          className={`cat-picker-item${isChecked ? ' is-checked' : ''}`}
-                        >
-                          <input
-                            type="checkbox"
-                            id={`nmw-cc-${cat.id}`}
-                            checked={isChecked}
-                            onChange={() => toggleCategory(cat.id)}
-                          />
-                          <span className="cat-picker-icon" aria-hidden>{cat.icon}</span>
-                          <span className="cat-picker-label">{cat.title}</span>
-                          <span className="cat-picker-check" aria-hidden>{isChecked ? '✓' : ''}</span>
-                        </label>
-                      )
-                    })}
-                  </div>
-                )}
               </div>
             </div>
             <div className="rs-modal-actions">
