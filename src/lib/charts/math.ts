@@ -5,7 +5,7 @@
 
 import { CATEGORIES, SPIDER_AXES } from '@/lib/data/data'
 import type { MutableScaleStep } from '@/lib/data/types'
-import type { AnswersBlob, CategoryAnswers } from '@/lib/storage/types'
+import type { AnswersBlob, CategoryAnswers, CustomItemDef } from '@/lib/storage/types'
 
 // Re-export types used by callers.
 export interface CategoryProgress { answered: number; total: number }
@@ -240,10 +240,19 @@ export function closestScaleEntry(
 export function catProgress(
   answers: AnswersBlob | undefined,
   catId: string,
+  customItemDefs?: Record<string, Record<string, CustomItemDef>>,
 ): CategoryProgress {
   const slot = answers?.[catId] ?? {}
   const cat = CATEGORIES.find((c) => c.id === catId)
-  if (!cat) return { answered: 0, total: 0 }
+  if (!cat) {
+    // Custom category: items are stored in customItemDefs[catId]
+    const itemKeys = Object.keys(customItemDefs?.[catId] ?? {}).filter(
+      (k) => !slot.__hidden?.[k],
+    )
+    let answered = 0
+    for (const key of itemKeys) if (slot[key]) answered++
+    return { answered, total: itemKeys.length }
+  }
   const baseItems = cat.items.filter((it) => !slot.__hidden?.[it])
   const customNames = Object.keys(slot.__custom ?? {})
   const total = baseItems.length + customNames.length

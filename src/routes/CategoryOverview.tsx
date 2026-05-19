@@ -117,7 +117,7 @@ export function CategoryOverview() {
       </div>
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3" data-testid="cat-grid">
         {enabledCats.map((cat) => {
-          const { answered, total } = catProgress(result.answers, cat.id)
+          const { answered, total } = catProgress(result.answers, cat.id, result.customItemDefs)
           const pct = total > 0 ? Math.round((answered / total) * 100) : 0
           const catTitle = lang === 'de' && cat.de ? cat.de : cat.title
           return (
