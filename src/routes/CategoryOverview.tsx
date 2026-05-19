@@ -152,6 +152,7 @@ export function CategoryOverview() {
         <Button
           type="button"
           variant="outline"
+          className="add-custom-btn"
           onClick={() => setPickerOpen(true)}
           data-testid="open-cat-picker"
         >

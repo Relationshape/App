@@ -62,8 +62,8 @@ export function SingleMode({ result, profile }: Props) {
     if (!cat) return []
     const { base, custom } = enabledItemsForCat(result.answers, cat.id)
     return [
-      ...base.map((item) => ({ catId: cat.id, item, isCustom: false })),
       ...custom.map((item) => ({ catId: cat.id, item, isCustom: true })),
+      ...base.map((item) => ({ catId: cat.id, item, isCustom: false })),
     ]
   }, [cat, result.answers])
 
@@ -333,7 +333,6 @@ export function SingleMode({ result, profile }: Props) {
             {...bind()}
           >
             <div className="q-card-cat">
-              {cur.isCustom && <span className="q-item-tag">{t('custom_tag')}</span>}
               <div className="q-card-cat-actions">
                 {format === 'scale' && (
                   <Button

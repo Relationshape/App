@@ -40,11 +40,11 @@ export function ItemSpider({ datasets, catId, size = 480 }: Props) {
   const itemSet = new Set<string>()
   for (const ds of truncated) {
     const { base, custom } = enabledItemsForCat(ds.answers, catId)
-    base.forEach((item) => itemSet.add(item))
     custom.forEach((item) => {
       const def = ds.customItemDefs?.[catId]?.[item]
       if (!def || def.format === 'scale') itemSet.add(`✶ ${item}`)
     })
+    base.forEach((item) => itemSet.add(item))
   }
   const items = Array.from(itemSet)
   if (items.length < 3) return null
@@ -78,7 +78,7 @@ export function ItemSpider({ datasets, catId, size = 480 }: Props) {
     label: (() => {
       const raw = items[activeIdx] ?? ''
       const isCustom = raw.startsWith('✶ ')
-      return isCustom ? raw : getItemLabel(catId, raw, lang)
+      return isCustom ? raw.slice(2) : getItemLabel(catId, raw, lang)
     })(),
     rows: truncated
       .map((ds, di) => {
@@ -173,7 +173,7 @@ export function ItemSpider({ datasets, catId, size = 480 }: Props) {
           const [lx, ly] = polarToCartesian(i, items.length, r + fs * 1.7, cx, cy)
           const anchor = Math.abs(lx - cx) < 4 ? 'middle' : lx > cx ? 'start' : 'end'
           const isCustom = displayItem.startsWith('✶ ')
-          const localizedItem = isCustom ? displayItem : getItemLabel(catId, displayItem, lang)
+          const localizedItem = isCustom ? displayItem.slice(2) : getItemLabel(catId, displayItem, lang)
           const lines = wrapLabel(localizedItem, maxCharsPerLine).slice(0, 3)
           const yOffset = ((lines.length - 1) * lineHeight) / 2
           const isHovered = activeIdx === i

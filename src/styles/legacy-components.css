@@ -598,6 +598,16 @@ a:hover { text-decoration: underline; }
 }
 
 .q-items { display: grid; gap: 8px; }
+.add-custom-btn {
+  border-color: var(--accent, #7c3aed) !important;
+  color: var(--accent, #7c3aed) !important;
+  background: color-mix(in srgb, var(--accent, #7c3aed) 6%, transparent) !important;
+  font-weight: 500 !important;
+  transition: background 0.15s !important;
+}
+.add-custom-btn:hover {
+  background: color-mix(in srgb, var(--accent, #7c3aed) 14%, transparent) !important;
+}
 .q-item {
   background: color-mix(in oklab, var(--surface-2) 80%, transparent);
   border: 1px solid var(--glass-border);
@@ -3523,8 +3533,8 @@ button.rs-tile:hover {
 
 /* Custom category wizard */
 .cat-picker-custom-section { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--line); }
-.cat-picker-create-btn { width: 100%; margin-top: 8px; padding: 8px 12px; border-radius: 8px; border: 1.5px dashed var(--line); background: none; color: var(--muted); cursor: pointer; font-size: 14px; text-align: center; transition: border-color 0.15s, color 0.15s; }
-.cat-picker-create-btn:hover { border-color: var(--accent); color: var(--accent); }
+.cat-picker-create-btn { width: 100%; margin-top: 8px; padding: 9px 14px; border-radius: 8px; border: 1.5px solid var(--accent, #7c3aed); background: color-mix(in srgb, var(--accent, #7c3aed) 8%, transparent); color: var(--accent, #7c3aed); cursor: pointer; font-size: 14px; font-weight: 500; text-align: center; transition: background 0.15s, border-color 0.15s; }
+.cat-picker-create-btn:hover { background: color-mix(in srgb, var(--accent, #7c3aed) 16%, transparent); }
 .cat-wizard-emoji-palette { display: flex; flex-direction: column; gap: 12px; border: 1px solid var(--line); border-radius: 8px; padding: 8px; }
 .cat-wizard-emoji-group { display: flex; flex-direction: column; gap: 4px; }
 .cat-wizard-emoji-group-label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; padding: 0 2px; }
