@@ -59,11 +59,15 @@ export function CategoryOverview() {
 
   const hasAnswers = useMemo(() => {
     if (!result) return false
-    return Object.values(result.answers).some((cat) =>
-      Object.entries(cat).some(([k, v]) =>
+    return Object.values(result.answers).some((cat) => {
+      const hasBase = Object.entries(cat).some(([k, v]) =>
         k !== '__hidden' && k !== '__custom' && v !== null && typeof v === 'object' && 'scale' in (v as object)
       )
-    )
+      const hasCustom = Object.values(cat.__custom ?? {}).some(
+        (cell) => cell?.scale && cell.scale !== 'open',
+      )
+      return hasBase || hasCustom
+    })
   }, [result?.answers])
 
   if (!profile) return null
@@ -163,7 +167,7 @@ export function CategoryOverview() {
           onClick={handleStartClick}
           data-testid="confirm-start-questionnaire"
         >
-          {t('q_overview_start')}
+          {hasAnswers ? t('q_overview_continue') : t('q_overview_start')}
         </Button>
       </div>
       <RsCategoryPicker

@@ -7,7 +7,7 @@
 //
 // RESULT-01..07 + D-01, D-02, D-05, D-06, D-08, D-09.
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { useStore } from '@/lib/storage/store'
 import { mapResultToDataset } from '@/lib/charts/datasets'
@@ -41,6 +41,9 @@ export function Result() {
   const [modalCat, setModalCat] = useState<ResolvedCat | CategoryDef | null>(null)
   const [enlargedOpen, setEnlargedOpen] = useState(false)
   const [pickerOpen, setPickerOpen] = useState(false)
+  // Tracks whether the currently-open modal was launched via the deep-link URL
+  // (/result/:id/:catId) so that closing it navigates back rather than just hiding.
+  const deepLinkedModalRef = useRef(false)
 
   // Phase 04 D-01: deep-link `/result/:id/:catId` → open CategoryModal on mount,
   // matching legacy app.js:2817-2820. RAF-scheduled so the route paint completes first.
@@ -48,6 +51,7 @@ export function Result() {
     if (!catId || !result) return
     const cat = resolveAnyCat(catId, result.customCategories, profile?.customCategories)
     if (!cat) return
+    deepLinkedModalRef.current = true
     const raf = requestAnimationFrame(() => setModalCat(cat))
     return () => cancelAnimationFrame(raf)
   }, [catId, result, profile])
@@ -161,7 +165,15 @@ export function Result() {
 
       <CategoryModal
         open={modalCat !== null}
-        onOpenChange={(open) => { if (!open) setModalCat(null) }}
+        onOpenChange={(open) => {
+          if (!open) {
+            setModalCat(null)
+            if (deepLinkedModalRef.current) {
+              deepLinkedModalRef.current = false
+              navigate(-1)
+            }
+          }
+        }}
         datasets={datasets}
         cat={modalCat}
         result={result}

@@ -555,6 +555,7 @@ export const DE: Record<TranslationKey, string> = {
   q_overview_title: 'Kategorieübersicht',
   q_overview_sub: 'Wähle die Kategorien/Dimensionen aus, die du für diese Beziehungskarte, resp. diese Person, abbilden willst. Klicke auf eine Kategorie, um deine Antworten einzugeben, die Fragen zu bearbeiten und deine Ergebnisse einzusehen.',
   q_overview_start: 'Fragebogen starten →',
+  q_overview_continue: 'Fragebogen fortsetzen →',
   pre_share_title: 'Zuerst als Vorlage teilen?',
   pre_share_body: 'Bevor du mit der Beantwortung beginnst, willst du den zusammengestellten Fragebogen bereits mit jemandem als Vorlage teilen, damit dein Gegenüber dieselben Fragen beantworten kann? Hinweis: Du kannst diesen Schritt auch später noch auslösen, indem du in deiner Übersicht bei dieser Karte auf „Teilen" klickst, wobei du auswählen kannst, ob du die Karte als leere Vorlage oder mit deinen Antworten teilen möchtest.',
   pre_share_skip: 'Überspringen',
