@@ -20,6 +20,7 @@ import {
   applyPendingItems, FormatPickerInline, OptionsInputInline, ScalePickerInline,
   type PendingCustomItem, type PendingItemsByCat,
 } from '@/components/RsCategoryPicker'
+import { ImportForm } from '@/components/ImportForm'
 import { t, getLang } from '@/lib/i18n/i18n'
 import type { MutableScaleStep } from '@/lib/data/types'
 import type { CustomCategoryDef, CustomItemFormat, Import, Profile } from '@/lib/storage/types'
@@ -28,7 +29,7 @@ interface Props {
   profile: Profile
 }
 
-type Step = 'source' | 'pick' | 0 | 1 | 2
+type Step = 'source' | 'import' | 'pick' | 0 | 1 | 2
 
 type TemplateSource =
   | { kind: 'import'; id: string }
@@ -60,7 +61,7 @@ export function NewMapWizard({ profile }: Props) {
   )
   const hasTemplates = profileResults.length > 0 || allImports.length > 0
 
-  const [step, setStep] = useState<Step>(hasTemplates ? 'source' : 0)
+  const [step, setStep] = useState<Step>('source')
   const [subject, setSubject] = useState('')
   const [checkedIds, setCheckedIds] = useState<Set<string>>(() => new Set())
   const [scale, setScale] = useState<MutableScaleStep[]>(() => globalScale.map((s) => ({ ...s })))
@@ -286,21 +287,54 @@ export function NewMapWizard({ profile }: Props) {
                   <p className="muted small">{t('wizard_source_blank_sub')}</p>
                 </div>
               </button>
+              {hasTemplates && (
+                <button
+                  type="button"
+                  className="list-item list-item--selectable"
+                  onClick={() => setStep('pick')}
+                  data-testid="wizard-source-template"
+                >
+                  <div className="li-body">
+                    <strong>{t('wizard_source_template')}</strong>
+                    <p className="muted small">{t('wizard_source_template_sub')}</p>
+                  </div>
+                </button>
+              )}
               <button
                 type="button"
                 className="list-item list-item--selectable"
-                onClick={() => setStep('pick')}
-                data-testid="wizard-source-template"
+                onClick={() => setStep('import')}
+                data-testid="wizard-source-import"
               >
                 <div className="li-body">
-                  <strong>{t('wizard_source_template')}</strong>
-                  <p className="muted small">{t('wizard_source_template_sub')}</p>
+                  <strong>{t('wizard_source_import')}</strong>
+                  <p className="muted small">{t('wizard_source_import_sub')}</p>
                 </div>
               </button>
             </div>
             <DialogFooter>
               <Button variant="ghost" onClick={onCancel} data-testid="wizard-cancel">
                 {t('btn_cancel')}
+              </Button>
+            </DialogFooter>
+          </>
+        )}
+
+        {step === 'import' && (
+          <>
+            <DialogHeader>
+              <DialogTitle data-testid="wizard-step-import-title">{t('wizard_source_import')}</DialogTitle>
+            </DialogHeader>
+            <ImportForm
+              onSuccess={(imp: Import) => {
+                setTemplateSource({ kind: 'import', id: imp.id })
+                setStep(0)
+              }}
+              testIdPrefix="wizard-import"
+            />
+            <DialogFooter>
+              <Button variant="ghost" onClick={() => setStep('source')} data-testid="wizard-import-back">
+                {t('btn_back')}
               </Button>
             </DialogFooter>
           </>
@@ -390,12 +424,11 @@ export function NewMapWizard({ profile }: Props) {
                 variant="ghost"
                 onClick={() => {
                   if (templateSource) { setStep('pick') }
-                  else if (hasTemplates) { setStep('source') }
-                  else { onCancel() }
+                  else { setStep('source') }
                 }}
                 data-testid="wizard-cancel"
               >
-                {templateSource || hasTemplates ? t('btn_back') : t('btn_cancel')}
+                {t('btn_back')}
               </Button>
               <Button
                 onClick={() => { if (templateSource) { onComplete() } else { setStep(1) } }}

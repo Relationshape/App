@@ -363,6 +363,12 @@ export function RsQuestionCard({
           </div>
         )}
 
+        {isCustom && format !== 'scale' && (
+          <p className="q-format-badge">
+            {t(`q_format_${format}_badge` as Parameters<typeof t>[0])}
+          </p>
+        )}
+
         {format === 'scale' ? (
           <div className="q-slider-wrap">
             <ScalePicker
@@ -568,15 +574,22 @@ function NonScaleSelectionAnswer({ format, options, cell, onSave }: {
   }
   return (
     <div className="q-non-scale-wrap">
-      <div className="q-option-pills">
+      <div className="q-option-list">
         {options.map((opt) => (
           <button
             key={opt}
             type="button"
-            className={`q-option-pill${selected.has(opt) ? ' is-selected' : ''}`}
+            className={`q-option-row${selected.has(opt) ? ' is-selected' : ''}`}
             onClick={() => toggle(opt)}
+            aria-pressed={selected.has(opt)}
           >
-            {opt}
+            <span className={`q-option-indicator q-option-indicator--${format}`} aria-hidden="true">
+              {format === 'single'
+                ? (selected.has(opt) ? <span className="q-option-dot" /> : null)
+                : (selected.has(opt) ? '✓' : null)
+              }
+            </span>
+            <span className="q-option-label">{opt}</span>
           </button>
         ))}
       </div>
