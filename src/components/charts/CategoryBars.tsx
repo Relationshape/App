@@ -3,10 +3,9 @@
 // profile name next to the bar so answers to the same question are clearly
 // stacked and attributed.
 
-import { CATEGORIES } from '@/lib/data/data'
 import { enabledItemsForCat } from '@/lib/charts/items'
 import { getItemLabel, localizeStep } from '@/lib/data/locale'
-import { scaleMaxValue, closestScaleEntry } from '@/lib/charts/math'
+import { scaleMaxValue } from '@/lib/charts/math'
 import type { ChartDataset } from './types'
 import type { AnswerCell } from '@/lib/storage/types'
 import { getLang, t } from '@/lib/i18n/i18n'
@@ -14,9 +13,7 @@ import { getLang, t } from '@/lib/i18n/i18n'
 interface Props { datasets: readonly ChartDataset[]; catId: string }
 
 export function CategoryBars({ datasets, catId }: Props) {
-  const cat = CATEGORIES.find((c) => c.id === catId)
   const lang = getLang()
-  if (!cat) return null
   const truncated = datasets.slice(0, 4)
   const itemSet = new Set<string>()
   for (const ds of truncated) {
@@ -30,6 +27,11 @@ export function CategoryBars({ datasets, catId }: Props) {
     return truncated.some((ds) => {
       const cell = isCustom ? ds.answers[catId]?.__custom?.[key] : ds.answers[catId]?.[key]
       if (!cell) return false
+      // Never show non-scale custom items as bars
+      if (isCustom) {
+        const def = ds.customItemDefs?.[catId]?.[key]
+        if (def && def.format !== 'scale') return false
+      }
       const step = ds.scale.find((s) => s.key === cell.scale)
       return step != null
     })
@@ -80,10 +82,7 @@ export function CategoryBars({ datasets, catId }: Props) {
             <div className="rs-bar-item-rows">
               {truncated.map((ds, di) => {
                 const cell = isCustom ? ds.answers[catId]?.__custom?.[key] : ds.answers[catId]?.[key]
-                const step = cell ? closestScaleEntry(
-                  ds.scale.find((s) => s.key === cell.scale)?.value ?? 0,
-                  ds.scale,
-                ) : null
+                const step = cell ? ds.scale.find((s) => s.key === cell.scale) ?? null : null
                 if (!step) {
                   return (
                     <div

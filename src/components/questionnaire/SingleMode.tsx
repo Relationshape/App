@@ -207,7 +207,7 @@ export function SingleMode({ result, profile }: Props) {
     const slot = next.answers[cur.catId] ?? {}
     if (cur.isCustom) {
       const customs = { ...(slot.__custom ?? {}) }
-      delete customs[cur.item]
+      customs[cur.item] = { scale: 'open' }
       slot.__custom = customs
     } else {
       delete slot[cur.item]

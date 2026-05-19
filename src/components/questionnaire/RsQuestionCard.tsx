@@ -190,7 +190,7 @@ export function RsQuestionCard({
     const slot = next.answers[catId] ?? {}
     if (isCustom) {
       const customs = { ...(slot.__custom ?? {}) }
-      delete customs[item]
+      customs[item] = { scale: 'open' }
       slot.__custom = customs
     } else {
       delete slot[item]

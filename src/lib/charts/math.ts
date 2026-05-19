@@ -159,7 +159,10 @@ export function pickCategoryAxes(
     datasets.some((d) => categoryAverage(d.answers, id, d.scale ?? defaultScale) != null)
   const preferred = (SPIDER_AXES as readonly string[]).filter(filledIn)
   if (preferred.length >= 3) return [...preferred]
-  const expanded = CATEGORIES.map((c) => c.id).filter(filledIn)
+  // Also consider custom category IDs that appear in any dataset's answers
+  const allAnswerKeys = new Set(datasets.flatMap((d) => Object.keys(d.answers ?? {})))
+  const customCatIds = [...allAnswerKeys].filter((id) => !CATEGORIES.some((c) => c.id === id))
+  const expanded = [...CATEGORIES.map((c) => c.id), ...customCatIds].filter(filledIn)
   if (expanded.length >= 3) return expanded
   return [...SPIDER_AXES]
 }
@@ -244,20 +247,31 @@ export function catProgress(
 ): CategoryProgress {
   const slot = answers?.[catId] ?? {}
   const cat = CATEGORIES.find((c) => c.id === catId)
+
+  function isCellAnswered(cell: CategoryAnswers[string] | undefined, itemKey: string, isCustom: boolean): boolean {
+    if (!cell) return false
+    const fmt = isCustom ? (customItemDefs?.[catId]?.[itemKey]?.format ?? 'scale') : 'scale'
+    if (fmt === 'scale') return cell.scale !== 'open' && !!cell.scale
+    if (fmt === 'text') return !!(cell as unknown as { textValue?: string }).textValue
+    if (fmt === 'ranking') return ((cell as unknown as { rankingValues?: string[] }).rankingValues?.length ?? 0) > 0
+    // single / multi
+    return ((cell as unknown as { selectedValues?: string[] }).selectedValues?.length ?? 0) > 0
+  }
+
   if (!cat) {
-    // Custom category: items are stored in customItemDefs[catId]
+    // Custom category: items are tracked via customItemDefs
     const itemKeys = Object.keys(customItemDefs?.[catId] ?? {}).filter(
       (k) => !slot.__hidden?.[k],
     )
     let answered = 0
-    for (const key of itemKeys) if (slot.__custom?.[key]) answered++
+    for (const key of itemKeys) if (isCellAnswered(slot.__custom?.[key], key, true)) answered++
     return { answered, total: itemKeys.length }
   }
   const baseItems = cat.items.filter((it) => !slot.__hidden?.[it])
   const customNames = Object.keys(slot.__custom ?? {})
   const total = baseItems.length + customNames.length
   let answered = 0
-  for (const item of baseItems) if (slot[item]) answered++
-  for (const name of customNames) if (slot.__custom?.[name]) answered++
+  for (const item of baseItems) if (isCellAnswered(slot[item], item, false)) answered++
+  for (const name of customNames) if (isCellAnswered(slot.__custom?.[name], name, true)) answered++
   return { answered, total }
 }

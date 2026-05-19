@@ -33,9 +33,10 @@ export function ItemSpider({ datasets, catId, size = 480 }: Props) {
   const activeIdx = clickedIdx ?? hoveredIdx
   const lang = getLang()
   const cat = CATEGORIES.find((c) => c.id === catId)
-  if (!cat) return null
-
   const truncated = datasets.slice(0, 4)
+  const catTitle = cat?.title
+    ?? truncated[0]?.customCategories?.find((c) => c.id === catId)?.title
+    ?? catId
   const itemSet = new Set<string>()
   for (const ds of truncated) {
     const { base, custom } = enabledItemsForCat(ds.answers, catId)
@@ -99,7 +100,7 @@ export function ItemSpider({ datasets, catId, size = 480 }: Props) {
       <svg
         viewBox={`0 0 ${size} ${size}`}
         role="img"
-        aria-label={`${cat.title} items`}
+        aria-label={`${catTitle} items`}
         style={{ width: '100%', height: 'auto', maxWidth: size }}
       >
         {/* Grid rings */}
