@@ -45,12 +45,12 @@ export function Result() {
   // Phase 04 D-01: deep-link `/result/:id/:catId` → open CategoryModal on mount,
   // matching legacy app.js:2817-2820. RAF-scheduled so the route paint completes first.
   useEffect(() => {
-    if (!catId) return
-    const cat = CATEGORIES.find((c) => c.id === catId)
+    if (!catId || !result) return
+    const cat = resolveAnyCat(catId, result.customCategories, profile?.customCategories)
     if (!cat) return
     const raf = requestAnimationFrame(() => setModalCat(cat))
     return () => cancelAnimationFrame(raf)
-  }, [catId])
+  }, [catId, result, profile])
 
   if (!result) {
     navigate('/')

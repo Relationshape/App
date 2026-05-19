@@ -157,14 +157,16 @@ export function pickCategoryAxes(
 ): string[] {
   const filledIn = (id: string) =>
     datasets.some((d) => categoryAverage(d.answers, id, d.scale ?? defaultScale) != null)
-  const preferred = (SPIDER_AXES as readonly string[]).filter(filledIn)
-  if (preferred.length >= 3) return [...preferred]
-  // Also consider custom category IDs that appear in any dataset's answers
+  // Custom category IDs: answer keys that are not standard CATEGORIES
   const allAnswerKeys = new Set(datasets.flatMap((d) => Object.keys(d.answers ?? {})))
-  const customCatIds = [...allAnswerKeys].filter((id) => !CATEGORIES.some((c) => c.id === id))
-  const expanded = [...CATEGORIES.map((c) => c.id), ...customCatIds].filter(filledIn)
-  if (expanded.length >= 3) return expanded
-  return [...SPIDER_AXES]
+  const customCatIds = [...allAnswerKeys]
+    .filter((id) => !CATEGORIES.some((c) => c.id === id))
+    .filter(filledIn)
+  const preferred = (SPIDER_AXES as readonly string[]).filter(filledIn)
+  if (preferred.length >= 3) return [...preferred, ...customCatIds]
+  const expanded = [...CATEGORIES.map((c) => c.id)].filter(filledIn)
+  if (expanded.length >= 3 || expanded.length + customCatIds.length >= 3) return [...expanded, ...customCatIds]
+  return [...SPIDER_AXES, ...customCatIds]
 }
 
 // ── Label / geometry helpers ──────────────────────────────────────────────────
