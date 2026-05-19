@@ -539,7 +539,7 @@ export function RsQuestionCard({
 
 // ── Non-scale answer sub-components ──────────────────────────────────────────
 
-function NonScaleTextAnswer({ cell, onSave }: { cell: AnswerCell | undefined; onSave: (p: Partial<AnswerCell>) => void }) {
+export function NonScaleTextAnswer({ cell, onSave }: { cell: AnswerCell | undefined; onSave: (p: Partial<AnswerCell>) => void }) {
   const [val, setVal] = useState(cell?.textValue ?? '')
   useEffect(() => { setVal(cell?.textValue ?? '') }, [cell?.textValue])
   return (
@@ -556,7 +556,7 @@ function NonScaleTextAnswer({ cell, onSave }: { cell: AnswerCell | undefined; on
   )
 }
 
-function NonScaleSelectionAnswer({ format, options, cell, onSave }: {
+export function NonScaleSelectionAnswer({ format, options, cell, onSave }: {
   format: 'single' | 'multi'
   options: string[]
   cell: AnswerCell | undefined
@@ -597,7 +597,7 @@ function NonScaleSelectionAnswer({ format, options, cell, onSave }: {
   )
 }
 
-function NonScaleRankingAnswer({ options, cell, onSave }: {
+export function NonScaleRankingAnswer({ options, cell, onSave }: {
   options: string[]
   cell: AnswerCell | undefined
   onSave: (p: Partial<AnswerCell>) => void

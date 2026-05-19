@@ -21,6 +21,7 @@ import type { MutableScaleStep } from '@/lib/data/types'
 import { QuestionnaireHeader } from './QuestionnaireHeader'
 import { QuestionnaireNav } from './QuestionnaireNav'
 import { enabledItemsForCat, type FlatItem } from '@/lib/charts/items'
+import { NonScaleTextAnswer, NonScaleSelectionAnswer, NonScaleRankingAnswer } from './RsQuestionCard'
 import { CATEGORIES } from '@/lib/data/data'
 import { resolveAnyCat } from '@/lib/data/customCategories'
 import { getItemLabel } from '@/lib/data/locale'
@@ -167,6 +168,22 @@ export function SingleMode({ result, profile }: Props) {
   const cell: AnswerCell | undefined = cur.isCustom
     ? result.answers[cur.catId]?.__custom?.[cur.item]
     : result.answers[cur.catId]?.[cur.item]
+
+  const customItemDef = cur.isCustom ? result.customItemDefs?.[cur.catId]?.[cur.item] : undefined
+  const format = (cur.isCustom && customItemDef?.format) ? customItemDef.format : 'scale'
+
+  async function saveNonScaleAnswer(patch: Partial<AnswerCell>) {
+    if (!cur) return
+    if (!(await confirmIfTemplate())) return
+    const next = structuredClone(result)
+    const slot = next.answers[cur.catId] ?? {}
+    const customs = slot.__custom ?? {}
+    customs[cur.item] = { ...(customs[cur.item] ?? { scale: 'open' }), ...patch } as AnswerCell
+    slot.__custom = customs
+    next.answers[cur.catId] = slot
+    saveResult(next)
+  }
+
   async function setScaleKey(key: string, frac: number) {
     if (!cur) return
     if (!(await confirmIfTemplate())) return
@@ -283,25 +300,44 @@ export function SingleMode({ result, profile }: Props) {
           >
             <div className="q-card-cat">
               {cur.isCustom && <span className="q-item-tag">{t('custom_tag')}</span>}
-              <Button
-                variant="ghost"
-                size="sm"
-                className="item-scale-btn"
-                onClick={() => { void openEditScaleDialog() }}
-                data-testid={`item-edit-scale-${cur.catId}-${cur.item}`}
-              >
-                {t('item_edit_scale')}
-              </Button>
+              {format === 'scale' && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="item-scale-btn"
+                  onClick={() => { void openEditScaleDialog() }}
+                  data-testid={`item-edit-scale-${cur.catId}-${cur.item}`}
+                >
+                  {t('item_edit_scale')}
+                </Button>
+              )}
             </div>
             <h1 className="q-card-item">{cell?.customLabel || (cur.isCustom ? cur.item : getItemLabel(cur.catId, cur.item, getLang()))}</h1>
             <div className="q-card-slider">
-              <ScalePicker
-                scale={cell?.itemScale ?? scale}
-                value={cell?.scale ?? null}
-                valueFrac={cell?.scaleFrac ?? null}
-                onChange={setScaleKey}
-                onClear={clearAnswer}
-              />
+              {format === 'scale' ? (
+                <ScalePicker
+                  scale={cell?.itemScale ?? scale}
+                  value={cell?.scale ?? null}
+                  valueFrac={cell?.scaleFrac ?? null}
+                  onChange={setScaleKey}
+                  onClear={clearAnswer}
+                />
+              ) : format === 'text' ? (
+                <NonScaleTextAnswer cell={cell} onSave={(p) => { void saveNonScaleAnswer(p) }} />
+              ) : format === 'single' || format === 'multi' ? (
+                <NonScaleSelectionAnswer
+                  format={format}
+                  options={customItemDef?.options ?? []}
+                  cell={cell}
+                  onSave={(p) => { void saveNonScaleAnswer(p) }}
+                />
+              ) : (
+                <NonScaleRankingAnswer
+                  options={customItemDef?.options ?? []}
+                  cell={cell}
+                  onSave={(p) => { void saveNonScaleAnswer(p) }}
+                />
+              )}
             </div>
             <input
               type="text"
