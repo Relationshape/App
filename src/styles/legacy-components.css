@@ -677,18 +677,17 @@ a:hover { text-decoration: underline; }
 @media (max-width: 720px) {
   .q-item {
     grid-template-columns: 1fr;
-    grid-template-rows: auto auto auto;
+    grid-template-rows: auto;
   }
   .q-item-name { grid-row: 1; grid-column: 1; }
   .scale-pick {
-    grid-row: 2; grid-column: 1;
+    grid-column: 1;
     justify-content: flex-start;
     flex-wrap: wrap;
     margin-top: 4px;
     padding-top: 8px;
     border-top: 1px dashed var(--line);
   }
-  .q-note { grid-row: 3; grid-column: 1; }
 }
 
 /* ================================================================
@@ -3384,14 +3383,14 @@ button.rs-tile:hover {
   box-shadow: 0 4px 16px rgba(0,0,0,.25);
 }
 
-.rs-tile-icon { font-size: 22px; line-height: 1; }
-.rs-tile-body { display: grid; gap: 5px; min-width: 0; }
+.rs-tile-icon { font-size: 22px; line-height: 1; flex-shrink: 0; }
+.rs-tile-body { display: grid; gap: 5px; min-width: 0; overflow: hidden; }
 .rs-tile-head {
-  display: flex; align-items: center; gap: 10px;
-  justify-content: space-between;
+  display: flex; align-items: center; gap: 6px;
+  justify-content: space-between; min-width: 0; overflow: hidden;
 }
-.rs-tile-title { font-size: 14px; font-weight: 600; }
-.rs-tile-trailing { color: var(--muted); font-size: 13px; }
+.rs-tile-title { font-size: 14px; font-weight: 600; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rs-tile-trailing { color: var(--muted); font-size: 13px; flex-shrink: 0; white-space: nowrap; }
 
 /* ================================================================
    Shared left-bar tile foundation

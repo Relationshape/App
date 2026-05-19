@@ -24,16 +24,17 @@ type CategoryDef = (typeof CATEGORIES)[number]
 
 export function Compare() {
   const [params, setParams] = useSearchParams()
-  const idsParam = params.get('ids') ?? ''
-  const rawIds = idsParam.split(',').map((s) => s.trim()).filter(Boolean)
-  const truncatedRaw = rawIds.slice(0, 4)
+  // null = param absent (first visit → default to first 2); '' = explicit empty (user deselected all)
+  const idsParam = params.get('ids')
+  const rawIds = idsParam !== null ? idsParam.split(',').map((s) => s.trim()).filter(Boolean) : null
+  const truncatedRaw = rawIds !== null ? rawIds.slice(0, 4) : null
   const { toast } = useToast()
   const { openShare } = useShareData()
 
   useEffect(() => {
-    if (rawIds.length > 4) toast.message(t('compare_too_many_truncated', { n: rawIds.length }) as string)
+    if (rawIds !== null && rawIds.length > 4) toast.message(t('compare_too_many_truncated', { n: rawIds.length }) as string)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rawIds.length])
+  }, [rawIds?.length])
 
   const profiles = useStore((s) => s.profiles)
   const results = useStore((s) => s.results)
@@ -74,8 +75,8 @@ export function Compare() {
     [ownOptions, importedOptions],
   )
 
-  // Default to the first 2 options when ?ids= is empty.
-  const effectiveIds = truncatedRaw.length === 0
+  // Default to the first 2 options when ?ids= param is absent; explicit empty string = nothing selected.
+  const effectiveIds = truncatedRaw === null
     ? allOptions.slice(0, 2).map((o) => o.id)
     : truncatedRaw
 
@@ -118,7 +119,7 @@ export function Compare() {
   function handleImportSuccess(imp: Import) {
     setImportOpen(false)
     const id = `imp:${imp.id}`
-    const cur = truncatedRaw.length === 0 ? effectiveIds : truncatedRaw
+    const cur = truncatedRaw ?? effectiveIds
     const next = cur.includes(id) ? cur : [...cur, id].slice(0, 4)
     setParams({ ids: next.join(',') })
   }
@@ -140,7 +141,7 @@ export function Compare() {
   }
 
   function toggleId(id: string) {
-    const cur = truncatedRaw.length === 0 ? effectiveIds : truncatedRaw
+    const cur = truncatedRaw ?? effectiveIds
     const next = cur.includes(id) ? cur.filter((x) => x !== id) : [...cur, id].slice(0, 4)
     setParams({ ids: next.join(',') })
   }
