@@ -15,7 +15,6 @@ import {
   nextCustomCatColor,
 } from '@/lib/data/customCategories'
 import { ScaleEditor } from '@/components/ScaleEditor'
-import { useStore } from '@/lib/storage/store'
 import { t, getLang } from '@/lib/i18n/i18n'
 import type { CustomCategoryDef, CustomItemFormat, CustomItemDef, AnswerCell, Result, Profile } from '@/lib/storage/types'
 import type { MutableScaleStep } from '@/lib/data/types'
@@ -73,8 +72,6 @@ interface Props {
 
 export function RsCategoryPicker({ open, onOpenChange, existingIds, result, profile, onSubmit }: Props) {
   const lang = getLang()
-  const storeScale = useStore((s) => s.scale)
-  const scale = result.scale ?? storeScale
 
   const lockedIds = useMemo(() => new Set(existingIds), [existingIds])
   const [checkedIds, setCheckedIds] = useState<Set<string>>(() => new Set(existingIds))
