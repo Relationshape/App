@@ -69,6 +69,7 @@ export function NewMapWizard({ profile }: Props) {
   const [scale, setScale] = useState<MutableScaleStep[]>(() => globalScale.map((s) => ({ ...s })))
   const [customizeScale, setCustomizeScale] = useState(false)
   const [templateSource, setTemplateSource] = useState<TemplateSource | null>(null)
+  const [skipSharePrompt, setSkipSharePrompt] = useState(false)
 
   // Custom category sub-wizard (shown within step 1)
   type CatSubStep = 'list' | 'create' | 'items' | 'item-form'
@@ -145,6 +146,10 @@ export function NewMapWizard({ profile }: Props) {
   }
 
   async function promptShareTemplate(id: string) {
+    if (skipSharePrompt) {
+      navigate(`/q-categories/${profile.id}/${id}`, { replace: true })
+      return
+    }
     const choice = await dialog<string | null>({
       title: t('wizard_share_template_prompt_title') as string,
       body: () => (
@@ -303,6 +308,7 @@ export function NewMapWizard({ profile }: Props) {
             <ImportForm
               onSuccess={(imp: Import) => {
                 setTemplateSource({ kind: 'import', id: imp.id })
+                setSkipSharePrompt(true)
                 setStep(0)
               }}
               testIdPrefix="wizard-import"
