@@ -105,16 +105,6 @@ export function CategoryOverview() {
         <h1>{t('q_overview_title')}</h1>
         <p className="muted">{t('q_overview_sub')}</p>
       </header>
-      <div className="flex justify-end mb-2">
-        <Button
-          type="button"
-          variant="ghost"
-          onClick={() => setPickerOpen(true)}
-          data-testid="open-cat-picker"
-        >
-          {t('btn_add_categories')}
-        </Button>
-      </div>
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3" data-testid="cat-grid">
         {enabledCats.map((cat) => {
           const { answered, total } = catProgress(result.answers, cat.id, result.customItemDefs)
@@ -138,7 +128,15 @@ export function CategoryOverview() {
           )
         })}
       </div>
-      <div className="mt-6 flex justify-end">
+      <div className="mt-6 flex justify-end gap-3">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => setPickerOpen(true)}
+          data-testid="open-cat-picker"
+        >
+          {t('btn_add_categories')}
+        </Button>
         <Button
           type="button"
           onClick={handleStartClick}
