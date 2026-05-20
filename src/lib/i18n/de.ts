@@ -675,4 +675,13 @@ export const DE: Record<TranslationKey, string> = {
   export_hidden_cats_body: 'Deine Karte enthält versteckte Kategorien. Versteckte Kategorien mit exportieren?',
   export_include_hidden_yes: 'Ja, exportieren',
   export_include_hidden_no: 'Nein, weglassen',
+
+  // PDF-Bericht
+  btn_pdf_report: '📄 PDF-Bericht',
+  pdf_no_answers: 'Nicht genügend Antworten/Ergebnisse für einen Report.',
+  pdf_generating: 'PDF wird erstellt…',
+  pdf_cover_generated_on: 'Erstellt am',
+  pdf_scale_legend: 'Skala',
+  pdf_items_section: 'Element für Element',
+  pdf_no_answer: '—',
 }
