@@ -225,7 +225,7 @@ export async function generatePdfReport({
     const catObj = CATEGORIES.find((c) => c.id === catId)
     const customCat = datasets.flatMap((ds) => ds.customCategories ?? []).find((c) => c.id === catId)
     const baseTitle = (lang === 'de' && catObj?.de ? catObj.de : catObj?.title)
-      ?? (lang === 'de' && (customCat as { de?: string } | undefined)?.de ? (customCat as { de?: string }).de : customCat?.title)
+      ?? customCat?.title
       ?? catId
 
     if (isGrCat(catId)) {
@@ -369,7 +369,7 @@ export async function generatePdfReport({
     const catObj = CATEGORIES.find((c) => c.id === catId)
     const customCat = datasets.flatMap((ds) => ds.customCategories ?? []).find((c) => c.id === catId)
     const catTitle = (lang === 'de' && catObj?.de ? catObj.de : catObj?.title)
-      ?? (lang === 'de' && customCat?.de ? customCat.de : customCat?.title)
+      ?? customCat?.title
       ?? catId
 
     checkBreak(16)
@@ -397,7 +397,6 @@ export async function generatePdfReport({
     const grCategory = isGrCat(catId)
 
     function renderItem(itemKey: string, isCustom: boolean) {
-      const cell0 = isCustom ? datasets[0]?.answers[catId]?.__custom?.[itemKey] : datasets[0]?.answers[catId]?.[itemKey]
       const def0 = isCustom ? datasets[0]?.customItemDefs?.[catId]?.[itemKey] : undefined
       const itemIsGr = grCategory && (!def0 || def0.format === 'scale')
 

@@ -20,7 +20,6 @@ import {
 } from '@/components/ui/dialog'
 import { useStore } from '@/lib/storage/store'
 import { dialog } from '@/lib/dialog/dialog'
-import { CATEGORIES } from '@/lib/data/data'
 import { getItemLabel } from '@/lib/data/locale'
 import { isGrCat } from '@/lib/charts/items'
 import type { AnswerCell, Result, CustomItemDef, CustomItemFormat } from '@/lib/storage/types'

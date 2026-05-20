@@ -72,7 +72,7 @@ export function Result() {
   const datasets = [dataset]
 
   async function handlePdfReport() {
-    if (generatingPdf) return
+    if (!result || !profile || generatingPdf) return
     setGeneratingPdf(true)
     toast.message(t('pdf_generating'))
     try {
