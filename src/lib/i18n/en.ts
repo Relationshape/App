@@ -6,7 +6,7 @@
 
 export const EN = {
   // Nav
-  nav_profiles: '👤 Profile',
+  nav_profiles: '👤 Profile / My Maps',
   nav_import: '📥 Import/Export',
   nav_compare: '📊 Results/Compare',
   nav_settings: '⚙️ Settings',
@@ -285,6 +285,7 @@ export const EN = {
     'To share a map with someone else, you can export your relationship maps with all questions and answers here.',
   import_bundle_label: 'Encrypted bundle',
   import_file_label: 'Or load a file',
+  import_file_btn: '📂 Choose file',
   import_pass_label: 'Passphrase',
   btn_decrypt: '🔓 Decrypt & import',
   import_empty: 'Paste an encrypted bundle first.',
