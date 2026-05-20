@@ -163,10 +163,15 @@ export function NewMapWizard({ profile }: Props) {
       ],
     })
     if (choice === 'share') {
-      openShareTemplate(id, () => navigate(`/q-categories/${profile.id}/${id}`, { replace: true }))
-    } else {
+      openShareTemplate(
+        id,
+        () => navigate(`/q-categories/${profile.id}/${id}`, { replace: true }),
+        () => void promptShareTemplate(id),
+      )
+    } else if (choice === 'skip') {
       navigate(`/q-categories/${profile.id}/${id}`, { replace: true })
     }
+    // null (X clicked): do nothing — wizard remains on step 2
   }
 
   function toggleCategory(id: string) {
