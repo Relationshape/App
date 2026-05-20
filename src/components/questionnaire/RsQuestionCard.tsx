@@ -11,7 +11,7 @@
 //   Enter / ArrowDown → focus next .q-item
 //   ArrowUp           → focus previous .q-item
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { ScalePicker } from '@/components/ScalePicker'
 import { ScaleEditor } from '@/components/ScaleEditor'
 import { Button } from '@/components/ui/button'
@@ -70,6 +70,7 @@ export function RsQuestionCard({
   )
   const [note, setNote] = useState(cell?.note ?? '')
   const [editOpen, setEditOpen] = useState(false)
+  const wasAutoOpenedRef = useRef(false)
   const [pendingLabel, setPendingLabel] = useState('')
   const [pendingScale, setPendingScale] = useState<MutableScaleStep[] | null>(null)
   const [pendingFormat, setPendingFormat] = useState<CustomItemFormat>('scale')
@@ -106,6 +107,7 @@ export function RsQuestionCard({
 
   useEffect(() => {
     if (autoOpenEdit) {
+      wasAutoOpenedRef.current = true
       initEditDialog()
       onAutoOpenDone?.()
     }
@@ -113,7 +115,30 @@ export function RsQuestionCard({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoOpenEdit])
 
+  function handleEditCancel() {
+    if (wasAutoOpenedRef.current && isCustom) {
+      const next = structuredClone(result)
+      if (storeTemplateWarningDisabled) next.templateWarningDisabled = true
+      const slot = next.answers[catId] ?? {}
+      const customs = { ...(slot.__custom ?? {}) }
+      delete customs[item]
+      slot.__custom = customs
+      if (next.customItemDefs?.[catId]?.[item]) {
+        const defs = { ...next.customItemDefs }
+        const catDefs = { ...defs[catId] }
+        delete catDefs[item]
+        defs[catId] = catDefs
+        next.customItemDefs = defs
+      }
+      next.answers[catId] = slot
+      saveResult(next)
+    }
+    wasAutoOpenedRef.current = false
+    setEditOpen(false)
+  }
+
   async function saveItemEdit() {
+    wasAutoOpenedRef.current = false
     // Validate options if the pending format requires them
     const needsOptions = pendingFormat === 'single' || pendingFormat === 'multi' || pendingFormat === 'ranking'
     if (isCustom && needsOptions) {
@@ -444,7 +469,7 @@ export function RsQuestionCard({
         />
       </div>
 
-      <Dialog open={editOpen} onOpenChange={(o) => { if (!o) setEditOpen(false) }}>
+      <Dialog open={editOpen} onOpenChange={(o) => { if (!o) handleEditCancel() }}>
         <DialogContent className="max-w-2xl flex flex-col" style={{ maxHeight: 'min(90vh, 800px)' }}>
           <DialogHeader>
             <DialogTitle>{t('q_edit_item_scale')}: {displayName}</DialogTitle>
@@ -523,7 +548,7 @@ export function RsQuestionCard({
             )}
           </div>
           <DialogFooter>
-            <Button variant="ghost" onClick={() => setEditOpen(false)}>{t('btn_cancel')}</Button>
+            <Button variant="ghost" onClick={handleEditCancel}>{t('btn_cancel')}</Button>
             <Button
               onClick={() => { void saveItemEdit() }}
               data-testid={`item-edit-save-${catId}-${item}`}
