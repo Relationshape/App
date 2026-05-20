@@ -75,6 +75,7 @@ export function ItemSpider({ datasets, catId, size = 480 }: Props) {
   // Count items with at least one answered value across all datasets
   const answeredItemCount = items.filter((_, i) => dataPoints.some((ds) => (ds[i]?.v ?? 0) > 0)).length
 
+  if (items.length === 0) return null
   if (items.length < 3 || answeredItemCount < 2) {
     return (
       <div className="rs-chart-wrap rs-item-spider" data-testid={`item-spider-${catId}`}>
