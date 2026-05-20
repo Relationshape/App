@@ -656,6 +656,15 @@ export const EN = {
   export_hidden_cats_body: 'Your map contains hidden categories. Include hidden categories in the export?',
   export_include_hidden_yes: 'Yes, include',
   export_include_hidden_no: 'No, exclude',
+
+  // PDF report
+  btn_pdf_report: '📄 PDF Report',
+  pdf_no_answers: 'Not enough answers / results for a report.',
+  pdf_generating: 'Generating PDF…',
+  pdf_cover_generated_on: 'Generated on',
+  pdf_scale_legend: 'Scale',
+  pdf_items_section: 'Item by Item',
+  pdf_no_answer: '—',
 } as const
 
 export type TranslationKey = keyof typeof EN

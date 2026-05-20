@@ -10,7 +10,8 @@ import { mapResultToDataset } from '@/lib/charts/datasets'
 import { CATEGORIES } from '@/lib/data/data'
 import { useStore } from '@/lib/storage/store'
 import { countAnswers, fmtDate } from '@/lib/format/date'
-import { t } from '@/lib/i18n/i18n'
+import { t, getLang } from '@/lib/i18n/i18n'
+import { useToast } from '@/lib/hooks/useToast'
 import type { Result, Profile } from '@/lib/storage/types'
 
 type CategoryDef = (typeof CATEGORIES)[number]
@@ -24,8 +25,10 @@ interface Props {
 
 export function ResultModal({ open, onOpenChange, result, profile }: Props) {
   const [selectedCat, setSelectedCat] = useState<CategoryDef | null>(null)
+  const [generatingPdf, setGeneratingPdf] = useState(false)
   const fabiMode = useStore((s) => s.settings.fabiMode ?? false)
   const navigate = useNavigate()
+  const { toast } = useToast()
 
   const dataset = mapResultToDataset(result, profile)
   const datasets = [dataset]
@@ -40,6 +43,31 @@ export function ResultModal({ open, onOpenChange, result, profile }: Props) {
 
   function handleClose() {
     onOpenChange(false)
+  }
+
+  async function handlePdfReport() {
+    if (generatingPdf) return
+    setGeneratingPdf(true)
+    toast.message(t('pdf_generating'))
+    try {
+      const { generatePdfReport } = await import('@/lib/pdf/generateReport')
+      const allCatIds = [
+        ...(result.enabledCategories ?? CATEGORIES.map((c) => c.id)),
+        ...(result.customCategories ?? []).map((c) => c.id),
+      ]
+      const subject = result.subject?.trim()
+      const mapName = subject || profile.name
+      const safeFilename = `relationshapes-${mapName.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.pdf`
+      const ok = await generatePdfReport({
+        datasets: [dataset],
+        categoryIds: allCatIds,
+        lang: getLang(),
+        filename: safeFilename,
+      })
+      if (!ok) toast.message(t('pdf_no_answers'))
+    } finally {
+      setGeneratingPdf(false)
+    }
   }
 
   const title =
@@ -103,6 +131,15 @@ export function ResultModal({ open, onOpenChange, result, profile }: Props) {
               data-testid="result-modal-close"
             >
               {t('btn_close')}
+            </button>
+            <button
+              type="button"
+              className="btn btn-outline"
+              onClick={() => { void handlePdfReport() }}
+              disabled={generatingPdf}
+              data-testid="result-modal-pdf"
+            >
+              {t('btn_pdf_report')}
             </button>
             <button
               type="button"

@@ -17,7 +17,7 @@ import { resolveAnyCat } from '@/lib/data/customCategories'
 import type { AnswersBlob, Import } from '@/lib/storage/types'
 import { useToast } from '@/lib/hooks/useToast'
 import { dialog } from '@/lib/dialog/dialog'
-import { t } from '@/lib/i18n/i18n'
+import { t, getLang } from '@/lib/i18n/i18n'
 
 import type { ResolvedCat } from '@/lib/data/customCategories'
 type CategoryDef = (typeof CATEGORIES)[number]
@@ -115,6 +115,26 @@ export function Compare() {
   const [activeAxis, setActiveAxis] = useState<string | null>(null)
   const [modalCat, setModalCat] = useState<CategoryDef | ResolvedCat | null>(null)
   const [importOpen, setImportOpen] = useState(false)
+  const [generatingPdf, setGeneratingPdf] = useState(false)
+
+  async function handlePdfReport() {
+    if (generatingPdf || datasets.length === 0) return
+    setGeneratingPdf(true)
+    toast.message(t('pdf_generating'))
+    try {
+      const { generatePdfReport } = await import('@/lib/pdf/generateReport')
+      const categoryIds = visibleCategories.map((c) => c.id)
+      const ok = await generatePdfReport({
+        datasets,
+        categoryIds,
+        lang: getLang(),
+        filename: 'relationshapes-compare.pdf',
+      })
+      if (!ok) toast.message(t('pdf_no_answers'))
+    } finally {
+      setGeneratingPdf(false)
+    }
+  }
 
   function handleImportSuccess(imp: Import) {
     setImportOpen(false)
@@ -341,6 +361,15 @@ export function Compare() {
             <h2>{t('cat_details_title')}</h2>
             <p className="muted">{t('cat_details_sub')}</p>
             <p className="muted small">{t('cat_details_filter_hint')}</p>
+            <button
+              type="button"
+              className="btn btn-outline"
+              onClick={() => { void handlePdfReport() }}
+              disabled={generatingPdf}
+              data-testid="compare-pdf-report"
+            >
+              {t('btn_pdf_report')}
+            </button>
           </header>
           <div className="cat-grid">
             {visibleCategories.map((cat) => (
