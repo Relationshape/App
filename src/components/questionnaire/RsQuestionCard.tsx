@@ -423,29 +423,25 @@ export function RsQuestionCard({
             <div className="q-gr-sliders">
               <div className="q-gr-row">
                 <span className="q-gr-label">{t('lbl_giving')}</span>
-                <div style={{ flex: 1 }}>
-                  <ScalePicker
-                    scale={cell?.itemScale ?? scale}
-                    value={givingKey}
-                    valueFrac={givingFrac}
-                    onChange={setGiving}
-                    onClear={clearGiving}
-                    compact={variant === 'list'}
-                  />
-                </div>
+                <ScalePicker
+                  scale={cell?.itemScale ?? scale}
+                  value={givingKey}
+                  valueFrac={givingFrac}
+                  onChange={setGiving}
+                  onClear={clearGiving}
+                  compact={variant === 'list'}
+                />
               </div>
               <div className="q-gr-row">
                 <span className="q-gr-label">{t('lbl_receiving')}</span>
-                <div style={{ flex: 1 }}>
-                  <ScalePicker
-                    scale={cell?.itemScale ?? scale}
-                    value={receivingKey}
-                    valueFrac={receivingFrac}
-                    onChange={setReceiving}
-                    onClear={clearReceiving}
-                    compact={variant === 'list'}
-                  />
-                </div>
+                <ScalePicker
+                  scale={cell?.itemScale ?? scale}
+                  value={receivingKey}
+                  valueFrac={receivingFrac}
+                  onChange={setReceiving}
+                  onClear={clearReceiving}
+                  compact={variant === 'list'}
+                />
               </div>
             </div>
           ) : (

@@ -662,6 +662,8 @@ export const EN = {
   btn_download_pdf: '📄 Download as PDF',
   pdf_no_answers: 'Not enough answers / results for a report.',
   pdf_generating: 'Generating PDF…',
+  pdf_confirm_body: 'Generates a report from the answers in this map (spider charts, item-by-item list). Download as PDF?',
+  btn_generate_pdf: 'Generate PDF',
   pdf_cover_generated_on: 'Generated on',
   pdf_scale_legend: 'Scale',
   pdf_items_section: 'Item by Item',
