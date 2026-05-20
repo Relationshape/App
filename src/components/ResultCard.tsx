@@ -4,6 +4,7 @@
 // (.list-item, .li-avatar, .li-body, .li-actions, .btn-danger-ghost) apply directly.
 
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import type { Result, Profile } from '@/lib/storage/types'
 import { useStore } from '@/lib/storage/store'
 import { dialog } from '@/lib/dialog/dialog'
@@ -12,7 +13,6 @@ import { useShareData } from '@/components/providers/ShareDataProvider'
 import { useToast } from '@/lib/hooks/useToast'
 import { mapResultToDataset } from '@/lib/charts/datasets'
 import { CATEGORIES } from '@/lib/data/data'
-import { ResultModal } from '@/components/ResultModal'
 import { t, getLang } from '@/lib/i18n/i18n'
 
 export function ResultCard({ result, profile }: { result: Result; profile: Profile }) {
@@ -22,7 +22,6 @@ export function ResultCard({ result, profile }: { result: Result; profile: Profi
   const deleteResult = useStore((s) => s.deleteResult)
   const { openShare } = useShareData()
   const { toast } = useToast()
-  const [modalOpen, setModalOpen] = useState(false)
   const [generatingPdf, setGeneratingPdf] = useState(false)
 
   async function handlePdfReport() {
@@ -67,63 +66,53 @@ export function ResultCard({ result, profile }: { result: Result; profile: Profi
   }
 
   return (
-    <>
-      <div
-        className="list-item"
-        style={{ ['--c' as 'color']: color } as React.CSSProperties}
-        data-testid={`result-card-${result.id}`}
-      >
-        <div className="li-avatar">{result.subjectEmoji || '💞'}</div>
-        <div className="li-body">
-          <h3>{title}</h3>
-          <p className="muted small">
-            {`${t('updated')} ${fmtDate(result.updatedAt)} · ${countAnswers(result)} ${t('answers')}`}
-          </p>
-        </div>
-        <div className="li-actions">
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={() => setModalOpen(true)}
-            data-testid={`result-view-${result.id}`}
-          >
-            {t('btn_view')}
-          </button>
-          <button
-            type="button"
-            className="btn"
-            onClick={() => { void handlePdfReport() }}
-            disabled={generatingPdf}
-            data-testid={`result-pdf-${result.id}`}
-          >
-            {t('btn_download_pdf')}
-          </button>
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={() => openShare(result.id)}
-            data-testid={`result-share-${result.id}`}
-          >
-            {t('btn_export_result')}
-          </button>
-          <button
-            type="button"
-            className="btn btn-danger-ghost"
-            onClick={onDelete}
-            aria-label={t('btn_delete')}
-            data-testid={`result-delete-${result.id}`}
-          >
-            🗑
-          </button>
-        </div>
+    <div
+      className="list-item"
+      style={{ ['--c' as 'color']: color } as React.CSSProperties}
+      data-testid={`result-card-${result.id}`}
+    >
+      <div className="li-avatar">{result.subjectEmoji || '💞'}</div>
+      <div className="li-body">
+        <h3>{title}</h3>
+        <p className="muted small">
+          {`${t('updated')} ${fmtDate(result.updatedAt)} · ${countAnswers(result)} ${t('answers')}`}
+        </p>
       </div>
-
-      <ResultModal
-        open={modalOpen}
-        onOpenChange={setModalOpen}
-        result={result}
-        profile={profile}
-      />
-    </>
+      <div className="li-actions">
+        <Link
+          to={`/q-categories/${profile.id}/${result.id}`}
+          className="btn btn-primary"
+          data-testid={`result-view-${result.id}`}
+        >
+          {t('btn_view')}
+        </Link>
+        <button
+          type="button"
+          className="btn"
+          onClick={() => { void handlePdfReport() }}
+          disabled={generatingPdf}
+          data-testid={`result-pdf-${result.id}`}
+        >
+          {t('btn_download_pdf')}
+        </button>
+        <button
+          type="button"
+          className="btn btn-primary"
+          onClick={() => openShare(result.id)}
+          data-testid={`result-share-${result.id}`}
+        >
+          {t('btn_export_result')}
+        </button>
+        <button
+          type="button"
+          className="btn btn-danger-ghost"
+          onClick={onDelete}
+          aria-label={t('btn_delete')}
+          data-testid={`result-delete-${result.id}`}
+        >
+          🗑
+        </button>
+      </div>
+    </div>
   )
 }
