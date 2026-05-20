@@ -15,6 +15,8 @@ import { RsTile } from '@/components/RsTile'
 import { RsCategoryPicker, applyPendingItems, type PendingItemsByCat } from '@/components/RsCategoryPicker'
 import { CategoryModal } from '@/components/charts/CategoryModal'
 import { NewMapWizard } from '@/components/NewMapWizard'
+import { dialog } from '@/lib/dialog/dialog'
+import { useToast } from '@/lib/hooks/useToast'
 import { t, getLang } from '@/lib/i18n/i18n'
 import { useShareData } from '@/components/providers/ShareDataProvider'
 import type { CustomCategoryDef } from '@/lib/storage/types'
@@ -32,8 +34,10 @@ export function CategoryOverview() {
   const lang = getLang()
   const [pickerOpen, setPickerOpen] = useState(false)
   const [preShareOpen, setPreShareOpen] = useState(false)
+  const [generatingPdf, setGeneratingPdf] = useState(false)
   const [searchParams, setSearchParams] = useSearchParams()
   const { openShareTemplate } = useShareData()
+  const { toast } = useToast()
 
   const profile = profileId ? profiles.find((p) => p.id === profileId) ?? null : null
   const result = allResults.find((r) => r.id === resultId) ?? null
@@ -118,6 +122,35 @@ export function CategoryOverview() {
     saveResult(next)
   }
 
+  async function handlePdfReport() {
+    if (generatingPdf || !result) return
+    const confirmed = await dialog<boolean>({
+      title: t('btn_download_pdf') as string,
+      body: <p>{t('pdf_confirm_body')}</p>,
+      actions: [
+        { label: t('btn_cancel') as string, kind: 'ghost', value: false },
+        { label: t('btn_generate_pdf') as string, kind: 'primary', value: true },
+      ],
+    })
+    if (!confirmed) return
+    setGeneratingPdf(true)
+    toast.message(t('pdf_generating'))
+    try {
+      const { generatePdfReport } = await import('@/lib/pdf/generateReport')
+      const dataset = mapResultToDataset(result, profile!)
+      const allCatIds = [
+        ...(result.enabledCategories ?? CATEGORIES.map((c) => c.id)),
+        ...(result.customCategories ?? []).map((c) => c.id),
+      ]
+      const mapName = result.subject?.trim() || profile!.name
+      const safeFilename = `relationshapes-${mapName.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.pdf`
+      const ok = await generatePdfReport({ datasets: [dataset], categoryIds: allCatIds, lang: getLang(), filename: safeFilename })
+      if (!ok) toast.message(t('pdf_no_answers'))
+    } finally {
+      setGeneratingPdf(false)
+    }
+  }
+
   return (
     <section className="page" data-testid="category-overview-page">
       <header className="cat-overview-head">
@@ -129,7 +162,7 @@ export function CategoryOverview() {
           data-testid="cat-overview-back"
         >
           <a href="#" onClick={(e) => { e.preventDefault(); navigate(`/profile/${profile.id}`) }}>
-            {t('btn_back')}
+            {t('cat_overview_back')}
           </a>
         </Button>
         <div className="cat-overview-head-body" data-testid="cat-overview-context">
@@ -166,33 +199,44 @@ export function CategoryOverview() {
           )
         })}
       </div>
-      <div className="mt-6 flex flex-wrap justify-end gap-3">
-        <Button
-          type="button"
-          variant="outline"
-          className="add-custom-btn"
-          onClick={() => setPickerOpen(true)}
-          data-testid="open-cat-picker"
-        >
-          {t('btn_add_categories')}
-        </Button>
-        <Button
-          asChild
-          type="button"
-          variant="outline"
-          data-testid="cat-overview-compare-btn"
-        >
-          <a href={`/compare?ids=${result.id}`} onClick={(e) => { e.preventDefault(); navigate(`/compare?ids=${result.id}`) }}>
-            {t('btn_compare_overview')}
-          </a>
-        </Button>
-        <Button
-          type="button"
-          onClick={handleStartClick}
-          data-testid="confirm-start-questionnaire"
-        >
-          {hasAnswers ? t('q_overview_continue') : t('q_overview_start')}
-        </Button>
+      <div className="cat-overview-actions">
+        <div className="cat-overview-actions-left">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setPickerOpen(true)}
+            data-testid="open-cat-picker"
+          >
+            {t('btn_add_categories')}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => { void handlePdfReport() }}
+            disabled={generatingPdf}
+            data-testid="cat-overview-pdf-btn"
+          >
+            {t('btn_download_pdf')}
+          </Button>
+        </div>
+        <div className="cat-overview-actions-right">
+          <Button
+            asChild
+            type="button"
+            data-testid="cat-overview-compare-btn"
+          >
+            <a href={`/compare?ids=${result.id}`} onClick={(e) => { e.preventDefault(); navigate(`/compare?ids=${result.id}`) }}>
+              {t('btn_compare_overview')}
+            </a>
+          </Button>
+          <Button
+            type="button"
+            onClick={handleStartClick}
+            data-testid="confirm-start-questionnaire"
+          >
+            {hasAnswers ? t('q_overview_continue') : t('q_overview_start')}
+          </Button>
+        </div>
       </div>
       <RsCategoryPicker
         open={pickerOpen}

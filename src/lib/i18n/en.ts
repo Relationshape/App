@@ -158,6 +158,7 @@ export const EN = {
   btn_next: 'Next →',
   btn_finish: 'Finish ✨',
   btn_back: '← Back',
+  cat_overview_back: '← Back to Profile / My Maps',
   btn_skip: 'Skip →',
   btn_add_custom: '➕ Add custom item',
   add_custom_title: 'Add a custom item',

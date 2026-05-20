@@ -167,6 +167,7 @@ export const DE: Record<TranslationKey, string> = {
   btn_next: 'Weiter →',
   btn_finish: 'Fertig ✨',
   btn_back: '← Zurück',
+  cat_overview_back: '← Zurück zu Profil / Meine Karten',
   btn_skip: 'Überspringen →',
   btn_add_custom: '➕ Eigenes Element hinzufügen',
   add_custom_title: 'Eigenes Element hinzufügen',
