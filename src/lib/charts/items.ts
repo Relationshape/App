@@ -5,6 +5,12 @@
 import { CATEGORIES } from '@/lib/data/data'
 import type { Result, AnswersBlob } from '@/lib/storage/types'
 
+/** Returns true when the category natively supports Giving/Receiving dual-scale answers. */
+export function isGrCat(catId: string): boolean {
+  const cat = CATEGORIES.find((c) => c.id === catId)
+  return Boolean((cat as { gr?: boolean } | undefined)?.gr)
+}
+
 export interface FlatItem { catId: string; item: string; isCustom: boolean }
 
 /**

@@ -253,10 +253,15 @@ export function catProgress(
   function isCellAnswered(cell: CategoryAnswers[string] | undefined, itemKey: string, isCustom: boolean): boolean {
     if (!cell) return false
     const fmt = isCustom ? (customItemDefs?.[catId]?.[itemKey]?.format ?? 'scale') : 'scale'
-    if (fmt === 'scale') return isCustom ? (cell.scale !== 'open' && !!cell.scale) : !!cell.scale
+    if (fmt === 'scale') {
+      // GR cells store answers in giving/receiving instead of scale
+      if (cell.giving || cell.receiving) return true
+      // Legacy gr field
+      if (cell.gr && cell.scale) return true
+      return isCustom ? (cell.scale !== 'open' && !!cell.scale) : !!cell.scale
+    }
     if (fmt === 'text') return !!(cell as unknown as { textValue?: string }).textValue
     if (fmt === 'ranking') return ((cell as unknown as { rankingValues?: string[] }).rankingValues?.length ?? 0) > 0
-    // single / multi
     return ((cell as unknown as { selectedValues?: string[] }).selectedValues?.length ?? 0) > 0
   }
 

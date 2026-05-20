@@ -33,7 +33,7 @@ export function countAnswers(r: Result): number {
         continue
       }
       const val = (c as Record<string, AnswerCell | undefined>)[k]
-      if (val?.scale) n++
+      if (val?.scale || val?.giving || val?.receiving) n++
     }
   }
   return n

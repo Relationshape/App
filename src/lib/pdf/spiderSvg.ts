@@ -33,12 +33,14 @@ export interface SpiderSvgResult {
  * in a PDF (white background, no interactive state, no CSS variables).
  * Returns null when the category has no items or fewer than 2 answered items
  * (mirrors ItemSpider's early-return guard).
+ * grSide: when set, extract giving or receiving values instead of scale (for GR categories).
  */
 export function buildSpiderSvg(
   datasets: readonly ChartDataset[],
   catId: string,
   size: number,
   lang: string,
+  grSide?: 'giving' | 'receiving',
 ): SpiderSvgResult | null {
   const truncated = datasets.slice(0, 4)
 
@@ -63,17 +65,34 @@ export function buildSpiderSvg(
   const lineHeight = fs * 1.15
   const maxCharsPerLine = Math.round(9 * Math.sqrt(size / 480))
 
-  // Compute data points — identical logic to ItemSpider
+  // Compute data points — mirrors ItemSpider grSide logic
   const dataPoints = truncated.map((ds) => {
     const max = scaleMaxValue(ds.scale)
     return items.map((displayItem) => {
       const isCustom = displayItem.startsWith('✶ ')
       const key = isCustom ? displayItem.slice(2) : displayItem
       const cell = isCustom ? ds.answers[catId]?.__custom?.[key] : ds.answers[catId]?.[key]
-      const step = (cell && cell.scale && !(isCustom && cell.scale === 'open'))
-        ? ds.scale.find((s) => s.key === cell.scale)
-        : undefined
-      const v = step ? step.value : 0
+      if (!cell) return { norm: 0, v: 0, step: undefined as typeof ds.scale[0] | undefined }
+
+      let scaleKey: string | undefined
+      let fracVal: number | undefined
+
+      if (grSide) {
+        if (grSide === 'giving') {
+          scaleKey = cell.giving ?? (cell.gr === 'G' || cell.gr === 'Both' ? cell.scale : undefined)
+          fracVal = cell.givingFrac ?? (cell.gr === 'G' || cell.gr === 'Both' ? cell.scaleFrac : undefined)
+        } else {
+          scaleKey = cell.receiving ?? (cell.gr === 'R' || cell.gr === 'Both' ? cell.scale : undefined)
+          fracVal = cell.receivingFrac ?? (cell.gr === 'R' || cell.gr === 'Both' ? cell.scaleFrac : undefined)
+        }
+      } else {
+        if (!cell.scale || (isCustom && cell.scale === 'open')) return { norm: 0, v: 0, step: undefined as typeof ds.scale[0] | undefined }
+        scaleKey = cell.scale
+        fracVal = cell.scaleFrac
+      }
+
+      const step = scaleKey ? ds.scale.find((s) => s.key === scaleKey) : undefined
+      const v = step ? step.value : (fracVal !== undefined ? fracVal * max : 0)
       const norm = max > 0 && v > 0 ? v / max : 0
       return { norm, v, step }
     })
