@@ -13,8 +13,8 @@ describe('DE gendered translations (QUEST-08)', () => {
   })
 
   it('specific known gendered keys are preserved from v1.0', () => {
-    // howto_step2_desc: "Sam, meine beste Freund*in" (gendered friend form)
-    expect(DE.howto_step2_desc).toContain('Freund*in')
+    // howto_step2_desc: "Vera, meine gute Freundin" (feminine form)
+    expect(DE.howto_step2_desc).toContain('Freundin')
 
     // about_ai_text: "Urheber*innen" + "Erfahrungswelten" (both gendered)
     expect(DE.about_ai_text).toContain('Urheber*innen')

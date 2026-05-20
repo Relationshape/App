@@ -405,7 +405,7 @@ export function NewMapWizard({ profile }: Props) {
                     if (templateSource) { void onComplete() } else { setStep(1) }
                   }
                 }}
-                placeholder="e.g. Sam, my best friend"
+                placeholder="e.g. Vera, my good friend"
                 autoFocus
                 data-testid="wizard-name-input"
               />

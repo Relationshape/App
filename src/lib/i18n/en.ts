@@ -72,7 +72,7 @@ export const EN = {
     'Your profile is your identity in the app. Choose a name, emoji and accent colour.',
   howto_step2_title: 'Start a relationship map',
   howto_step2_desc:
-    'For each connection you want to reflect on, start a new map. Give it a name — e.g. "Sam, my best friend".',
+    'For each connection you want to reflect on, start a new map. Give it a name — e.g. "Vera, my good friend".',
   howto_step3_title: 'Answer the questionnaire',
   howto_step3_desc:
     'Walk through 30 categories covering emotional intimacy, physical closeness, finances, shared life and more. Rate each item on a scale from No to Need.',
