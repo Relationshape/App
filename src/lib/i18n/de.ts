@@ -95,7 +95,7 @@ export const DE: Record<TranslationKey, string> = {
     'Diese App hilft dir, die Form deiner Beziehungen in vielen Dimensionen zu kartieren: emotionale Nähe, körperliche Intimität, gemeinsames Leben, Finanzen und mehr.',
   wizard_s2_title: 'Alles bleibt privat 🔒',
   wizard_s2_body:
-    'Alle Daten werden nur in deinem Browser gespeichert – keine Accounts, keine Server, keine Analyse. Du hast die volle Kontrolle.',
+    'Dein Profil und alle Daten werden nur lokal auf deinem Gerät gespeichert - keine Accounts, keine Server, keine Analytics. Du hast die volle Kontrolle.',
   wizard_s3_title: 'Zuerst ein Profil anlegen 👤',
   wizard_s3_body:
     'Ein Profil repräsentiert dich in der App. Erstelle ein Profil und kartiere damit beliebig viele Beziehungen.',
