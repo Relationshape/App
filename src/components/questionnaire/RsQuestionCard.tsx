@@ -22,6 +22,7 @@ import { useStore } from '@/lib/storage/store'
 import { dialog } from '@/lib/dialog/dialog'
 import { CATEGORIES } from '@/lib/data/data'
 import { getItemLabel } from '@/lib/data/locale'
+import { isGrCat } from '@/lib/charts/items'
 import type { AnswerCell, Result, CustomItemDef, CustomItemFormat } from '@/lib/storage/types'
 import type { MutableScaleStep } from '@/lib/data/types'
 import { t, getLang } from '@/lib/i18n/i18n'
@@ -77,9 +78,14 @@ export function RsQuestionCard({
   const [pendingOptions, setPendingOptions] = useState('')
   const [optionsError, setOptionsError] = useState(false)
 
-  const catDef = CATEGORIES.find((c) => c.id === catId)
   const format: CustomItemFormat = (isCustom && customItemDef?.format) ? customItemDef.format : 'scale'
-  const showGR = variant === 'list' && Boolean((catDef as { gr?: boolean } | undefined)?.gr) && format === 'scale'
+  const showGR = isGrCat(catId) && format === 'scale'
+
+  // Backward compat: old data stores GR answer in cell.gr + cell.scale; new data uses giving/receiving.
+  const givingKey = cell?.giving ?? (cell?.gr === 'G' || cell?.gr === 'Both' ? (cell?.scale ?? null) : null)
+  const givingFrac = cell?.givingFrac ?? (cell?.gr === 'G' || cell?.gr === 'Both' ? (cell?.scaleFrac ?? null) : null)
+  const receivingKey = cell?.receiving ?? (cell?.gr === 'R' || cell?.gr === 'Both' ? (cell?.scale ?? null) : null)
+  const receivingFrac = cell?.receivingFrac ?? (cell?.gr === 'R' || cell?.gr === 'Both' ? (cell?.scaleFrac ?? null) : null)
 
   const displayName = cell?.customLabel || (isCustom ? item : getItemLabel(catId, item, getLang()))
 
@@ -196,15 +202,65 @@ export function RsQuestionCard({
     setEditOpen(false)
   }
 
-  function setScaleKey(key: string, frac: number) {
+  function patchCell(patch: Partial<AnswerCell>) {
     const next = structuredClone(result)
     const slot = next.answers[catId] ?? {}
     if (isCustom) {
       const customs = slot.__custom ?? {}
-      customs[item] = { ...(customs[item] ?? {}), scale: key, scaleFrac: frac } as AnswerCell
+      customs[item] = { ...(customs[item] ?? { scale: '' }), ...patch } as AnswerCell
       slot.__custom = customs
     } else {
-      slot[item] = { ...(slot[item] ?? {}), scale: key, scaleFrac: frac } as AnswerCell
+      slot[item] = { ...(slot[item] ?? {}), ...patch } as AnswerCell
+    }
+    next.answers[catId] = slot
+    saveResult(next)
+  }
+
+  function setScaleKey(key: string, frac: number) {
+    patchCell({ scale: key, scaleFrac: frac })
+  }
+
+  function setGiving(key: string, frac: number) {
+    patchCell({ giving: key, givingFrac: frac })
+  }
+
+  function setReceiving(key: string, frac: number) {
+    patchCell({ receiving: key, receivingFrac: frac })
+  }
+
+  function clearGiving() {
+    const next = structuredClone(result)
+    const slot = next.answers[catId] ?? {}
+    const existing = isCustom ? (slot.__custom ?? {})[item] : slot[item]
+    if (!existing) return
+    const updated: AnswerCell = { ...existing }
+    delete updated.giving
+    delete updated.givingFrac
+    if (isCustom) {
+      const customs = slot.__custom ?? {}
+      customs[item] = updated
+      slot.__custom = customs
+    } else {
+      slot[item] = updated
+    }
+    next.answers[catId] = slot
+    saveResult(next)
+  }
+
+  function clearReceiving() {
+    const next = structuredClone(result)
+    const slot = next.answers[catId] ?? {}
+    const existing = isCustom ? (slot.__custom ?? {})[item] : slot[item]
+    if (!existing) return
+    const updated: AnswerCell = { ...existing }
+    delete updated.receiving
+    delete updated.receivingFrac
+    if (isCustom) {
+      const customs = slot.__custom ?? {}
+      customs[item] = updated
+      slot.__custom = customs
+    } else {
+      slot[item] = updated
     }
     next.answers[catId] = slot
     saveResult(next)
@@ -230,20 +286,6 @@ export function RsQuestionCard({
     const customs = { ...(slot.__custom ?? {}) }
     customs[item] = { scale: '' }
     slot.__custom = customs
-    next.answers[catId] = slot
-    saveResult(next)
-  }
-
-  function setGR(gr: 'G' | 'R' | 'Both') {
-    const next = structuredClone(result)
-    const slot = next.answers[catId] ?? {}
-    if (isCustom) {
-      const customs = slot.__custom ?? {}
-      customs[item] = { ...(customs[item] ?? { scale: 'open' }), gr } as AnswerCell
-      slot.__custom = customs
-    } else {
-      slot[item] = { ...(slot[item] ?? { scale: 'open' }), gr } as AnswerCell
-    }
     next.answers[catId] = slot
     saveResult(next)
   }
@@ -371,23 +413,6 @@ export function RsQuestionCard({
           <strong>{displayName}</strong>
         </div>
 
-        {showGR && (
-          <div className="q-gr-sliders" role="group" aria-label="G/R/Both">
-            {(['G', 'R', 'Both'] as const).map((gr) => (
-              <button
-                key={gr}
-                type="button"
-                data-state={cell?.gr === gr ? 'active' : 'inactive'}
-                onClick={() => setGR(gr)}
-                className="px-2 py-1 text-xs border border-line rounded data-[state=active]:bg-accent"
-                data-testid={`gr-${catId}-${item}-${gr}`}
-              >
-                {gr}
-              </button>
-            ))}
-          </div>
-        )}
-
         {isCustom && format !== 'scale' && (
           <p className="q-format-badge">
             {t(`q_format_${format}_badge` as Parameters<typeof t>[0])}
@@ -395,16 +420,47 @@ export function RsQuestionCard({
         )}
 
         {format === 'scale' ? (
-          <div className="q-slider-wrap">
-            <ScalePicker
-              scale={cell?.itemScale ?? scale}
-              value={cell?.scale ?? null}
-              valueFrac={cell?.scaleFrac ?? null}
-              onChange={setScaleKey}
-              onClear={clearAnswer}
-              compact={variant === 'list'}
-            />
-          </div>
+          showGR ? (
+            <div className="q-gr-sliders">
+              <div className="q-gr-row">
+                <span className="q-gr-label">{t('lbl_giving')}</span>
+                <div style={{ flex: 1 }}>
+                  <ScalePicker
+                    scale={cell?.itemScale ?? scale}
+                    value={givingKey}
+                    valueFrac={givingFrac}
+                    onChange={setGiving}
+                    onClear={clearGiving}
+                    compact={variant === 'list'}
+                  />
+                </div>
+              </div>
+              <div className="q-gr-row">
+                <span className="q-gr-label">{t('lbl_receiving')}</span>
+                <div style={{ flex: 1 }}>
+                  <ScalePicker
+                    scale={cell?.itemScale ?? scale}
+                    value={receivingKey}
+                    valueFrac={receivingFrac}
+                    onChange={setReceiving}
+                    onClear={clearReceiving}
+                    compact={variant === 'list'}
+                  />
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="q-slider-wrap">
+              <ScalePicker
+                scale={cell?.itemScale ?? scale}
+                value={cell?.scale ?? null}
+                valueFrac={cell?.scaleFrac ?? null}
+                onChange={setScaleKey}
+                onClear={clearAnswer}
+                compact={variant === 'list'}
+              />
+            </div>
+          )
         ) : format === 'text' ? (
           <NonScaleTextAnswer cell={cell} onSave={saveNonScaleAnswer} />
         ) : format === 'single' || format === 'multi' ? (

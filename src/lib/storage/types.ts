@@ -36,16 +36,22 @@ export interface CustomItemDef {
 export interface AnswerCell {
   scale: string
   scaleFrac?: number
+  /** @deprecated Legacy G/R/Both toggle — kept only for reading old data. New data uses giving/receiving. */
   gr?: GROfBoth
   note?: string
   /** Per-item scale override — when set, replaces the result/global scale for this item. */
   itemScale?: MutableScaleStep[]
   /** Display label override — replaces the item key in the UI. */
   customLabel?: string
-  // New: answers for non-scale formats
+  // Non-scale formats
   textValue?: string
-  selectedValues?: string[]   // single (0-1 entries) or multi (0-N entries)
-  rankingValues?: string[]    // ordered list of option strings (for ranking)
+  selectedValues?: string[]
+  rankingValues?: string[]
+  // Giving / Receiving (GR categories and GR-capable scale-format custom items)
+  giving?: string
+  givingFrac?: number
+  receiving?: string
+  receivingFrac?: number
 }
 
 // The answers blob is: { [categoryId]: { [itemName]: AnswerCell, __custom?: Record<string, AnswerCell>, __hidden?: Record<string, true> } }

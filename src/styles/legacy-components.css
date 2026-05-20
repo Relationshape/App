@@ -912,6 +912,11 @@ a:hover { text-decoration: underline; }
   grid-template-columns: minmax(90px, 22%) 1fr auto;
   gap: 8px; align-items: center;
 }
+.rs-bar-ds-row--gr { display: flex; flex-direction: column; gap: 3px; }
+.rs-bar-ds-row--gr .rs-bar-ds-name { margin-bottom: 2px; }
+.rs-bar-gr-sub-row { display: flex; align-items: center; gap: 8px; }
+.rs-bar-gr-sub-row .q-gr-label { font-size: 11px; min-width: 80px; }
+.rs-bar-gr-sub-row .rs-bar-track { flex: 1; }
 .rs-bar-ds-name {
   font-size: 12px; font-weight: 600;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;

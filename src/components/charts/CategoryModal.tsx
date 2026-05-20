@@ -11,7 +11,7 @@ import { CategoryBars } from './CategoryBars'
 import { RsQuestionCard } from '@/components/questionnaire/RsQuestionCard'
 import { useStore } from '@/lib/storage/store'
 import { useTemplateWarning } from '@/lib/hooks/useTemplateWarning'
-import { enabledItemsForCat } from '@/lib/charts/items'
+import { enabledItemsForCat, isGrCat } from '@/lib/charts/items'
 import { dialog } from '@/lib/dialog/dialog'
 import { useToast } from '@/lib/hooks/useToast'
 import { runAddCustomItemFlow } from '@/components/questionnaire/addCustomItemFlow'
@@ -217,39 +217,54 @@ export function CategoryModal({ open, onOpenChange, datasets, cat, result, initi
             role="tabpanel"
             data-testid="cat-modal-panel-spider"
           >
-            <button
-              type="button"
-              className="cat-modal-spider-enlarge-btn"
-              onClick={() => setSpiderEnlarged(true)}
-              data-testid="cat-modal-spider-enlarge"
-              aria-label={t('spider_click_to_enlarge') as string}
-              title={t('spider_click_to_enlarge') as string}
-            >
-              <ItemSpider datasets={datasets} catId={cat.id} size={520} />
-              <span className="cat-modal-spider-hint" aria-hidden="true">
-                ⊞ {t('spider_click_to_enlarge')}
-              </span>
-            </button>
+            {isGrCat(cat.id) ? (
+              <div className="flex flex-col gap-4">
+                <div>
+                  <p className="muted small text-center mb-1">{t('lbl_giving')}</p>
+                  <ItemSpider datasets={datasets} catId={cat.id} size={520} grSide="giving" />
+                </div>
+                <div>
+                  <p className="muted small text-center mb-1">{t('lbl_receiving')}</p>
+                  <ItemSpider datasets={datasets} catId={cat.id} size={520} grSide="receiving" />
+                </div>
+              </div>
+            ) : (
+              <button
+                type="button"
+                className="cat-modal-spider-enlarge-btn"
+                onClick={() => setSpiderEnlarged(true)}
+                data-testid="cat-modal-spider-enlarge"
+                aria-label={t('spider_click_to_enlarge') as string}
+                title={t('spider_click_to_enlarge') as string}
+              >
+                <ItemSpider datasets={datasets} catId={cat.id} size={520} />
+                <span className="cat-modal-spider-hint" aria-hidden="true">
+                  ⊞ {t('spider_click_to_enlarge')}
+                </span>
+              </button>
+            )}
             <p className="muted small text-center mt-1" style={{ opacity: 0.6 }} data-testid="spider-scale-only-hint">
               {t('spider_scale_only_hint')}
             </p>
-            <Dialog open={spiderEnlarged} onOpenChange={setSpiderEnlarged}>
-              <DialogContent
-                className="max-w-[min(1400px,96vw)] max-h-[min(96vh,1400px)] p-4 flex flex-col gap-2"
-                data-testid="cat-modal-spider-fullscreen"
-              >
-                <DialogTitle className="sr-only">{title}</DialogTitle>
-                <div className="overflow-auto flex-1">
-                  <ItemSpider datasets={datasets} catId={cat.id} size={1200} />
-                  <p className="text-center muted small mt-3" style={{ opacity: 0.65 }}>
-                    {t('spider_hover_hint')}
-                  </p>
-                  <p className="text-center muted small mt-1" style={{ opacity: 0.5 }}>
-                    {t('spider_scale_only_hint')}
-                  </p>
-                </div>
-              </DialogContent>
-            </Dialog>
+            {!isGrCat(cat.id) && (
+              <Dialog open={spiderEnlarged} onOpenChange={setSpiderEnlarged}>
+                <DialogContent
+                  className="max-w-[min(1400px,96vw)] max-h-[min(96vh,1400px)] p-4 flex flex-col gap-2"
+                  data-testid="cat-modal-spider-fullscreen"
+                >
+                  <DialogTitle className="sr-only">{title}</DialogTitle>
+                  <div className="overflow-auto flex-1">
+                    <ItemSpider datasets={datasets} catId={cat.id} size={1200} />
+                    <p className="text-center muted small mt-3" style={{ opacity: 0.65 }}>
+                      {t('spider_hover_hint')}
+                    </p>
+                    <p className="text-center muted small mt-1" style={{ opacity: 0.5 }}>
+                      {t('spider_scale_only_hint')}
+                    </p>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            )}
           </div>
         ) : tab === 'items' ? (
           <div

@@ -20,7 +20,7 @@ import { ScaleEditor } from '@/components/ScaleEditor'
 import type { MutableScaleStep } from '@/lib/data/types'
 import { QuestionnaireHeader } from './QuestionnaireHeader'
 import { QuestionnaireNav } from './QuestionnaireNav'
-import { enabledItemsForCat, type FlatItem } from '@/lib/charts/items'
+import { enabledItemsForCat, isGrCat, type FlatItem } from '@/lib/charts/items'
 import { NonScaleTextAnswer, NonScaleSelectionAnswer, NonScaleRankingAnswer } from './RsQuestionCard'
 import { CATEGORIES } from '@/lib/data/data'
 import { resolveAnyCat } from '@/lib/data/customCategories'
@@ -171,6 +171,13 @@ export function SingleMode({ result, profile }: Props) {
 
   const customItemDef = cur.isCustom ? result.customItemDefs?.[cur.catId]?.[cur.item] : undefined
   const format = (cur.isCustom && customItemDef?.format) ? customItemDef.format : 'scale'
+  const showGR = isGrCat(cur.catId) && format === 'scale'
+
+  // Backward compat: old data stores GR answer in cell.gr + cell.scale; new data uses giving/receiving.
+  const givingKey = cell?.giving ?? (cell?.gr === 'G' || cell?.gr === 'Both' ? (cell?.scale ?? null) : null)
+  const givingFrac = cell?.givingFrac ?? (cell?.gr === 'G' || cell?.gr === 'Both' ? (cell?.scaleFrac ?? null) : null)
+  const receivingKey = cell?.receiving ?? (cell?.gr === 'R' || cell?.gr === 'Both' ? (cell?.scale ?? null) : null)
+  const receivingFrac = cell?.receivingFrac ?? (cell?.gr === 'R' || cell?.gr === 'Both' ? (cell?.scaleFrac ?? null) : null)
 
   async function saveNonScaleAnswer(patch: Partial<AnswerCell>) {
     if (!cur) return
@@ -184,17 +191,71 @@ export function SingleMode({ result, profile }: Props) {
     saveResult(next)
   }
 
-  async function setScaleKey(key: string, frac: number) {
+  async function patchCurrentCell(patch: Partial<AnswerCell>) {
     if (!cur) return
     if (!(await confirmIfTemplate())) return
     const next = structuredClone(result)
     const slot = next.answers[cur.catId] ?? {}
     if (cur.isCustom) {
       const customs = slot.__custom ?? {}
-      customs[cur.item] = { ...(customs[cur.item] ?? {}), scale: key, scaleFrac: frac } as AnswerCell
+      customs[cur.item] = { ...(customs[cur.item] ?? { scale: '' }), ...patch } as AnswerCell
       slot.__custom = customs
     } else {
-      slot[cur.item] = { ...(slot[cur.item] ?? {}), scale: key, scaleFrac: frac } as AnswerCell
+      slot[cur.item] = { ...(slot[cur.item] ?? {}), ...patch } as AnswerCell
+    }
+    next.answers[cur.catId] = slot
+    saveResult(next)
+  }
+
+  async function setScaleKey(key: string, frac: number) {
+    await patchCurrentCell({ scale: key, scaleFrac: frac })
+  }
+
+  async function setGiving(key: string, frac: number) {
+    await patchCurrentCell({ giving: key, givingFrac: frac })
+  }
+
+  async function setReceiving(key: string, frac: number) {
+    await patchCurrentCell({ receiving: key, receivingFrac: frac })
+  }
+
+  async function clearGiving() {
+    if (!cur) return
+    if (!(await confirmIfTemplate())) return
+    const next = structuredClone(result)
+    const slot = next.answers[cur.catId] ?? {}
+    const existing = cur.isCustom ? (slot.__custom ?? {})[cur.item] : slot[cur.item]
+    if (!existing) return
+    const updated: AnswerCell = { ...existing }
+    delete updated.giving
+    delete updated.givingFrac
+    if (cur.isCustom) {
+      const customs = slot.__custom ?? {}
+      customs[cur.item] = updated
+      slot.__custom = customs
+    } else {
+      slot[cur.item] = updated
+    }
+    next.answers[cur.catId] = slot
+    saveResult(next)
+  }
+
+  async function clearReceiving() {
+    if (!cur) return
+    if (!(await confirmIfTemplate())) return
+    const next = structuredClone(result)
+    const slot = next.answers[cur.catId] ?? {}
+    const existing = cur.isCustom ? (slot.__custom ?? {})[cur.item] : slot[cur.item]
+    if (!existing) return
+    const updated: AnswerCell = { ...existing }
+    delete updated.receiving
+    delete updated.receivingFrac
+    if (cur.isCustom) {
+      const customs = slot.__custom ?? {}
+      customs[cur.item] = updated
+      slot.__custom = customs
+    } else {
+      slot[cur.item] = updated
     }
     next.answers[cur.catId] = slot
     saveResult(next)
@@ -207,7 +268,7 @@ export function SingleMode({ result, profile }: Props) {
     const slot = next.answers[cur.catId] ?? {}
     if (cur.isCustom) {
       const customs = { ...(slot.__custom ?? {}) }
-      customs[cur.item] = { scale: 'open' }
+      customs[cur.item] = { scale: '' }
       slot.__custom = customs
     } else {
       delete slot[cur.item]
@@ -359,13 +420,42 @@ export function SingleMode({ result, profile }: Props) {
             <h1 className="q-card-item">{cell?.customLabel || (cur.isCustom ? cur.item : getItemLabel(cur.catId, cur.item, getLang()))}</h1>
             <div className="q-card-slider">
               {format === 'scale' ? (
-                <ScalePicker
-                  scale={cell?.itemScale ?? scale}
-                  value={cell?.scale ?? null}
-                  valueFrac={cell?.scaleFrac ?? null}
-                  onChange={setScaleKey}
-                  onClear={clearAnswer}
-                />
+                showGR ? (
+                  <div className="q-gr-sliders">
+                    <div className="q-gr-row">
+                      <span className="q-gr-label">{t('lbl_giving')}</span>
+                      <div style={{ flex: 1 }}>
+                        <ScalePicker
+                          scale={cell?.itemScale ?? scale}
+                          value={givingKey}
+                          valueFrac={givingFrac}
+                          onChange={(k, f) => { void setGiving(k, f) }}
+                          onClear={() => { void clearGiving() }}
+                        />
+                      </div>
+                    </div>
+                    <div className="q-gr-row">
+                      <span className="q-gr-label">{t('lbl_receiving')}</span>
+                      <div style={{ flex: 1 }}>
+                        <ScalePicker
+                          scale={cell?.itemScale ?? scale}
+                          value={receivingKey}
+                          valueFrac={receivingFrac}
+                          onChange={(k, f) => { void setReceiving(k, f) }}
+                          onClear={() => { void clearReceiving() }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <ScalePicker
+                    scale={cell?.itemScale ?? scale}
+                    value={cell?.scale ?? null}
+                    valueFrac={cell?.scaleFrac ?? null}
+                    onChange={setScaleKey}
+                    onClear={clearAnswer}
+                  />
+                )
               ) : format === 'text' ? (
                 <NonScaleTextAnswer cell={cell} onSave={(p) => { void saveNonScaleAnswer(p) }} />
               ) : format === 'single' || format === 'multi' ? (

@@ -15,6 +15,8 @@ interface Props {
   datasets: readonly ChartDataset[]
   catId: string
   size?: number
+  /** When set, extract values from giving or receiving fields instead of scale. */
+  grSide?: 'giving' | 'receiving'
 }
 
 // Scales linearly with chart size. Cap is proportional to size so fullscreen
@@ -26,7 +28,7 @@ function itemLabelFontSize(itemCount: number, size: number): number {
   return Math.round(Math.max(10, Math.min(cap, (160 * size / 480) / itemCount)))
 }
 
-export function ItemSpider({ datasets, catId, size = 480 }: Props) {
+export function ItemSpider({ datasets, catId, size = 480, grSide }: Props) {
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null)
   const [clickedIdx, setClickedIdx] = useState<number | null>(null)
   // clickedIdx takes precedence — persists tooltip after touch/tap
@@ -63,11 +65,29 @@ export function ItemSpider({ datasets, catId, size = 480 }: Props) {
       const isCustom = displayItem.startsWith('✶ ')
       const key = isCustom ? displayItem.slice(2) : displayItem
       const cell = isCustom ? ds.answers[catId]?.__custom?.[key] : ds.answers[catId]?.[key]
-      // For custom items, treat 'open' (initial/reset sentinel) as unanswered
-      const step = (cell && cell.scale && !(isCustom && cell.scale === 'open'))
-        ? ds.scale.find((s) => s.key === cell.scale)
-        : undefined
-      const v = step ? step.value : 0
+      if (!cell) return { step: undefined as typeof ds.scale[0] | undefined, norm: 0, v: 0 }
+
+      let scaleKey: string | undefined
+      let fracVal: number | undefined
+
+      if (grSide) {
+        // New format: giving/receiving; old format: gr toggle + scale
+        if (grSide === 'giving') {
+          scaleKey = cell.giving ?? (cell.gr === 'G' || cell.gr === 'Both' ? cell.scale : undefined)
+          fracVal = cell.givingFrac ?? (cell.gr === 'G' || cell.gr === 'Both' ? cell.scaleFrac : undefined)
+        } else {
+          scaleKey = cell.receiving ?? (cell.gr === 'R' || cell.gr === 'Both' ? cell.scale : undefined)
+          fracVal = cell.receivingFrac ?? (cell.gr === 'R' || cell.gr === 'Both' ? cell.scaleFrac : undefined)
+        }
+      } else {
+        // Normal (non-GR) mode — treat 'open' as unanswered
+        if (!cell.scale || (isCustom && cell.scale === 'open')) return { step: undefined as typeof ds.scale[0] | undefined, norm: 0, v: 0 }
+        scaleKey = cell.scale
+        fracVal = cell.scaleFrac
+      }
+
+      const step = scaleKey ? ds.scale.find((s) => s.key === scaleKey) : undefined
+      const v = step ? step.value : (fracVal !== undefined ? fracVal * max : 0)
       const norm = max > 0 && v > 0 ? v / max : 0
       return { step, norm, v }
     })

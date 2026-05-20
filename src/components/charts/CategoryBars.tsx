@@ -3,18 +3,42 @@
 // profile name next to the bar so answers to the same question are clearly
 // stacked and attributed.
 
-import { enabledItemsForCat } from '@/lib/charts/items'
+import { enabledItemsForCat, isGrCat } from '@/lib/charts/items'
 import { getItemLabel, localizeStep } from '@/lib/data/locale'
 import { scaleMaxValue } from '@/lib/charts/math'
 import { CATEGORIES } from '@/lib/data/data'
 import type { ChartDataset } from './types'
 import type { AnswerCell } from '@/lib/storage/types'
+import type { MutableScaleStep } from '@/lib/data/types'
 import { getLang, t } from '@/lib/i18n/i18n'
 
 interface Props { datasets: readonly ChartDataset[]; catId: string }
 
+function grSideValue(
+  cell: AnswerCell,
+  side: 'giving' | 'receiving',
+  scale: readonly MutableScaleStep[],
+  max: number,
+  lang: string,
+): { pct: number; label: string | null } {
+  let scaleKey: string | undefined
+  let fracVal: number | undefined
+  if (side === 'giving') {
+    scaleKey = cell.giving ?? (cell.gr === 'G' || cell.gr === 'Both' ? cell.scale : undefined)
+    fracVal = cell.givingFrac ?? (cell.gr === 'G' || cell.gr === 'Both' ? cell.scaleFrac : undefined)
+  } else {
+    scaleKey = cell.receiving ?? (cell.gr === 'R' || cell.gr === 'Both' ? cell.scale : undefined)
+    fracVal = cell.receivingFrac ?? (cell.gr === 'R' || cell.gr === 'Both' ? cell.scaleFrac : undefined)
+  }
+  const step = scaleKey ? scale.find((s) => s.key === scaleKey) : undefined
+  const v = step ? step.value : (fracVal !== undefined ? fracVal * max : 0)
+  const pct = max > 0 && v > 0 ? (v / max) * 100 : 0
+  return { pct, label: step ? localizeStep(step, lang).label : null }
+}
+
 export function CategoryBars({ datasets, catId }: Props) {
   const lang = getLang()
+  const grCategory = isGrCat(catId)
   const truncated = datasets.slice(0, 4)
   const isKnownCat = CATEGORIES.some((c) => c.id === catId) ||
     truncated.some((ds) => ds.customCategories?.some((cc) => cc.id === catId))
@@ -35,8 +59,15 @@ export function CategoryBars({ datasets, catId }: Props) {
       if (isCustom) {
         const def = ds.customItemDefs?.[catId]?.[key]
         if (def && def.format !== 'scale') return false
-        // Treat 'open' (initial/reset sentinel) as unanswered for custom items
-        if (!cell.scale || cell.scale === 'open') return false
+        if (cell.scale === 'open') return false
+      }
+      // GR answered: check giving/receiving (new format) or legacy gr field
+      if (grCategory) {
+        if (cell.giving || cell.receiving) return true
+        if (cell.gr === 'G' || cell.gr === 'R' || cell.gr === 'Both') {
+          return !!ds.scale.find((s) => s.key === cell.scale)
+        }
+        return false
       }
       const step = ds.scale.find((s) => s.key === cell.scale)
       return step != null
@@ -88,6 +119,33 @@ export function CategoryBars({ datasets, catId }: Props) {
             <div className="rs-bar-item-rows">
               {truncated.map((ds, di) => {
                 const cell = isCustom ? ds.answers[catId]?.__custom?.[key] : ds.answers[catId]?.[key]
+                const max = scaleMaxValue(ds.scale)
+
+                if (grCategory && cell) {
+                  const giving = grSideValue(cell, 'giving', ds.scale, max, lang)
+                  const receiving = grSideValue(cell, 'receiving', ds.scale, max, lang)
+                  return (
+                    <div key={di} className="rs-bar-ds-row--gr" data-testid={`bar-row-${di}-${displayItem}`}>
+                      <span className="rs-bar-ds-name" style={{ color: ds.color }}>{ds.name}</span>
+                      {([['giving', giving], ['receiving', receiving]] as const).map(([side, val]) => (
+                        <div key={side} className="rs-bar-gr-sub-row">
+                          <span className="q-gr-label">{t(side === 'giving' ? 'lbl_giving' : 'lbl_receiving')}</span>
+                          <div className="rs-bar-track">
+                            {val.pct > 0 && (
+                              <div
+                                className="rs-bar-fill"
+                                style={{ width: `${val.pct}%`, background: ds.color }}
+                                data-testid={`bar-cell-${di}-${displayItem}-${side}`}
+                              />
+                            )}
+                          </div>
+                          <span className="rs-bar-label-text">{val.label ?? ''}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )
+                }
+
                 const step = cell ? ds.scale.find((s) => s.key === cell.scale) ?? null : null
                 if (!step) {
                   return (
@@ -102,7 +160,6 @@ export function CategoryBars({ datasets, catId }: Props) {
                     </div>
                   )
                 }
-                const max = scaleMaxValue(ds.scale)
                 const pct = max > 0 ? (step.value / max) * 100 : 0
                 return (
                   <div
@@ -110,12 +167,7 @@ export function CategoryBars({ datasets, catId }: Props) {
                     className="rs-bar-ds-row"
                     data-testid={`bar-row-${di}-${displayItem}`}
                   >
-                    <span
-                      className="rs-bar-ds-name"
-                      style={{ color: ds.color }}
-                    >
-                      {ds.name}
-                    </span>
+                    <span className="rs-bar-ds-name" style={{ color: ds.color }}>{ds.name}</span>
                     <div className="rs-bar-track">
                       <div
                         className="rs-bar-fill"

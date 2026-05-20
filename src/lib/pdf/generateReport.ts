@@ -8,7 +8,7 @@
 
 import jsPDF from 'jspdf'
 import { buildSpiderSvg } from './spiderSvg'
-import { enabledItemsForCat } from '@/lib/charts/items'
+import { enabledItemsForCat, isGrCat } from '@/lib/charts/items'
 import { CATEGORIES } from '@/lib/data/data'
 import { getItemLabel, localizeStep } from '@/lib/data/locale'
 import { fmtDate } from '@/lib/format/date'
@@ -49,6 +49,7 @@ function datasetsHaveAnswers(datasets: readonly ChartDataset[]): boolean {
         if (k === '__custom') {
           for (const cell of Object.values(slot.__custom ?? {})) {
             const c = cell as AnswerCell
+            if (c?.giving || c?.receiving) return true
             if (c?.scale && c.scale !== 'open') return true
             if ((c as unknown as { textValue?: string })?.textValue) return true
             if (((c as unknown as { selectedValues?: string[] })?.selectedValues?.length ?? 0) > 0) return true
@@ -56,7 +57,8 @@ function datasetsHaveAnswers(datasets: readonly ChartDataset[]): boolean {
           }
           continue
         }
-        if ((slot as Record<string, AnswerCell | undefined>)[k]?.scale) return true
+        const baseCell = (slot as Record<string, AnswerCell | undefined>)[k]
+        if (baseCell?.scale || baseCell?.giving || baseCell?.receiving) return true
       }
     }
   }
@@ -101,6 +103,24 @@ function getScaleAnswer(
   const step = scale.find((s) => s.key === cell.scale)
   if (!step) return null
   return localizeStep(step, lang).label
+}
+
+function getGrSideAnswer(
+  cell: AnswerCell | undefined,
+  side: 'giving' | 'receiving',
+  scale: readonly MutableScaleStep[],
+  lang: string,
+): string | null {
+  if (!cell) return null
+  let scaleKey: string | undefined
+  if (side === 'giving') {
+    scaleKey = cell.giving ?? (cell.gr === 'G' || cell.gr === 'Both' ? cell.scale : undefined)
+  } else {
+    scaleKey = cell.receiving ?? (cell.gr === 'R' || cell.gr === 'Both' ? cell.scale : undefined)
+  }
+  if (!scaleKey) return null
+  const step = scale.find((s) => s.key === scaleKey)
+  return step ? localizeStep(step, lang).label : null
 }
 
 function formatNonScaleAnswer(cell: AnswerCell | undefined, def: CustomItemDef): string | null {
@@ -202,23 +222,29 @@ export async function generatePdfReport({
   const spiderCats: Array<{ catId: string; title: string; pngData: string; scale: readonly MutableScaleStep[] }> = []
 
   for (const catId of categoryIds) {
-    const result = buildSpiderSvg(datasets, catId, SVG_PX, lang)
-    if (!result || result.answeredItemCount < 2 || !result.svg) continue
-
     const catObj = CATEGORIES.find((c) => c.id === catId)
     const customCat = datasets.flatMap((ds) => ds.customCategories ?? []).find((c) => c.id === catId)
-    const title = (lang === 'de' && catObj?.de ? catObj.de : catObj?.title)
-      ?? (lang === 'de' && customCat?.de ? customCat.de : customCat?.title)
+    const baseTitle = (lang === 'de' && catObj?.de ? catObj.de : catObj?.title)
+      ?? (lang === 'de' && (customCat as { de?: string } | undefined)?.de ? (customCat as { de?: string }).de : customCat?.title)
       ?? catId
 
-    let pngData: string
-    try {
-      pngData = await svgToPng(result.svg, SVG_PX)
-    } catch {
-      continue
+    if (isGrCat(catId)) {
+      for (const grSide of ['giving', 'receiving'] as const) {
+        const result = buildSpiderSvg(datasets, catId, SVG_PX, lang, grSide)
+        if (!result || result.answeredItemCount < 2 || !result.svg) continue
+        const sideLabel = grSide === 'giving' ? String(t('lbl_giving')) : String(t('lbl_receiving'))
+        const title = `${baseTitle} – ${sideLabel}`
+        let pngData: string
+        try { pngData = await svgToPng(result.svg, SVG_PX) } catch { continue }
+        spiderCats.push({ catId, title, pngData, scale: datasets[0]!.scale })
+      }
+    } else {
+      const result = buildSpiderSvg(datasets, catId, SVG_PX, lang)
+      if (!result || result.answeredItemCount < 2 || !result.svg) continue
+      let pngData: string
+      try { pngData = await svgToPng(result.svg, SVG_PX) } catch { continue }
+      spiderCats.push({ catId, title: baseTitle, pngData, scale: datasets[0]!.scale })
     }
-
-    spiderCats.push({ catId, title, pngData, scale: datasets[0]!.scale })
   }
 
   for (let i = 0; i < spiderCats.length; i++) {
@@ -293,7 +319,10 @@ export async function generatePdfReport({
       if (!slot) return false
       const { base, custom } = enabledItemsForCat(ds.answers, catId)
       return (
-        base.some((item) => !!slot[item]?.scale) ||
+        base.some((item) => {
+          const c = slot[item]
+          return !!(c?.scale || c?.giving || c?.receiving)
+        }) ||
         custom.some((item) => {
           const cell = slot.__custom?.[item]
           if (!cell) return false
@@ -365,11 +394,18 @@ export async function generatePdfReport({
       custom.forEach((item) => customItems.add(item))
     }
 
+    const grCategory = isGrCat(catId)
+
     function renderItem(itemKey: string, isCustom: boolean) {
+      const cell0 = isCustom ? datasets[0]?.answers[catId]?.__custom?.[itemKey] : datasets[0]?.answers[catId]?.[itemKey]
+      const def0 = isCustom ? datasets[0]?.customItemDefs?.[catId]?.[itemKey] : undefined
+      const itemIsGr = grCategory && (!def0 || def0.format === 'scale')
+
       // Check if any dataset has an answer for this item
       const hasAny = datasets.some((ds) => {
         const cell = isCustom ? ds.answers[catId]?.__custom?.[itemKey] : ds.answers[catId]?.[itemKey]
         if (!cell) return false
+        if (itemIsGr) return !!(cell.giving || cell.receiving || cell.gr)
         const def = isCustom ? ds.customItemDefs?.[catId]?.[itemKey] : undefined
         if (!def || def.format === 'scale') return !!(cell.scale && (!isCustom || cell.scale !== 'open'))
         if (def.format === 'text') return !!(cell as unknown as { textValue?: string }).textValue
@@ -382,7 +418,7 @@ export async function generatePdfReport({
       const itemLabel = isCustom ? itemKey : getItemLabel(catId, itemKey, lang)
       const prefix = isCustom ? '* ' : ''
 
-      checkBreak(isMulti ? 7 + datasets.length * 4.5 : 10)
+      checkBreak(isMulti ? 7 + datasets.length * (itemIsGr ? 9 : 4.5) : 10)
 
       // Item name
       doc.setFont('helvetica', 'bold')
@@ -392,22 +428,15 @@ export async function generatePdfReport({
       doc.text(labelLines, ML + 2, y)
       y += labelLines.length * 4.2
 
+      const indent = ML + 6
+      const availW = CW - 6
+
       // Answers per dataset
       for (const ds of datasets) {
         const cell = isCustom ? ds.answers[catId]?.__custom?.[itemKey] : ds.answers[catId]?.[itemKey]
         const def = isCustom ? ds.customItemDefs?.[catId]?.[itemKey] : undefined
 
-        let answer: string | null
-        if (def && def.format !== 'scale') {
-          answer = formatNonScaleAnswer(cell, def)
-        } else {
-          answer = getScaleAnswer(cell, ds.scale, lang, isCustom)
-        }
-
-        checkBreak(5)
-
-        const indent = ML + 6
-        const availW = CW - 6
+        checkBreak(itemIsGr ? 9 : 5)
 
         if (isMulti) {
           const [r, g, b] = hexToRgb(ds.color)
@@ -418,17 +447,53 @@ export async function generatePdfReport({
           const dsNameW = doc.getTextWidth(dsNameText)
           doc.text(dsNameText, indent, y)
           doc.setTextColor(50, 45, 75)
-          const answerText = answer ?? t('pdf_no_answer')
-          const answerLines = doc.splitTextToSize(answerText, availW - dsNameW) as string[]
-          doc.text(answerLines, indent + dsNameW, y)
-          y += answerLines.length * 3.8
+
+          if (itemIsGr) {
+            const givingLabel = getGrSideAnswer(cell, 'giving', ds.scale, lang) ?? String(t('pdf_no_answer'))
+            const receivingLabel = getGrSideAnswer(cell, 'receiving', ds.scale, lang) ?? String(t('pdf_no_answer'))
+            const gPrefix = String(t('lbl_giving')) + ': '
+            const rPrefix = String(t('lbl_receiving')) + ': '
+            doc.text(gPrefix + givingLabel, indent + dsNameW, y)
+            y += 4
+            doc.text(rPrefix + receivingLabel, indent + dsNameW, y)
+            y += 3.8
+          } else {
+            let answer: string | null
+            if (def && def.format !== 'scale') {
+              answer = formatNonScaleAnswer(cell, def)
+            } else {
+              answer = getScaleAnswer(cell, ds.scale, lang, isCustom)
+            }
+            const answerText = answer ?? String(t('pdf_no_answer'))
+            const answerLines = doc.splitTextToSize(answerText, availW - dsNameW) as string[]
+            doc.text(answerLines, indent + dsNameW, y)
+            y += answerLines.length * 3.8
+          }
         } else {
           doc.setFont('helvetica', 'normal')
           doc.setFontSize(8.5)
           doc.setTextColor(60, 55, 90)
-          const answerLines = doc.splitTextToSize(answer ?? t('pdf_no_answer'), availW) as string[]
-          doc.text(answerLines, indent, y)
-          y += answerLines.length * 4
+
+          if (itemIsGr) {
+            const givingLabel = getGrSideAnswer(cell, 'giving', ds.scale, lang) ?? String(t('pdf_no_answer'))
+            const receivingLabel = getGrSideAnswer(cell, 'receiving', ds.scale, lang) ?? String(t('pdf_no_answer'))
+            const gPrefix = String(t('lbl_giving')) + ': '
+            const rPrefix = String(t('lbl_receiving')) + ': '
+            doc.text(gPrefix + givingLabel, indent, y)
+            y += 4.2
+            doc.text(rPrefix + receivingLabel, indent, y)
+            y += 4
+          } else {
+            let answer: string | null
+            if (def && def.format !== 'scale') {
+              answer = formatNonScaleAnswer(cell, def)
+            } else {
+              answer = getScaleAnswer(cell, ds.scale, lang, isCustom)
+            }
+            const answerLines = doc.splitTextToSize(answer ?? String(t('pdf_no_answer')), availW) as string[]
+            doc.text(answerLines, indent, y)
+            y += answerLines.length * 4
+          }
         }
       }
 
