@@ -1,8 +1,13 @@
 // Locale helpers for content that lives in data.ts (items, scale steps).
 // Keeps data.ts "content-frozen" while providing DE display labels.
 
-import { CATEGORIES } from './data'
+import { CATEGORIES, DEFAULT_SCALE } from './data'
 import type { MutableScaleStep } from './types'
+
+// Default English text per key — used to detect user customization.
+const DEFAULT_BY_KEY: Record<string, { label: string; short: string }> = Object.fromEntries(
+  DEFAULT_SCALE.map((s) => [s.key, { label: s.label, short: s.short }])
+)
 
 /**
  * Return the display label for a base item in the given locale.
@@ -37,7 +42,9 @@ const DE_SCALE: Record<string, { label: string; short: string; description: stri
 export function localizeStep(step: MutableScaleStep, lang: string): { label: string; short: string; description: string } {
   if (lang === 'de') {
     const de = DE_SCALE[step.key]
-    if (de) return de
+    const def = DEFAULT_BY_KEY[step.key]
+    // Only apply the German override when the step hasn't been renamed by the user.
+    if (de && def && step.label === def.label && step.short === def.short) return de
   }
   return { label: step.label, short: step.short, description: step.description }
 }
