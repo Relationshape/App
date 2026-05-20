@@ -35,6 +35,8 @@ export function CategoryBars({ datasets, catId }: Props) {
       if (isCustom) {
         const def = ds.customItemDefs?.[catId]?.[key]
         if (def && def.format !== 'scale') return false
+        // Treat 'open' (initial/reset sentinel) as unanswered for custom items
+        if (!cell.scale || cell.scale === 'open') return false
       }
       const step = ds.scale.find((s) => s.key === cell.scale)
       return step != null

@@ -190,7 +190,7 @@ export function RsQuestionCard({
     const slot = next.answers[catId] ?? {}
     if (isCustom) {
       const customs = { ...(slot.__custom ?? {}) }
-      customs[item] = { scale: 'open' }
+      customs[item] = { scale: '' }
       slot.__custom = customs
     } else {
       delete slot[item]
@@ -203,7 +203,7 @@ export function RsQuestionCard({
     const next = structuredClone(result)
     const slot = next.answers[catId] ?? {}
     const customs = { ...(slot.__custom ?? {}) }
-    customs[item] = { scale: 'open' }
+    customs[item] = { scale: '' }
     slot.__custom = customs
     next.answers[catId] = slot
     saveResult(next)

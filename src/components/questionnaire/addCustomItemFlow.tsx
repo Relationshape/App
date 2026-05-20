@@ -208,7 +208,20 @@ export async function runAddCustomItemFlow({
 
       format = fmtResult
 
-      // Step 3: collect options for choice-based formats
+      // Step 3a: scale confirmation for scale format
+      if (format === 'scale') {
+        const scaleResult = await dialog<MutableScaleStep[] | 'default' | false>({
+          title: t('q_add_custom_scale_title'),
+          dismissable: false,
+          body: (close) => <CustomScalePicker defaultScale={_scale as MutableScaleStep[]} onClose={close} />,
+          actions: [],
+        })
+        // null = X button (cancel entire flow), false = Cancel button (back to format)
+        if (scaleResult === null) return null
+        if (scaleResult === false) { format = null; continue }
+      }
+
+      // Step 3b: collect options for choice-based formats
       if (format === 'single' || format === 'multi' || format === 'ranking') {
         const rawOptions = await dialog<string[] | false | 'back'>({
           title: t('q_add_custom_options_title'),
@@ -230,7 +243,7 @@ export async function runAddCustomItemFlow({
     const next = structuredClone(result)
     if (storeTemplateWarningDisabled) next.templateWarningDisabled = true
     const ns = next.answers[catId] ?? {}
-    ns.__custom = { ...(ns.__custom ?? {}), [name]: { scale: 'open' } }
+    ns.__custom = { ...(ns.__custom ?? {}), [name]: { scale: '' } }
     next.answers[catId] = ns
 
     const def: CustomItemDef = { format, ...(options ? { options } : {}) }

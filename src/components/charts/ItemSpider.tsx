@@ -63,7 +63,10 @@ export function ItemSpider({ datasets, catId, size = 480 }: Props) {
       const isCustom = displayItem.startsWith('✶ ')
       const key = isCustom ? displayItem.slice(2) : displayItem
       const cell = isCustom ? ds.answers[catId]?.__custom?.[key] : ds.answers[catId]?.[key]
-      const step = cell ? ds.scale.find((s) => s.key === cell.scale) : undefined
+      // For custom items, treat 'open' (initial/reset sentinel) as unanswered
+      const step = (cell && cell.scale && !(isCustom && cell.scale === 'open'))
+        ? ds.scale.find((s) => s.key === cell.scale)
+        : undefined
       const v = step ? step.value : 0
       const norm = max > 0 && v > 0 ? v / max : 0
       return { step, norm, v }
@@ -76,7 +79,7 @@ export function ItemSpider({ datasets, catId, size = 480 }: Props) {
   const answeredItemCount = items.filter((_, i) => dataPoints.some((ds) => (ds[i]?.v ?? 0) > 0)).length
 
   if (items.length === 0) return null
-  if (items.length < 3 || answeredItemCount < 2) {
+  if (items.length < 2 || answeredItemCount < 2) {
     return (
       <div className="rs-chart-wrap rs-item-spider" data-testid={`item-spider-${catId}`}>
         <p className="muted small text-center" data-testid={`item-spider-min-data-${catId}`}>
