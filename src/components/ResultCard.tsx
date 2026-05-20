@@ -4,23 +4,46 @@
 // (.list-item, .li-avatar, .li-body, .li-actions, .btn-danger-ghost) apply directly.
 
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import type { Result, Profile } from '@/lib/storage/types'
 import { useStore } from '@/lib/storage/store'
 import { dialog } from '@/lib/dialog/dialog'
 import { fmtDate, countAnswers } from '@/lib/format/date'
 import { useShareData } from '@/components/providers/ShareDataProvider'
+import { useToast } from '@/lib/hooks/useToast'
+import { mapResultToDataset } from '@/lib/charts/datasets'
+import { CATEGORIES } from '@/lib/data/data'
 import { ResultModal } from '@/components/ResultModal'
-import { t } from '@/lib/i18n/i18n'
+import { t, getLang } from '@/lib/i18n/i18n'
 
 export function ResultCard({ result, profile }: { result: Result; profile: Profile }) {
   const color = result.subjectColor || profile.color
   const title =
     (result.subject || 'Untitled') + ((result.version ?? 1) > 1 ? ` (v${result.version})` : '')
   const deleteResult = useStore((s) => s.deleteResult)
-  const navigate = useNavigate()
   const { openShare } = useShareData()
+  const { toast } = useToast()
   const [modalOpen, setModalOpen] = useState(false)
+  const [generatingPdf, setGeneratingPdf] = useState(false)
+
+  async function handlePdfReport() {
+    if (generatingPdf) return
+    setGeneratingPdf(true)
+    toast.message(t('pdf_generating'))
+    try {
+      const { generatePdfReport } = await import('@/lib/pdf/generateReport')
+      const dataset = mapResultToDataset(result, profile)
+      const allCatIds = [
+        ...(result.enabledCategories ?? CATEGORIES.map((c) => c.id)),
+        ...(result.customCategories ?? []).map((c) => c.id),
+      ]
+      const mapName = result.subject?.trim() || profile.name
+      const safeFilename = `relationshapes-${mapName.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.pdf`
+      const ok = await generatePdfReport({ datasets: [dataset], categoryIds: allCatIds, lang: getLang(), filename: safeFilename })
+      if (!ok) toast.message(t('pdf_no_answers'))
+    } finally {
+      setGeneratingPdf(false)
+    }
+  }
 
   async function onDelete() {
     const ok = await dialog<boolean>({
@@ -52,18 +75,19 @@ export function ResultCard({ result, profile }: { result: Result; profile: Profi
           <button
             type="button"
             className="btn btn-primary"
-            onClick={() => navigate(`/q-categories/${profile.id}/${result.id}`)}
-            data-testid={`result-continue-${result.id}`}
-          >
-            {t('btn_continue_editing')}
-          </button>
-          <button
-            type="button"
-            className="btn"
             onClick={() => setModalOpen(true)}
             data-testid={`result-view-${result.id}`}
           >
             {t('btn_view')}
+          </button>
+          <button
+            type="button"
+            className="btn"
+            onClick={() => { void handlePdfReport() }}
+            disabled={generatingPdf}
+            data-testid={`result-pdf-${result.id}`}
+          >
+            {t('btn_download_pdf')}
           </button>
           <button
             type="button"

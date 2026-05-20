@@ -28,7 +28,8 @@ export function countAnswers(r: Result): number {
       if (k === '__custom') {
         const custom = c.__custom ?? {}
         for (const v of Object.values(custom)) {
-          if (v && (v as AnswerCell).scale) n++
+          const cell = v as AnswerCell
+          if (cell && cell.scale && (cell.scale !== 'open' || cell.scaleFrac != null)) n++
         }
         continue
       }

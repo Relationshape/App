@@ -67,7 +67,7 @@ export function CategoryOverview() {
         k !== '__hidden' && k !== '__custom' && v !== null && typeof v === 'object' && 'scale' in (v as object)
       )
       const hasCustom = Object.values(cat.__custom ?? {}).some(
-        (cell) => cell?.scale && cell.scale !== 'open',
+        (cell) => cell?.scale && (cell.scale !== 'open' || cell.scaleFrac != null),
       )
       return hasBase || hasCustom
     })

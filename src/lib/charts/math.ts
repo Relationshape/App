@@ -258,7 +258,7 @@ export function catProgress(
       if (cell.giving || cell.receiving) return true
       // Legacy gr field
       if (cell.gr && cell.scale) return true
-      return isCustom ? (cell.scale !== 'open' && !!cell.scale) : !!cell.scale
+      return isCustom ? (!!cell.scale && (cell.scale !== 'open' || cell.scaleFrac != null)) : !!cell.scale
     }
     if (fmt === 'text') return !!(cell as unknown as { textValue?: string }).textValue
     if (fmt === 'ranking') return ((cell as unknown as { rankingValues?: string[] }).rankingValues?.length ?? 0) > 0

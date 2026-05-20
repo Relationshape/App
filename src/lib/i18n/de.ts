@@ -142,7 +142,7 @@ export const DE: Record<TranslationKey, string> = {
   updated: 'Aktualisiert',
   answers: 'Antworten',
   btn_continue: 'Weiter',
-  btn_view: '📊 Ansehen',
+  btn_view: '📊 Ansehen/Bearbeiten',
   btn_share: '📤 Teilen',
   btn_export_result: '📤 Ergebnis exportieren',
   confirm_delete_map: 'Diese Beziehungskarte löschen?',
@@ -678,6 +678,7 @@ export const DE: Record<TranslationKey, string> = {
 
   // PDF-Bericht
   btn_pdf_report: '📄 PDF-Bericht',
+  btn_download_pdf: '📄 Als PDF herunterladen',
   pdf_no_answers: 'Nicht genügend Antworten/Ergebnisse für einen Report.',
   pdf_generating: 'PDF wird erstellt…',
   pdf_cover_generated_on: 'Erstellt am',

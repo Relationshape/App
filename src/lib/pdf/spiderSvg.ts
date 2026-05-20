@@ -86,7 +86,7 @@ export function buildSpiderSvg(
           fracVal = cell.receivingFrac ?? (cell.gr === 'R' || cell.gr === 'Both' ? cell.scaleFrac : undefined)
         }
       } else {
-        if (!cell.scale || (isCustom && cell.scale === 'open')) return { norm: 0, v: 0, step: undefined as typeof ds.scale[0] | undefined }
+        if (!cell.scale || (isCustom && cell.scale === 'open' && cell.scaleFrac == null)) return { norm: 0, v: 0, step: undefined as typeof ds.scale[0] | undefined }
         scaleKey = cell.scale
         fracVal = cell.scaleFrac
       }
