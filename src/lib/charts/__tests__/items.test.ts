@@ -32,7 +32,7 @@ describe('enabledItemsForCat', () => {
 })
 
 describe('flatItemsForResult', () => {
-  it('iterates enabledCategories in order, concatenating base then custom per category', () => {
+  it('iterates enabledCategories in order, concatenating custom then base per category', () => {
     const answers: AnswersBlob = {
       connection: {} as unknown as AnswersBlob[string],
       creative: {} as unknown as AnswersBlob[string],
@@ -43,18 +43,18 @@ describe('flatItemsForResult', () => {
       answers,
     })
     const flat = flatItemsForResult(result)
-    // First items should come from connection (base first, then custom)
+    // First items should come from connection (custom first, then base)
     const connectionItems = flat.filter((f) => f.catId === 'connection')
     const creativeItems = flat.filter((f) => f.catId === 'creative')
     expect(connectionItems.length).toBeGreaterThan(0)
     expect(creativeItems.length).toBeGreaterThan(0)
-    // Custom item at end of connection block
+    // Custom item appears before base items in the connection block
     const customIdx = flat.findIndex((f) => f.item === 'extra connection item')
-    const lastConnectionBaseIdx = flat
+    const firstConnectionBaseIdx = flat
       .map((f, i) => ({ f, i }))
       .filter(({ f }) => f.catId === 'connection' && !f.isCustom)
-      .at(-1)?.i ?? -1
-    expect(customIdx).toBeGreaterThan(lastConnectionBaseIdx)
+      .at(0)?.i ?? -1
+    expect(customIdx).toBeLessThan(firstConnectionBaseIdx)
     // All creative items come after all connection items
     const firstCreative = flat.findIndex((f) => f.catId === 'creative')
     const lastConnection = flat.map((f, i) => ({ f, i })).filter(({ f }) => f.catId === 'connection').at(-1)?.i ?? -1
