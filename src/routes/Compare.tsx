@@ -356,12 +356,6 @@ export function Compare() {
         </div>
       </div>
 
-      {datasets.length > 0 && !fabiMode && (
-        <p className="callout muted small" data-testid="compare-fabi-tip">
-          {t('compare_fabi_tip')}
-        </p>
-      )}
-
       {datasets.length >= 2 && (
         <section className="page-section">
           <header className="section-head">
@@ -403,6 +397,12 @@ export function Compare() {
             </button>
           </div>
         </section>
+      )}
+
+      {datasets.length > 0 && !fabiMode && (
+        <p className="callout muted small" data-testid="compare-fabi-tip">
+          {t('compare_fabi_tip')}
+        </p>
       )}
 
       {/* Fabi-mode overview spider — shown below category details */}

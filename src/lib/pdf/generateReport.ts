@@ -26,7 +26,6 @@ const MR = 20  // margin right
 const MT = 20  // margin top
 const MB = 20  // margin bottom
 const CW = A4_W - ML - MR   // content width = 170mm
-const CH = A4_H - MT - MB   // content height = 257mm
 
 // ── Colour helpers ────────────────────────────────────────────────────────────
 
@@ -210,13 +209,11 @@ export async function generatePdfReport({
     doc.text(`${t('pdf_cover_generated_on')}: ${fmtDate(Date.now())}`, ML, y)
   }
 
-  // ── Spider chart pages (2 per A4 page) ─────────────────────────────────────
-  const SVG_PX = 700            // render size in pixels (high-res for clarity)
-  const CHART_MM = 82           // square chart side in mm
-  const LEGEND_X = ML + CHART_MM + 8
-  const LEGEND_W = A4_W - MR - LEGEND_X
-  const SECTION_H = (CH - 10) / 2   // ~123.5mm per section
-  const GAP = CH - SECTION_H * 2    // separator gap (~10mm)
+  // ── Spider chart pages (1 per A4 page) ─────────────────────────────────────
+  const SVG_PX = 1000           // render size in pixels (high-res for clarity)
+  const CHART_MM = 123          // square chart side in mm (+50 % vs former 82mm)
+  const LEGEND_X = ML + CHART_MM + 8   // = 151mm
+  const LEGEND_W = A4_W - MR - LEGEND_X  // = 39mm
 
   // Filter to categories that the spider chart would show (answeredItemCount >= 2)
   const spiderCats: Array<{ catId: string; title: string; pngData: string; scale: readonly MutableScaleStep[] }> = []
@@ -248,11 +245,10 @@ export async function generatePdfReport({
   }
 
   for (let i = 0; i < spiderCats.length; i++) {
-    const isFirstOnPage = i % 2 === 0
-    if (isFirstOnPage) doc.addPage()
+    doc.addPage()
 
     const cat = spiderCats[i]!
-    const sTop = MT + (isFirstOnPage ? 0 : SECTION_H + GAP)
+    const sTop = MT
 
     // Category title
     doc.setFont('helvetica', 'bold')
@@ -263,16 +259,16 @@ export async function generatePdfReport({
     // Spider chart image
     doc.addImage(cat.pngData, 'PNG', ML, sTop + 10, CHART_MM, CHART_MM)
 
-    // Scale legend (right of chart)
+    // Right-side legend: dataset colours (compare mode) + scale range note
     let ly = sTop + 12
-    doc.setFont('helvetica', 'bold')
-    doc.setFontSize(7.5)
-    doc.setTextColor(110, 100, 140)
-    doc.text(t('pdf_scale_legend'), LEGEND_X, ly)
-    ly += 5
 
-    // Dataset colour labels (only in compare mode)
     if (isMulti) {
+      doc.setFont('helvetica', 'bold')
+      doc.setFontSize(7.5)
+      doc.setTextColor(110, 100, 140)
+      doc.text(t('pdf_scale_legend'), LEGEND_X, ly)
+      ly += 5
+
       for (const ds of datasets) {
         const [r, g, b] = hexToRgb(ds.color)
         doc.setFillColor(r, g, b)
@@ -284,31 +280,15 @@ export async function generatePdfReport({
         doc.text(nameLines[0]!, LEGEND_X + 5, ly)
         ly += 4.2
       }
-      ly += 2
+      ly += 4
     }
 
-    // Scale steps
-    for (const step of cat.scale) {
-      const loc = localizeStep(step, lang)
-      const [r, g, b] = hexToRgb(step.color)
-      doc.setFillColor(r, g, b)
-      doc.circle(LEGEND_X + 1.8, ly - 1.3, 1.8, 'F')
-      doc.setFont('helvetica', 'normal')
-      doc.setFontSize(7.5)
-      doc.setTextColor(40, 35, 70)
-      const labelLines = doc.splitTextToSize(loc.label, LEGEND_W - 5) as string[]
-      doc.text(labelLines[0]!, LEGEND_X + 5, ly)
-      ly += 4.5
-      if (ly > sTop + SECTION_H - 4) break
-    }
-
-    // Separator between sections (only between #1 and #2 on the same page)
-    if (isFirstOnPage && i + 1 < spiderCats.length) {
-      const sepY = MT + SECTION_H + GAP / 2
-      doc.setDrawColor(215, 205, 230)
-      doc.setLineWidth(0.25)
-      doc.line(ML, sepY, A4_W - MR, sepY)
-    }
+    // Scale range note (replaces colour-coded scale legend)
+    const scaleMax = cat.scale.reduce((m, s) => Math.max(m, s.value), 0)
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(7)
+    doc.setTextColor(110, 100, 140)
+    doc.text(`${lang === 'de' ? 'Skala' : 'Scale'}: 0 – ${scaleMax}`, LEGEND_X, ly)
   }
 
   // ── Items section (Element für Element) ────────────────────────────────────
@@ -415,7 +395,6 @@ export async function generatePdfReport({
       if (!hasAny) return
 
       const itemLabel = isCustom ? itemKey : getItemLabel(catId, itemKey, lang)
-      const prefix = isCustom ? '* ' : ''
 
       checkBreak(isMulti ? 7 + datasets.length * (itemIsGr ? 9 : 4.5) : 10)
 
@@ -423,7 +402,7 @@ export async function generatePdfReport({
       doc.setFont('helvetica', 'bold')
       doc.setFontSize(9)
       doc.setTextColor(30, 25, 55)
-      const labelLines = doc.splitTextToSize(prefix + itemLabel, CW - 2) as string[]
+      const labelLines = doc.splitTextToSize(itemLabel, CW - 2) as string[]
       doc.text(labelLines, ML + 2, y)
       y += labelLines.length * 4.2
 

@@ -78,7 +78,7 @@ export function RsCategoryPicker({ open, onOpenChange, existingIds, result, prof
 
   // Wizard state
   const [wizardStep, setWizardStep] = useState<WizardStep>('list')
-  const [pendingCat, setPendingCat] = useState<{ title: string; icon: string; scope: 'result' | 'profile' } | null>(null)
+  const [pendingCat, setPendingCat] = useState<{ title: string; icon: string } | null>(null)
   const [pendingItems, setPendingItems] = useState<PendingCustomItem[]>([])
 
   // Pending new custom cats (not yet submitted)
@@ -90,7 +90,6 @@ export function RsCategoryPicker({ open, onOpenChange, existingIds, result, prof
   // Wizard form state (for 'create' step)
   const [createTitle, setCreateTitle] = useState('')
   const [createIcon, setCreateIcon] = useState(QUICK_EMOJIS[0]!)
-  const [createScope, setCreateScope] = useState<'result' | 'profile'>('result')
 
   // Inline item-form state
   const [itemFormName, setItemFormName] = useState('')
@@ -110,7 +109,6 @@ export function RsCategoryPicker({ open, onOpenChange, existingIds, result, prof
       setPendingItemsByCat({})
       setCreateTitle('')
       setCreateIcon(QUICK_EMOJIS[0]!)
-      setCreateScope('result')
       setItemFormName('')
       setItemFormFormat('scale')
       setItemFormOptions('')
@@ -145,13 +143,12 @@ export function RsCategoryPicker({ open, onOpenChange, existingIds, result, prof
   function startCreate() {
     setCreateTitle('')
     setCreateIcon(QUICK_EMOJIS[0]!)
-    setCreateScope('result')
     setWizardStep('create')
   }
 
   function goToItems() {
     if (!createTitle.trim()) return
-    setPendingCat({ title: createTitle.trim(), icon: createIcon, scope: createScope })
+    setPendingCat({ title: createTitle.trim(), icon: createIcon })
     setPendingItems([])
     setWizardStep('items')
   }
@@ -207,11 +204,7 @@ export function RsCategoryPicker({ open, onOpenChange, existingIds, result, prof
       color: newColor,
     }
 
-    if (pendingCat.scope === 'profile') {
-      setPendingNewProfileCats((prev) => [...prev, newDef])
-    } else {
-      setPendingNewResultCats((prev) => [...prev, newDef])
-    }
+    setPendingNewResultCats((prev) => [...prev, newDef])
 
     setCheckedIds((prev) => {
       const next = new Set(prev)
@@ -427,33 +420,6 @@ export function RsCategoryPicker({ open, onOpenChange, existingIds, result, prof
                 />
               </div>
 
-              {profile !== null && (
-                <div className="flex flex-col gap-1">
-                  <label className="text-sm font-medium">{t('cat_create_scope_label')}</label>
-                  <div className="flex flex-col gap-1">
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="radio"
-                        name="cat-scope"
-                        value="result"
-                        checked={createScope === 'result'}
-                        onChange={() => setCreateScope('result')}
-                      />
-                      <span>{t('cat_create_scope_result')}</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="radio"
-                        name="cat-scope"
-                        value="profile"
-                        checked={createScope === 'profile'}
-                        onChange={() => setCreateScope('profile')}
-                      />
-                      <span>{t('cat_create_scope_profile')}</span>
-                    </label>
-                  </div>
-                </div>
-              )}
             </div>
             <div className="rs-modal-actions">
               <button

@@ -132,6 +132,26 @@ export function buildSpiderSvg(
     parts.push(`<line x1="${cx.toFixed(1)}" y1="${cy.toFixed(1)}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="#222" stroke-opacity="0.2"/>`)
   }
 
+  // Ring value labels — numeric scale reference placed just right of the top-center spoke
+  {
+    const max = scaleMaxValue(datasets[0]?.scale ?? [])
+    const ringLabelFs = Math.max(8, Math.min(12, Math.round(fs * 0.75)))
+    const lx = (cx + 6).toFixed(1)
+    // g=0: "0" label at center
+    parts.push(
+      `<text x="${lx}" y="${(cy + ringLabelFs * 0.38).toFixed(1)}" ` +
+      `text-anchor="start" font-size="${ringLabelFs}" fill="#888" opacity="0.6">0</text>`,
+    )
+    for (const g of [1, 2, 3] as const) {
+      const rr = (r * g) / 3
+      const ringVal = g === 3 ? max : Math.round((g / 3) * max)
+      parts.push(
+        `<text x="${lx}" y="${(cy - rr + ringLabelFs * 0.38).toFixed(1)}" ` +
+        `text-anchor="start" font-size="${ringLabelFs}" fill="#888" opacity="0.6">${ringVal}</text>`,
+      )
+    }
+  }
+
   // Dataset polygons — unanswered axes go to center (0), answered axes offset by MIN_FRAC
   for (let di = 0; di < truncated.length; di++) {
     const ds = truncated[di]!

@@ -10,7 +10,7 @@ import type { TranslationKey } from './en'
 
 export const DE: Record<TranslationKey, string> = {
   // Nav
-  nav_profiles: '👤 Profil',
+  nav_profiles: '👤 Profil / Meine Karten',
   nav_import: '📥 Import/Export',
   nav_compare: '📊 Ergebnisse/Vergleichen',
   nav_settings: '⚙️ Einstellungen',
@@ -167,6 +167,7 @@ export const DE: Record<TranslationKey, string> = {
   btn_next: 'Weiter →',
   btn_finish: 'Fertig ✨',
   btn_back: '← Zurück',
+  cat_overview_back: '← Zurück zu Profil / Meine Karten',
   btn_skip: 'Überspringen →',
   btn_add_custom: '➕ Eigenes Element hinzufügen',
   add_custom_title: 'Eigenes Element hinzufügen',
@@ -298,6 +299,7 @@ export const DE: Record<TranslationKey, string> = {
     'Um eine Karte mit jemand anderem zu teilen, kannst du hier deine Beziehungskarten mit allen Fragen/Antworten exportieren.',
   import_bundle_label: 'Verschlüsseltes Paket',
   import_file_label: 'Oder Datei laden',
+  import_file_btn: '📂 Datei auswählen',
   import_pass_label: 'Passwort',
   btn_decrypt: '🔓 Entschlüsseln & importieren',
   import_empty: 'Füge zuerst ein verschlüsseltes Paket ein.',

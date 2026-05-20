@@ -33,8 +33,8 @@ type Step = 'mode' | 'pass' | 'output'
 interface ShareDataContextValue {
   /** Open the share modal for the given result id. No-op if the id can't be resolved. */
   openShare(resultId: string): void | Promise<void>
-  /** Open the share modal pre-set to template mode. onDone is called after the modal closes. */
-  openShareTemplate(resultId: string, onDone?: () => void): void
+  /** Open the share modal pre-set to template mode. onDone is called on success; onBack is called when the user clicks "Zurück". */
+  openShareTemplate(resultId: string, onDone?: () => void, onBack?: () => void): void
 }
 
 const ShareDataContext = createContext<ShareDataContextValue | null>(null)
@@ -120,6 +120,7 @@ export function ShareDataProvider({ children }: { children: ReactNode }) {
 
   const passInputRef = useRef<HTMLInputElement | null>(null)
   const onDoneRef = useRef<(() => void) | undefined>(undefined)
+  const onBackRef = useRef<(() => void) | undefined>(undefined)
 
   const reset = useCallback(() => {
     setStep('mode')
@@ -140,6 +141,23 @@ export function ShareDataProvider({ children }: { children: ReactNode }) {
     setOpen(false)
     const cb = onDoneRef.current
     onDoneRef.current = undefined
+    onBackRef.current = undefined
+    setTimeout(() => { reset(); cb?.() }, 200)
+  }, [reset])
+
+  // Closes without triggering onDone navigation (used when X is clicked in template mode).
+  const closeNoNav = useCallback(() => {
+    setOpen(false)
+    onDoneRef.current = undefined
+    onBackRef.current = undefined
+    setTimeout(() => { reset() }, 200)
+  }, [reset])
+
+  const goBack = useCallback(() => {
+    setOpen(false)
+    const cb = onBackRef.current
+    onDoneRef.current = undefined
+    onBackRef.current = undefined
     setTimeout(() => { reset(); cb?.() }, 200)
   }, [reset])
 
@@ -171,7 +189,7 @@ export function ShareDataProvider({ children }: { children: ReactNode }) {
     setOpen(true)
   }, [reset, toast])
 
-  const openShareTemplate = useCallback((resultId: string, onDone?: () => void) => {
+  const openShareTemplate = useCallback((resultId: string, onDone?: () => void, onBack?: () => void) => {
     const s = useStore.getState()
     const r = s.results.find((x) => x.id === resultId) ?? null
     const p = r ? s.profiles.find((x) => x.id === r.profileId) ?? null : null
@@ -181,6 +199,7 @@ export function ShareDataProvider({ children }: { children: ReactNode }) {
       return
     }
     onDoneRef.current = onDone
+    onBackRef.current = onBack
     reset()
     setResult(r)
     setProfile(p)
@@ -305,7 +324,7 @@ export function ShareDataProvider({ children }: { children: ReactNode }) {
       {children}
       <Dialog
         open={open}
-        onOpenChange={(o) => { if (!o) close() }}
+        onOpenChange={(o) => { if (!o) { if (mode === 'template') closeNoNav(); else close() } }}
       >
         <DialogContent data-testid="share-data-modal" className="sm:max-w-lg">
           <DialogHeader>
@@ -410,22 +429,34 @@ export function ShareDataProvider({ children }: { children: ReactNode }) {
                   {passError}
                 </p>
               )}
-              <div className="form-actions flex justify-end gap-2 mt-2">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  onClick={close}
-                  data-testid="share-data-cancel"
-                >
-                  {t('btn_cancel') as string}
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={busy}
-                  data-testid="share-data-encrypt"
-                >
-                  {busy ? '…' : (t('btn_encrypt') as string)}
-                </Button>
+              <div className="form-actions flex gap-2 mt-2">
+                {mode === 'template' && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={goBack}
+                    data-testid="share-data-back"
+                  >
+                    {t('btn_back') as string}
+                  </Button>
+                )}
+                <div className="flex gap-2 ml-auto">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={close}
+                    data-testid="share-data-cancel"
+                  >
+                    {t('btn_cancel') as string}
+                  </Button>
+                  <Button
+                    type="submit"
+                    disabled={busy}
+                    data-testid="share-data-encrypt"
+                  >
+                    {busy ? '…' : (t('btn_encrypt') as string)}
+                  </Button>
+                </div>
               </div>
             </form>
           )}

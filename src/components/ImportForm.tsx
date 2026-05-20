@@ -34,10 +34,12 @@ export function ImportForm({ onSuccess, className, testIdPrefix = 'import' }: Pr
   const [blob, setBlob] = useState('')
   const [pass, setPass] = useState('')
   const [busy, setBusy] = useState(false)
+  const [fileName, setFileName] = useState<string | null>(null)
 
   async function onFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
+    setFileName(file.name)
     setBlob(await file.text())
   }
 
@@ -105,15 +107,22 @@ export function ImportForm({ onSuccess, className, testIdPrefix = 'import' }: Pr
           placeholder={'-----BEGIN RELATIONSHAPE BUNDLE-----\nv1\n…\n-----END RELATIONSHAPE BUNDLE-----'}
         />
       </label>
-      <label>
-        {t('import_file_label')}
-        <input
-          type="file"
-          accept=".txt,.rshape,.json"
-          onChange={onFile}
-          data-testid={`${testIdPrefix}-file`}
-        />
-      </label>
+      <div className="flex flex-col gap-1">
+        <span className="text-sm font-medium">{t('import_file_label')}</span>
+        <div className="flex items-center gap-2">
+          <label className="btn cursor-pointer" style={{ display: 'inline-flex', alignItems: 'center' }}>
+            {t('import_file_btn')}
+            <input
+              type="file"
+              accept=".txt,.rshape,.json"
+              className="hidden"
+              onChange={onFile}
+              data-testid={`${testIdPrefix}-file`}
+            />
+          </label>
+          {fileName && <span className="text-sm muted truncate max-w-[12rem]">{fileName}</span>}
+        </div>
+      </div>
       <label>
         {t('import_pass_label')}
         <input

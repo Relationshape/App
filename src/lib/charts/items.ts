@@ -44,8 +44,8 @@ export function flatItemsForResult(result: Result): FlatItem[] {
   const flat: FlatItem[] = []
   for (const catId of enabled) {
     const { base, custom } = enabledItemsForCat(result.answers, catId)
-    for (const item of base) flat.push({ catId, item, isCustom: false })
     for (const item of custom) flat.push({ catId, item, isCustom: true })
+    for (const item of base) flat.push({ catId, item, isCustom: false })
   }
   return flat
 }
