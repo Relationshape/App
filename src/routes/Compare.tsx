@@ -361,15 +361,6 @@ export function Compare() {
             <h2>{t('cat_details_title')}</h2>
             <p className="muted">{t('cat_details_sub')}</p>
             <p className="muted small">{t('cat_details_filter_hint')}</p>
-            <button
-              type="button"
-              className="btn btn-outline"
-              onClick={() => { void handlePdfReport() }}
-              disabled={generatingPdf}
-              data-testid="compare-pdf-report"
-            >
-              {t('btn_pdf_report')}
-            </button>
           </header>
           <div className="cat-grid">
             {visibleCategories.map((cat) => (
@@ -383,6 +374,17 @@ export function Compare() {
                 testId={`compare-cat-card-${cat.id}`}
               />
             ))}
+          </div>
+          <div className="mt-4 flex justify-end">
+            <button
+              type="button"
+              className="btn btn-outline"
+              onClick={() => { void handlePdfReport() }}
+              disabled={generatingPdf}
+              data-testid="compare-pdf-report"
+            >
+              {t('btn_download_pdf')}
+            </button>
           </div>
         </section>
       )}

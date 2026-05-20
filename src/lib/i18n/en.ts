@@ -135,7 +135,7 @@ export const EN = {
   updated: 'Updated',
   answers: 'answers',
   btn_continue: 'Continue',
-  btn_view: '📊 View',
+  btn_view: '📊 View/Edit',
   btn_share: '📤 Share',
   btn_export_result: '📤 Export Result',
   confirm_delete_map: 'Delete this relationship map?',
@@ -659,6 +659,7 @@ export const EN = {
 
   // PDF report
   btn_pdf_report: '📄 PDF Report',
+  btn_download_pdf: '📄 Download as PDF',
   pdf_no_answers: 'Not enough answers / results for a report.',
   pdf_generating: 'Generating PDF…',
   pdf_cover_generated_on: 'Generated on',

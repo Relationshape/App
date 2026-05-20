@@ -182,8 +182,8 @@ describe('Profile lifecycle (PROFILE-01..04)', () => {
       results: [result(RESULT_A, PROFILE_A, 'Map One')],
     }))
     expect(document.querySelector(`[data-testid="result-card-${RESULT_A}"]`)).not.toBeNull()
-    expect(document.querySelector(`[data-testid="result-continue-${RESULT_A}"]`)).not.toBeNull()
     expect(document.querySelector(`[data-testid="result-view-${RESULT_A}"]`)).not.toBeNull()
+    expect(document.querySelector(`[data-testid="result-pdf-${RESULT_A}"]`)).not.toBeNull()
     expect(document.querySelector(`[data-testid="result-share-${RESULT_A}"]`)).not.toBeNull()
     expect(document.querySelector(`[data-testid="result-delete-${RESULT_A}"]`)).not.toBeNull()
   })
