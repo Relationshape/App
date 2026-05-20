@@ -665,9 +665,9 @@ a:hover { text-decoration: underline; }
   border-color: var(--c); color: var(--text);
   box-shadow: 0 0 10px color-mix(in oklab, var(--c) 35%, transparent);
 }
-.q-gr-sliders { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 6px; }
-.q-gr-row { display: flex; align-items: center; gap: 8px; }
-.q-gr-label { font-size: 12px; color: var(--muted); min-width: 72px; flex-shrink: 0; }
+.q-gr-sliders { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 8px; }
+.q-gr-row { display: flex; flex-direction: column; gap: 3px; }
+.q-gr-label { font-size: 11px; font-weight: 600; color: var(--muted); letter-spacing: 0.03em; text-transform: uppercase; }
 .q-note {
   grid-column: 1 / -1;
   background: transparent; color: var(--text);
@@ -984,14 +984,21 @@ a:hover { text-decoration: underline; }
   padding: 10px 14px;
 }
 .compare-row-export {
-  flex-shrink: 0;
+  flex-shrink: 0; align-self: center;
   display: flex; align-items: center; gap: 4px;
-  padding: 0 12px;
-  background: none; border: none; border-left: 1px solid var(--glass-border);
-  font-size: 12px; font-weight: 500; cursor: pointer; opacity: 0.65; white-space: nowrap;
-  transition: opacity .15s, background .15s;
+  margin: 0 8px;
+  padding: 4px 11px;
+  background: color-mix(in oklab, var(--c) 12%, var(--surface));
+  border: 1.5px solid color-mix(in oklab, var(--c) 40%, transparent);
+  border-radius: 20px;
+  font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap;
+  transition: background .15s, border-color .15s;
+  color: inherit;
 }
-.compare-row-export:hover { opacity: 1; background: color-mix(in oklab, var(--c) 8%, transparent); }
+.compare-row-export:hover {
+  background: color-mix(in oklab, var(--c) 22%, var(--surface));
+  border-color: color-mix(in oklab, var(--c) 65%, transparent);
+}
 .compare-row-check {
   width: 18px; height: 18px; border-radius: 50%;
   border: 1.5px solid var(--glass-border);

@@ -119,6 +119,15 @@ export function Compare() {
 
   async function handlePdfReport() {
     if (generatingPdf || datasets.length === 0) return
+    const confirmed = await dialog<boolean>({
+      title: t('btn_download_pdf') as string,
+      body: <p>{t('pdf_confirm_body')}</p>,
+      actions: [
+        { label: t('btn_cancel') as string, kind: 'ghost', value: false },
+        { label: t('btn_generate_pdf') as string, kind: 'primary', value: true },
+      ],
+    })
+    if (!confirmed) return
     setGeneratingPdf(true)
     toast.message(t('pdf_generating'))
     try {

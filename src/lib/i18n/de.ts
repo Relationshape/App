@@ -679,6 +679,8 @@ export const DE: Record<TranslationKey, string> = {
   // PDF-Bericht
   btn_pdf_report: '📄 PDF-Bericht',
   btn_download_pdf: '📄 Als PDF herunterladen',
+  pdf_confirm_body: 'Generiert einen Bericht aus den Antworten dieser Karte (Netzdiagramme, Punkt-für-Punkt Auflistung). Als PDF herunterladen?',
+  btn_generate_pdf: 'PDF generieren',
   pdf_no_answers: 'Nicht genügend Antworten/Ergebnisse für einen Report.',
   pdf_generating: 'PDF wird erstellt…',
   pdf_cover_generated_on: 'Erstellt am',
