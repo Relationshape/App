@@ -27,37 +27,35 @@ export function QuestionnaireNav({ result, profileId, activeCat, onNextCat, onPr
       className="q-nav sticky bottom-0 z-10 bg-surface border-t border-line"
       aria-label="Questionnaire navigation"
     >
-      <div className="mx-auto w-full max-w-[920px] px-4 py-2 flex flex-wrap items-center gap-2">
+      <div className="mx-auto w-full max-w-[920px] px-4 py-2 flex items-center gap-2">
         <Button asChild variant="ghost" size="sm" data-testid="q-nav-categories">
           <Link to={`/q-categories/${profileId}/${result.id}`}>
             {t('q_back_to_categories')}
           </Link>
         </Button>
-        <div className="ml-auto flex flex-wrap items-center gap-2">
-          {onPrevCat && (
-            <button
-              type="button"
-              className="btn btn-outline"
-              onClick={onPrevCat}
-              data-testid="q-nav-prev-cat"
-            >
-              {t('q_nav_prev_cat')}
-            </button>
-          )}
-          {onNextCat && (
-            <button
-              type="button"
-              className="btn btn-outline"
-              onClick={onNextCat}
-              data-testid="q-nav-next-cat"
-            >
-              {t('q_nav_next_cat')}
-            </button>
-          )}
-          <Link to={resultsHref} data-testid="q-nav-see-results" className="btn btn-primary">
-            {t('q_nav_see_results')} →
-          </Link>
-        </div>
+        {onPrevCat && (
+          <button
+            type="button"
+            className="btn btn-outline"
+            onClick={onPrevCat}
+            data-testid="q-nav-prev-cat"
+          >
+            {t('q_nav_prev_cat')}
+          </button>
+        )}
+        {onNextCat && (
+          <button
+            type="button"
+            className="btn btn-outline"
+            onClick={onNextCat}
+            data-testid="q-nav-next-cat"
+          >
+            {t('q_nav_next_cat')}
+          </button>
+        )}
+        <Link to={resultsHref} data-testid="q-nav-see-results" className="btn btn-primary ml-auto">
+          {t('q_nav_see_results')} →
+        </Link>
       </div>
     </nav>
   )

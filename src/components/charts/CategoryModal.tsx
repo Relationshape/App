@@ -117,7 +117,12 @@ export function CategoryModal({ open, onOpenChange, datasets, cat, result, initi
       const ok = await confirmDiscard()
       if (!ok) return
     }
+    // Keep the guard up through the next animation frame so any stray
+    // onInteractOutside fired by the closing confirm dialog doesn't close
+    // the modal before the new tab renders.
+    confirmingRef.current = true
     setTab(newTab)
+    requestAnimationFrame(() => { confirmingRef.current = false })
   }
 
   async function handleOpenChange(next: boolean) {
@@ -380,21 +385,6 @@ function EditTabContent({ result, cat, onLocalChange, onImmediateSave, addingRef
       >
         {t('q_add_custom')}
       </Button>
-      {base.map((item) => (
-        <RsQuestionCard
-          key={item}
-          result={result}
-          catId={cat.id}
-          item={item}
-          isCustom={false}
-          cell={slot[item]}
-          scale={scale}
-          onBeforeMutate={confirmIfTemplate}
-          variant="list"
-          blockCloseRef={addingRef}
-          {...(onLocalChange ? { onSave: onLocalChange } : {})}
-        />
-      ))}
       {custom.map((item) => {
         const customItemDef = result.customItemDefs?.[cat.id]?.[item]
         return (
@@ -416,6 +406,21 @@ function EditTabContent({ result, cat, onLocalChange, onImmediateSave, addingRef
           />
         )
       })}
+      {base.map((item) => (
+        <RsQuestionCard
+          key={item}
+          result={result}
+          catId={cat.id}
+          item={item}
+          isCustom={false}
+          cell={slot[item]}
+          scale={scale}
+          onBeforeMutate={confirmIfTemplate}
+          variant="list"
+          blockCloseRef={addingRef}
+          {...(onLocalChange ? { onSave: onLocalChange } : {})}
+        />
+      ))}
     </div>
   )
 }
