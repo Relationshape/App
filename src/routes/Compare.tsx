@@ -169,10 +169,17 @@ export function Compare() {
   function hasItemValues(answers: AnswersBlob | undefined, catId: string): boolean {
     const slot = answers?.[catId]
     if (!slot) return false
+    type Cell = { scale?: string; scaleFrac?: number; giving?: string; receiving?: string }
     for (const k of Object.keys(slot)) {
-      if (k !== '__custom' && k !== '__hidden') return true
+      if (k === '__custom' || k === '__hidden') continue
+      const cell = slot[k] as Cell | undefined
+      if (cell?.scale || cell?.giving || cell?.receiving) return true
     }
-    return Object.keys(slot.__custom ?? {}).length > 0
+    for (const cell of Object.values(slot.__custom ?? {}) as Cell[]) {
+      if (cell?.giving || cell?.receiving) return true
+      if (cell?.scale && (cell.scale !== 'open' || cell.scaleFrac != null)) return true
+    }
+    return false
   }
 
   // Collect all category IDs (builtin + custom from datasets)
@@ -194,7 +201,7 @@ export function Compare() {
         return resolveAnyCat(id, allResultCats, [])
       })
       .filter((c): c is NonNullable<typeof c> => Boolean(c))
-      .filter((cat) => datasets.some((ds) => hasItemValues(ds.answers, cat.id)))
+      .filter((cat) => datasets.length > 0 && datasets.every((ds) => hasItemValues(ds.answers, cat.id)))
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filteredCatIds.join(','), datasets])
 
@@ -409,7 +416,6 @@ export function Compare() {
         onOpenChange={(open) => { if (!open) setModalCat(null) }}
         datasets={datasets}
         cat={modalCat}
-        result={firstEditableResult}
       />
 
       <Dialog open={importOpen} onOpenChange={setImportOpen}>
