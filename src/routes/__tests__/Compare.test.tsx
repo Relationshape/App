@@ -201,9 +201,9 @@ describe('Compare route (SHARE-05, D-25, D-35)', () => {
     }, { timeout: 5000 })
   }, 30000)
 
-  it('D-04: when no selected result has enabledCategories, all hasItemValues cats render', async () => {
+  it('D-04: when no selected result has enabledCategories, only cats with answers in ALL datasets render', async () => {
     // Both results: enabledCategories undefined → compareFilterIds null → no artificial filter.
-    // hasItemValues still filters; creative has data, so it should render.
+    // hasItemValues with `every` filters: creative only in R1, so it must NOT render.
     const store = makeStoreWithAnswers([
       {
         id: R1,
@@ -223,10 +223,10 @@ describe('Compare route (SHARE-05, D-25, D-35)', () => {
     await waitFor(() => {
       expect(document.querySelector('[data-testid="compare-page"]')).not.toBeNull()
     }, { timeout: 10000 })
-    // Both connection AND creative visible (no compareFilterIds restriction).
+    // connection is in both → visible; creative is only in R1 → filtered out.
     await waitFor(() => {
       expect(document.querySelector('[data-testid="compare-cat-card-connection"]')).not.toBeNull()
-      expect(document.querySelector('[data-testid="compare-cat-card-creative"]')).not.toBeNull()
+      expect(document.querySelector('[data-testid="compare-cat-card-creative"]')).toBeNull()
     }, { timeout: 5000 })
   }, 30000)
 
