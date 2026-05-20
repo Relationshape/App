@@ -31,9 +31,15 @@ describe('ItemSpider (RESULT-04)', () => {
   afterEach(() => cleanup())
 
   it('renders one polygon per dataset for the active category', () => {
+    const sharedAnswers = {
+      [CAT_ID]: {
+        'Shared activities / interests': { scale: 'need' },
+        'Intellectual / philosophical discussions': { scale: 'need' },
+      },
+    }
     const datasets: ChartDataset[] = [
-      makeDataset({ id: 'a', color: '#7c3aed' }),
-      makeDataset({ id: 'b', color: '#e63946' }),
+      makeDataset({ id: 'a', color: '#7c3aed', answers: sharedAnswers }),
+      makeDataset({ id: 'b', color: '#e63946', answers: sharedAnswers }),
     ]
     const { container } = render(<ItemSpider datasets={datasets} catId={CAT_ID} />)
     const wrapper = container.querySelector(`[data-testid="item-spider-${CAT_ID}"]`)
@@ -50,7 +56,16 @@ describe('ItemSpider (RESULT-04)', () => {
   })
 
   it('uses dataset color for polygon fill', () => {
-    const ds = makeDataset({ id: 'a', color: '#ff0099' })
+    const ds = makeDataset({
+      id: 'a',
+      color: '#ff0099',
+      answers: {
+        [CAT_ID]: {
+          'Shared activities / interests': { scale: 'need' },
+          'Intellectual / philosophical discussions': { scale: 'need' },
+        },
+      },
+    })
     const { container } = render(<ItemSpider datasets={[ds]} catId={CAT_ID} />)
     const poly = container.querySelector('[data-testid="item-spider-poly-0"]')
     expect(poly?.getAttribute('fill')).toBe('#ff0099')
