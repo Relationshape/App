@@ -81,7 +81,7 @@ export function ItemSpider({ datasets, catId, size = 480, grSide }: Props) {
         }
       } else {
         // Normal (non-GR) mode — treat 'open' as unanswered
-        if (!cell.scale || (isCustom && cell.scale === 'open')) return { step: undefined as typeof ds.scale[0] | undefined, norm: 0, v: 0 }
+        if (!cell.scale || (isCustom && cell.scale === 'open' && cell.scaleFrac == null)) return { step: undefined as typeof ds.scale[0] | undefined, norm: 0, v: 0 }
         scaleKey = cell.scale
         fracVal = cell.scaleFrac
       }

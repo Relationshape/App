@@ -55,12 +55,12 @@ function getHiddenCatsWithAnswers(result: Result): string[] {
     const hasScaleAnswer = Object.entries(slot).some(([k, v]) =>
       k !== '__hidden' && k !== '__custom' &&
       v != null && typeof v === 'object' && 'scale' in v &&
-      (v as { scale: string }).scale !== 'open'
+      ((v as { scale: string; scaleFrac?: number }).scale !== 'open' || (v as { scaleFrac?: number }).scaleFrac != null)
     )
     if (hasScaleAnswer) return true
     return Object.values(slot.__custom ?? {}).some((v) =>
       v != null && typeof v === 'object' && 'scale' in v &&
-      (v as { scale: string }).scale !== 'open'
+      ((v as { scale: string; scaleFrac?: number }).scale !== 'open' || (v as { scaleFrac?: number }).scaleFrac != null)
     )
   })
 }

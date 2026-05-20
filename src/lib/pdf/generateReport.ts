@@ -98,7 +98,7 @@ function getScaleAnswer(
   isCustom: boolean,
 ): string | null {
   if (!cell) return null
-  if (isCustom && (!cell.scale || cell.scale === 'open')) return null
+  if (isCustom && (!cell.scale || (cell.scale === 'open' && cell.scaleFrac == null))) return null
   if (!cell.scale) return null
   const step = scale.find((s) => s.key === cell.scale)
   if (!step) return null
@@ -327,7 +327,7 @@ export async function generatePdfReport({
           const cell = slot.__custom?.[item]
           if (!cell) return false
           const def = ds.customItemDefs?.[catId]?.[item]
-          if (!def || def.format === 'scale') return !!(cell.scale && cell.scale !== 'open')
+          if (!def || def.format === 'scale') return !!(cell.scale && (cell.scale !== 'open' || cell.scaleFrac != null))
           if (def.format === 'text') return !!(cell as unknown as { textValue?: string }).textValue
           const sv = (cell as unknown as { selectedValues?: string[] }).selectedValues
           const rv = (cell as unknown as { rankingValues?: string[] }).rankingValues
@@ -406,7 +406,7 @@ export async function generatePdfReport({
         if (!cell) return false
         if (itemIsGr) return !!(cell.giving || cell.receiving || cell.gr)
         const def = isCustom ? ds.customItemDefs?.[catId]?.[itemKey] : undefined
-        if (!def || def.format === 'scale') return !!(cell.scale && (!isCustom || cell.scale !== 'open'))
+        if (!def || def.format === 'scale') return !!(cell.scale && (!isCustom || cell.scale !== 'open' || cell.scaleFrac != null))
         if (def.format === 'text') return !!(cell as unknown as { textValue?: string }).textValue
         const sv = (cell as unknown as { selectedValues?: string[] }).selectedValues
         const rv = (cell as unknown as { rankingValues?: string[] }).rankingValues
