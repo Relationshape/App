@@ -34,20 +34,22 @@ export function EmojiPicker({ value, onChange }: Props) {
         {value || '✨'}
         <span className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-accent text-on-accent text-[11px] font-bold shadow" aria-hidden>✎</span>
       </PopoverTrigger>
-      <PopoverContent align="start" className="max-w-[20rem]">
-        <div className="grid grid-cols-8 gap-1" data-testid="emoji-grid">
-          {EMOJI_BANK.map((e) => (
-            <button
-              key={e}
-              type="button"
-              onClick={() => pick(e)}
-              data-state={e === value ? 'active' : 'inactive'}
-              className="aspect-square text-xl data-[state=active]:bg-accent"
-              data-testid={`emoji-cell-${e}`}
-            >{e}</button>
-          ))}
+      <PopoverContent align="start" className="max-w-[20rem] flex flex-col gap-0 p-3">
+        <div className="overflow-y-auto max-h-[min(55vh,320px)]">
+          <div className="grid grid-cols-8 gap-1" data-testid="emoji-grid">
+            {EMOJI_BANK.map((e) => (
+              <button
+                key={e}
+                type="button"
+                onClick={() => pick(e)}
+                data-state={e === value ? 'active' : 'inactive'}
+                className="aspect-square text-xl data-[state=active]:bg-accent"
+                data-testid={`emoji-cell-${e}`}
+              >{e}</button>
+            ))}
+          </div>
         </div>
-        <div className="mt-3 flex gap-2">
+        <div className="mt-3 flex gap-2 flex-shrink-0">
           <input
             value={free}
             onChange={(ev) => setFree(ev.target.value)}
