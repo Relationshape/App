@@ -72,7 +72,7 @@ export function NewMapWizard({ profile }: Props) {
   const [skipSharePrompt, setSkipSharePrompt] = useState(false)
 
   // Custom category sub-wizard (shown within step 1)
-  type CatSubStep = 'list' | 'create' | 'items' | 'item-form'
+  type CatSubStep = 'list' | 'create' | 'items' | 'item-form' | 'item-scale'
   const [catSubStep, setCatSubStep] = useState<CatSubStep>('list')
   const [createTitle, setCreateTitle] = useState('')
   const [createIcon, setCreateIcon] = useState(QUICK_EMOJIS[0]!)
@@ -219,7 +219,17 @@ export function NewMapWizard({ profile }: Props) {
       if (lines.length < 2) { setItemFormError(t('q_add_custom_options_min') as string); return }
       options = lines
     }
+    if (itemFormFormat === 'scale') {
+      setCatSubStep('item-scale')
+      return
+    }
     const item: PendingCustomItem = { name, format: itemFormFormat, ...(options ? { options } : {}) }
+    setPendingItems((prev) => [...prev, item])
+    setCatSubStep('items')
+  }
+
+  function confirmItemScale() {
+    const item: PendingCustomItem = { name: itemFormName.trim(), format: 'scale' }
     setPendingItems((prev) => [...prev, item])
     setCatSubStep('items')
   }
@@ -675,6 +685,25 @@ export function NewMapWizard({ profile }: Props) {
               </Button>
               <Button onClick={submitItemForm} data-testid="wizard-item-form-submit">
                 {t('btn_ok')}
+              </Button>
+            </div>
+          </>
+        )}
+
+        {step === 1 && catSubStep === 'item-scale' && pendingCatMeta && (
+          <>
+            <DialogHeader>
+              <DialogTitle>{t('q_add_custom_scale_title')}</DialogTitle>
+            </DialogHeader>
+            <div className="flex-1 overflow-y-auto min-h-0 flex flex-col gap-3">
+              <p className="muted small">{t('q_add_custom_scale_sub')}</p>
+            </div>
+            <div className="rs-modal-actions">
+              <Button variant="ghost" onClick={() => setCatSubStep('item-form')} data-testid="wizard-item-scale-back">
+                {t('btn_cancel')}
+              </Button>
+              <Button onClick={confirmItemScale} data-testid="wizard-item-scale-default">
+                {t('q_add_custom_scale_use_default')}
               </Button>
             </div>
           </>

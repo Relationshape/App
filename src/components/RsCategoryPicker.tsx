@@ -42,7 +42,7 @@ export function applyPendingItems(result: Result, itemsByCat: PendingItemsByCat)
     const customs: Record<string, AnswerCell> = { ...(slot.__custom ?? {}) }
     const defs: Record<string, CustomItemDef> = { ...((next.customItemDefs ?? {})[catId] ?? {}) }
     for (const item of items) {
-      const cell: AnswerCell = { scale: 'open' }
+      const cell: AnswerCell = { scale: '' }
       if (item.format === 'scale' && item.itemScale) cell.itemScale = item.itemScale
       customs[item.name] = cell
       const def: CustomItemDef = { format: item.format }

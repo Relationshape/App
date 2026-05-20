@@ -27,13 +27,13 @@ export function QuestionnaireNav({ result, profileId, activeCat, onNextCat, onPr
       className="q-nav sticky bottom-0 z-10 bg-surface border-t border-line"
       aria-label="Questionnaire navigation"
     >
-      <div className="mx-auto w-full max-w-[920px] px-4 py-2 flex items-center gap-3">
+      <div className="mx-auto w-full max-w-[920px] px-4 py-2 flex flex-wrap items-center gap-2">
         <Button asChild variant="ghost" size="sm" data-testid="q-nav-categories">
           <Link to={`/q-categories/${profileId}/${result.id}`}>
             {t('q_back_to_categories')}
           </Link>
         </Button>
-        <div className="ml-auto flex items-center gap-2">
+        <div className="ml-auto flex flex-wrap items-center gap-2">
           {onPrevCat && (
             <button
               type="button"

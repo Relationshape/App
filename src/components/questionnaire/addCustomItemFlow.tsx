@@ -230,7 +230,7 @@ export async function runAddCustomItemFlow({
     const next = structuredClone(result)
     if (storeTemplateWarningDisabled) next.templateWarningDisabled = true
     const ns = next.answers[catId] ?? {}
-    ns.__custom = { ...(ns.__custom ?? {}), [name]: { scale: 'open' } }
+    ns.__custom = { ...(ns.__custom ?? {}), [name]: { scale: '' } }
     next.answers[catId] = ns
 
     const def: CustomItemDef = { format, ...(options ? { options } : {}) }
