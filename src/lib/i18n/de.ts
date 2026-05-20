@@ -78,7 +78,7 @@ export const DE: Record<TranslationKey, string> = {
     'Dein Profil ist deine Identität in der App. Wähle Name, Emoji und Akzentfarbe.',
   howto_step2_title: 'Beziehungskarte starten',
   howto_step2_desc:
-    'Für jede Verbindung, über die du nachdenken möchtest, legst du eine neue Karte an – z.B. „Sam, meine beste Freund*in".',
+    'Für jede Verbindung, über die du nachdenken möchtest, legst du eine neue Karte an – z.B. „Vera, meine gute Freundin".',
   howto_step3_title: 'Fragebogen ausfüllen',
   howto_step3_desc:
     'Gehe durch 30 Kategorien – emotionale Nähe, körperliche Intimität, Finanzen, gemeinsames Leben u.v.m. Bewerte jedes Element von Nein bis Brauche ich.',
@@ -95,22 +95,22 @@ export const DE: Record<TranslationKey, string> = {
     'Diese App hilft dir, die Form deiner Beziehungen in vielen Dimensionen zu kartieren: emotionale Nähe, körperliche Intimität, gemeinsames Leben, Finanzen und mehr.',
   wizard_s2_title: 'Alles bleibt privat 🔒',
   wizard_s2_body:
-    'Alle Daten werden nur in deinem Browser gespeichert – keine Accounts, keine Server, keine Analyse. Du hast die volle Kontrolle.',
+    'Dein Profil und alle Daten werden nur lokal auf deinem Gerät gespeichert - keine Accounts, keine Server, keine Analytics. Du hast die volle Kontrolle.',
   wizard_s3_title: 'Zuerst ein Profil anlegen 👤',
   wizard_s3_body:
     'Ein Profil repräsentiert dich in der App. Erstelle ein Profil und kartiere damit beliebig viele Beziehungen.',
   wizard_s4_title: 'Beziehungen kartieren 🗺️',
   wizard_s4_body:
-    'Für jede Beziehung, über die du nachdenken möchtest, erstelle eine „Beziehungskarte". Gehe durch die Kategorien und bewerte jedes Element – von „Nein" bis „Brauche ich".',
+    'Für jede Beziehung, die du/ihr reflektieren möchtet, erstelle eine Beziehungskarte. Wähle aus vielen Kategorien und Fragen aus, oder erstelle deine Eigenen. Beantworte die Fragen und bewerte Elemente in deiner subjektiven Wichtigkeit.',
   wizard_s5_title: 'Ergebnisse teilen und importieren 📤',
   wizard_s5_body:
-    'Teile deine Eingaben und importiere die Karte deines Gegenübers mit Ende-zu-Ende-Verschlüsselung. Nichts wird an einen Server gesendet – du tauschst eine Datei aus und einigt euch separat auf ein Passwort.',
+    'Teile deine Karten mit oder ohne Antworten und importiere Karten oder Vorlagen von deinen Mitmenschen Ende-zu-Ende verschlüsselt.',
   wizard_s6_title: 'Vergleichen und Mapping 📊',
   wizard_s6_body:
-    'Sieh dir die Antworten deines Gegenübers an und überlagere eure jeweiligen Karten für einen visuellen Vergleich eurer Wünsche und Bedürfnisse.',
+    'Sieh dir die Antworten deines Gegenübers an und überlagere eure jeweiligen Karten für einen direkten Vergleich eurer Wünsche und Bedürfnisse - die Grundlage für weitere Reflexion, Gespräche und Abmachungen.',
   wizard_s7_title: 'In den Einstellungen anpassen ⚙️',
   wizard_s7_body:
-    'In den Einstellungen kannst du die Antwortskala anpassen (Beschriftungen, Farben, Anzahl der Stufen) und festlegen, welche Elemente in jeder Kategorie erscheinen – mach es ganz zu deinem eigenen.',
+    'In den Einstellungen kannst du deine eigene Standard-Antwortskala erstellen, deine Daten verwalten, und zwischen Anzeige-Modi hin und her wechseln. Passe alles an, wie\'s dir gefällt!',
   wizard_prev: '← Zurück',
   wizard_next: 'Weiter →',
   wizard_finish: "Los geht's! ✨",

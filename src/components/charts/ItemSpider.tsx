@@ -320,6 +320,11 @@ export function ItemSpider({ datasets, catId, size = 480, grSide, zoomable = tru
       >
         {renderSpider(false)}
       </div>
+      {zoomable && (
+        <p className="muted small text-center mt-1" style={{ opacity: 0.65 }} data-testid={`item-spider-hint-${catId}`}>
+          {t('spider_hover_hint')} · {t('spider_click_to_enlarge')}
+        </p>
+      )}
 
       {zoomable && (
         <Dialog open={enlarged} onOpenChange={setEnlarged}>
