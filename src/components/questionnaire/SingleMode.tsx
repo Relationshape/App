@@ -307,7 +307,7 @@ export function SingleMode({ result, profile }: Props) {
   const cardStyle = { ['--c' as string]: cat.color } as React.CSSProperties
 
   return (
-    <div data-testid="single-mode" className="flex flex-col min-h-screen">
+    <div data-testid="single-mode" className="flex flex-col h-[100dvh]">
       <QuestionnaireHeader
         result={result}
         profileId={profile.id}
@@ -315,7 +315,7 @@ export function SingleMode({ result, profile }: Props) {
         idx={state.cursor}
         total={items.length}
       />
-      <section className="page q-page q-single-page mx-auto w-full">
+      <section className="flex-1 overflow-y-auto page q-page q-single-page mx-auto w-full">
         <p className="q-nav-hint muted small">
           {coarse ? t('q_single_hint_mobile') : t('q_single_hint_desktop')}
         </p>

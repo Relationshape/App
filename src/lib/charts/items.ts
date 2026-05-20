@@ -19,12 +19,12 @@ export function enabledItemsForCat(
   const hidden = slot.__hidden ?? {}
   const cat = CATEGORIES.find((c) => c.id === catId)
   if (!cat) {
-    // Custom category — all items are stored as custom items
-    return { base: [], custom: Object.keys(slot.__custom ?? {}) }
+    // Custom category — all items are stored as custom items; reverse so newest appears first
+    return { base: [], custom: Object.keys(slot.__custom ?? {}).reverse() }
   }
   return {
     base: cat.items.filter((it) => !hidden[it]),
-    custom: Object.keys(slot.__custom ?? {}),
+    custom: Object.keys(slot.__custom ?? {}).reverse(),
   }
 }
 

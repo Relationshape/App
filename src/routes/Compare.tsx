@@ -162,7 +162,8 @@ export function Compare() {
     return [...builtinIds, ...customIds]
   }, [datasets])
 
-  const filteredCatIds = compareFilterIds
+  // In Fabi mode show all categories that have answers; otherwise respect enabled-category filter
+  const filteredCatIds = (!fabiMode && compareFilterIds)
     ? allCatIds.filter((id) => compareFilterIds.includes(id))
     : allCatIds
 
@@ -319,21 +320,10 @@ export function Compare() {
         </div>
       </div>
 
-      {/* Fabi-mode spider or tip */}
-      {datasets.length > 0 && (
-        fabiMode ? (
-          <section className="page-section panel">
-            <Spider
-              datasets={datasets}
-              activeAxis={activeAxis}
-              onAxisTap={(ax) => setActiveAxis((p) => (p === ax ? null : ax))}
-            />
-          </section>
-        ) : (
-          <p className="callout muted small" data-testid="compare-fabi-tip">
-            {t('compare_fabi_tip')}
-          </p>
-        )
+      {datasets.length > 0 && !fabiMode && (
+        <p className="callout muted small" data-testid="compare-fabi-tip">
+          {t('compare_fabi_tip')}
+        </p>
       )}
 
       {datasets.length >= 2 && (
@@ -365,6 +355,21 @@ export function Compare() {
               />
             ))}
           </div>
+        </section>
+      )}
+
+      {/* Fabi-mode overview spider — shown below category details */}
+      {datasets.length > 0 && fabiMode && (
+        <section className="page-section panel" data-testid="compare-fabi-spider">
+          <header className="section-head">
+            <h2>{t('fabi_spider_title')}</h2>
+            <p className="muted small">{t('fabi_spider_sub')}</p>
+          </header>
+          <Spider
+            datasets={datasets}
+            activeAxis={activeAxis}
+            onAxisTap={(ax) => setActiveAxis((p) => (p === ax ? null : ax))}
+          />
         </section>
       )}
 

@@ -132,17 +132,14 @@ export function CategoryOverview() {
             {t('btn_back')}
           </a>
         </Button>
-        <div className="cat-overview-context-card" data-testid="cat-overview-context">
-          <span className="cat-overview-context-emoji" aria-hidden>{profile.emoji}</span>
-          <div className="cat-overview-context-info">
-            <span className="cat-overview-context-name">{profile.name}</span>
-            {result.subject && (
-              <span className="cat-overview-context-subject">{result.subject}</span>
-            )}
-          </div>
-        </div>
-        <div className="cat-overview-head-body">
+        <div className="cat-overview-head-body" data-testid="cat-overview-context">
           <h1 className="cat-overview-title">{t('q_overview_title')}</h1>
+          <p className="cat-overview-breadcrumb" aria-label={`${profile.name} → ${result.subject || profile.name}`}>
+            <span>{profile.name}</span>
+            {result.subject && (
+              <><span className="cat-overview-breadcrumb-arrow" aria-hidden="true"> → </span><span>{result.subject}</span></>
+            )}
+          </p>
           <p className="cat-overview-sub muted">{t('q_overview_sub')}</p>
         </div>
       </header>

@@ -15,7 +15,6 @@ import {
   makeCustomCatId,
   nextCustomCatColor,
 } from '@/lib/data/customCategories'
-import { ScaleEditor } from '@/components/ScaleEditor'
 import { t, getLang } from '@/lib/i18n/i18n'
 import type { CustomCategoryDef, CustomItemFormat, CustomItemDef, AnswerCell, Result, Profile } from '@/lib/storage/types'
 import type { MutableScaleStep } from '@/lib/data/types'
@@ -27,7 +26,7 @@ export interface PendingCustomItem {
   itemScale?: MutableScaleStep[]
 }
 
-type WizardStep = 'list' | 'create' | 'items' | 'item-form'
+type WizardStep = 'list' | 'create' | 'items' | 'item-form' | 'item-scale'
 
 export interface PendingItemsByCat {
   [catId: string]: PendingCustomItem[]
@@ -175,7 +174,17 @@ export function RsCategoryPicker({ open, onOpenChange, existingIds, result, prof
       if (lines.length < 2) { setItemFormError(t('q_add_custom_options_min') as string); return }
       options = lines
     }
+    if (itemFormFormat === 'scale') {
+      setWizardStep('item-scale')
+      return
+    }
     const item: PendingCustomItem = { name, format: itemFormFormat, ...(options ? { options } : {}) }
+    setPendingItems((prev) => [...prev, item])
+    setWizardStep('items')
+  }
+
+  function confirmItemScale() {
+    const item: PendingCustomItem = { name: itemFormName.trim(), format: 'scale' }
     setPendingItems((prev) => [...prev, item])
     setWizardStep('items')
   }
@@ -539,6 +548,34 @@ export function RsCategoryPicker({ open, onOpenChange, existingIds, result, prof
           </>
         )}
 
+        {wizardStep === 'item-scale' && pendingCat && (
+          <>
+            <DialogTitle asChild>
+              <h2 className="rs-modal-title">{t('q_add_custom_scale_title')}</h2>
+            </DialogTitle>
+            <div className="flex-1 overflow-y-auto min-h-0 flex flex-col gap-3">
+              <p className="muted small">{t('q_add_custom_scale_sub')}</p>
+            </div>
+            <div className="rs-modal-actions">
+              <button
+                type="button"
+                className="btn btn-ghost"
+                onClick={() => setWizardStep('item-form')}
+              >
+                {t('btn_cancel')}
+              </button>
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={confirmItemScale}
+                data-testid="cat-item-scale-default"
+              >
+                {t('q_add_custom_scale_use_default')}
+              </button>
+            </div>
+          </>
+        )}
+
         {wizardStep === 'items' && pendingCat && (
           <>
             <DialogTitle asChild>
@@ -657,47 +694,21 @@ export function OptionsInputInline({ onClose }: { onClose: (v: string[] | false)
 }
 
 export function ScalePickerInline({
-  defaultScale,
   onClose,
 }: {
-  defaultScale: MutableScaleStep[]
-  onClose: (v: MutableScaleStep[] | null | false) => void
+  onClose: (v: null | false) => void
 }) {
-  const [customizing, setCustomizing] = useState(false)
-  const [customScale, setCustomScale] = useState<MutableScaleStep[]>(() => defaultScale.map((s) => ({ ...s })))
-
   return (
     <div className="flex flex-col gap-3">
       <p className="muted small">{t('q_add_custom_scale_sub')}</p>
-      {!customizing ? (
-        <>
-          <div className="flex gap-2 justify-end">
-            <Button variant="ghost" onClick={() => onClose(false)}>
-              {t('btn_cancel')}
-            </Button>
-            <Button variant="ghost" onClick={() => setCustomizing(true)}>
-              {t('q_add_custom_scale_customize')}
-            </Button>
-            <Button onClick={() => onClose(null)}>
-              {t('q_add_custom_scale_use_default')}
-            </Button>
-          </div>
-        </>
-      ) : (
-        <>
-          <div className="overflow-y-auto" style={{ maxHeight: '45vh' }}>
-            <ScaleEditor scale={customScale} onChange={setCustomScale} />
-          </div>
-          <div className="flex gap-2 justify-end">
-            <Button variant="ghost" onClick={() => { setCustomizing(false); setCustomScale(defaultScale.map((s) => ({ ...s }))) }}>
-              {t('btn_back')}
-            </Button>
-            <Button onClick={() => onClose(customScale)}>
-              {t('btn_ok')}
-            </Button>
-          </div>
-        </>
-      )}
+      <div className="flex gap-2 justify-end">
+        <Button variant="ghost" onClick={() => onClose(false)}>
+          {t('btn_cancel')}
+        </Button>
+        <Button onClick={() => onClose(null)}>
+          {t('q_add_custom_scale_use_default')}
+        </Button>
+      </div>
     </div>
   )
 }

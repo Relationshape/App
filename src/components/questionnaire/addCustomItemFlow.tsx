@@ -3,7 +3,6 @@
 
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { ScaleEditor } from '@/components/ScaleEditor'
 import { dialog } from '@/lib/dialog/dialog'
 import type { Result, CustomItemDef, CustomItemFormat } from '@/lib/storage/types'
 import type { MutableScaleStep } from '@/lib/data/types'
@@ -93,53 +92,29 @@ export function CustomScalePicker({
   onClose: (v: MutableScaleStep[] | 'default' | false) => void
 }) {
   const lang = getLang()
-  const [customizing, setCustomizing] = useState(false)
-  const [customScale, setCustomScale] = useState<MutableScaleStep[]>(() => defaultScale.map((s) => ({ ...s })))
-
   return (
     <div className="flex flex-col gap-3">
       <p className="muted small">{t('q_add_custom_scale_sub')}</p>
-      {!customizing ? (
-        <>
-          <div className="scale-preview-list">
-            {defaultScale.map((s) => {
-              const loc = localizeStep(s, lang)
-              return (
-                <div key={s.key} className="scale-preview-row">
-                  <div className="scale-preview-swatch" style={{ background: s.color }} />
-                  <span className="scale-preview-label">{loc.label}</span>
-                  <span className="scale-preview-short">{loc.short}</span>
-                </div>
-              )
-            })}
-          </div>
-          <div className="flex flex-wrap gap-2 justify-end">
-            <Button variant="ghost" onClick={() => onClose(false)} data-testid="modal-add-custom-scale-cancel">
-              {t('btn_cancel')}
-            </Button>
-            <Button variant="ghost" onClick={() => setCustomizing(true)}>
-              {t('q_add_custom_scale_customize')}
-            </Button>
-            <Button onClick={() => onClose('default')} data-testid="modal-add-custom-scale-default">
-              {t('q_add_custom_scale_use_default')}
-            </Button>
-          </div>
-        </>
-      ) : (
-        <>
-          <div className="overflow-y-auto" style={{ maxHeight: '45vh' }}>
-            <ScaleEditor scale={customScale} onChange={setCustomScale} />
-          </div>
-          <div className="flex gap-2 justify-end">
-            <Button variant="ghost" onClick={() => { setCustomizing(false); setCustomScale(defaultScale.map((s) => ({ ...s }))) }}>
-              {t('btn_back')}
-            </Button>
-            <Button onClick={() => onClose(customScale)} data-testid="modal-add-custom-scale-confirm">
-              {t('btn_ok')}
-            </Button>
-          </div>
-        </>
-      )}
+      <div className="scale-preview-list">
+        {defaultScale.map((s) => {
+          const loc = localizeStep(s, lang)
+          return (
+            <div key={s.key} className="scale-preview-row">
+              <div className="scale-preview-swatch" style={{ background: s.color }} />
+              <span className="scale-preview-label">{loc.label}</span>
+              <span className="scale-preview-short">{loc.short}</span>
+            </div>
+          )
+        })}
+      </div>
+      <div className="flex flex-wrap gap-2 justify-end">
+        <Button variant="ghost" onClick={() => onClose(false)} data-testid="modal-add-custom-scale-cancel">
+          {t('btn_cancel')}
+        </Button>
+        <Button onClick={() => onClose('default')} data-testid="modal-add-custom-scale-default">
+          {t('q_add_custom_scale_use_default')}
+        </Button>
+      </div>
     </div>
   )
 }
@@ -164,7 +139,7 @@ export interface RunAddCustomItemFlowParams {
 export async function runAddCustomItemFlow({
   result,
   catId,
-  scale,
+  scale: _scale,
   onSave,
   onDuplicate,
   storeTemplateWarningDisabled,
@@ -252,36 +227,19 @@ export async function runAddCustomItemFlow({
     if (backToName) { initialName = name; continue }
     if (!format) continue
 
-    // Step 4: scale selection (scale format only)
-    let itemScale: MutableScaleStep[] | null = null
-    if (format === 'scale') {
-      const scaleResult = await dialog<MutableScaleStep[] | 'default' | false>({
-        title: t('q_add_custom_scale_title'),
-        dismissable: false,
-        body: (close) => <CustomScalePicker defaultScale={scale as MutableScaleStep[]} onClose={close} />,
-        actions: [],
-      })
-      // null = X button (cancel), false = cancel button, 'default' = use result scale
-      if (scaleResult === null || scaleResult === false) return null
-      itemScale = scaleResult === 'default' ? null : scaleResult
-    }
-
     const next = structuredClone(result)
     if (storeTemplateWarningDisabled) next.templateWarningDisabled = true
     const ns = next.answers[catId] ?? {}
-    const cell = (format === 'scale' && itemScale) ? { scale: 'open', itemScale } : { scale: 'open' }
-    ns.__custom = { ...(ns.__custom ?? {}), [name]: cell }
+    ns.__custom = { ...(ns.__custom ?? {}), [name]: { scale: 'open' } }
     next.answers[catId] = ns
 
-    if (format !== 'scale' || options) {
-      const def: CustomItemDef = { format, ...(options ? { options } : {}) }
-      next.customItemDefs = {
-        ...(next.customItemDefs ?? {}),
-        [catId]: {
-          ...(next.customItemDefs?.[catId] ?? {}),
-          [name]: def,
-        },
-      }
+    const def: CustomItemDef = { format, ...(options ? { options } : {}) }
+    next.customItemDefs = {
+      ...(next.customItemDefs ?? {}),
+      [catId]: {
+        ...(next.customItemDefs?.[catId] ?? {}),
+        [name]: def,
+      },
     }
 
     onSave(next)

@@ -261,8 +261,9 @@ export function catProgress(
   }
 
   if (!cat) {
-    // Custom category: items are tracked via customItemDefs
-    const itemKeys = Object.keys(customItemDefs?.[catId] ?? {}).filter(
+    // Custom category: use slot.__custom as source of truth because scale-format
+    // items may not have a customItemDefs entry (they are still in __custom).
+    const itemKeys = Object.keys(slot.__custom ?? {}).filter(
       (k) => !slot.__hidden?.[k],
     )
     let answered = 0
