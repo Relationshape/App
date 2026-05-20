@@ -18,8 +18,8 @@ function escapeXml(s: string): string {
 
 // Mirror of ItemSpider.itemLabelFontSize — same formula, same scaling behaviour.
 function itemLabelFontSize(itemCount: number, size: number): number {
-  const cap = Math.round(size * 0.045)
-  return Math.round(Math.max(10, Math.min(cap, (160 * size / 480) / itemCount)))
+  const ref14 = Math.round(Math.max(10, size * 0.024))
+  return Math.round(Math.max(9, Math.min(ref14, ref14 * 14 / Math.max(14, itemCount))))
 }
 
 export interface SpiderSvgResult {
@@ -57,14 +57,6 @@ export function buildSpiderSvg(
   const items = Array.from(itemSet)
   if (items.length === 0) return null
 
-  const fs = itemLabelFontSize(items.length, size)
-  const pad = Math.max(120, Math.ceil(fs * 10.5))
-  const r = size / 2 - pad
-  const cx = size / 2
-  const cy = size / 2
-  const lineHeight = fs * 1.15
-  const maxCharsPerLine = Math.round(9 * Math.sqrt(size / 480))
-
   // Compute data points — mirrors ItemSpider grSide logic
   const dataPoints = truncated.map((ds) => {
     const max = scaleMaxValue(ds.scale)
@@ -72,7 +64,7 @@ export function buildSpiderSvg(
       const isCustom = displayItem.startsWith('✶ ')
       const key = isCustom ? displayItem.slice(2) : displayItem
       const cell = isCustom ? ds.answers[catId]?.__custom?.[key] : ds.answers[catId]?.[key]
-      if (!cell) return { norm: 0, v: 0, step: undefined as typeof ds.scale[0] | undefined }
+      if (!cell) return { norm: 0, v: 0, step: undefined as typeof ds.scale[0] | undefined, answered: false }
 
       let scaleKey: string | undefined
       let fracVal: number | undefined
@@ -85,25 +77,40 @@ export function buildSpiderSvg(
           scaleKey = cell.receiving ?? (cell.gr === 'R' || cell.gr === 'Both' ? cell.scale : undefined)
           fracVal = cell.receivingFrac ?? (cell.gr === 'R' || cell.gr === 'Both' ? cell.scaleFrac : undefined)
         }
+        if (!scaleKey && fracVal == null) return { norm: 0, v: 0, step: undefined as typeof ds.scale[0] | undefined, answered: false }
       } else {
-        if (!cell.scale || (isCustom && cell.scale === 'open' && cell.scaleFrac == null)) return { norm: 0, v: 0, step: undefined as typeof ds.scale[0] | undefined }
+        if (!cell.scale || (isCustom && cell.scale === 'open' && cell.scaleFrac == null)) return { norm: 0, v: 0, step: undefined as typeof ds.scale[0] | undefined, answered: false }
         scaleKey = cell.scale
         fracVal = cell.scaleFrac
       }
 
       const step = scaleKey ? ds.scale.find((s) => s.key === scaleKey) : undefined
       const v = step ? step.value : (fracVal !== undefined ? fracVal * max : 0)
-      const norm = max > 0 && v > 0 ? v / max : 0
-      return { norm, v, step }
+      const norm = max > 0 ? v / max : 0
+      return { norm, v, step, answered: true }
     })
   })
 
-  const answeredItemCount = items.filter((_, i) =>
-    dataPoints.some((ds) => (ds[i]?.v ?? 0) > 0),
-  ).length
+  // Filter to axes that have at least one answer across any dataset
+  const answeredIndices = items
+    .map((_, i) => i)
+    .filter((i) => dataPoints.some((ds) => ds[i]?.answered))
+  const filteredItems = answeredIndices.map((i) => items[i]!)
+  const filteredDataPoints = dataPoints.map((ds) => answeredIndices.map((i) => ds[i]!))
+
+  const answeredItemCount = filteredItems.length
   if (answeredItemCount < 2) return { svg: '', answeredItemCount }
 
+  const fs = itemLabelFontSize(filteredItems.length, size)
+  const pad = Math.max(120, Math.ceil(fs * 10.5))
+  const r = size / 2 - pad
+  const cx = size / 2
+  const cy = size / 2
+  const lineHeight = fs * 1.15
+  const maxCharsPerLine = Math.round(9 * Math.sqrt(size / 480))
+
   const parts: string[] = []
+  const MIN_FRAC = 0.13
 
   parts.push(
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}" ` +
@@ -115,22 +122,23 @@ export function buildSpiderSvg(
   // Grid rings
   for (const g of [1, 2, 3]) {
     const rr = (r * g) / 3
-    const pts = items.map((_, i) => polarToCartesian(i, items.length, rr, cx, cy).join(',')).join(' ')
+    const pts = filteredItems.map((_, i) => polarToCartesian(i, filteredItems.length, rr, cx, cy).join(',')).join(' ')
     parts.push(`<polygon points="${pts}" fill="none" stroke="#222" stroke-opacity="${(0.08 * g).toFixed(2)}"/>`)
   }
 
   // Spokes
-  for (let i = 0; i < items.length; i++) {
-    const [x, y] = polarToCartesian(i, items.length, r, cx, cy)
+  for (let i = 0; i < filteredItems.length; i++) {
+    const [x, y] = polarToCartesian(i, filteredItems.length, r, cx, cy)
     parts.push(`<line x1="${cx.toFixed(1)}" y1="${cy.toFixed(1)}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="#222" stroke-opacity="0.2"/>`)
   }
 
-  // Dataset polygons
+  // Dataset polygons — unanswered axes go to center (0), answered axes offset by MIN_FRAC
   for (let di = 0; di < truncated.length; di++) {
     const ds = truncated[di]!
-    const pts = items.map((_, i) => {
-      const norm = dataPoints[di]?.[i]?.norm ?? 0
-      return polarToCartesian(i, items.length, r * norm, cx, cy).map((v) => v.toFixed(1)).join(',')
+    const pts = filteredItems.map((_, i) => {
+      const pt = filteredDataPoints[di]?.[i]
+      const plotNorm = pt?.answered ? (MIN_FRAC + pt.norm * (1 - MIN_FRAC)) : 0
+      return polarToCartesian(i, filteredItems.length, r * plotNorm, cx, cy).map((v) => v.toFixed(1)).join(',')
     }).join(' ')
     parts.push(`<polygon points="${pts}" fill="${ds.color}" fill-opacity="0.25" stroke="${ds.color}" stroke-width="2"/>`)
   }
@@ -138,10 +146,11 @@ export function buildSpiderSvg(
   // Answer dots
   for (let di = 0; di < truncated.length; di++) {
     const ds = truncated[di]!
-    for (let i = 0; i < items.length; i++) {
-      const pt = dataPoints[di]?.[i]
-      if (!pt || pt.v === 0) continue
-      const [px, py] = polarToCartesian(i, items.length, r * pt.norm, cx, cy)
+    for (let i = 0; i < filteredItems.length; i++) {
+      const pt = filteredDataPoints[di]?.[i]
+      if (!pt?.answered) continue
+      const plotNorm = MIN_FRAC + pt.norm * (1 - MIN_FRAC)
+      const [px, py] = polarToCartesian(i, filteredItems.length, r * plotNorm, cx, cy)
       const dotR = Math.max(4, fs * 0.36)
       parts.push(
         `<circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="${dotR.toFixed(1)}" ` +
@@ -151,9 +160,9 @@ export function buildSpiderSvg(
   }
 
   // Axis labels
-  for (let i = 0; i < items.length; i++) {
-    const displayItem = items[i]!
-    const [lx, ly] = polarToCartesian(i, items.length, r + fs * 1.7, cx, cy)
+  for (let i = 0; i < filteredItems.length; i++) {
+    const displayItem = filteredItems[i]!
+    const [lx, ly] = polarToCartesian(i, filteredItems.length, r + fs * 1.7, cx, cy)
     const anchor = Math.abs(lx - cx) < 4 ? 'middle' : lx > cx ? 'start' : 'end'
     const isCustom = displayItem.startsWith('✶ ')
     const rawLabel = isCustom ? displayItem.slice(2) : getItemLabel(catId, displayItem, lang)
