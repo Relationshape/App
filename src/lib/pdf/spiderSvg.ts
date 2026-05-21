@@ -18,8 +18,8 @@ function escapeXml(s: string): string {
 
 // Mirror of ItemSpider.itemLabelFontSize — same formula, same scaling behaviour.
 function itemLabelFontSize(itemCount: number, size: number): number {
-  const ref14 = Math.round(Math.max(10, size * 0.024))
-  return Math.round(Math.max(9, Math.min(ref14, ref14 * 14 / Math.max(14, itemCount))))
+  const ref14 = Math.round(Math.max(11, size * 0.028))
+  return Math.round(Math.max(11, Math.min(ref14, ref14 * 14 / Math.max(14, itemCount))))
 }
 
 export interface SpiderSvgResult {

@@ -283,12 +283,21 @@ export async function generatePdfReport({
       ly += 4
     }
 
-    // Scale range note (replaces colour-coded scale legend)
-    const scaleMax = cat.scale.reduce((m, s) => Math.max(m, s.value), 0)
-    doc.setFont('helvetica', 'normal')
+    // Scale steps spelled out
+    doc.setFont('helvetica', 'bold')
     doc.setFontSize(7)
     doc.setTextColor(110, 100, 140)
-    doc.text(`${lang === 'de' ? 'Skala' : 'Scale'}: 0 – ${scaleMax}`, LEGEND_X, ly)
+    doc.text(lang === 'de' ? 'Skala:' : 'Scale:', LEGEND_X, ly)
+    ly += 4
+    const scaleSorted = [...cat.scale].sort((a, b) => a.value - b.value)
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(6.5)
+    for (const step of scaleSorted) {
+      const stepLabel = localizeStep(step, lang).label
+      const stepLines = doc.splitTextToSize(`${step.value} – ${stepLabel}`, LEGEND_W) as string[]
+      doc.text(stepLines[0]!, LEGEND_X, ly)
+      ly += 3.8
+    }
   }
 
   // ── Items section (Element für Element) ────────────────────────────────────
