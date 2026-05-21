@@ -672,6 +672,10 @@ export const EN = {
   export_include_hidden_yes: 'Yes, include',
   export_include_hidden_no: 'No, exclude',
 
+  // Compare detail page
+  compare_go_to_details: 'Compare selected maps →',
+  compare_overview_btn: 'Cross-category overview',
+
   // PDF report
   btn_pdf_report: '📄 PDF Report',
   btn_download_pdf: '📄 Download as PDF',

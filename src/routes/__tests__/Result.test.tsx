@@ -117,17 +117,8 @@ describe('Result route (Phase 04 D-01/D-02 + RESULT-01..07)', () => {
     }, { timeout: 5000 })
   }, 30000)
 
-  it('D-01: Fabi-mode renders the Spider overview section; off-mode hides it', async () => {
-    // Off-mode — no Spider overview section.
-    await mountAtHash(`#/result/${RESULT_ID}`, makeStore({ fabiMode: false }))
-    await waitFor(() => {
-      expect(document.querySelector('[data-testid="result-page"]')).not.toBeNull()
-    }, { timeout: 10000 })
-    expect(document.querySelector('[data-testid="result-spider-section"]')).toBeNull()
-
-    // On-mode — Spider overview section present.
-    cleanup()
-    await mountAtHash(`#/result/${RESULT_ID}`, makeStore({ fabiMode: true }))
+  it('D-01: Spider overview section is always visible (fabiMode is always enabled)', async () => {
+    await mountAtHash(`#/result/${RESULT_ID}`, makeStore())
     await waitFor(() => {
       expect(document.querySelector('[data-testid="result-spider-section"]')).not.toBeNull()
     }, { timeout: 10000 })

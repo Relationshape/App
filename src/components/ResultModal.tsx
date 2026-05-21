@@ -8,7 +8,6 @@ import { CategoryModal } from '@/components/charts/CategoryModal'
 import { RsCategoryCard } from '@/components/RsCategoryCard'
 import { mapResultToDataset } from '@/lib/charts/datasets'
 import { CATEGORIES } from '@/lib/data/data'
-import { useStore } from '@/lib/storage/store'
 import { countAnswers, fmtDate } from '@/lib/format/date'
 import { t, getLang } from '@/lib/i18n/i18n'
 import { useToast } from '@/lib/hooks/useToast'
@@ -26,7 +25,7 @@ interface Props {
 export function ResultModal({ open, onOpenChange, result, profile }: Props) {
   const [selectedCat, setSelectedCat] = useState<CategoryDef | null>(null)
   const [generatingPdf, setGeneratingPdf] = useState(false)
-  const fabiMode = useStore((s) => s.settings.fabiMode ?? false)
+  const fabiMode = true
   const navigate = useNavigate()
   const { toast } = useToast()
 

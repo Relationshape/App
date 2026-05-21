@@ -35,7 +35,7 @@ export function Result() {
   const profile = useStore((s) =>
     result ? s.profiles.find((p) => p.id === result.profileId) ?? null : null,
   )
-  const fabiMode = useStore((s) => s.settings.fabiMode ?? false)
+  const fabiMode = true
   const saveResult = useStore((s) => s.saveResult)
   const { openShare } = useShareData()
 

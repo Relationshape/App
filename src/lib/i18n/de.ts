@@ -691,6 +691,10 @@ export const DE: Record<TranslationKey, string> = {
   export_include_hidden_yes: 'Ja, exportieren',
   export_include_hidden_no: 'Nein, weglassen',
 
+  // Vergleichsdetailseite
+  compare_go_to_details: 'Ausgewählte Karten vergleichen →',
+  compare_overview_btn: 'Kategorieübergreifende Ergebnisse',
+
   // PDF-Bericht
   btn_pdf_report: '📄 PDF-Bericht',
   btn_download_pdf: '📄 Als PDF herunterladen',
