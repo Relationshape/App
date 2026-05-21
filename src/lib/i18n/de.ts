@@ -538,6 +538,7 @@ export const DE: Record<TranslationKey, string> = {
   q_edit_item_scale_warning: 'Eine neue Skala setzt die Antwort dieses Punkts zurück.',
   q_item_rename_label: 'Eigene Bezeichnung (optional)',
   q_item_scale_reset: 'Standard-Skala verwenden',
+  q_item_scale_confirm: 'Diese Skala verwenden',
   unlock_answers_btn: 'Antworten entsperren',
   unlock_answers_title: 'Entsperr-Passwort eingeben',
   unlock_answers_sub: 'Gib das Entsperr-Passwort ein, um die Antworten dieses Imports freizuschalten.',

@@ -16,6 +16,8 @@ import {
   nextCustomCatColor,
 } from '@/lib/data/customCategories'
 import { t, getLang } from '@/lib/i18n/i18n'
+import { useStore } from '@/lib/storage/store'
+import { ScaleEditor } from '@/components/ScaleEditor'
 import type { CustomCategoryDef, CustomItemFormat, CustomItemDef, AnswerCell, Result, Profile } from '@/lib/storage/types'
 import type { MutableScaleStep } from '@/lib/data/types'
 
@@ -72,6 +74,8 @@ interface Props {
 
 export function RsCategoryPicker({ open, onOpenChange, existingIds, result, profile, onSubmit }: Props) {
   const lang = getLang()
+  const storeScale = useStore((s) => s.scale)
+  const mapScale = result.scale ?? storeScale
 
   const lockedIds = useMemo(() => new Set(existingIds), [existingIds])
   const [checkedIds, setCheckedIds] = useState<Set<string>>(() => new Set(existingIds))
@@ -105,6 +109,7 @@ export function RsCategoryPicker({ open, onOpenChange, existingIds, result, prof
   const [itemFormFormat, setItemFormFormat] = useState<CustomItemFormat>('scale')
   const [itemFormOptions, setItemFormOptions] = useState('')
   const [itemFormError, setItemFormError] = useState('')
+  const [itemFormScale, setItemFormScale] = useState<MutableScaleStep[]>([])
 
   // Reset selection whenever the modal (re)opens or the locked set changes.
   useEffect(() => {
@@ -123,6 +128,7 @@ export function RsCategoryPicker({ open, onOpenChange, existingIds, result, prof
       setItemFormFormat('scale')
       setItemFormOptions('')
       setItemFormError('')
+      setItemFormScale([])
     }
   }, [open, existingIds])
 
@@ -182,6 +188,7 @@ export function RsCategoryPicker({ open, onOpenChange, existingIds, result, prof
       options = lines
     }
     if (itemFormFormat === 'scale') {
+      setItemFormScale(mapScale.map((s) => ({ ...s })))
       setWizardStep('item-scale')
       return
     }
@@ -190,8 +197,12 @@ export function RsCategoryPicker({ open, onOpenChange, existingIds, result, prof
     setWizardStep('items')
   }
 
-  function confirmItemScale() {
-    const item: PendingCustomItem = { name: itemFormName.trim(), format: 'scale' }
+  function confirmItemScale(customScale: MutableScaleStep[] | null) {
+    const item: PendingCustomItem = {
+      name: itemFormName.trim(),
+      format: 'scale',
+      ...(customScale ? { itemScale: customScale } : {}),
+    }
     setPendingItems((prev) => [...prev, item])
     setWizardStep('items')
   }
@@ -550,8 +561,8 @@ export function RsCategoryPicker({ open, onOpenChange, existingIds, result, prof
             <DialogTitle asChild>
               <h2 className="rs-modal-title">{t('q_add_custom_scale_title')}</h2>
             </DialogTitle>
-            <div className="flex-1 overflow-y-auto min-h-0 flex flex-col gap-3">
-              <p className="muted small">{t('q_add_custom_scale_sub')}</p>
+            <div className="flex-1 overflow-y-auto min-h-0">
+              <ScaleEditor scale={itemFormScale} onChange={setItemFormScale} />
             </div>
             <div className="rs-modal-actions">
               <button
@@ -559,15 +570,23 @@ export function RsCategoryPicker({ open, onOpenChange, existingIds, result, prof
                 className="btn btn-ghost"
                 onClick={() => setWizardStep('item-form')}
               >
-                {t('btn_cancel')}
+                {t('btn_back')}
+              </button>
+              <button
+                type="button"
+                className="btn btn-ghost"
+                onClick={() => confirmItemScale(null)}
+                data-testid="cat-item-scale-default"
+              >
+                {t('q_add_custom_scale_use_default')}
               </button>
               <button
                 type="button"
                 className="btn btn-primary"
-                onClick={confirmItemScale}
-                data-testid="cat-item-scale-default"
+                onClick={() => confirmItemScale(itemFormScale)}
+                data-testid="cat-item-scale-confirm"
               >
-                {t('q_add_custom_scale_use_default')}
+                {t('q_item_scale_confirm')}
               </button>
             </div>
           </>
