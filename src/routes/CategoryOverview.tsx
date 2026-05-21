@@ -114,6 +114,29 @@ export function CategoryOverview() {
     navigate(`/q/${profile!.id}/${result!.id}`)
   }
 
+  async function handleRemoveCat(catId: string) {
+    if (!result) return
+    const confirmed = await dialog<boolean>({
+      title: t('cat_remove_title') as string,
+      body: <p>{t('cat_remove_body')}</p>,
+      actions: [
+        { label: t('btn_cancel') as string, kind: 'ghost', value: false },
+        { label: t('btn_remove_cat') as string, kind: 'danger', value: true },
+      ],
+    })
+    if (!confirmed) return
+    const newEnabled = (result.enabledCategories ?? CATEGORIES.map((c) => c.id)).filter((id) => id !== catId)
+    const newAnswers = { ...result.answers }
+    delete newAnswers[catId]
+    const next: typeof result = { ...result, enabledCategories: newEnabled, answers: newAnswers, updatedAt: Date.now() }
+    if (result.customItemDefs?.[catId]) {
+      const newDefs = { ...result.customItemDefs }
+      delete newDefs[catId]
+      next.customItemDefs = newDefs
+    }
+    saveResult(next)
+  }
+
   function onPickerSubmit(mergedIds: string[], resultCats: CustomCategoryDef[], profileCats: CustomCategoryDef[], itemsByCat: PendingItemsByCat) {
     if (profile && profileCats.length > (profile.customCategories?.length ?? 0)) {
       updateProfile(profile.id, { customCategories: profileCats })
@@ -138,10 +161,10 @@ export function CategoryOverview() {
     try {
       const { generatePdfReport } = await import('@/lib/pdf/generateReport')
       const dataset = mapResultToDataset(result, profile!)
-      const allCatIds = [
+      const allCatIds = Array.from(new Set([
         ...(result.enabledCategories ?? CATEGORIES.map((c) => c.id)),
         ...(result.customCategories ?? []).map((c) => c.id),
-      ]
+      ]))
       const mapName = result.subject?.trim() || profile!.name
       const safeFilename = `relationshapes-${mapName.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.pdf`
       const ok = await generatePdfReport({ datasets: [dataset], categoryIds: allCatIds, lang: getLang(), filename: safeFilename })
@@ -182,20 +205,30 @@ export function CategoryOverview() {
           const pct = total > 0 ? Math.round((answered / total) * 100) : 0
           const catTitle = lang === 'de' && cat.de ? cat.de : cat.title
           return (
-            <RsTile
-              key={cat.id}
-              color={cat.color}
-              active
-              onClick={() => openCategory(cat.id)}
-              testId={`cat-tile-${cat.id}`}
-              icon={<span className="text-2xl">{cat.icon}</span>}
-              title={catTitle}
-              trailing={<span className="text-xs">{`${answered}/${total}`}</span>}
-            >
-              <div className="h-1 bg-line rounded mt-1">
-                <div className="h-1 rounded" style={{ width: `${pct}%`, background: cat.color }} />
-              </div>
-            </RsTile>
+            <div key={cat.id} className="cat-tile-wrap relative">
+              <RsTile
+                color={cat.color}
+                active
+                onClick={() => openCategory(cat.id)}
+                testId={`cat-tile-${cat.id}`}
+                icon={<span className="text-2xl">{cat.icon}</span>}
+                title={catTitle}
+                trailing={<span className="text-xs">{`${answered}/${total}`}</span>}
+              >
+                <div className="h-1 bg-line rounded mt-1">
+                  <div className="h-1 rounded" style={{ width: `${pct}%`, background: cat.color }} />
+                </div>
+              </RsTile>
+              <button
+                type="button"
+                className="cat-tile-remove-btn"
+                onClick={(e) => { e.stopPropagation(); void handleRemoveCat(cat.id) }}
+                aria-label={t('cat_remove_title') as string}
+                data-testid={`cat-remove-${cat.id}`}
+              >
+                ×
+              </button>
+            </div>
           )
         })}
       </div>

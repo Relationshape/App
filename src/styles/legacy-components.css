@@ -708,9 +708,19 @@ a:hover { text-decoration: underline; }
   background: var(--glass);
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
-  padding: 12px; border-radius: 16px;
+  padding: 12px; padding-bottom: max(12px, calc(12px + env(safe-area-inset-bottom)));
+  border-radius: 16px;
   border: 1px solid var(--glass-border);
   box-shadow: var(--shadow);
+}
+/* On narrow screens collapse long nav button labels to single-char arrows */
+@media (max-width: 479px) {
+  .q-nav-label-long { display: none; }
+  .q-nav-label-short { display: inline; }
+}
+@media (min-width: 480px) {
+  .q-nav-label-long { display: inline; }
+  .q-nav-label-short { display: none; }
 }
 
 /* Tighten nav links at intermediate widths where German labels overflow */
@@ -1583,6 +1593,16 @@ a:hover { text-decoration: underline; }
 .cat-picker-item.is-checked .cat-picker-check {
   background: var(--primary); border-color: var(--primary);
 }
+.cat-tile-wrap { position: relative; }
+.cat-tile-remove-btn {
+  position: absolute; top: 5px; right: 5px; z-index: 1;
+  width: 20px; height: 20px; padding: 0;
+  background: none; border: none; cursor: pointer;
+  color: var(--muted); font-size: 16px; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 4px; transition: color .12s, background .12s;
+}
+.cat-tile-remove-btn:hover { color: var(--destructive, #e74c3c); background: rgba(231,76,60,.1); }
 .cat-picker-item-wrap { display: flex; flex-direction: column; }
 .cat-picker-item-wrap .cat-picker-item { flex: 1; }
 .cat-picker-expand-btn {

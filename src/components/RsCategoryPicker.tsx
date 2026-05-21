@@ -103,6 +103,7 @@ export function RsCategoryPicker({ open, onOpenChange, existingIds, result, prof
   // Wizard form state (for 'create' step)
   const [createTitle, setCreateTitle] = useState('')
   const [createIcon, setCreateIcon] = useState(QUICK_EMOJIS[0]!)
+  const [createForProfile, setCreateForProfile] = useState(false)
 
   // Inline item-form state
   const [itemFormName, setItemFormName] = useState('')
@@ -124,6 +125,7 @@ export function RsCategoryPicker({ open, onOpenChange, existingIds, result, prof
       setPendingItemsByCat({})
       setCreateTitle('')
       setCreateIcon(QUICK_EMOJIS[0]!)
+      setCreateForProfile(false)
       setItemFormName('')
       setItemFormFormat('scale')
       setItemFormOptions('')
@@ -159,6 +161,7 @@ export function RsCategoryPicker({ open, onOpenChange, existingIds, result, prof
   function startCreate() {
     setCreateTitle('')
     setCreateIcon(QUICK_EMOJIS[0]!)
+    setCreateForProfile(false)
     setWizardStep('create')
   }
 
@@ -225,7 +228,11 @@ export function RsCategoryPicker({ open, onOpenChange, existingIds, result, prof
       color: newColor,
     }
 
-    setPendingNewResultCats((prev) => [...prev, newDef])
+    if (createForProfile) {
+      setPendingNewProfileCats((prev) => [...prev, newDef])
+    } else {
+      setPendingNewResultCats((prev) => [...prev, newDef])
+    }
 
     setCheckedIds((prev) => {
       const next = new Set(prev)
@@ -462,6 +469,16 @@ export function RsCategoryPicker({ open, onOpenChange, existingIds, result, prof
                 />
               </div>
 
+              <label className="flex items-center gap-2 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={createForProfile}
+                  onChange={(e) => setCreateForProfile(e.target.checked)}
+                  className="rounded"
+                  data-testid="cat-create-for-profile"
+                />
+                <span className="text-sm">{t('cat_create_save_to_profile')}</span>
+              </label>
             </div>
             <div className="rs-modal-actions">
               <button

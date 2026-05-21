@@ -144,7 +144,7 @@ export const DE: Record<TranslationKey, string> = {
   btn_continue: 'Weiter',
   btn_view: '📊 Ansehen/Bearbeiten',
   btn_share: '📤 Teilen',
-  btn_export_result: '📤 Ergebnis exportieren',
+  btn_export_result: '📤 Teilen...',
   confirm_delete_map: 'Diese Beziehungskarte löschen?',
 
   // New result
@@ -633,6 +633,10 @@ export const DE: Record<TranslationKey, string> = {
   cat_picker_create_btn: 'Eigene Kategorie erstellen',
   cat_picker_expand: 'Elemente anzeigen',
   cat_picker_collapse: 'Elemente ausblenden',
+  cat_remove_title: 'Kategorie löschen',
+  cat_remove_body: 'Du kannst die Kategorie zwar später wieder hinzufügen, aber deine Antworten gehen verloren.',
+  btn_remove_cat: 'Entfernen',
+  cat_create_save_to_profile: 'Auch im Profil speichern (für künftige Karten)',
   cat_create_title_label: 'Kategoriename',
   cat_create_title_placeholder: 'z.B. Arbeit, Spiritualität...',
   cat_create_emoji_label: 'Symbol (optional)',

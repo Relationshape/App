@@ -51,10 +51,10 @@ export function ResultModal({ open, onOpenChange, result, profile }: Props) {
     toast.message(t('pdf_generating'))
     try {
       const { generatePdfReport } = await import('@/lib/pdf/generateReport')
-      const allCatIds = [
+      const allCatIds = Array.from(new Set([
         ...(result.enabledCategories ?? CATEGORIES.map((c) => c.id)),
         ...(result.customCategories ?? []).map((c) => c.id),
-      ]
+      ]))
       const subject = result.subject?.trim()
       const mapName = subject || profile.name
       const safeFilename = `relationshapes-${mapName.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.pdf`

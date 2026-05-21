@@ -137,7 +137,7 @@ export const EN = {
   btn_continue: 'Continue',
   btn_view: '📊 View/Edit',
   btn_share: '📤 Share',
-  btn_export_result: '📤 Export Result',
+  btn_export_result: '📤 Share...',
   confirm_delete_map: 'Delete this relationship map?',
 
   // New result
@@ -614,6 +614,10 @@ export const EN = {
   cat_picker_create_btn: 'Create custom category',
   cat_picker_expand: 'Show items',
   cat_picker_collapse: 'Hide items',
+  cat_remove_title: 'Remove category',
+  cat_remove_body: 'You can add this category back later, but your answers will be lost.',
+  btn_remove_cat: 'Remove',
+  cat_create_save_to_profile: 'Save to profile (available for all future maps)',
   cat_create_title_label: 'Category name',
   cat_create_title_placeholder: 'e.g. Work, Spirituality...',
   cat_create_emoji_label: 'Icon (optional)',

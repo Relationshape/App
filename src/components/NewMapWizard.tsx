@@ -48,6 +48,7 @@ export function NewMapWizard({ profile }: Props) {
   const navigate = useNavigate()
   const globalScale = useStore((s) => s.scale)
   const saveResult = useStore((s) => s.saveResult)
+  const updateProfile = useStore((s) => s.updateProfile)
   const { openShareTemplate } = useShareData()
   const lang = getLang()
   const allResults = useStore((s) => s.results)
@@ -76,6 +77,7 @@ export function NewMapWizard({ profile }: Props) {
   const [catSubStep, setCatSubStep] = useState<CatSubStep>('list')
   const [createTitle, setCreateTitle] = useState('')
   const [createIcon, setCreateIcon] = useState(QUICK_EMOJIS[0]!)
+  const [createForProfile, setCreateForProfile] = useState(false)
   const [pendingCatMeta, setPendingCatMeta] = useState<{ title: string; icon: string } | null>(null)
   const [pendingItems, setPendingItems] = useState<PendingCustomItem[]>([])
   const [customCats, setCustomCats] = useState<CustomCategoryDef[]>([])
@@ -197,6 +199,7 @@ export function NewMapWizard({ profile }: Props) {
   function startCreateCat() {
     setCreateTitle('')
     setCreateIcon(QUICK_EMOJIS[0]!)
+    setCreateForProfile(false)
     setCatSubStep('create')
   }
 
@@ -248,14 +251,18 @@ export function NewMapWizard({ profile }: Props) {
   function confirmCustomCat() {
     if (!pendingCatMeta || pendingItems.length === 0) return
     const newId = makeCustomCatId()
-    const newColor = nextCustomCatColor(customCats)
+    const newColor = nextCustomCatColor([...customCats, ...(profile.customCategories ?? [])])
     const newDef: CustomCategoryDef = {
       id: newId,
       title: pendingCatMeta.title,
       icon: pendingCatMeta.icon,
       color: newColor,
     }
-    setCustomCats((prev) => [...prev, newDef])
+    if (createForProfile) {
+      updateProfile(profile.id, { customCategories: [...(profile.customCategories ?? []), newDef] })
+    } else {
+      setCustomCats((prev) => [...prev, newDef])
+    }
     setCheckedIds((prev) => { const next = new Set(prev); next.add(newId); return next })
     setItemsByCat((prev) => ({ ...prev, [newId]: pendingItems }))
     setPendingCatMeta(null)
@@ -460,8 +467,28 @@ export function NewMapWizard({ profile }: Props) {
                 >
                   + {t('cat_picker_create_btn')}
                 </button>
-                {customCats.length > 0 && (
+                {((profile.customCategories?.length ?? 0) > 0 || customCats.length > 0) && (
                   <div className="cat-picker-items mt-2">
+                    {(profile.customCategories ?? []).map((cat) => {
+                      const isChecked = checkedIds.has(cat.id)
+                      return (
+                        <label
+                          key={cat.id}
+                          htmlFor={`nmw-pc-${cat.id}`}
+                          className={`cat-picker-item${isChecked ? ' is-checked' : ''}`}
+                        >
+                          <input
+                            type="checkbox"
+                            id={`nmw-pc-${cat.id}`}
+                            checked={isChecked}
+                            onChange={() => toggleCategory(cat.id)}
+                          />
+                          <span className="cat-picker-icon" aria-hidden>{cat.icon}</span>
+                          <span className="cat-picker-label">{cat.title}</span>
+                          <span className="cat-picker-check" aria-hidden>{isChecked ? '✓' : ''}</span>
+                        </label>
+                      )
+                    })}
                     {customCats.map((cat) => {
                       const isChecked = checkedIds.has(cat.id)
                       return (
@@ -584,6 +611,15 @@ export function NewMapWizard({ profile }: Props) {
                   maxLength={4}
                 />
               </div>
+              <label className="flex items-center gap-2 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={createForProfile}
+                  onChange={(e) => setCreateForProfile(e.target.checked)}
+                  className="rounded"
+                />
+                <span className="text-sm">{t('cat_create_save_to_profile')}</span>
+              </label>
             </div>
             <div className="rs-modal-actions">
               <Button variant="ghost" onClick={() => setCatSubStep('list')} data-testid="wizard-cat-create-back">
