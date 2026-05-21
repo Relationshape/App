@@ -124,7 +124,7 @@ export function CategoryOverview() {
   function commitRename() {
     if (!result) return
     const next = subjectDraft.trim()
-    saveResult({ ...result, subject: next || result.subject, updatedAt: Date.now() })
+    saveResult({ ...result, ...(next ? { subject: next } : {}), updatedAt: Date.now() })
     setRenamingSubject(false)
   }
 
