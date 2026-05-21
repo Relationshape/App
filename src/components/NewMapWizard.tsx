@@ -99,28 +99,50 @@ export function NewMapWizard({ profile }: Props) {
     const id = crypto.randomUUID()
 
     if (templateSource) {
-      const tmplCategories = templateSource.kind === 'import'
-        ? allImports.find((i) => i.id === templateSource.id)?.enabledCategories ?? CATEGORIES.map((c) => c.id)
-        : profileResults.find((r) => r.id === templateSource.id)?.enabledCategories ?? CATEGORIES.map((c) => c.id)
-      const tmplScale = templateSource.kind === 'import'
-        ? allImports.find((i) => i.id === templateSource.id)?.scale
-        : profileResults.find((r) => r.id === templateSource.id)?.scale
-      saveResult({
-        id,
-        profileId: profile.id,
-        subject: subject.trim() || profile.name,
-        subjectColor: profile.color,
-        subjectEmoji: profile.emoji,
-        answers: {},
-        enabledCategories: tmplCategories,
-        ...(tmplScale ? { scale: tmplScale } : {}),
-        ...(templateSource.kind === 'import'
-          ? { seededFromImportId: templateSource.id }
-          : { seededFromResultId: templateSource.id }),
-        progress: { mode: 'list' },
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-      })
+      if (templateSource.kind === 'result') {
+        const srcResult = profileResults.find((r) => r.id === templateSource.id)
+        const copyAnswers = await dialog<boolean | null>({
+          title: t('template_copy_answers_title') as string,
+          body: <p style={{ lineHeight: 1.5 }}>{t('template_copy_answers_body')}</p>,
+          actions: [
+            { label: t('template_copy_answers_no') as string, kind: 'ghost', value: false },
+            { label: t('template_copy_answers_yes') as string, kind: 'primary', value: true },
+          ],
+        })
+        if (copyAnswers === null) return
+        saveResult({
+          id,
+          profileId: profile.id,
+          subject: subject.trim() || profile.name,
+          subjectColor: profile.color,
+          subjectEmoji: profile.emoji,
+          answers: copyAnswers ? structuredClone(srcResult?.answers ?? {}) : {},
+          enabledCategories: srcResult?.enabledCategories ?? CATEGORIES.map((c) => c.id),
+          ...(srcResult?.scale ? { scale: srcResult.scale } : {}),
+          ...(srcResult?.customCategories ? { customCategories: structuredClone(srcResult.customCategories) } : {}),
+          ...(copyAnswers && srcResult?.customItemDefs ? { customItemDefs: structuredClone(srcResult.customItemDefs) } : {}),
+          seededFromResultId: templateSource.id,
+          progress: { mode: 'list' },
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+        })
+      } else {
+        const tmplImport = allImports.find((i) => i.id === templateSource.id)
+        saveResult({
+          id,
+          profileId: profile.id,
+          subject: subject.trim() || profile.name,
+          subjectColor: profile.color,
+          subjectEmoji: profile.emoji,
+          answers: {},
+          enabledCategories: tmplImport?.enabledCategories ?? CATEGORIES.map((c) => c.id),
+          ...(tmplImport?.scale ? { scale: tmplImport.scale } : {}),
+          seededFromImportId: templateSource.id,
+          progress: { mode: 'list' },
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+        })
+      }
       await promptShareTemplate(id)
       return
     }

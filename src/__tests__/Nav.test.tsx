@@ -45,7 +45,7 @@ describe('<Nav /> (SHELL-03)', () => {
     })
 
     expect(document.querySelector('[data-testid="nav-link-profile"]')).not.toBeNull()
-    expect(document.querySelector('[data-testid="nav-link-import"]')).not.toBeNull()
+    expect(document.querySelector('[data-testid="nav-link-import"]')).toBeNull()
     expect(document.querySelector('[data-testid="nav-link-compare"]')).not.toBeNull()
     expect(document.querySelector('[data-testid="nav-link-settings"]')).not.toBeNull()
     expect(document.querySelector('[data-testid="nav-link-about"]')).not.toBeNull()

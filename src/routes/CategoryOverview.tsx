@@ -35,6 +35,8 @@ export function CategoryOverview() {
   const [pickerOpen, setPickerOpen] = useState(false)
   const [preShareOpen, setPreShareOpen] = useState(false)
   const [generatingPdf, setGeneratingPdf] = useState(false)
+  const [renamingSubject, setRenamingSubject] = useState(false)
+  const [subjectDraft, setSubjectDraft] = useState('')
   const [searchParams, setSearchParams] = useSearchParams()
   const { openShareTemplate } = useShareData()
   const { toast } = useToast()
@@ -112,6 +114,18 @@ export function CategoryOverview() {
       progress: { ...(result!.progress ?? { mode: 'list' }), catIndex: idx >= 0 ? idx : 0 },
     })
     navigate(`/q/${profile!.id}/${result!.id}`)
+  }
+
+  function startRename() {
+    setSubjectDraft(result?.subject ?? '')
+    setRenamingSubject(true)
+  }
+
+  function commitRename() {
+    if (!result) return
+    const next = subjectDraft.trim()
+    saveResult({ ...result, subject: next || result.subject, updatedAt: Date.now() })
+    setRenamingSubject(false)
   }
 
   async function handleRemoveCat(catId: string) {
@@ -192,8 +206,34 @@ export function CategoryOverview() {
           <h1 className="cat-overview-title">{t('q_overview_title')}</h1>
           <p className="cat-overview-breadcrumb" aria-label={`${profile.name} → ${result.subject || profile.name}`}>
             <span>{profile.name}</span>
-            {result.subject && (
-              <><span className="cat-overview-breadcrumb-arrow" aria-hidden="true"> → </span><span>{result.subject}</span></>
+            <span className="cat-overview-breadcrumb-arrow" aria-hidden="true"> → </span>
+            {renamingSubject ? (
+              <input
+                autoFocus
+                className="cat-overview-rename-input"
+                value={subjectDraft}
+                onChange={(e) => setSubjectDraft(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') commitRename()
+                  if (e.key === 'Escape') setRenamingSubject(false)
+                }}
+                onBlur={commitRename}
+                placeholder={t('result_rename_placeholder') as string}
+                data-testid="cat-overview-rename-input"
+              />
+            ) : (
+              <>
+                <span>{result.subject || profile.name}</span>
+                <button
+                  type="button"
+                  className="cat-overview-rename-btn"
+                  onClick={startRename}
+                  aria-label={t('result_rename_label') as string}
+                  data-testid="cat-overview-rename-btn"
+                >
+                  ✎
+                </button>
+              </>
             )}
           </p>
           <p className="cat-overview-sub muted">{t('q_overview_sub')}</p>

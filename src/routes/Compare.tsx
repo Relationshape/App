@@ -121,7 +121,7 @@ export function Compare() {
     if (generatingPdf || datasets.length === 0) return
     const confirmed = await dialog<boolean>({
       title: t('btn_download_pdf') as string,
-      body: <p>{t('pdf_confirm_body')}</p>,
+      body: <p>{t('pdf_compare_confirm_body')}</p>,
       actions: [
         { label: t('btn_cancel') as string, kind: 'ghost', value: false },
         { label: t('btn_generate_pdf') as string, kind: 'primary', value: true },

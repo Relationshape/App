@@ -57,7 +57,6 @@ const ICONS: Record<'profile' | 'import' | 'compare' | 'settings' | 'about', Rea
 
 type NavItem = { to: string; icon: ReactNode; labelKey: TranslationKey; testId: string }
 const STATIC_NAV_ITEMS: ReadonlyArray<NavItem> = [
-  { to: '/import',   icon: ICONS.import,   labelKey: 'nav_import',   testId: 'nav-link-import' },
   { to: '/compare',  icon: ICONS.compare,  labelKey: 'nav_compare',  testId: 'nav-link-compare' },
   { to: '/settings', icon: ICONS.settings, labelKey: 'nav_settings', testId: 'nav-link-settings' },
   { to: '/intro',    icon: ICONS.about,    labelKey: 'nav_about',    testId: 'nav-link-about' },
