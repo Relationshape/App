@@ -75,6 +75,15 @@ export function RsCategoryPicker({ open, onOpenChange, existingIds, result, prof
 
   const lockedIds = useMemo(() => new Set(existingIds), [existingIds])
   const [checkedIds, setCheckedIds] = useState<Set<string>>(() => new Set(existingIds))
+  const [expandedCats, setExpandedCats] = useState<Set<string>>(new Set())
+
+  function toggleExpand(id: string) {
+    setExpandedCats((prev) => {
+      const next = new Set(prev)
+      next.has(id) ? next.delete(id) : next.add(id)
+      return next
+    })
+  }
 
   // Wizard state
   const [wizardStep, setWizardStep] = useState<WizardStep>('list')
@@ -101,6 +110,7 @@ export function RsCategoryPicker({ open, onOpenChange, existingIds, result, prof
   useEffect(() => {
     if (open) {
       setCheckedIds(new Set(existingIds))
+      setExpandedCats(new Set())
       setWizardStep('list')
       setPendingCat(null)
       setPendingItems([])
@@ -311,32 +321,53 @@ export function RsCategoryPicker({ open, onOpenChange, existingIds, result, prof
                           const locked = lockedIds.has(cat.id)
                           const isChecked = checkedIds.has(cat.id)
                           const catTitle = lang === 'de' && cat.de ? cat.de : cat.title
+                          const isExpanded = expandedCats.has(cat.id)
+                          const itemLabels = (lang === 'de' && (cat as { deItems?: readonly string[] }).deItems)
+                            ? (cat as { deItems: readonly string[] }).deItems
+                            : cat.items
                           return (
-                            <label
-                              key={cat.id}
-                              htmlFor={`cp-${cat.id}`}
-                              className={
-                                'cat-picker-item' +
-                                (locked ? ' is-locked' : '') +
-                                (isChecked ? ' is-checked' : '')
-                              }
-                              data-testid={`cat-picker-item-${cat.id}`}
-                            >
-                              <input
-                                type="checkbox"
-                                id={`cp-${cat.id}`}
-                                checked={isChecked}
-                                disabled={locked}
-                                onChange={() => toggle(cat.id)}
-                              />
-                              <span className="cat-picker-icon" aria-hidden>{cat.icon}</span>
-                              <span className="cat-picker-label">{catTitle}</span>
-                              {locked ? (
-                                <span className="cat-picker-lock" aria-label="already added">✓</span>
-                              ) : (
-                                <span className="cat-picker-check" aria-hidden>{isChecked ? '✓' : ''}</span>
+                            <div key={cat.id} className="cat-picker-item-wrap">
+                              <label
+                                htmlFor={`cp-${cat.id}`}
+                                className={
+                                  'cat-picker-item' +
+                                  (locked ? ' is-locked' : '') +
+                                  (isChecked ? ' is-checked' : '')
+                                }
+                                data-testid={`cat-picker-item-${cat.id}`}
+                              >
+                                <input
+                                  type="checkbox"
+                                  id={`cp-${cat.id}`}
+                                  checked={isChecked}
+                                  disabled={locked}
+                                  onChange={() => toggle(cat.id)}
+                                />
+                                <span className="cat-picker-icon" aria-hidden>{cat.icon}</span>
+                                <span className="cat-picker-label">{catTitle}</span>
+                                {locked ? (
+                                  <span className="cat-picker-lock" aria-label="already added">✓</span>
+                                ) : (
+                                  <span className="cat-picker-check" aria-hidden>{isChecked ? '✓' : ''}</span>
+                                )}
+                                <span
+                                  role="button"
+                                  tabIndex={0}
+                                  className={`cat-picker-expand-btn${isExpanded ? ' is-open' : ''}`}
+                                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleExpand(cat.id) }}
+                                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleExpand(cat.id) } }}
+                                  aria-expanded={isExpanded}
+                                  aria-label={isExpanded ? t('cat_picker_collapse') as string : t('cat_picker_expand') as string}
+                                >
+                                  {isExpanded ? '▲' : '▼'}
+                                </span>
+                              </label>
+                              {isExpanded && (
+                                <div className="cat-picker-item-preview">
+                                  {itemLabels.join(' · ')}
+                                </div>
                               )}
-                            </label>
+                            </div>
                           )
                         })}
                       </div>

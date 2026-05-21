@@ -630,6 +630,8 @@ export const DE: Record<TranslationKey, string> = {
   // Custom categories
   cat_picker_custom_section: 'Eigene Kategorien',
   cat_picker_create_btn: 'Eigene Kategorie erstellen',
+  cat_picker_expand: 'Elemente anzeigen',
+  cat_picker_collapse: 'Elemente ausblenden',
   cat_create_title_label: 'Kategoriename',
   cat_create_title_placeholder: 'z.B. Arbeit, Spiritualität...',
   cat_create_emoji_label: 'Symbol (optional)',

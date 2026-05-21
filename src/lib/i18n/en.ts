@@ -611,6 +611,8 @@ export const EN = {
   // Custom categories
   cat_picker_custom_section: 'Custom categories',
   cat_picker_create_btn: 'Create custom category',
+  cat_picker_expand: 'Show items',
+  cat_picker_collapse: 'Hide items',
   cat_create_title_label: 'Category name',
   cat_create_title_placeholder: 'e.g. Work, Spirituality...',
   cat_create_emoji_label: 'Icon (optional)',
