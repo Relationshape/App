@@ -1,29 +1,20 @@
 // SHARE-05, D-25, D-35. Port of public/legacy/js/app.js:3453-3544.
 
 import { useEffect, useMemo, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams, useNavigate } from 'react-router-dom'
 import { useStore } from '@/lib/storage/store'
 import { useShareData } from '@/components/providers/ShareDataProvider'
-import { Spider } from '@/components/charts/Spider'
-import { Alignment } from '@/components/charts/Alignment'
-import { CategoryModal } from '@/components/charts/CategoryModal'
-import { RsCategoryCard } from '@/components/RsCategoryCard'
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { ImportForm } from '@/components/ImportForm'
 import { UnlockAnswersBody } from '@/components/UnlockAnswersDialog'
-import { mapResultToDataset, mapImportToDataset } from '@/lib/charts/datasets'
-import { CATEGORIES } from '@/lib/data/data'
-import { resolveAnyCat } from '@/lib/data/customCategories'
-import type { AnswersBlob, Import } from '@/lib/storage/types'
+import type { Import } from '@/lib/storage/types'
 import { useToast } from '@/lib/hooks/useToast'
 import { dialog } from '@/lib/dialog/dialog'
-import { t, getLang } from '@/lib/i18n/i18n'
-
-import type { ResolvedCat } from '@/lib/data/customCategories'
-type CategoryDef = (typeof CATEGORIES)[number]
+import { t } from '@/lib/i18n/i18n'
 
 export function Compare() {
   const [params, setParams] = useSearchParams()
+  const navigate = useNavigate()
   // null = param absent (first visit → default to first 2); '' = explicit empty (user deselected all)
   const idsParam = params.get('ids')
   const rawIds = idsParam !== null ? idsParam.split(',').map((s) => s.trim()).filter(Boolean) : null
@@ -40,7 +31,6 @@ export function Compare() {
   const results = useStore((s) => s.results)
   const imports = useStore((s) => s.imports)
   const unlockImport = useStore((s) => s.unlockImport)
-  const fabiMode = useStore((s) => s.settings.fabiMode ?? false)
 
   // Separate own-result options and imported options for grouped display.
   const ownOptions = useMemo(
@@ -80,70 +70,7 @@ export function Compare() {
     ? allOptions.slice(0, 2).map((o) => o.id)
     : truncatedRaw
 
-  const datasets = useMemo(() => effectiveIds.map((id) => {
-    if (id.startsWith('imp:')) {
-      const imp = imports.find((i) => i.id === id.slice(4))
-      return imp ? mapImportToDataset(imp) : null
-    }
-    const r = results.find((r) => r.id === id)
-    if (!r) return null
-    const profile = profiles.find((p) => p.id === r.profileId) ?? null
-    return mapResultToDataset(r, profile)
-  }).filter((d): d is NonNullable<typeof d> => d !== null), [effectiveIds.join(','), results, imports, profiles])
-
-  const firstEditableResult = useMemo(() => {
-    const firstResultId = effectiveIds.find((id) => !id.startsWith('imp:'))
-    return firstResultId ? results.find((r) => r.id === firstResultId) ?? null : null
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [effectiveIds.join(','), results])
-
-  const compareFilterIds = useMemo<string[] | null>(() => {
-    const set = new Set<string>()
-    let hasFilter = false
-    for (const id of effectiveIds) {
-      if (id.startsWith('imp:')) continue
-      const r = results.find((x) => x.id === id)
-      if (r?.enabledCategories) {
-        hasFilter = true
-        r.enabledCategories.forEach((cid) => set.add(cid))
-      }
-    }
-    return hasFilter ? Array.from(set) : null
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [effectiveIds.join(','), results])
-
-  const [activeAxis, setActiveAxis] = useState<string | null>(null)
-  const [modalCat, setModalCat] = useState<CategoryDef | ResolvedCat | null>(null)
   const [importOpen, setImportOpen] = useState(false)
-  const [generatingPdf, setGeneratingPdf] = useState(false)
-
-  async function handlePdfReport() {
-    if (generatingPdf || datasets.length === 0) return
-    const confirmed = await dialog<boolean>({
-      title: t('btn_download_pdf') as string,
-      body: <p>{t('pdf_confirm_body')}</p>,
-      actions: [
-        { label: t('btn_cancel') as string, kind: 'ghost', value: false },
-        { label: t('btn_generate_pdf') as string, kind: 'primary', value: true },
-      ],
-    })
-    if (!confirmed) return
-    setGeneratingPdf(true)
-    toast.message(t('pdf_generating'))
-    try {
-      const { generatePdfReport } = await import('@/lib/pdf/generateReport')
-      const categoryIds = visibleCategories.map((c) => c.id)
-      const ok = await generatePdfReport({
-        datasets,
-        categoryIds,
-        lang: getLang(),
-        filename: 'relationshapes-compare.pdf',
-      })
-      if (!ok) toast.message(t('pdf_no_answers'))
-    } finally {
-      setGeneratingPdf(false)
-    }
-  }
 
   function handleImportSuccess(imp: Import) {
     setImportOpen(false)
@@ -174,45 +101,6 @@ export function Compare() {
     const next = cur.includes(id) ? cur.filter((x) => x !== id) : [...cur, id].slice(0, 4)
     setParams({ ids: next.join(',') })
   }
-
-  function hasItemValues(answers: AnswersBlob | undefined, catId: string): boolean {
-    const slot = answers?.[catId]
-    if (!slot) return false
-    type Cell = { scale?: string; scaleFrac?: number; giving?: string; receiving?: string }
-    for (const k of Object.keys(slot)) {
-      if (k === '__custom' || k === '__hidden') continue
-      const cell = slot[k] as Cell | undefined
-      if (cell?.scale || cell?.giving || cell?.receiving) return true
-    }
-    for (const cell of Object.values(slot.__custom ?? {}) as Cell[]) {
-      if (cell?.giving || cell?.receiving) return true
-      if (cell?.scale && (cell.scale !== 'open' || cell.scaleFrac != null)) return true
-    }
-    return false
-  }
-
-  // Collect all category IDs (builtin + custom from datasets)
-  const allCatIds = useMemo(() => {
-    const builtinIds = CATEGORIES.map((c) => c.id)
-    const customIds = datasets.flatMap((ds) => (ds.customCategories ?? []).map((c) => c.id))
-    return [...builtinIds, ...customIds]
-  }, [datasets])
-
-  // In Fabi mode show all categories that have answers; otherwise respect enabled-category filter
-  const filteredCatIds = (!fabiMode && compareFilterIds)
-    ? allCatIds.filter((id) => compareFilterIds.includes(id))
-    : allCatIds
-
-  const visibleCategories = useMemo(() => {
-    return filteredCatIds
-      .map((id) => {
-        const allResultCats = datasets.flatMap((ds) => ds.customCategories ?? [])
-        return resolveAnyCat(id, allResultCats, [])
-      })
-      .filter((c): c is NonNullable<typeof c> => Boolean(c))
-      .filter((cat) => datasets.length > 0 && datasets.every((ds) => hasItemValues(ds.answers, cat.id)))
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filteredCatIds.join(','), datasets])
 
   const selectedCount = effectiveIds.length
   const atMax = selectedCount >= 4
@@ -356,76 +244,17 @@ export function Compare() {
         </div>
       </div>
 
-      {datasets.length >= 2 && (
-        <section className="page-section">
-          <header className="section-head">
-            <h2>{t('alignment_title')}</h2>
-          </header>
-          <Alignment datasets={datasets} />
-        </section>
-      )}
-
-      {datasets.length >= 1 && visibleCategories.length > 0 && (
-        <section className="page-section" data-testid="compare-cat-details">
-          <header className="section-head">
-            <h2>{t('cat_details_title')}</h2>
-            <p className="muted">{t('cat_details_sub')}</p>
-            <p className="muted small">{t('cat_details_filter_hint')}</p>
-          </header>
-          <div className="cat-grid">
-            {visibleCategories.map((cat) => (
-              <RsCategoryCard
-                key={cat.id}
-                cat={cat}
-                datasets={datasets}
-                editableResult={firstEditableResult}
-                fabiMode={fabiMode}
-                onClick={() => setModalCat(cat)}
-                testId={`compare-cat-card-${cat.id}`}
-              />
-            ))}
-          </div>
-          <div className="mt-4 flex justify-end">
-            <button
-              type="button"
-              className="btn btn-outline"
-              onClick={() => { void handlePdfReport() }}
-              disabled={generatingPdf}
-              data-testid="compare-pdf-report"
-            >
-              {t('btn_download_pdf')}
-            </button>
-          </div>
-        </section>
-      )}
-
-      {datasets.length > 0 && !fabiMode && (
-        <p className="callout muted small" data-testid="compare-fabi-tip">
-          {t('compare_fabi_tip')}
-        </p>
-      )}
-
-      {/* Fabi-mode overview spider — shown below category details */}
-      {datasets.length > 0 && fabiMode && (
-        <section className="page-section panel" data-testid="compare-fabi-spider">
-          <header className="section-head">
-            <h2>{t('fabi_spider_title')}</h2>
-            <p className="muted small">{t('fabi_spider_sub')}</p>
-          </header>
-          <Spider
-            datasets={datasets}
-            activeAxis={activeAxis}
-            onAxisTap={(ax) => setActiveAxis((p) => (p === ax ? null : ax))}
-          />
-        </section>
-      )}
-
-      <CategoryModal
-        open={modalCat !== null}
-        onOpenChange={(open) => { if (!open) setModalCat(null) }}
-        datasets={datasets}
-        cat={modalCat}
-      />
+      <div className="mt-4 flex justify-end">
+        <button
+          type="button"
+          className="btn btn-primary"
+          disabled={selectedCount < 2}
+          onClick={() => navigate(`/compare/details?ids=${effectiveIds.join(',')}`)}
+          data-testid="compare-go-to-details"
+        >
+          {t('compare_go_to_details')}
+        </button>
+      </div>
 
       <Dialog open={importOpen} onOpenChange={setImportOpen}>
         <DialogContent className="max-w-lg" data-testid="compare-import-modal">

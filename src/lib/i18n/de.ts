@@ -144,7 +144,7 @@ export const DE: Record<TranslationKey, string> = {
   btn_continue: 'Weiter',
   btn_view: '📊 Ansehen/Bearbeiten',
   btn_share: '📤 Teilen',
-  btn_export_result: '📤 Ergebnis exportieren',
+  btn_export_result: '📤 Teilen...',
   confirm_delete_map: 'Diese Beziehungskarte löschen?',
 
   // New result
@@ -538,6 +538,7 @@ export const DE: Record<TranslationKey, string> = {
   q_edit_item_scale_warning: 'Eine neue Skala setzt die Antwort dieses Punkts zurück.',
   q_item_rename_label: 'Eigene Bezeichnung (optional)',
   q_item_scale_reset: 'Standard-Skala verwenden',
+  q_item_scale_confirm: 'Diese Skala verwenden',
   unlock_answers_btn: 'Antworten entsperren',
   unlock_answers_title: 'Entsperr-Passwort eingeben',
   unlock_answers_sub: 'Gib das Entsperr-Passwort ein, um die Antworten dieses Imports freizuschalten.',
@@ -630,6 +631,18 @@ export const DE: Record<TranslationKey, string> = {
   // Custom categories
   cat_picker_custom_section: 'Eigene Kategorien',
   cat_picker_create_btn: 'Eigene Kategorie erstellen',
+  cat_picker_expand: 'Elemente anzeigen',
+  cat_picker_collapse: 'Elemente ausblenden',
+  cat_remove_title: 'Kategorie löschen',
+  cat_remove_body: 'Du kannst die Kategorie zwar später wieder hinzufügen, aber deine Antworten gehen verloren.',
+  btn_remove_cat: 'Entfernen',
+  cat_create_save_to_profile: 'Auch im Profil speichern (für künftige Karten)',
+  template_copy_answers_title: 'Antworten übernehmen?',
+  template_copy_answers_body: 'Möchtest du alle bisherigen Antworten der Vorlage in die neue Karte übertragen? Die neue Karte startet dann am selben Stand wie die Vorlage.',
+  template_copy_answers_yes: 'Ja, Antworten übernehmen',
+  template_copy_answers_no: 'Ohne Antworten starten',
+  result_rename_label: 'Umbenennen',
+  result_rename_placeholder: 'Name…',
   cat_create_title_label: 'Kategoriename',
   cat_create_title_placeholder: 'z.B. Arbeit, Spiritualität...',
   cat_create_emoji_label: 'Symbol (optional)',
@@ -678,10 +691,15 @@ export const DE: Record<TranslationKey, string> = {
   export_include_hidden_yes: 'Ja, exportieren',
   export_include_hidden_no: 'Nein, weglassen',
 
+  // Vergleichsdetailseite
+  compare_go_to_details: 'Ausgewählte Karten vergleichen →',
+  compare_overview_btn: 'Kategorieübergreifende Ergebnisse',
+
   // PDF-Bericht
   btn_pdf_report: '📄 PDF-Bericht',
   btn_download_pdf: '📄 Als PDF herunterladen',
   pdf_confirm_body: 'Generiert einen Bericht aus den Antworten dieser Karte (Netzdiagramme, Punkt-für-Punkt Auflistung). Als PDF herunterladen?',
+  pdf_compare_confirm_body: 'Generiert einen Bericht aus der Übereinanderlegung der verglichenen Karten (Netzdiagramme, Element-für-Element Auflistung). Als PDF herunterladen?',
   btn_generate_pdf: 'PDF generieren',
   pdf_no_answers: 'Nicht genügend Antworten/Ergebnisse für einen Report.',
   pdf_generating: 'PDF wird erstellt…',

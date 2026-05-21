@@ -27,33 +27,36 @@ export function QuestionnaireNav({ result, profileId, activeCat, onNextCat, onPr
       className="q-nav sticky bottom-0 z-10 bg-surface border-t border-line"
       aria-label="Questionnaire navigation"
     >
-      <div className="mx-auto w-full max-w-[920px] px-4 py-2 flex items-center gap-2">
-        <Button asChild variant="ghost" size="sm" data-testid="q-nav-categories">
+      <div className="mx-auto w-full max-w-[920px] px-4 py-2 flex items-center gap-2 min-w-0">
+        <Button asChild variant="ghost" size="sm" data-testid="q-nav-categories" className="shrink-0">
           <Link to={`/q-categories/${profileId}/${result.id}`}>
-            {t('q_back_to_categories')}
+            <span className="q-nav-label-long">{t('q_back_to_categories')}</span>
+            <span className="q-nav-label-short" aria-hidden>←</span>
           </Link>
         </Button>
         {onPrevCat && (
           <button
             type="button"
-            className="btn btn-outline"
+            className="btn btn-outline shrink-0"
             onClick={onPrevCat}
             data-testid="q-nav-prev-cat"
           >
-            {t('q_nav_prev_cat')}
+            <span className="q-nav-label-long">{t('q_nav_prev_cat')}</span>
+            <span className="q-nav-label-short" aria-hidden>‹</span>
           </button>
         )}
         {onNextCat && (
           <button
             type="button"
-            className="btn btn-outline"
+            className="btn btn-outline shrink-0"
             onClick={onNextCat}
             data-testid="q-nav-next-cat"
           >
-            {t('q_nav_next_cat')}
+            <span className="q-nav-label-long">{t('q_nav_next_cat')}</span>
+            <span className="q-nav-label-short" aria-hidden>›</span>
           </button>
         )}
-        <Link to={resultsHref} data-testid="q-nav-see-results" className="btn btn-primary ml-auto">
+        <Link to={resultsHref} data-testid="q-nav-see-results" className="btn btn-primary ml-auto shrink-0">
           {t('q_nav_see_results')} →
         </Link>
       </div>

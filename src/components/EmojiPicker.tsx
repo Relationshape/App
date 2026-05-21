@@ -1,10 +1,11 @@
-// PROFILE-03, D-21. shadcn Popover + EMOJI_BANK grid + free-input fallback.
+// PROFILE-03, D-21. shadcn Popover + grouped EMOJI_GROUPS palette + free-input fallback.
 // v1.0 analog public/legacy/js/app.js:107-133.
 
 import { useState } from 'react'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Button } from '@/components/ui/button'
-import { EMOJI_BANK, isLikelyEmoji } from '@/lib/data/emoji'
+import { EMOJI_GROUPS } from '@/lib/data/customCategories'
+import { isLikelyEmoji } from '@/lib/data/emoji'
 import { t } from '@/lib/i18n/i18n'
 
 interface Props {
@@ -34,20 +35,24 @@ export function EmojiPicker({ value, onChange }: Props) {
         {value || '✨'}
         <span className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-accent text-on-accent text-[11px] font-bold shadow" aria-hidden>✎</span>
       </PopoverTrigger>
-      <PopoverContent align="start" className="max-w-[20rem] flex flex-col gap-0 p-3">
-        <div className="overflow-y-auto max-h-[min(55vh,320px)]">
-          <div className="grid grid-cols-8 gap-1" data-testid="emoji-grid">
-            {EMOJI_BANK.map((e) => (
-              <button
-                key={e}
-                type="button"
-                onClick={() => pick(e)}
-                data-state={e === value ? 'active' : 'inactive'}
-                className="aspect-square text-xl data-[state=active]:bg-accent"
-                data-testid={`emoji-cell-${e}`}
-              >{e}</button>
-            ))}
-          </div>
+      <PopoverContent align="start" className="max-w-[22rem] flex flex-col gap-0 p-3">
+        <div className="cat-wizard-emoji-palette overflow-y-auto max-h-[min(55vh,320px)]" data-testid="emoji-grid">
+          {EMOJI_GROUPS.map((group) => (
+            <div key={group.label} className="cat-wizard-emoji-group">
+              <div className="cat-wizard-emoji-group-label">{group.label}</div>
+              <div className="cat-wizard-emoji-grid">
+                {group.emojis.map((e) => (
+                  <button
+                    key={e}
+                    type="button"
+                    onClick={() => pick(e)}
+                    className={`cat-wizard-emoji-btn${e === value ? ' is-selected' : ''}`}
+                    data-testid={`emoji-cell-${e}`}
+                  >{e}</button>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
         <div className="mt-3 flex gap-2 flex-shrink-0">
           <input

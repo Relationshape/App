@@ -14,6 +14,7 @@ import { Result } from './routes/Result'
 import { Share } from './routes/Share'
 import { Import } from './routes/Import'
 import { Compare } from './routes/Compare'
+import { CompareDetails } from './routes/CompareDetails'
 import { Settings } from './routes/Settings'
 import { MapSettings } from './routes/MapSettings'
 
@@ -34,6 +35,7 @@ export const router = createHashRouter([
       { path: 'share/:id', element: <Share /> },
       { path: 'import', element: <Import /> },
       { path: 'compare', element: <Compare /> },
+      { path: 'compare/details', element: <CompareDetails /> },
       { path: 'settings', element: <Settings /> },
       { path: 'map/:id/settings', element: <MapSettings /> },
       { path: 'intro', element: <Intro /> },

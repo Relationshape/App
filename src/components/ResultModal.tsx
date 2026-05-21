@@ -8,7 +8,6 @@ import { CategoryModal } from '@/components/charts/CategoryModal'
 import { RsCategoryCard } from '@/components/RsCategoryCard'
 import { mapResultToDataset } from '@/lib/charts/datasets'
 import { CATEGORIES } from '@/lib/data/data'
-import { useStore } from '@/lib/storage/store'
 import { countAnswers, fmtDate } from '@/lib/format/date'
 import { t, getLang } from '@/lib/i18n/i18n'
 import { useToast } from '@/lib/hooks/useToast'
@@ -26,7 +25,7 @@ interface Props {
 export function ResultModal({ open, onOpenChange, result, profile }: Props) {
   const [selectedCat, setSelectedCat] = useState<CategoryDef | null>(null)
   const [generatingPdf, setGeneratingPdf] = useState(false)
-  const fabiMode = useStore((s) => s.settings.fabiMode ?? false)
+  const fabiMode = true
   const navigate = useNavigate()
   const { toast } = useToast()
 
@@ -51,10 +50,10 @@ export function ResultModal({ open, onOpenChange, result, profile }: Props) {
     toast.message(t('pdf_generating'))
     try {
       const { generatePdfReport } = await import('@/lib/pdf/generateReport')
-      const allCatIds = [
+      const allCatIds = Array.from(new Set([
         ...(result.enabledCategories ?? CATEGORIES.map((c) => c.id)),
         ...(result.customCategories ?? []).map((c) => c.id),
-      ]
+      ]))
       const subject = result.subject?.trim()
       const mapName = subject || profile.name
       const safeFilename = `relationshapes-${mapName.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.pdf`

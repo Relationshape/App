@@ -20,9 +20,19 @@ export function ResultCard({ result, profile }: { result: Result; profile: Profi
   const title =
     (result.subject || 'Untitled') + ((result.version ?? 1) > 1 ? ` (v${result.version})` : '')
   const deleteResult = useStore((s) => s.deleteResult)
+  const saveResult = useStore((s) => s.saveResult)
   const { openShare } = useShareData()
   const { toast } = useToast()
   const [generatingPdf, setGeneratingPdf] = useState(false)
+  const [renaming, setRenaming] = useState(false)
+  const [renameDraft, setRenameDraft] = useState('')
+
+  function startRename() { setRenameDraft(result.subject ?? ''); setRenaming(true) }
+  function commitRename() {
+    const next = renameDraft.trim()
+    if (next) saveResult({ ...result, subject: next, updatedAt: Date.now() })
+    setRenaming(false)
+  }
 
   async function handlePdfReport() {
     if (generatingPdf) return
@@ -40,10 +50,10 @@ export function ResultCard({ result, profile }: { result: Result; profile: Profi
     try {
       const { generatePdfReport } = await import('@/lib/pdf/generateReport')
       const dataset = mapResultToDataset(result, profile)
-      const allCatIds = [
+      const allCatIds = Array.from(new Set([
         ...(result.enabledCategories ?? CATEGORIES.map((c) => c.id)),
         ...(result.customCategories ?? []).map((c) => c.id),
-      ]
+      ]))
       const mapName = result.subject?.trim() || profile.name
       const safeFilename = `relationshapes-${mapName.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.pdf`
       const ok = await generatePdfReport({ datasets: [dataset], categoryIds: allCatIds, lang: getLang(), filename: safeFilename })
@@ -73,7 +83,29 @@ export function ResultCard({ result, profile }: { result: Result; profile: Profi
     >
       <div className="li-avatar">{result.subjectEmoji || '💞'}</div>
       <div className="li-body">
-        <h3>{title}</h3>
+        {renaming ? (
+          <input
+            autoFocus
+            className="result-card-rename-input"
+            value={renameDraft}
+            onChange={(e) => setRenameDraft(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter') commitRename(); if (e.key === 'Escape') setRenaming(false) }}
+            onBlur={commitRename}
+            placeholder={t('result_rename_placeholder') as string}
+            data-testid={`result-rename-input-${result.id}`}
+          />
+        ) : (
+          <h3 className="result-card-title">
+            {title}
+            <button
+              type="button"
+              className="result-card-rename-btn"
+              onClick={startRename}
+              aria-label={t('result_rename_label') as string}
+              data-testid={`result-rename-btn-${result.id}`}
+            >✎</button>
+          </h3>
+        )}
         <p className="muted small">
           {`${t('updated')} ${fmtDate(result.updatedAt)} · ${countAnswers(result)} ${t('answers')}`}
         </p>

@@ -153,56 +153,48 @@ describe('Compare route (SHARE-05, D-25, D-35)', () => {
     expect(chip?.textContent).toContain('Their Map')
   }, 30000)
 
-  it('D-04: cat-details section renders when own results are selected (no add-cats button)', async () => {
+  it('D-04: cat-details section renders on compare/details when own results are selected', async () => {
     const store = makeStoreWithAnswers([
       { id: R1, answers: { connection: { item1: { scale: 'green' } } } },
       { id: R2, answers: { connection: { item2: { scale: 'red' } } } },
     ])
-    await mountAtHash(`#/compare?ids=${R1},${R2}`, store)
+    await mountAtHash(`#/compare/details?ids=${R1},${R2}`, store)
     await waitFor(() => {
-      expect(document.querySelector('[data-testid="compare-cat-details"]')).not.toBeNull()
+      expect(document.querySelector('[data-testid="compare-details-cat-grid"]')).not.toBeNull()
     }, { timeout: 10000 })
-    // Add-categories button is removed
+    // Add-categories button is not present
     expect(document.querySelector('[data-testid="compare-add-cats"]')).toBeNull()
   }, 30000)
 
-  it('D-04: compareFilterIds union filters cat-grid to enabled categories only', async () => {
-    // R1: enabledCategories=['connection'], R2: enabledCategories=['time-together'].
-    // Both have item-level answers in those categories. Other categories must be filtered out.
+  it('D-04: on compare/details, all cats with answers in every dataset render (fabiMode always on)', async () => {
+    // fabiMode is always true → all cats that have answers in ALL datasets are shown.
     const store = makeStoreWithAnswers([
       {
         id: R1,
-        enabledCategories: ['connection'],
         answers: {
           connection: { item1: { scale: 'green' } },
-          'time-together': { item2: { scale: 'green' } },  // R1 ALSO has answers in time-together, but it's not enabled for R1
-          'creative': { item3: { scale: 'green' } },    // and creative — but not enabled
+          'time-together': { item2: { scale: 'green' } },
         },
       },
       {
         id: R2,
-        enabledCategories: ['time-together'],
         answers: {
           connection: { item1: { scale: 'red' } },
           'time-together': { item2: { scale: 'red' } },
-          'creative': { item3: { scale: 'red' } },
         },
       },
     ])
-    await mountAtHash(`#/compare?ids=${R1},${R2}`, store)
+    await mountAtHash(`#/compare/details?ids=${R1},${R2}`, store)
     await waitFor(() => {
-      expect(document.querySelector('[data-testid="compare-page"]')).not.toBeNull()
+      expect(document.querySelector('[data-testid="compare-details-page"]')).not.toBeNull()
     }, { timeout: 10000 })
-    // Union = ['connection', 'time-together'] → those cards visible; creative filtered out.
     await waitFor(() => {
-      expect(document.querySelector('[data-testid="compare-cat-card-connection"]')).not.toBeNull()
-      expect(document.querySelector('[data-testid="compare-cat-card-time-together"]')).not.toBeNull()
-      expect(document.querySelector('[data-testid="compare-cat-card-creative"]')).toBeNull()
+      expect(document.querySelector('[data-testid="compare-details-cat-connection"]')).not.toBeNull()
+      expect(document.querySelector('[data-testid="compare-details-cat-time-together"]')).not.toBeNull()
     }, { timeout: 5000 })
   }, 30000)
 
-  it('D-04: when no selected result has enabledCategories, only cats with answers in ALL datasets render', async () => {
-    // Both results: enabledCategories undefined → compareFilterIds null → no artificial filter.
+  it('D-04: on compare/details, only cats with answers in ALL datasets render', async () => {
     // hasItemValues with `every` filters: creative only in R1, so it must NOT render.
     const store = makeStoreWithAnswers([
       {
@@ -219,29 +211,29 @@ describe('Compare route (SHARE-05, D-25, D-35)', () => {
         },
       },
     ])
-    await mountAtHash(`#/compare?ids=${R1},${R2}`, store)
+    await mountAtHash(`#/compare/details?ids=${R1},${R2}`, store)
     await waitFor(() => {
-      expect(document.querySelector('[data-testid="compare-page"]')).not.toBeNull()
+      expect(document.querySelector('[data-testid="compare-details-page"]')).not.toBeNull()
     }, { timeout: 10000 })
     // connection is in both → visible; creative is only in R1 → filtered out.
     await waitFor(() => {
-      expect(document.querySelector('[data-testid="compare-cat-card-connection"]')).not.toBeNull()
-      expect(document.querySelector('[data-testid="compare-cat-card-creative"]')).toBeNull()
+      expect(document.querySelector('[data-testid="compare-details-cat-connection"]')).not.toBeNull()
+      expect(document.querySelector('[data-testid="compare-details-cat-creative"]')).toBeNull()
     }, { timeout: 5000 })
   }, 30000)
 
-  it('D-04: cat-details section shows filter hint text and no add-categories button', async () => {
+  it('D-04: compare/details shows filter hint text and overview button', async () => {
     const store = makeStoreWithAnswers([
       { id: R1, answers: { connection: { item1: { scale: 'green' } } } },
       { id: R2, answers: { connection: { item1: { scale: 'red' } } } },
     ])
-    await mountAtHash(`#/compare?ids=${R1},${R2}`, store)
+    await mountAtHash(`#/compare/details?ids=${R1},${R2}`, store)
     await waitFor(() => {
-      expect(document.querySelector('[data-testid="compare-cat-details"]')).not.toBeNull()
+      expect(document.querySelector('[data-testid="compare-details-cat-grid"]')).not.toBeNull()
     }, { timeout: 10000 })
     // Filter hint is shown
-    expect(document.querySelector('[data-testid="compare-cat-details"] .small')).not.toBeNull()
-    // Add-categories button is removed
-    expect(document.querySelector('[data-testid="compare-add-cats"]')).toBeNull()
+    expect(document.querySelector('[data-testid="compare-details-cat-grid"] .small')).not.toBeNull()
+    // Overview button is present
+    expect(document.querySelector('[data-testid="compare-details-overview-btn"]')).not.toBeNull()
   }, 30000)
 })

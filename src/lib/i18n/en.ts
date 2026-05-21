@@ -137,7 +137,7 @@ export const EN = {
   btn_continue: 'Continue',
   btn_view: '📊 View/Edit',
   btn_share: '📤 Share',
-  btn_export_result: '📤 Export Result',
+  btn_export_result: '📤 Share...',
   confirm_delete_map: 'Delete this relationship map?',
 
   // New result
@@ -519,6 +519,7 @@ export const EN = {
   q_edit_item_scale_warning: 'Changing the scale will reset this item\'s answer.',
   q_item_rename_label: 'Custom label (optional)',
   q_item_scale_reset: 'Reset to default scale',
+  q_item_scale_confirm: 'Use this scale',
   unlock_answers_btn: 'Unlock answers',
   unlock_answers_title: 'Enter reveal passphrase',
   unlock_answers_sub: 'Enter the reveal passphrase to decrypt the answers in this import.',
@@ -611,6 +612,18 @@ export const EN = {
   // Custom categories
   cat_picker_custom_section: 'Custom categories',
   cat_picker_create_btn: 'Create custom category',
+  cat_picker_expand: 'Show items',
+  cat_picker_collapse: 'Hide items',
+  cat_remove_title: 'Remove category',
+  cat_remove_body: 'You can add this category back later, but your answers will be lost.',
+  btn_remove_cat: 'Remove',
+  cat_create_save_to_profile: 'Save to profile (available for all future maps)',
+  template_copy_answers_title: 'Copy answers?',
+  template_copy_answers_body: 'Do you want to copy all existing answers from the template to the new map? The new map will then start at the same point as the template.',
+  template_copy_answers_yes: 'Yes, copy answers',
+  template_copy_answers_no: 'Start without answers',
+  result_rename_label: 'Rename',
+  result_rename_placeholder: 'Name…',
   cat_create_title_label: 'Category name',
   cat_create_title_placeholder: 'e.g. Work, Spirituality...',
   cat_create_emoji_label: 'Icon (optional)',
@@ -659,12 +672,17 @@ export const EN = {
   export_include_hidden_yes: 'Yes, include',
   export_include_hidden_no: 'No, exclude',
 
+  // Compare detail page
+  compare_go_to_details: 'Compare selected maps →',
+  compare_overview_btn: 'Cross-category overview',
+
   // PDF report
   btn_pdf_report: '📄 PDF Report',
   btn_download_pdf: '📄 Download as PDF',
   pdf_no_answers: 'Not enough answers / results for a report.',
   pdf_generating: 'Generating PDF…',
   pdf_confirm_body: 'Generates a report from the answers in this map (spider charts, item-by-item list). Download as PDF?',
+  pdf_compare_confirm_body: 'Generates a report from the overlay of the compared maps (spider charts, item-by-item list). Download as PDF?',
   btn_generate_pdf: 'Generate PDF',
   pdf_cover_generated_on: 'Generated on',
   pdf_scale_legend: 'Scale',

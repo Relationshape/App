@@ -16,6 +16,8 @@ import {
   nextCustomCatColor,
 } from '@/lib/data/customCategories'
 import { t, getLang } from '@/lib/i18n/i18n'
+import { useStore } from '@/lib/storage/store'
+import { ScaleEditor } from '@/components/ScaleEditor'
 import type { CustomCategoryDef, CustomItemFormat, CustomItemDef, AnswerCell, Result, Profile } from '@/lib/storage/types'
 import type { MutableScaleStep } from '@/lib/data/types'
 
@@ -72,9 +74,20 @@ interface Props {
 
 export function RsCategoryPicker({ open, onOpenChange, existingIds, result, profile, onSubmit }: Props) {
   const lang = getLang()
+  const storeScale = useStore((s) => s.scale)
+  const mapScale = result.scale ?? storeScale
 
   const lockedIds = useMemo(() => new Set(existingIds), [existingIds])
   const [checkedIds, setCheckedIds] = useState<Set<string>>(() => new Set(existingIds))
+  const [expandedCats, setExpandedCats] = useState<Set<string>>(new Set())
+
+  function toggleExpand(id: string) {
+    setExpandedCats((prev) => {
+      const next = new Set(prev)
+      next.has(id) ? next.delete(id) : next.add(id)
+      return next
+    })
+  }
 
   // Wizard state
   const [wizardStep, setWizardStep] = useState<WizardStep>('list')
@@ -90,17 +103,20 @@ export function RsCategoryPicker({ open, onOpenChange, existingIds, result, prof
   // Wizard form state (for 'create' step)
   const [createTitle, setCreateTitle] = useState('')
   const [createIcon, setCreateIcon] = useState(QUICK_EMOJIS[0]!)
+  const [createForProfile, setCreateForProfile] = useState(false)
 
   // Inline item-form state
   const [itemFormName, setItemFormName] = useState('')
   const [itemFormFormat, setItemFormFormat] = useState<CustomItemFormat>('scale')
   const [itemFormOptions, setItemFormOptions] = useState('')
   const [itemFormError, setItemFormError] = useState('')
+  const [itemFormScale, setItemFormScale] = useState<MutableScaleStep[]>([])
 
   // Reset selection whenever the modal (re)opens or the locked set changes.
   useEffect(() => {
     if (open) {
       setCheckedIds(new Set(existingIds))
+      setExpandedCats(new Set())
       setWizardStep('list')
       setPendingCat(null)
       setPendingItems([])
@@ -109,10 +125,12 @@ export function RsCategoryPicker({ open, onOpenChange, existingIds, result, prof
       setPendingItemsByCat({})
       setCreateTitle('')
       setCreateIcon(QUICK_EMOJIS[0]!)
+      setCreateForProfile(false)
       setItemFormName('')
       setItemFormFormat('scale')
       setItemFormOptions('')
       setItemFormError('')
+      setItemFormScale([])
     }
   }, [open, existingIds])
 
@@ -143,6 +161,7 @@ export function RsCategoryPicker({ open, onOpenChange, existingIds, result, prof
   function startCreate() {
     setCreateTitle('')
     setCreateIcon(QUICK_EMOJIS[0]!)
+    setCreateForProfile(false)
     setWizardStep('create')
   }
 
@@ -172,6 +191,7 @@ export function RsCategoryPicker({ open, onOpenChange, existingIds, result, prof
       options = lines
     }
     if (itemFormFormat === 'scale') {
+      setItemFormScale(mapScale.map((s) => ({ ...s })))
       setWizardStep('item-scale')
       return
     }
@@ -180,8 +200,12 @@ export function RsCategoryPicker({ open, onOpenChange, existingIds, result, prof
     setWizardStep('items')
   }
 
-  function confirmItemScale() {
-    const item: PendingCustomItem = { name: itemFormName.trim(), format: 'scale' }
+  function confirmItemScale(customScale: MutableScaleStep[] | null) {
+    const item: PendingCustomItem = {
+      name: itemFormName.trim(),
+      format: 'scale',
+      ...(customScale ? { itemScale: customScale } : {}),
+    }
     setPendingItems((prev) => [...prev, item])
     setWizardStep('items')
   }
@@ -204,7 +228,11 @@ export function RsCategoryPicker({ open, onOpenChange, existingIds, result, prof
       color: newColor,
     }
 
-    setPendingNewResultCats((prev) => [...prev, newDef])
+    if (createForProfile) {
+      setPendingNewProfileCats((prev) => [...prev, newDef])
+    } else {
+      setPendingNewResultCats((prev) => [...prev, newDef])
+    }
 
     setCheckedIds((prev) => {
       const next = new Set(prev)
@@ -311,32 +339,53 @@ export function RsCategoryPicker({ open, onOpenChange, existingIds, result, prof
                           const locked = lockedIds.has(cat.id)
                           const isChecked = checkedIds.has(cat.id)
                           const catTitle = lang === 'de' && cat.de ? cat.de : cat.title
+                          const isExpanded = expandedCats.has(cat.id)
+                          const itemLabels = (lang === 'de' && (cat as { deItems?: readonly string[] }).deItems)
+                            ? (cat as { deItems: readonly string[] }).deItems
+                            : cat.items
                           return (
-                            <label
-                              key={cat.id}
-                              htmlFor={`cp-${cat.id}`}
-                              className={
-                                'cat-picker-item' +
-                                (locked ? ' is-locked' : '') +
-                                (isChecked ? ' is-checked' : '')
-                              }
-                              data-testid={`cat-picker-item-${cat.id}`}
-                            >
-                              <input
-                                type="checkbox"
-                                id={`cp-${cat.id}`}
-                                checked={isChecked}
-                                disabled={locked}
-                                onChange={() => toggle(cat.id)}
-                              />
-                              <span className="cat-picker-icon" aria-hidden>{cat.icon}</span>
-                              <span className="cat-picker-label">{catTitle}</span>
-                              {locked ? (
-                                <span className="cat-picker-lock" aria-label="already added">✓</span>
-                              ) : (
-                                <span className="cat-picker-check" aria-hidden>{isChecked ? '✓' : ''}</span>
+                            <div key={cat.id} className="cat-picker-item-wrap">
+                              <label
+                                htmlFor={`cp-${cat.id}`}
+                                className={
+                                  'cat-picker-item' +
+                                  (locked ? ' is-locked' : '') +
+                                  (isChecked ? ' is-checked' : '')
+                                }
+                                data-testid={`cat-picker-item-${cat.id}`}
+                              >
+                                <input
+                                  type="checkbox"
+                                  id={`cp-${cat.id}`}
+                                  checked={isChecked}
+                                  disabled={locked}
+                                  onChange={() => toggle(cat.id)}
+                                />
+                                <span className="cat-picker-icon" aria-hidden>{cat.icon}</span>
+                                <span className="cat-picker-label">{catTitle}</span>
+                                {locked ? (
+                                  <span className="cat-picker-lock" aria-label="already added">✓</span>
+                                ) : (
+                                  <span className="cat-picker-check" aria-hidden>{isChecked ? '✓' : ''}</span>
+                                )}
+                                <span
+                                  role="button"
+                                  tabIndex={0}
+                                  className={`cat-picker-expand-btn${isExpanded ? ' is-open' : ''}`}
+                                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleExpand(cat.id) }}
+                                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleExpand(cat.id) } }}
+                                  aria-expanded={isExpanded}
+                                  aria-label={isExpanded ? t('cat_picker_collapse') as string : t('cat_picker_expand') as string}
+                                >
+                                  {isExpanded ? '▲' : '▼'}
+                                </span>
+                              </label>
+                              {isExpanded && (
+                                <div className="cat-picker-item-preview">
+                                  {itemLabels.join(' · ')}
+                                </div>
                               )}
-                            </label>
+                            </div>
                           )
                         })}
                       </div>
@@ -420,6 +469,16 @@ export function RsCategoryPicker({ open, onOpenChange, existingIds, result, prof
                 />
               </div>
 
+              <label className="flex items-center gap-2 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={createForProfile}
+                  onChange={(e) => setCreateForProfile(e.target.checked)}
+                  className="rounded"
+                  data-testid="cat-create-for-profile"
+                />
+                <span className="text-sm">{t('cat_create_save_to_profile')}</span>
+              </label>
             </div>
             <div className="rs-modal-actions">
               <button
@@ -519,8 +578,8 @@ export function RsCategoryPicker({ open, onOpenChange, existingIds, result, prof
             <DialogTitle asChild>
               <h2 className="rs-modal-title">{t('q_add_custom_scale_title')}</h2>
             </DialogTitle>
-            <div className="flex-1 overflow-y-auto min-h-0 flex flex-col gap-3">
-              <p className="muted small">{t('q_add_custom_scale_sub')}</p>
+            <div className="flex-1 overflow-y-auto min-h-0">
+              <ScaleEditor scale={itemFormScale} onChange={setItemFormScale} />
             </div>
             <div className="rs-modal-actions">
               <button
@@ -528,15 +587,23 @@ export function RsCategoryPicker({ open, onOpenChange, existingIds, result, prof
                 className="btn btn-ghost"
                 onClick={() => setWizardStep('item-form')}
               >
-                {t('btn_cancel')}
+                {t('btn_back')}
+              </button>
+              <button
+                type="button"
+                className="btn btn-ghost"
+                onClick={() => confirmItemScale(null)}
+                data-testid="cat-item-scale-default"
+              >
+                {t('q_add_custom_scale_use_default')}
               </button>
               <button
                 type="button"
                 className="btn btn-primary"
-                onClick={confirmItemScale}
-                data-testid="cat-item-scale-default"
+                onClick={() => confirmItemScale(itemFormScale)}
+                data-testid="cat-item-scale-confirm"
               >
-                {t('q_add_custom_scale_use_default')}
+                {t('q_item_scale_confirm')}
               </button>
             </div>
           </>

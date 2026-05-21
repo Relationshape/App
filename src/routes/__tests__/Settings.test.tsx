@@ -55,8 +55,8 @@ describe('Settings route (SETTINGS-01)', () => {
     expect(document.querySelector('[data-testid="settings-lang-section"]')).not.toBeNull()
     expect(document.querySelector('[data-testid="data-management"]')).not.toBeNull()
     expect(document.querySelector('[data-testid="scale-editor"]')).not.toBeNull()
-    expect(document.querySelector('[data-testid="settings-display-modes-section"]')).not.toBeNull()
-    expect(document.querySelector('[data-testid="settings-fabi-toggle"]')).not.toBeNull()
+    expect(document.querySelector('[data-testid="settings-display-modes-section"]')).toBeNull()
+    expect(document.querySelector('[data-testid="settings-fabi-toggle"]')).toBeNull()
   })
 
   it('add-step button appends a new row; scale-editor shows one more row', async () => {
@@ -135,31 +135,4 @@ describe('Settings route (SETTINGS-01)', () => {
     expect(currentRows).toBeGreaterThanOrEqual(2)
   })
 
-  it('clicking the Fabi-mode toggle flips its visual on/off state (is-on + .onboard-switch.on)', async () => {
-    await mountSettings()
-    await waitFor(() => {
-      expect(document.querySelector('[data-testid="settings-fabi-toggle"]')).not.toBeNull()
-    })
-    const btn = document.querySelector('[data-testid="settings-fabi-toggle"]') as HTMLButtonElement
-    expect(btn.classList.contains('is-on')).toBe(false)
-    expect(btn.querySelector('.onboard-switch')?.classList.contains('on')).toBe(false)
-    await act(async () => { fireEvent.click(btn) })
-    expect(btn.classList.contains('is-on')).toBe(true)
-    expect(btn.querySelector('.onboard-switch')?.classList.contains('on')).toBe(true)
-  })
-
-  it('clicking the Fabi-mode toggle persists settings.fabiMode = true to localStorage', async () => {
-    await mountSettings()
-    await waitFor(() => {
-      expect(document.querySelector('[data-testid="settings-fabi-toggle"]')).not.toBeNull()
-    })
-    const btn = document.querySelector('[data-testid="settings-fabi-toggle"]') as HTMLButtonElement
-    await act(async () => { fireEvent.click(btn) })
-    await waitFor(() => {
-      const raw = localStorage.getItem('relationshape.v1')
-      expect(raw).not.toBeNull()
-      const parsed = JSON.parse(raw as string)
-      expect(parsed.settings?.fabiMode).toBe(true)
-    })
-  })
 })
