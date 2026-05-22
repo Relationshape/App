@@ -35,8 +35,8 @@ export function EmojiPicker({ value, onChange }: Props) {
         {value || '✨'}
         <span className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-accent text-on-accent text-[11px] font-bold shadow" aria-hidden>✎</span>
       </PopoverTrigger>
-      <PopoverContent align="start" className="max-w-[22rem] flex flex-col gap-0 p-3">
-        <div className="cat-wizard-emoji-palette overflow-y-auto max-h-[min(55vh,320px)]" data-testid="emoji-grid">
+      <PopoverContent align="start" className="max-w-[22rem] flex flex-col gap-0 p-3 overflow-hidden">
+        <div className="cat-wizard-emoji-palette overflow-y-scroll max-h-[min(55vh,320px)]" data-testid="emoji-grid">
           {EMOJI_GROUPS.map((group) => (
             <div key={group.label} className="cat-wizard-emoji-group">
               <div className="cat-wizard-emoji-group-label">{group.label}</div>
