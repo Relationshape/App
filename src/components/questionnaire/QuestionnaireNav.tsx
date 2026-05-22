@@ -24,7 +24,7 @@ export function QuestionnaireNav({ result, profileId, activeCat, onNextCat, onPr
     : `/q-categories/${profileId}/${result.id}`
   return (
     <nav
-      className="q-nav sticky bottom-0 z-10 bg-surface border-t border-line"
+      className="q-nav shrink-0"
       aria-label="Questionnaire navigation"
     >
       <div className="mx-auto w-full max-w-[920px] px-4 py-2 flex items-center gap-2 min-w-0">

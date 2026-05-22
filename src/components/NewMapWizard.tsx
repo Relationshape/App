@@ -69,6 +69,7 @@ export function NewMapWizard({ profile }: Props) {
   const [checkedIds, setCheckedIds] = useState<Set<string>>(() => new Set())
   const [scale, setScale] = useState<MutableScaleStep[]>(() => globalScale.map((s) => ({ ...s })))
   const [customizeScale, setCustomizeScale] = useState(false)
+  const [scaleWasCustomized, setScaleWasCustomized] = useState(false)
   const [templateSource, setTemplateSource] = useState<TemplateSource | null>(null)
   const [skipSharePrompt, setSkipSharePrompt] = useState(false)
 
@@ -82,6 +83,7 @@ export function NewMapWizard({ profile }: Props) {
   const [pendingItems, setPendingItems] = useState<PendingCustomItem[]>([])
   const [customCats, setCustomCats] = useState<CustomCategoryDef[]>([])
   const [itemsByCat, setItemsByCat] = useState<PendingItemsByCat>({})
+  const [expandedCats, setExpandedCats] = useState<Set<string>>(new Set())
   const addingItemRef = useRef(false)
 
   // Inline item-form state (replaces dialog-based addItemFlow)
@@ -160,13 +162,26 @@ export function NewMapWizard({ profile }: Props) {
       subjectEmoji: profile.emoji,
       answers: {} as Record<string, never>,
       enabledCategories,
-      ...(customizeScale ? { scale } : {}),
+      ...(scaleWasCustomized ? { scale } : {}),
       ...(customCats.length > 0 ? { customCategories: customCats } : {}),
       progress: { mode: 'list' as const },
       createdAt: Date.now(),
       updatedAt: Date.now(),
     }
-    saveResult(applyPendingItems(base, itemsByCat))
+    // Seed items from profile cat definitions for checked profile cats not yet in itemsByCat
+    const seededItemsByCat = { ...itemsByCat }
+    for (const id of checkedIds) {
+      if (id in seededItemsByCat) continue
+      const profileCat = (profile.customCategories ?? []).find((c) => c.id === id)
+      if (profileCat?.items && profileCat.items.length > 0) {
+        seededItemsByCat[id] = profileCat.items.map((item) => ({
+          name: item.name,
+          format: item.format,
+          ...(item.options ? { options: item.options } : {}),
+        }))
+      }
+    }
+    saveResult(applyPendingItems(base, seededItemsByCat))
     await promptShareTemplate(id)
   }
 
@@ -197,6 +212,14 @@ export function NewMapWizard({ profile }: Props) {
       navigate(`/q-categories/${profile.id}/${id}`, { replace: true })
     }
     // null (X clicked): do nothing — wizard remains on step 2 (categories)
+  }
+
+  function toggleExpandCat(id: string) {
+    setExpandedCats((prev) => {
+      const next = new Set(prev)
+      next.has(id) ? next.delete(id) : next.add(id)
+      return next
+    })
   }
 
   function toggleCategory(id: string) {
@@ -553,23 +576,43 @@ export function NewMapWizard({ profile }: Props) {
                         {items.map((cat) => {
                           const isChecked = checkedIds.has(cat.id)
                           const catTitle = lang === 'de' && cat.de ? cat.de : cat.title
+                          const isExpanded = expandedCats.has(cat.id)
+                          const itemLabels = (lang === 'de' && (cat as { deItems?: readonly string[] }).deItems)
+                            ? (cat as { deItems: readonly string[] }).deItems
+                            : cat.items
                           return (
-                            <label
-                              key={cat.id}
-                              htmlFor={`nmw-cp-${cat.id}`}
-                              className={`cat-picker-item${isChecked ? ' is-checked' : ''}`}
-                              data-testid={`wizard-cat-item-${cat.id}`}
-                            >
-                              <input
-                                type="checkbox"
-                                id={`nmw-cp-${cat.id}`}
-                                checked={isChecked}
-                                onChange={() => toggleCategory(cat.id)}
-                              />
-                              <span className="cat-picker-icon" aria-hidden>{cat.icon}</span>
-                              <span className="cat-picker-label">{catTitle}</span>
-                              <span className="cat-picker-check" aria-hidden>{isChecked ? '✓' : ''}</span>
-                            </label>
+                            <div key={cat.id} className="cat-picker-item-wrap">
+                              <label
+                                htmlFor={`nmw-cp-${cat.id}`}
+                                className={`cat-picker-item${isChecked ? ' is-checked' : ''}`}
+                                data-testid={`wizard-cat-item-${cat.id}`}
+                              >
+                                <input
+                                  type="checkbox"
+                                  id={`nmw-cp-${cat.id}`}
+                                  checked={isChecked}
+                                  onChange={() => toggleCategory(cat.id)}
+                                />
+                                <span className="cat-picker-icon" aria-hidden>{cat.icon}</span>
+                                <span className="cat-picker-label">{catTitle}</span>
+                                <span className="cat-picker-check" aria-hidden>{isChecked ? '✓' : ''}</span>
+                                <span
+                                  role="button"
+                                  tabIndex={0}
+                                  className={`cat-picker-expand-btn${isExpanded ? ' is-open' : ''}`}
+                                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleExpandCat(cat.id) }}
+                                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleExpandCat(cat.id) } }}
+                                  aria-expanded={isExpanded}
+                                >
+                                  {isExpanded ? '▲' : '▼'}
+                                </span>
+                              </label>
+                              {isExpanded && (
+                                <div className="cat-picker-item-preview">
+                                  {itemLabels.join(' · ')}
+                                </div>
+                              )}
+                            </div>
                           )
                         })}
                       </div>
@@ -719,7 +762,6 @@ export function NewMapWizard({ profile }: Props) {
                   type="text"
                   value={itemFormName}
                   onChange={(e) => { setItemFormName(e.target.value); setItemFormError('') }}
-                  onKeyDown={(e) => { if (e.key === 'Enter') submitItemForm() }}
                   placeholder={t('q_add_custom_placeholder') as string}
                   className="w-full rounded border border-line px-2 py-1"
                   data-testid="wizard-item-form-name"
@@ -838,7 +880,7 @@ export function NewMapWizard({ profile }: Props) {
                   {t('new_card_scale_customize')}
                 </Button>
               )}
-              <Button onClick={() => { setCustomizeScale(false); setStep(2) }} data-testid="wizard-scale-confirm">
+              <Button onClick={() => { setScaleWasCustomized(customizeScale); setCustomizeScale(false); setStep(2) }} data-testid="wizard-scale-confirm">
                 {t('new_card_scale_confirm')}
               </Button>
             </div>

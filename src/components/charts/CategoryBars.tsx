@@ -65,11 +65,11 @@ export function CategoryBars({ datasets, catId }: Props) {
       if (grCategory) {
         if (cell.giving || cell.receiving) return true
         if (cell.gr === 'G' || cell.gr === 'R' || cell.gr === 'Both') {
-          return !!ds.scale.find((s) => s.key === cell.scale)
+          return !!(ds.scale.find((s) => s.key === cell.scale) ?? cell.itemScale?.find((s) => s.key === cell.scale))
         }
         return false
       }
-      const step = ds.scale.find((s) => s.key === cell.scale)
+      const step = ds.scale.find((s) => s.key === cell.scale) ?? cell.itemScale?.find((s) => s.key === cell.scale)
       return step != null
     })
   })
@@ -119,7 +119,8 @@ export function CategoryBars({ datasets, catId }: Props) {
             <div className="rs-bar-item-rows">
               {truncated.map((ds, di) => {
                 const cell = isCustom ? ds.answers[catId]?.__custom?.[key] : ds.answers[catId]?.[key]
-                const max = scaleMaxValue(ds.scale)
+                const effectiveScale = cell?.itemScale ?? ds.scale
+                const max = scaleMaxValue(effectiveScale)
 
                 if (grCategory && cell) {
                   const giving = grSideValue(cell, 'giving', ds.scale, max, lang)
@@ -146,7 +147,7 @@ export function CategoryBars({ datasets, catId }: Props) {
                   )
                 }
 
-                const step = cell ? ds.scale.find((s) => s.key === cell.scale) ?? null : null
+                const step = cell ? (effectiveScale.find((s) => s.key === cell.scale) ?? null) : null
                 if (!step) {
                   return (
                     <div

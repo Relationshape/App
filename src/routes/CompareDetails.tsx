@@ -218,7 +218,7 @@ export function CompareDetails() {
                 onClick={() => setActiveTab('alignment')}
                 data-testid="compare-overview-tab-alignment"
               >
-                {t('alignment_title')}
+                {t('compare_tab_highlights')}
               </button>
               <button
                 type="button"
@@ -228,7 +228,7 @@ export function CompareDetails() {
                 onClick={() => setActiveTab('spider')}
                 data-testid="compare-overview-tab-spider"
               >
-                {t('fabi_spider_title')}
+                {t('compare_tab_radar')}
               </button>
             </div>
           </div>

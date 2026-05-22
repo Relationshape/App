@@ -536,7 +536,6 @@ export function RsCategoryPicker({ open, onOpenChange, existingIds, result, prof
                   type="text"
                   value={itemFormName}
                   onChange={(e) => { setItemFormName(e.target.value); setItemFormError('') }}
-                  onKeyDown={(e) => { if (e.key === 'Enter') submitItemForm() }}
                   placeholder={t('q_add_custom_placeholder') as string}
                   className="w-full rounded border border-line px-2 py-1"
                   data-testid="cat-item-form-name"
