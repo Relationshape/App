@@ -14,6 +14,7 @@ import { UnlockAnswersBody } from '@/components/UnlockAnswersDialog'
 import { ImportListRow } from '@/components/ImportListRow'
 import { CATEGORIES } from '@/lib/data/data'
 import { t } from '@/lib/i18n/i18n'
+import { ProcessGuideModal } from '@/components/ProcessGuideModal'
 import { useToast } from '@/lib/hooks/useToast'
 import type { Import } from '@/lib/storage/types'
 
@@ -59,6 +60,7 @@ export function ProfileDetail() {
   // "Use as template" dialog — single step (profile already known)
   const [templateImp, setTemplateImp] = useState<Import | null>(null)
   const [templateSubject, setTemplateSubject] = useState('')
+  const [guideOpen, setGuideOpen] = useState(false)
 
   function openTemplateWizard(imp: Import) {
     setTemplateSubject(imp.subject?.trim() ?? '')
@@ -159,6 +161,7 @@ export function ProfileDetail() {
         </div>
         <div className="flex-spacer" />
         <div className="profile-head-actions">
+          <Button variant="outline" onClick={() => setGuideOpen(true)} data-testid="profile-guide-btn">{t('guide_open_btn')}</Button>
           <Button variant="outline" onClick={downloadBackup} data-testid="profile-backup-btn">{t('btn_backup')}</Button>
           <Button asChild variant="outline" data-testid="profile-edit-btn">
             <Link to={`/profile/${profile.id}/edit`}>{t('btn_edit')}</Link>
@@ -289,6 +292,8 @@ export function ProfileDetail() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <ProcessGuideModal open={guideOpen} onClose={() => setGuideOpen(false)} />
     </section>
   )
 }

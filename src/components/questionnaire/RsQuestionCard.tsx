@@ -63,6 +63,10 @@ export function RsQuestionCard({
 }: Props) {
   const storeSaveResult = useStore((s) => s.saveResult)
   const saveResult = onSave ?? storeSaveResult
+  const updateProfile = useStore((s) => s.updateProfile)
+  const profileCustomCats = useStore((s) =>
+    s.profiles.find((p) => p.id === result.profileId)?.customCategories ?? []
+  )
   // Read templateWarningDisabled reactively so saves don't overwrite it
   // when confirmIfTemplate sets it in the store before React re-renders.
   const storeTemplateWarningDisabled = useStore((s) =>
@@ -321,20 +325,21 @@ export function RsQuestionCard({
   async function hide() {
     if (!(await onBeforeMutate())) return
     if (blockCloseRef) blockCloseRef.current = true
-    let confirmed: boolean | null = false
+    let choice: 'card' | 'permanent' | null = null
     try {
-      confirmed = await dialog<boolean>({
+      choice = await dialog<'card' | 'permanent' | null>({
         title: t('confirm_hide_item_title'),
-        body: () => <p>{t('confirm_hide_item_body')}</p>,
+        body: <p>{t('confirm_hide_item_body')}</p>,
         actions: [
-          { label: t('btn_cancel'), kind: 'ghost', value: false },
-          { label: t('btn_delete'), kind: 'danger', value: true },
+          { label: t('btn_cancel'), kind: 'ghost', value: null },
+          { label: t('confirm_remove_for_card'), kind: 'ghost', value: 'card' },
+          { label: t('confirm_remove_permanent'), kind: 'danger', value: 'permanent' },
         ],
       })
     } finally {
       if (blockCloseRef) blockCloseRef.current = false
     }
-    if (!confirmed) return
+    if (!choice) return
     const next = structuredClone(result)
     if (storeTemplateWarningDisabled) next.templateWarningDisabled = true
     const slot = next.answers[catId] ?? {}
@@ -342,13 +347,32 @@ export function RsQuestionCard({
       const customs = { ...(slot.__custom ?? {}) }
       delete customs[item]
       slot.__custom = customs
-      // Clean up customItemDef for this item
       if (next.customItemDefs?.[catId]?.[item]) {
         const defs = { ...next.customItemDefs }
         const catDefs = { ...defs[catId] }
         delete catDefs[item]
         defs[catId] = catDefs
         next.customItemDefs = defs
+      }
+      if (choice === 'permanent') {
+        // Remove from result custom category items
+        if (next.customCategories) {
+          next.customCategories = next.customCategories.map((c) =>
+            c.id === catId
+              ? { ...c, items: (c.items ?? []).filter((i) => i.name !== item) }
+              : c
+          )
+        }
+        // Remove from profile custom category items
+        const profileCat = profileCustomCats.find((c) => c.id === catId)
+        if (profileCat) {
+          const updatedCats = profileCustomCats.map((c) =>
+            c.id === catId
+              ? { ...c, items: (c.items ?? []).filter((i) => i.name !== item) }
+              : c
+          )
+          updateProfile(result.profileId, { customCategories: updatedCats })
+        }
       }
     } else {
       slot.__hidden = { ...(slot.__hidden ?? {}), [item]: true }

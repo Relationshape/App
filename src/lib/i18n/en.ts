@@ -339,6 +339,9 @@ export const EN = {
   scale_col_color: 'Color',
   scale_col_label: 'Label',
   scale_col_short: 'Shorthand',
+  scale_col_value: 'Value',
+  scale_col_desc: 'Meaning',
+  scale_editor_hint: 'Higher values = more positive rating. The scale is used for averages and the spider chart.',
 
   // Map settings
   map_settings_title: '⚙️ Map settings',
@@ -501,9 +504,14 @@ export const EN = {
 
   // Questionnaire components (plan 02-04)
   item_note_placeholder: 'Note (optional)',
-  btn_hide_item: 'Hide this item',
-  confirm_hide_item_title: 'Remove this item?',
-  confirm_hide_item_body: 'Remove this item from this map? The item and its answer will be permanently deleted for this map.',
+  btn_hide_item: 'Remove item',
+  confirm_hide_item_title: 'Remove item',
+  confirm_hide_item_body: 'Remove this item only for this map, or permanently? «Permanently delete» also removes it from the category definition (applies to future maps).',
+  confirm_remove_for_card: 'Only for this map',
+  confirm_remove_permanent: 'Permanently delete',
+  scale_mismatch_title: 'Different scales',
+  scale_mismatch_body: 'The compared maps use different answer scales (e.g. different number of steps, or individual questions with their own scale). Values are normalised and are generally comparable, but results can be misleading if scales differ significantly.',
+  btn_compare_anyway: 'Compare anyway',
   confirm_item_scale_edit_title: 'Edit individual scale?',
   confirm_item_scale_edit_body: 'You are editing the scale of a single item. It may no longer match the scale used for other items, which can lead to inconsistencies in the results view. Continue anyway?',
   q_back_to_categories: '← Back to Overview',
@@ -700,6 +708,48 @@ export const EN = {
   pdf_scale_legend: 'Scale',
   pdf_items_section: 'Item by Item',
   pdf_no_answer: '—',
+
+  // Custom item save-to-profile
+  q_save_item_to_profile_title: 'Save item to profile?',
+  q_save_item_to_profile_body: 'Do you want to save this item to your profile category? It will then appear automatically in future maps (not in existing ones).',
+  btn_yes: 'Yes',
+  btn_no: 'No',
+
+  // Process guide
+  guide_title: 'How to use Relationshape',
+  guide_sub: 'A guide to the shared process',
+  guide_prep_title: 'Before you start',
+  guide_prep_body:
+    'Choose a setting where you feel comfortable and focused. This process takes time and may bring up emotions, old and new. Plan for breaks and think about how you want to handle challenging situations — together and individually. Meet each other with gratitude and generosity.',
+  guide_step1_title: 'Read together first',
+  guide_step1_body:
+    'Read through the questionnaire together before filling it in — ideally side by side so you can talk as you go.',
+  guide_step2_title: 'Choose your categories',
+  guide_step2_body:
+    'Together, pick the sections that feel relevant to your relationship. Add or remove items as you like. This step alone often sparks good conversations.',
+  guide_step3_title: 'Calibrate the scale',
+  guide_step3_body:
+    'Talk through what each scale level means to you both. The goal is a shared, nuanced understanding. Rename or adjust the scale as needed.',
+  guide_step4_title: 'Fill in separately',
+  guide_step4_body:
+    'Each person fills in their own map independently — in the same room or apart. Clarify ambiguous terms together beforehand, then answer without influencing each other.',
+  guide_step5_title: 'Compare your maps',
+  guide_step5_body:
+    'Bring your answers together and highlight strong agreements and discrepancies. These point to potential conversations and compromises.',
+  guide_step6_title: 'Talk it through',
+  guide_step6_body:
+    'Share your feelings and thoughts openly. If you find points of disagreement, explore what they mean. When unsure, ask each other to elaborate before drawing conclusions.',
+  guide_step7_title: 'Take it into practice',
+  guide_step7_body:
+    'Carry new insights into your relationship and let them inspire ongoing agreements and a deeper understanding of each other.',
+  guide_step8_title: 'Revisit regularly',
+  guide_step8_body:
+    'Return to your maps every few months (e.g. every 6 months). Talk about what has changed and what that means for you.',
+  guide_step9_title: 'Adapt over time',
+  guide_step9_body:
+    'Modify your practice, add to your maps, and find your own way of using Relationshape.',
+  guide_close: 'Got it',
+  guide_open_btn: 'Process guide',
 } as const
 
 export type TranslationKey = keyof typeof EN

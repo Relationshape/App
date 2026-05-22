@@ -5,6 +5,7 @@ import { Nav } from '@/components/Nav'
 import { Toaster } from '@/components/ui/sonner'
 import { DialogHost } from '@/components/DialogHost'
 import { AgeGate } from '@/components/AgeGate'
+import { ProcessGuideHost } from '@/components/ProcessGuideHost'
 import { WizardHost } from '@/components/WizardHost'
 import { ShareDataProvider } from '@/components/providers/ShareDataProvider'
 import { useScrollToTop } from '@/hooks/useScrollToTop'
@@ -31,6 +32,7 @@ export function RootLayout() {
       </main>
       <DialogHost />
       <AgeGate />
+      <ProcessGuideHost />
       <WizardHost />
     </ShareDataProvider>
   )

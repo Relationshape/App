@@ -155,14 +155,24 @@ export function RsCategoryPicker({ open, onOpenChange, existingIds, result, prof
     const mergedResultCats = [...existingResultCats, ...pendingNewResultCats]
     const mergedProfileCats = [...existingProfileCats, ...pendingNewProfileCats]
 
-    // Seed items from profile cat definitions for newly-added profile cats
+    // Seed items from cat definitions for newly-added cats
     const allProfileCats = [...existingProfileCats, ...pendingNewProfileCats]
+    const allResultCustomCats = [...existingResultCats, ...pendingNewResultCats]
     const seededItemsByCat = { ...pendingItemsByCat }
     for (const id of checkedIds) {
       if (lockedIds.has(id) || id in seededItemsByCat) continue
       const profileCat = allProfileCats.find((c) => c.id === id)
       if (profileCat?.items && profileCat.items.length > 0) {
         seededItemsByCat[id] = profileCat.items.map((item) => ({
+          name: item.name,
+          format: item.format,
+          ...(item.options ? { options: item.options } : {}),
+        }))
+        continue
+      }
+      const resultCat = allResultCustomCats.find((c) => c.id === id)
+      if (resultCat?.items && resultCat.items.length > 0) {
+        seededItemsByCat[id] = resultCat.items.map((item) => ({
           name: item.name,
           format: item.format,
           ...(item.options ? { options: item.options } : {}),
@@ -314,32 +324,53 @@ export function RsCategoryPicker({ open, onOpenChange, existingIds, result, prof
                     {allCustomCats.map((cat) => {
                       const locked = lockedIds.has(cat.id)
                       const isChecked = checkedIds.has(cat.id)
+                      const isExpanded = expandedCats.has(cat.id)
+                      const hasItems = cat.items && cat.items.length > 0
                       return (
-                        <label
-                          key={cat.id}
-                          htmlFor={`cp-${cat.id}`}
-                          className={
-                            'cat-picker-item' +
-                            (locked ? ' is-locked' : '') +
-                            (isChecked ? ' is-checked' : '')
-                          }
-                          data-testid={`cat-picker-item-${cat.id}`}
-                        >
-                          <input
-                            type="checkbox"
-                            id={`cp-${cat.id}`}
-                            checked={isChecked}
-                            disabled={locked}
-                            onChange={() => toggle(cat.id)}
-                          />
-                          <span className="cat-picker-icon" aria-hidden>{cat.icon}</span>
-                          <span className="cat-picker-label">{cat.title}</span>
-                          {locked ? (
-                            <span className="cat-picker-lock" aria-label="already added">✓</span>
-                          ) : (
-                            <span className="cat-picker-check" aria-hidden>{isChecked ? '✓' : ''}</span>
+                        <div key={cat.id} className="cat-picker-item-wrap">
+                          <label
+                            htmlFor={`cp-${cat.id}`}
+                            className={
+                              'cat-picker-item' +
+                              (locked ? ' is-locked' : '') +
+                              (isChecked ? ' is-checked' : '')
+                            }
+                            data-testid={`cat-picker-item-${cat.id}`}
+                          >
+                            <input
+                              type="checkbox"
+                              id={`cp-${cat.id}`}
+                              checked={isChecked}
+                              disabled={locked}
+                              onChange={() => toggle(cat.id)}
+                            />
+                            <span className="cat-picker-icon" aria-hidden>{cat.icon}</span>
+                            <span className="cat-picker-label">{cat.title}</span>
+                            {locked ? (
+                              <span className="cat-picker-lock" aria-label="already added">✓</span>
+                            ) : (
+                              <span className="cat-picker-check" aria-hidden>{isChecked ? '✓' : ''}</span>
+                            )}
+                            {hasItems && (
+                              <span
+                                role="button"
+                                tabIndex={0}
+                                className={`cat-picker-expand-btn${isExpanded ? ' is-open' : ''}`}
+                                onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleExpand(cat.id) }}
+                                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleExpand(cat.id) } }}
+                                aria-expanded={isExpanded}
+                                aria-label={isExpanded ? t('cat_picker_collapse') as string : t('cat_picker_expand') as string}
+                              >
+                                {isExpanded ? '▲' : '▼'}
+                              </span>
+                            )}
+                          </label>
+                          {isExpanded && hasItems && (
+                            <div className="cat-picker-item-preview">
+                              {cat.items!.map((i) => i.name).join(' · ')}
+                            </div>
                           )}
-                        </label>
+                        </div>
                       )
                     })}
                   </div>
@@ -457,6 +488,17 @@ export function RsCategoryPicker({ open, onOpenChange, existingIds, result, prof
                 />
               </div>
 
+              <label className="flex items-center gap-2 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={createForProfile}
+                  onChange={(e) => setCreateForProfile(e.target.checked)}
+                  className="rounded"
+                  data-testid="cat-create-for-profile"
+                />
+                <span className="text-sm">{t('cat_create_save_to_profile')}</span>
+              </label>
+
               <div className="flex flex-col gap-1">
                 <label className="text-sm font-medium">{t('cat_create_emoji_label')}</label>
                 <div className="cat-wizard-emoji-palette overflow-y-auto" style={{ maxHeight: '280px' }}>
@@ -489,17 +531,6 @@ export function RsCategoryPicker({ open, onOpenChange, existingIds, result, prof
                   data-testid="cat-create-icon-input"
                 />
               </div>
-
-              <label className="flex items-center gap-2 cursor-pointer select-none">
-                <input
-                  type="checkbox"
-                  checked={createForProfile}
-                  onChange={(e) => setCreateForProfile(e.target.checked)}
-                  className="rounded"
-                  data-testid="cat-create-for-profile"
-                />
-                <span className="text-sm">{t('cat_create_save_to_profile')}</span>
-              </label>
             </div>
             <div className="rs-modal-actions">
               <button

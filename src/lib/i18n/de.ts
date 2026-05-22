@@ -343,15 +343,18 @@ export const DE: Record<TranslationKey, string> = {
   theme_dark: '🌙 Dunkel',
 
   // Scale editor
-  scale_step_label: 'Langer Name',
-  scale_step_short: 'Kurz',
-  scale_step_desc: 'Tooltip / Beschreibung',
+  scale_step_label: 'Bezeichnung',
+  scale_step_short: 'Kurzform',
+  scale_step_desc: 'Bedeutung / Beschreibung',
   scale_step_new: 'Neue Stufe',
   scale_step_remove_confirm:
     'Die Stufe „{label}" wird in einigen Antworten verwendet. Das Entfernen löscht diese Antworten. Fortfahren?',
   scale_col_color: 'Farbe',
   scale_col_label: 'Bezeichnung',
   scale_col_short: 'Kurzform',
+  scale_col_value: 'Wert',
+  scale_col_desc: 'Bedeutung',
+  scale_editor_hint: 'Höhere Werte = positivere Einschätzung. Die Skala wird für Durchschnitte und das Netzdiagramm verwendet.',
 
   // Map settings
   map_settings_title: '⚙️ Karten-Einstellungen',
@@ -520,9 +523,14 @@ export const DE: Record<TranslationKey, string> = {
 
   // Questionnaire components (plan 02-04)
   item_note_placeholder: 'Notiz (optional)',
-  btn_hide_item: 'Diesen Punkt ausblenden',
-  confirm_hide_item_title: 'Element entfernen?',
-  confirm_hide_item_body: 'Dieses Element für diese Karte entfernen? Das Element und die Antwort wird für diese Karte permanent gelöscht.',
+  btn_hide_item: 'Element entfernen',
+  confirm_hide_item_title: 'Element entfernen',
+  confirm_hide_item_body: 'Soll dieses Element nur für diese Karte ausgeblendet oder permanent gelöscht werden? «Permanent löschen» entfernt es auch aus der Kategoriendefinition (gilt für zukünftige Karten).',
+  confirm_remove_for_card: 'Nur für diese Karte',
+  confirm_remove_permanent: 'Permanent löschen',
+  scale_mismatch_title: 'Unterschiedliche Skalen',
+  scale_mismatch_body: 'Die verglichenen Karten verwenden unterschiedliche Bewertungsskalen (z.B. andere Stufenanzahl oder einzelne Fragen mit eigener Skala). Die Werte werden normalisiert und sind grundsätzlich vergleichbar, aber Ergebnisse können bei sehr unterschiedlichen Skalen irreführend sein.',
+  btn_compare_anyway: 'Trotzdem vergleichen',
   confirm_item_scale_edit_title: 'Einzelne Skala bearbeiten?',
   confirm_item_scale_edit_body: 'Achtung, du bearbeitest gerade die Skala eines einzelnen Elementes – sie ist dann unter Umständen nicht mehr deckungsgleich mit der Skala, mit der andere Elemente bewertet werden. Dies kann zu Inkonsistenzen und Unklarheiten in der Ergebnisanzeige führen. Trotzdem fortfahren?',
   q_back_to_categories: '← Zurück zur Übersicht',
@@ -719,4 +727,46 @@ export const DE: Record<TranslationKey, string> = {
   pdf_scale_legend: 'Skala',
   pdf_items_section: 'Element für Element',
   pdf_no_answer: '—',
+
+  // Custom-Element im Profil speichern
+  q_save_item_to_profile_title: 'Element im Profil speichern?',
+  q_save_item_to_profile_body: 'Möchtest du dieses Element in deiner Profilkategorie speichern? Es erscheint dann automatisch in zukünftigen Karten (nicht in bestehenden).',
+  btn_yes: 'Ja',
+  btn_no: 'Nein',
+
+  // Process guide
+  guide_title: 'Wie Relationshape nutzen',
+  guide_sub: 'Ein Leitfaden für den gemeinsamen Prozess',
+  guide_prep_title: 'Bevor ihr beginnt',
+  guide_prep_body:
+    'Wählt einen Rahmen, in dem ihr euch wohl und fokussiert fühlen könnt. Dieser Prozess braucht Zeit und kann Emotionen und Konflikte — alte wie neue — auslösen. Plant Pausen ein und überlegt vorab, wie ihr mit schwierigen Momenten umgehen wollt — gemeinsam und individuell. Begegnet euch mit Dankbarkeit und Grosszügigkeit.',
+  guide_step1_title: 'Gemeinsam durchlesen',
+  guide_step1_body:
+    'Lest den Fragebogen zunächst zusammen durch, ohne ihn auszufüllen — idealerweise gemeinsam, damit ihr direkt kommunizieren könnt.',
+  guide_step2_title: 'Kategorien auswählen',
+  guide_step2_body:
+    'Wählt gemeinsam die Bereiche aus, die auf eure Beziehung zutreffen. Fügt Punkte hinzu oder entfernt sie. Allein dieser Schritt löst oft schon gute Gespräche aus.',
+  guide_step3_title: 'Skala kalibrieren',
+  guide_step3_body:
+    'Besprecht, was die einzelnen Stufen der Skala für euch jeweils bedeuten. Das Ziel ist ein gemeinsames, nuanciertes Verständnis. Ihr könnt die Skala auch anpassen oder umbenennen.',
+  guide_step4_title: 'Getrennt ausfüllen',
+  guide_step4_body:
+    'Füllt den Fragebogen unabhängig voneinander aus — im selben Raum oder völlig getrennt. Klärt mehrdeutige Begriffe vorher gemeinsam, beantwortet die Fragen dann aber ohne gegenseitige Beeinflussung.',
+  guide_step5_title: 'Karten vergleichen',
+  guide_step5_body:
+    'Tragt eure Antworten zusammen und markiert starke Übereinstimmungen und Diskrepanzen — diese zeigen euch mögliche Gesprächspunkte und Kompromisse.',
+  guide_step6_title: 'Besprechen',
+  guide_step6_body:
+    'Teilt eure Gefühle und Gedanken offen miteinander. Bei Uneinigkeiten: Besprecht, was diese für euch bedeuten. Bei Unklarheiten: Bittet einander um Erläuterung, bevor ihr Schlüsse zieht.',
+  guide_step7_title: 'In die Praxis tragen',
+  guide_step7_body:
+    'Tragt die neuen Erkenntnisse in euren Beziehungsalltag und lasst euch inspirieren, kontinuierlich Vereinbarungen zu treffen und einander besser zu verstehen.',
+  guide_step8_title: 'Regelmässig wiederholen',
+  guide_step8_body:
+    'Kehrt in regelmässigen Abständen (z. B. alle 6 Monate) zu euren Karten zurück. Besprecht, was sich verändert hat und welche Konsequenzen das hat.',
+  guide_step9_title: 'Anpassen',
+  guide_step9_body:
+    'Verändert eure Praxis im Laufe der Zeit, ergänzt eure Karten und findet euren eigenen Weg mit Relationshape.',
+  guide_close: 'Verstanden',
+  guide_open_btn: 'Prozess-Leitfaden',
 }

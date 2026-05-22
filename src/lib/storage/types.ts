@@ -133,6 +133,7 @@ export interface Settings {
   lang?: 'en' | 'de'
   fabiMode?: boolean
   wizardSeen?: boolean
+  guideSeen?: boolean
   // Phase 2 (PROFILE-06, D-29). Persisted age-gate confirmation; superseded the legacy `rs-age-confirmed` localStorage key.
   ageConfirmed?: boolean
 }

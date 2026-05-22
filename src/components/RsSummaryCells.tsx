@@ -31,19 +31,20 @@ export function RsSummaryCells({ datasets, catId }: RsSummaryCellsProps) {
         }
         const step = closestScaleEntry(avg.value, scale)
         const color = step?.color ?? '#7c3aed'
-        const short = step ? localizeStep(step, lang).short : ''
+        const label = step ? localizeStep(step, lang).label : ''
         return (
           <span
             key={`${ds.id}-${i}`}
             className="cell"
             data-testid="cat-summary-cell"
+            title={label}
             style={{
               background: `${color}33`,
               color,
               borderColor: `${color}55`,
             }}
           >
-            {short}
+            <span className="cat-summary-label">{label}</span>
           </span>
         )
       })}

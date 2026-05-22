@@ -159,7 +159,7 @@ export function ScalePicker({ scale, value, valueFrac, onChange, onClear, compac
                 title={s.description}
                 aria-label={s.label}
               />
-              <span className="rs-click-scale-ref-label" aria-hidden>{(() => { const loc = localizeStep(s, lang); return loc.short || loc.label })()}</span>
+              <span className="rs-click-scale-ref-label" aria-hidden>{localizeStep(s, lang).label}</span>
             </div>
           )
         })}
