@@ -16,8 +16,8 @@ interface Props {
 function freshStep(idx: number): MutableScaleStep {
   return {
     key: `step-${Date.now()}-${idx}`,
-    label: 'New step',
-    short: 'New',
+    label: '',
+    short: '',
     value: idx,
     color: '#7c3aed',
     description: '',
@@ -67,6 +67,14 @@ export function ScaleEditor({ scale, onChange, hasData }: Props) {
 
   return (
     <div className="scale-editor" data-testid="scale-editor">
+      <p className="scale-editor-hint">{t('scale_editor_hint')}</p>
+      <div className="scale-legend-header" aria-hidden>
+        <span></span>
+        <span>{t('scale_col_color')}</span>
+        <span>{t('scale_col_label')}</span>
+        <span style={{ textAlign: 'center' }}>{t('scale_col_value')}</span>
+        <span></span>
+      </div>
       {local.map((s, i) => (
         <RsTile
           plain
@@ -93,19 +101,11 @@ export function ScaleEditor({ scale, onChange, hasData }: Props) {
             data-testid={`scale-label-${s.key}`}
           />
           <input
-            type="text"
-            className="scale-row-short"
-            value={s.short ?? ''}
-            onChange={(e) => setField(i, { short: e.target.value.slice(0, 24) })}
-            placeholder={t('scale_step_short')}
-            maxLength={24}
-            data-testid={`scale-short-${s.key}`}
-          />
-          <input
             type="number"
             className="scale-row-value"
             value={s.value}
             onChange={(e) => setField(i, { value: Number(e.target.value) })}
+            aria-label={t('scale_col_value')}
             data-testid={`scale-value-${s.key}`}
           />
           <input
@@ -113,7 +113,7 @@ export function ScaleEditor({ scale, onChange, hasData }: Props) {
             className="scale-row-desc"
             value={s.description ?? ''}
             onChange={(e) => setField(i, { description: e.target.value })}
-            placeholder={t('scale_step_description')}
+            placeholder={t('scale_col_desc')}
             data-testid={`scale-desc-${s.key}`}
           />
           <div className="scale-row-actions">
@@ -140,7 +140,7 @@ export function ScaleEditor({ scale, onChange, hasData }: Props) {
               size="sm"
               variant="destructive"
               disabled={local.length <= 2}
-              onClick={() => removeAt(i)}
+              onClick={() => { void removeAt(i) }}
               aria-label="Remove"
               data-testid={`scale-remove-${s.key}`}
             >🗑</Button>

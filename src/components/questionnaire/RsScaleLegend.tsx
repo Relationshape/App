@@ -21,7 +21,7 @@ export function RsScaleLegend({ scale }: Props) {
             style={{ ['--c' as string]: s.color } as React.CSSProperties}
             title={loc.description}
           >
-            <span className="chip-num">{i + 1}</span> {loc.short || loc.label}
+            <span className="chip-num">{i + 1}</span> {loc.label}
           </span>
         )
       })}

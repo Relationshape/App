@@ -339,6 +339,9 @@ export const EN = {
   scale_col_color: 'Color',
   scale_col_label: 'Label',
   scale_col_short: 'Shorthand',
+  scale_col_value: 'Value',
+  scale_col_desc: 'Meaning',
+  scale_editor_hint: 'Higher values = more positive rating. The scale is used for averages and the spider chart.',
 
   // Map settings
   map_settings_title: '⚙️ Map settings',
@@ -501,9 +504,14 @@ export const EN = {
 
   // Questionnaire components (plan 02-04)
   item_note_placeholder: 'Note (optional)',
-  btn_hide_item: 'Hide this item',
-  confirm_hide_item_title: 'Remove this item?',
-  confirm_hide_item_body: 'Remove this item from this map? The item and its answer will be permanently deleted for this map.',
+  btn_hide_item: 'Remove item',
+  confirm_hide_item_title: 'Remove item',
+  confirm_hide_item_body: 'Remove this item only for this map, or permanently? «Permanently delete» also removes it from the category definition (applies to future maps).',
+  confirm_remove_for_card: 'Only for this map',
+  confirm_remove_permanent: 'Permanently delete',
+  scale_mismatch_title: 'Different scales',
+  scale_mismatch_body: 'The compared maps use different answer scales (e.g. different number of steps, or individual questions with their own scale). Values are normalised and are generally comparable, but results can be misleading if scales differ significantly.',
+  btn_compare_anyway: 'Compare anyway',
   confirm_item_scale_edit_title: 'Edit individual scale?',
   confirm_item_scale_edit_body: 'You are editing the scale of a single item. It may no longer match the scale used for other items, which can lead to inconsistencies in the results view. Continue anyway?',
   q_back_to_categories: '← Back to Overview',

@@ -343,15 +343,18 @@ export const DE: Record<TranslationKey, string> = {
   theme_dark: '🌙 Dunkel',
 
   // Scale editor
-  scale_step_label: 'Langer Name',
-  scale_step_short: 'Kurz',
-  scale_step_desc: 'Tooltip / Beschreibung',
+  scale_step_label: 'Bezeichnung',
+  scale_step_short: 'Kurzform',
+  scale_step_desc: 'Bedeutung / Beschreibung',
   scale_step_new: 'Neue Stufe',
   scale_step_remove_confirm:
     'Die Stufe „{label}" wird in einigen Antworten verwendet. Das Entfernen löscht diese Antworten. Fortfahren?',
   scale_col_color: 'Farbe',
   scale_col_label: 'Bezeichnung',
   scale_col_short: 'Kurzform',
+  scale_col_value: 'Wert',
+  scale_col_desc: 'Bedeutung',
+  scale_editor_hint: 'Höhere Werte = positivere Einschätzung. Die Skala wird für Durchschnitte und das Netzdiagramm verwendet.',
 
   // Map settings
   map_settings_title: '⚙️ Karten-Einstellungen',
@@ -520,9 +523,14 @@ export const DE: Record<TranslationKey, string> = {
 
   // Questionnaire components (plan 02-04)
   item_note_placeholder: 'Notiz (optional)',
-  btn_hide_item: 'Diesen Punkt ausblenden',
-  confirm_hide_item_title: 'Element entfernen?',
-  confirm_hide_item_body: 'Dieses Element für diese Karte entfernen? Das Element und die Antwort wird für diese Karte permanent gelöscht.',
+  btn_hide_item: 'Element entfernen',
+  confirm_hide_item_title: 'Element entfernen',
+  confirm_hide_item_body: 'Soll dieses Element nur für diese Karte ausgeblendet oder permanent gelöscht werden? «Permanent löschen» entfernt es auch aus der Kategoriendefinition (gilt für zukünftige Karten).',
+  confirm_remove_for_card: 'Nur für diese Karte',
+  confirm_remove_permanent: 'Permanent löschen',
+  scale_mismatch_title: 'Unterschiedliche Skalen',
+  scale_mismatch_body: 'Die verglichenen Karten verwenden unterschiedliche Bewertungsskalen (z.B. andere Stufenanzahl oder einzelne Fragen mit eigener Skala). Die Werte werden normalisiert und sind grundsätzlich vergleichbar, aber Ergebnisse können bei sehr unterschiedlichen Skalen irreführend sein.',
+  btn_compare_anyway: 'Trotzdem vergleichen',
   confirm_item_scale_edit_title: 'Einzelne Skala bearbeiten?',
   confirm_item_scale_edit_body: 'Achtung, du bearbeitest gerade die Skala eines einzelnen Elementes – sie ist dann unter Umständen nicht mehr deckungsgleich mit der Skala, mit der andere Elemente bewertet werden. Dies kann zu Inkonsistenzen und Unklarheiten in der Ergebnisanzeige führen. Trotzdem fortfahren?',
   q_back_to_categories: '← Zurück zur Übersicht',

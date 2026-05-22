@@ -101,8 +101,10 @@ export function CustomScalePicker({
           return (
             <div key={s.key} className="scale-preview-row">
               <div className="scale-preview-swatch" style={{ background: s.color }} />
-              <span className="scale-preview-label">{loc.label}</span>
-              <span className="scale-preview-short">{loc.short}</span>
+              <div className="scale-preview-text">
+                <span className="scale-preview-label">{loc.label}</span>
+                {loc.description && <span className="scale-preview-desc">{loc.description}</span>}
+              </div>
             </div>
           )
         })}

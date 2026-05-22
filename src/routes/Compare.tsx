@@ -9,7 +9,8 @@ import { ImportForm } from '@/components/ImportForm'
 import { UnlockAnswersBody } from '@/components/UnlockAnswersDialog'
 import { mapResultToDataset, mapImportToDataset } from '@/lib/charts/datasets'
 import { CATEGORIES } from '@/lib/data/data'
-import type { Import, AnswersBlob } from '@/lib/storage/types'
+import type { Import, AnswersBlob, AnswerCell } from '@/lib/storage/types'
+import type { ChartDataset } from '@/components/charts/types'
 import { useToast } from '@/lib/hooks/useToast'
 import { dialog } from '@/lib/dialog/dialog'
 import { t } from '@/lib/i18n/i18n'
@@ -120,6 +121,29 @@ export function Compare() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   [effectiveIds.join(','), results, imports, profiles])
 
+  function hasScaleMismatch(dsets: ChartDataset[]): boolean {
+    if (dsets.length < 2) return false
+    // Check card-level scale differences
+    const scaleKeys = dsets.map((ds) => ds.scale.map((s) => s.key).join(','))
+    if (new Set(scaleKeys).size > 1) return true
+    // Check per-item itemScale overrides in any answered cell
+    for (const ds of dsets) {
+      for (const slot of Object.values(ds.answers)) {
+        for (const [k, cell] of Object.entries(slot)) {
+          if (k === '__hidden') continue
+          if (k === '__custom') {
+            for (const customCell of Object.values(slot.__custom ?? {})) {
+              if ((customCell as AnswerCell).itemScale) return true
+            }
+          } else if ((cell as AnswerCell).itemScale) {
+            return true
+          }
+        }
+      }
+    }
+    return false
+  }
+
   function hasItemValues(answers: AnswersBlob | undefined, catId: string): boolean {
     const slot = answers?.[catId]
     if (!slot) return false
@@ -146,6 +170,17 @@ export function Compare() {
   }
 
   async function handleGoToDetails() {
+    if (hasScaleMismatch(datasets)) {
+      const proceed = await dialog<boolean>({
+        title: t('scale_mismatch_title') as string,
+        body: <p>{t('scale_mismatch_body')}</p>,
+        actions: [
+          { label: t('btn_cancel') as string, kind: 'ghost', value: false },
+          { label: t('btn_compare_anyway') as string, kind: 'primary', value: true },
+        ],
+      })
+      if (!proceed) return
+    }
     if (!hasCommonCategories()) {
       const confirmed = await dialog<boolean>({
         title: t('compare_no_common_title') as string,

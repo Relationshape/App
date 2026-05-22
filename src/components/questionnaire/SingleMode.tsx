@@ -44,6 +44,7 @@ interface Props { result: Result; profile: Profile }
 
 export function SingleMode({ result, profile }: Props) {
   const saveResult = useStore((s) => s.saveResult)
+  const updateProfile = useStore((s) => s.updateProfile)
   const storeScale = useStore((s) => s.scale)
   const scale = result.scale ?? storeScale
   const { confirmIfTemplate } = useTemplateWarning(result)
@@ -280,15 +281,16 @@ export function SingleMode({ result, profile }: Props) {
   async function hideItem() {
     if (!cur) return
     if (!(await confirmIfTemplate())) return
-    const confirmed = await dialog<boolean>({
+    const choice = await dialog<'card' | 'permanent' | null>({
       title: t('confirm_hide_item_title'),
-      body: () => <p>{t('confirm_hide_item_body')}</p>,
+      body: <p>{t('confirm_hide_item_body')}</p>,
       actions: [
-        { label: t('btn_cancel'), kind: 'ghost', value: false },
-        { label: t('btn_delete'), kind: 'danger', value: true },
+        { label: t('btn_cancel'), kind: 'ghost', value: null },
+        { label: t('confirm_remove_for_card'), kind: 'ghost', value: 'card' },
+        { label: t('confirm_remove_permanent'), kind: 'danger', value: 'permanent' },
       ],
     })
-    if (!confirmed) return
+    if (!choice) return
     const next = structuredClone(result)
     const slot = next.answers[cur.catId] ?? {}
     if (cur.isCustom) {
@@ -301,6 +303,25 @@ export function SingleMode({ result, profile }: Props) {
         delete catDefs[cur.item]
         defs[cur.catId] = catDefs
         next.customItemDefs = defs
+      }
+      if (choice === 'permanent') {
+        if (next.customCategories) {
+          next.customCategories = next.customCategories.map((c) =>
+            c.id === cur.catId
+              ? { ...c, items: (c.items ?? []).filter((i) => i.name !== cur.item) }
+              : c
+          )
+        }
+        const profileCustomCats = profile.customCategories ?? []
+        const profileCat = profileCustomCats.find((c) => c.id === cur.catId)
+        if (profileCat) {
+          const updatedCats = profileCustomCats.map((c) =>
+            c.id === cur.catId
+              ? { ...c, items: (c.items ?? []).filter((i) => i.name !== cur.item) }
+              : c
+          )
+          updateProfile(result.profileId, { customCategories: updatedCats })
+        }
       }
     } else {
       slot.__hidden = { ...(slot.__hidden ?? {}), [cur.item]: true }
