@@ -572,6 +572,10 @@ export const EN = {
   share_passphrase_required: 'Enter a passphrase first.',
   import_sub: 'Paste an encrypted bundle or upload a `.rshape.txt` file.',
   import_btn: 'Decrypt and import',
+  import_adopt_cats_title: 'Custom categories in this import',
+  import_adopt_cats_body: 'This import includes custom categories. Add them to a profile to use them in your own maps.',
+  import_adopt_cats_select_profile: 'Add to profile',
+  import_adopt_cats_btn: 'Add to profile',
   compare_too_many_truncated: 'Showing first 4 of {n} comparisons.',
   compare_empty: 'Pick at least two maps to compare.',
 

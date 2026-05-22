@@ -82,6 +82,7 @@ export function ProfileDetail() {
       enabledCategories: templateImp.enabledCategories ?? CATEGORIES.map((c) => c.id),
       ...(templateImp.scale ? { scale: templateImp.scale } : {}),
       ...(templateImp.customItemDefs ? { customItemDefs: templateImp.customItemDefs } : {}),
+      ...(templateImp.customCategories ? { customCategories: templateImp.customCategories } : {}),
       answers: {},
       seededFromImportId: templateImp.id,
       progress: { mode: 'list' },

@@ -591,6 +591,10 @@ export const DE: Record<TranslationKey, string> = {
   share_passphrase_required: 'Bitte zuerst eine Passphrase eingeben.',
   import_sub: 'Füge ein verschlüsseltes Bündel ein oder lade eine `.rshape.txt` Datei hoch.',
   import_btn: 'Entschlüsseln & importieren',
+  import_adopt_cats_title: 'Eigene Kategorien in diesem Import',
+  import_adopt_cats_body: 'Dieser Import enthält eigene Kategorien. Füge sie einem Profil hinzu, um sie in eigenen Karten zu verwenden.',
+  import_adopt_cats_select_profile: 'Zu Profil hinzufügen',
+  import_adopt_cats_btn: 'Zum Profil hinzufügen',
   compare_too_many_truncated: 'Erste 4 von {n} Vergleichen angezeigt.',
   compare_empty: 'Wähle mindestens zwei Karten zum Vergleichen.',
 
