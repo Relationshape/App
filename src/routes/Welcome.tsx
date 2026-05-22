@@ -8,6 +8,8 @@ import { dialog } from '@/lib/dialog/dialog'
 import { CreateProfileModal } from '@/components/CreateProfileModal'
 import { t } from '@/lib/i18n/i18n'
 import { RsHeroConstellation } from '@/components/RsHeroConstellation'
+import { useToast } from '@/lib/hooks/useToast'
+import type { MutableScaleStep } from '@/lib/data/types'
 
 // ─── Feature highlight icons (26×26, viewBox 24×24, stroke="currentColor") ───
 // Verbatim port of public/legacy/js/app.js ICONS.feat_* (lines 80-83), with
@@ -121,7 +123,9 @@ const HOWTO_STEPS: Array<{ num: string; titleKey: HowtoTitleKey; descKey: HowtoD
 
 export function Welcome() {
   const profiles = useStore((s) => s.profiles)
+  const replaceAll = useStore((s) => s.replaceAll)
   const navigate = useNavigate()
+  const { toast } = useToast()
   const [createProfileOpen, setCreateProfileOpen] = useState(false)
 
   async function startNowFlow() {
@@ -131,6 +135,28 @@ export function Welcome() {
     }
     // Profile already exists — navigate to it directly
     if (profiles[0]) navigate(`/profile/${profiles[0].id}`)
+  }
+
+  async function handleRestoreBackup(file: File) {
+    try {
+      const text = await file.text()
+      const parsed = JSON.parse(text) as unknown
+      if (typeof parsed !== 'object' || parsed === null) throw new Error('Invalid backup file')
+      const ok = await dialog<boolean>({
+        title: t('backup_restore_confirm_title'),
+        body: <p>{t('backup_restore_confirm_body')}</p>,
+        actions: [
+          { label: t('btn_cancel'), kind: 'ghost', value: false },
+          { label: t('btn_restore'), kind: 'danger', value: true },
+        ],
+      })
+      if (!ok) return
+      replaceAll(parsed as Partial<{ profiles: any[]; results: any[]; imports: any[]; settings: any; scale: MutableScaleStep[] }>)
+      toast.success(t('backup_imported'))
+      navigate('/')
+    } catch (e) {
+      toast.error((e as Error).message)
+    }
   }
 
   return (
@@ -145,6 +171,21 @@ export function Welcome() {
         <div className="hero-actions">
           <button className="btn btn-primary" data-testid="welcome-cta" onClick={startNowFlow}>{t('welcome_cta')}</button>
           <Link to="/intro" className="btn btn-ghost" data-testid="welcome-about">{t('welcome_about')}</Link>
+          {profiles.length === 0 && (
+            <label className="btn btn-ghost cursor-pointer" data-testid="welcome-restore-backup">
+              {t('welcome_restore_backup')}
+              <input
+                type="file"
+                accept=".json"
+                className="hidden"
+                onChange={(e) => {
+                  const f = e.target.files?.[0]
+                  if (f) void handleRestoreBackup(f)
+                  e.target.value = ''
+                }}
+              />
+            </label>
+          )}
         </div>
         <ul className="hero-features">
           {FEATURES.map(({ key, icon }) => (

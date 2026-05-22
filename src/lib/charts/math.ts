@@ -283,3 +283,46 @@ export function catProgress(
   for (const name of customNames) if (isCellAnswered(slot.__custom?.[name], name, true)) answered++
   return { answered, total }
 }
+
+/**
+ * Item-granular proximity score for exactly 2 answer sets in one category.
+ * For each item answered by both: compute |norm_A - norm_B|, average, invert.
+ * Returns null when fewer than 1 shared answered item exists.
+ */
+export function categoryItemAlignment(
+  answersA: AnswersBlob | undefined,
+  answersB: AnswersBlob | undefined,
+  catId: string,
+  scaleA: readonly MutableScaleStep[],
+  scaleB: readonly MutableScaleStep[],
+): number | null {
+  const cat = CATEGORIES.find((c) => c.id === catId)
+  const slotA = answersA?.[catId] ?? {}
+  const slotB = answersB?.[catId] ?? {}
+  const diffs: number[] = []
+
+  function cellNorm(cell: AnswerEntry | undefined, parentScale: readonly MutableScaleStep[]): number | null {
+    if (!cell) return null
+    const scale = cell.itemScale ?? parentScale
+    const result = answerAvgValue(cell, scale)
+    return result ? result.norm : null
+  }
+
+  if (cat) {
+    for (const item of cat.items) {
+      const nA = cellNorm(slotA[item], scaleA)
+      const nB = cellNorm(slotB[item], scaleB)
+      if (nA !== null && nB !== null) diffs.push(Math.abs(nA - nB))
+    }
+  }
+
+  for (const key of Object.keys(slotA.__custom ?? {})) {
+    if (!(key in (slotB.__custom ?? {}))) continue
+    const nA = cellNorm(slotA.__custom?.[key], scaleA)
+    const nB = cellNorm(slotB.__custom?.[key], scaleB)
+    if (nA !== null && nB !== null) diffs.push(Math.abs(nA - nB))
+  }
+
+  if (diffs.length === 0) return null
+  return 1 - diffs.reduce((a, b) => a + b, 0) / diffs.length
+}

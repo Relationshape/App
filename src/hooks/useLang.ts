@@ -4,6 +4,7 @@
 // _lang in sync via i18n.setLang).
 
 import { useStore } from '@/lib/storage/store'
+import { getLang } from '@/lib/i18n/i18n'
 import type { Settings } from '@/lib/storage/types'
 
 type Lang = NonNullable<Settings['lang']>
@@ -14,7 +15,7 @@ interface UseLangReturn {
 }
 
 export function useLang(): UseLangReturn {
-  const lang = useStore((s) => s.settings.lang ?? 'en')
+  const lang = useStore((s) => s.settings.lang ?? getLang())
   const setLang = useStore((s) => s.setLang)
   return { lang, setLang }
 }

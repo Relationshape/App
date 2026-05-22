@@ -7,13 +7,13 @@
 
 import { useStore } from '@/lib/storage/store'
 import type { Settings } from '@/lib/storage/types'
-import { availableLangs } from '@/lib/i18n/i18n'
+import { availableLangs, getLang } from '@/lib/i18n/i18n'
 import { RsSegmented } from './RsSegmented'
 
 type Lang = NonNullable<Settings['lang']>
 
 export function LangToggle() {
-  const current = useStore((s) => s.settings.lang ?? 'en')
+  const current = useStore((s) => s.settings.lang ?? getLang())
   const setLang = useStore((s) => s.setLang)
   return (
     <RsSegmented<Lang>

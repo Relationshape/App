@@ -1098,7 +1098,7 @@ a:hover { text-decoration: underline; }
 }
 .compare-overview-tab--active { color: var(--text); border-bottom-color: var(--primary); font-weight: 600; }
 .compare-overview-tab:hover:not(.compare-overview-tab--active) { color: var(--text); }
-.compare-overview-modal-body { padding: 20px 24px 28px; overflow-y: auto; flex: 1; }
+.compare-overview-modal-body { padding: 20px 24px 28px; overflow-y: auto; -webkit-overflow-scrolling: touch; flex: 1; min-height: 0; }
 
 .pick-chip {
   --c: var(--primary);
