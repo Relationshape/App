@@ -67,12 +67,13 @@ export function ItemSpider({ datasets, catId, size = 480, grSide, zoomable = tru
 
   // Pre-compute per-dataset per-axis values (all items, before filtering)
   const allDataPoints = truncated.map((ds) => {
-    const max = scaleMaxValue(ds.scale)
     return allItems.map((displayItem) => {
       const isCustom = displayItem.startsWith('✶ ')
       const key = isCustom ? displayItem.slice(2) : displayItem
       const cell = isCustom ? ds.answers[catId]?.__custom?.[key] : ds.answers[catId]?.[key]
       if (!cell) return { step: undefined as typeof ds.scale[0] | undefined, norm: 0, v: 0, answered: false }
+      const effectiveScale = cell.itemScale ?? ds.scale
+      const max = scaleMaxValue(effectiveScale)
 
       let scaleKey: string | undefined
       let fracVal: number | undefined
@@ -95,7 +96,7 @@ export function ItemSpider({ datasets, catId, size = 480, grSide, zoomable = tru
         fracVal = cell.scaleFrac
       }
 
-      const step = scaleKey ? ds.scale.find((s) => s.key === scaleKey) : undefined
+      const step = scaleKey ? (effectiveScale.find((s) => s.key === scaleKey)) : undefined
       const v = step ? step.value : (fracVal !== undefined ? fracVal * max : 0)
       const norm = max > 0 ? v / max : 0
       return { step, norm, v, answered: true }
