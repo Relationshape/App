@@ -23,6 +23,7 @@ export const EN = {
   start_now_title: 'Start your relationship map',
   start_now_sub: 'Do you want to create a new profile or continue with an existing one?',
   welcome_about: 'What is Relationshapes?',
+  welcome_restore_backup: '📂 Restore from backup',
   welcome_f1: '🔒 Stays on this device',
   welcome_f2: '📤 End-to-end encrypted sharing',
   welcome_f3: '📊 Per-category & overview radar charts',

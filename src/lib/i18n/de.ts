@@ -27,6 +27,7 @@ export const DE: Record<TranslationKey, string> = {
   start_now_title: 'Starte deine Beziehungskarte',
   start_now_sub: 'Möchtest du ein neues Profil anlegen oder mit einem bestehenden fortfahren?',
   welcome_about: 'Was ist Relationshapes?',
+  welcome_restore_backup: '📂 Aus Backup wiederherstellen',
   welcome_f1: '🔒 Bleibt auf diesem Gerät',
   welcome_f2: '📤 Ende-zu-Ende-verschlüsseltes Teilen',
   welcome_f3: '📊 Kategorie- & Übersichts-Netzdiagramme',

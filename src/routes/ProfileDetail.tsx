@@ -14,6 +14,7 @@ import { UnlockAnswersBody } from '@/components/UnlockAnswersDialog'
 import { ImportListRow } from '@/components/ImportListRow'
 import { CATEGORIES } from '@/lib/data/data'
 import { t } from '@/lib/i18n/i18n'
+import { useToast } from '@/lib/hooks/useToast'
 import type { Import } from '@/lib/storage/types'
 
 function hasNoAnswers(imp: Import): boolean {
@@ -34,6 +35,7 @@ export function ProfileDetail() {
   const saveResult = useStore((s) => s.saveResult)
   const unlockImport = useStore((s) => s.unlockImport)
   const navigate = useNavigate()
+  const { toast } = useToast()
 
   const profile = id ? (profiles.find((p) => p.id === id) ?? null) : null
   const results = id ? allResults.filter((r) => r.profileId === id) : []
@@ -111,6 +113,26 @@ export function ProfileDetail() {
 
   if (!profile) return null
 
+  function downloadBackup() {
+    const s = useStore.getState()
+    const snapshot = {
+      profiles: s.profiles,
+      results: s.results,
+      imports: s.imports,
+      settings: s.settings,
+      scale: s.scale,
+    }
+    const blob = new Blob([JSON.stringify(snapshot, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    const date = new Date().toISOString().split('T')[0]
+    a.download = `relationshape-backup-${date}.v1.json`
+    a.click()
+    URL.revokeObjectURL(url)
+    toast.success(t('backup_exported'))
+  }
+
   async function onDelete() {
     const ok = await dialog<boolean>({
       title: t('confirm_delete_profile_title'),
@@ -136,6 +158,7 @@ export function ProfileDetail() {
         </div>
         <div className="flex-spacer" />
         <div className="profile-head-actions">
+          <Button variant="outline" onClick={downloadBackup} data-testid="profile-backup-btn">{t('btn_backup')}</Button>
           <Button asChild variant="outline" data-testid="profile-edit-btn">
             <Link to={`/profile/${profile.id}/edit`}>{t('btn_edit')}</Link>
           </Button>
