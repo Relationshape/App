@@ -22,9 +22,11 @@ import { useStore } from '@/lib/storage/store'
 import { dialog } from '@/lib/dialog/dialog'
 import { getItemLabel } from '@/lib/data/locale'
 import { isGrCat } from '@/lib/charts/items'
-import type { AnswerCell, Result, CustomItemDef, CustomItemFormat } from '@/lib/storage/types'
+import type { AnswerCell, Result, CustomItemDef, CustomItemFormat, CustomCategoryDef } from '@/lib/storage/types'
 import type { MutableScaleStep } from '@/lib/data/types'
 import { t, getLang } from '@/lib/i18n/i18n'
+
+const NO_CUSTOM_CATS: CustomCategoryDef[] = []
 
 interface Props {
   result: Result
@@ -65,7 +67,7 @@ export function RsQuestionCard({
   const saveResult = onSave ?? storeSaveResult
   const updateProfile = useStore((s) => s.updateProfile)
   const profileCustomCats = useStore((s) =>
-    s.profiles.find((p) => p.id === result.profileId)?.customCategories ?? []
+    s.profiles.find((p) => p.id === result.profileId)?.customCategories ?? NO_CUSTOM_CATS
   )
   // Read templateWarningDisabled reactively so saves don't overwrite it
   // when confirmIfTemplate sets it in the store before React re-renders.
