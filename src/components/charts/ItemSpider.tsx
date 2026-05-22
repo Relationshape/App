@@ -111,7 +111,7 @@ export function ItemSpider({ datasets, catId, size = 480, grSide, zoomable = tru
   const dataPoints = allDataPoints.map((ds) => answeredIndices.map((i) => ds[i]!))
 
   if (allItems.length === 0) return null
-  if (items.length < 2) {
+  if (items.length < 3) {
     return (
       <div className="rs-chart-wrap rs-item-spider" data-testid={`item-spider-${catId}`}>
         <p className="muted small text-center" data-testid={`item-spider-min-data-${catId}`}>

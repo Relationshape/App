@@ -14,7 +14,7 @@ import { ScaleEditor } from '@/components/ScaleEditor'
 import { localizeStep } from '@/lib/data/locale'
 import { dialog } from '@/lib/dialog/dialog'
 import {
-  QUICK_EMOJIS, makeCustomCatId, nextCustomCatColor,
+  QUICK_EMOJIS, EMOJI_GROUPS, makeCustomCatId, nextCustomCatColor,
 } from '@/lib/data/customCategories'
 import {
   applyPendingItems,
@@ -279,6 +279,11 @@ export function NewMapWizard({ profile }: Props) {
       title: pendingCatMeta.title,
       icon: pendingCatMeta.icon,
       color: newColor,
+      items: pendingItems.map((item) => ({
+        name: item.name,
+        format: item.format,
+        ...(item.options ? { options: item.options } : {}),
+      })),
     }
     if (createForProfile) {
       updateProfile(profile.id, { customCategories: [...(profile.customCategories ?? []), newDef] })
@@ -296,7 +301,7 @@ export function NewMapWizard({ profile }: Props) {
     <Dialog open={true} onOpenChange={(o) => { if (!o) onCancel() }}>
       <DialogContent
         className="max-w-[min(640px,96vw)] max-h-[min(92vh,780px)] p-6 flex flex-col gap-3"
-        showCloseButton={false}
+        showCloseButton={true}
         data-testid="new-map-wizard"
         onInteractOutside={(e) => { if (addingItemRef.current) e.preventDefault() }}
       >
@@ -612,16 +617,23 @@ export function NewMapWizard({ profile }: Props) {
               </div>
               <div className="flex flex-col gap-1">
                 <label className="text-sm font-medium">{t('cat_create_emoji_label')}</label>
-                <div className="cat-wizard-emoji-grid">
-                  {QUICK_EMOJIS.map((emoji) => (
-                    <button
-                      key={emoji}
-                      type="button"
-                      className={`cat-wizard-emoji-btn${createIcon === emoji ? ' is-selected' : ''}`}
-                      onClick={() => setCreateIcon(emoji)}
-                    >
-                      {emoji}
-                    </button>
+                <div className="cat-wizard-emoji-palette overflow-y-auto" style={{ maxHeight: '280px' }}>
+                  {EMOJI_GROUPS.map((group) => (
+                    <div key={group.label} className="cat-wizard-emoji-group">
+                      <div className="cat-wizard-emoji-group-label">{group.label}</div>
+                      <div className="cat-wizard-emoji-grid">
+                        {group.emojis.map((emoji) => (
+                          <button
+                            key={emoji}
+                            type="button"
+                            className={`cat-wizard-emoji-btn${createIcon === emoji ? ' is-selected' : ''}`}
+                            onClick={() => setCreateIcon(emoji)}
+                          >
+                            {emoji}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
                   ))}
                 </div>
                 <input

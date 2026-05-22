@@ -7,7 +7,9 @@ import { useShareData } from '@/components/providers/ShareDataProvider'
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { ImportForm } from '@/components/ImportForm'
 import { UnlockAnswersBody } from '@/components/UnlockAnswersDialog'
-import type { Import } from '@/lib/storage/types'
+import { mapResultToDataset, mapImportToDataset } from '@/lib/charts/datasets'
+import { CATEGORIES } from '@/lib/data/data'
+import type { Import, AnswersBlob } from '@/lib/storage/types'
 import { useToast } from '@/lib/hooks/useToast'
 import { dialog } from '@/lib/dialog/dialog'
 import { t } from '@/lib/i18n/i18n'
@@ -104,6 +106,59 @@ export function Compare() {
 
   const selectedCount = effectiveIds.length
   const atMax = selectedCount >= 4
+
+  const datasets = useMemo(() => effectiveIds.map((id) => {
+    if (id.startsWith('imp:')) {
+      const imp = imports.find((i) => i.id === id.slice(4))
+      return imp ? mapImportToDataset(imp) : null
+    }
+    const r = results.find((r) => r.id === id)
+    if (!r) return null
+    const profile = profiles.find((p) => p.id === r.profileId) ?? null
+    return mapResultToDataset(r, profile)
+  }).filter((d): d is NonNullable<typeof d> => d !== null),
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  [effectiveIds.join(','), results, imports, profiles])
+
+  function hasItemValues(answers: AnswersBlob | undefined, catId: string): boolean {
+    const slot = answers?.[catId]
+    if (!slot) return false
+    type Cell = { scale?: string; scaleFrac?: number; giving?: string; receiving?: string }
+    for (const k of Object.keys(slot)) {
+      if (k === '__custom' || k === '__hidden') continue
+      const cell = slot[k] as Cell | undefined
+      if (cell?.scale || cell?.giving || cell?.receiving) return true
+    }
+    for (const cell of Object.values(slot.__custom ?? {}) as Cell[]) {
+      if (cell?.giving || cell?.receiving) return true
+      if (cell?.scale && (cell.scale !== 'open' || cell.scaleFrac != null)) return true
+    }
+    return false
+  }
+
+  function hasCommonCategories(): boolean {
+    if (datasets.length < 2) return false
+    const allCatIds = Array.from(new Set([
+      ...CATEGORIES.map((c) => c.id),
+      ...datasets.flatMap((ds) => (ds.customCategories ?? []).map((c) => c.id)),
+    ]))
+    return allCatIds.some((catId) => datasets.every((ds) => hasItemValues(ds.answers, catId)))
+  }
+
+  async function handleGoToDetails() {
+    if (!hasCommonCategories()) {
+      const confirmed = await dialog<boolean>({
+        title: t('compare_no_common_title') as string,
+        body: <p>{t('compare_no_common_body')}</p>,
+        actions: [
+          { label: t('btn_cancel') as string, kind: 'ghost', value: false },
+          { label: t('btn_compare_overview') as string, kind: 'primary', value: true },
+        ],
+      })
+      if (!confirmed) return
+    }
+    navigate(`/compare/details?ids=${effectiveIds.join(',')}`)
+  }
 
   return (
     <section className="page" data-testid="compare-page">
@@ -249,7 +304,7 @@ export function Compare() {
           type="button"
           className="btn btn-primary"
           disabled={selectedCount < 2}
-          onClick={() => navigate(`/compare/details?ids=${effectiveIds.join(',')}`)}
+          onClick={() => { void handleGoToDetails() }}
           data-testid="compare-go-to-details"
         >
           {t('compare_go_to_details')}

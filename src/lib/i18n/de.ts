@@ -236,11 +236,11 @@ export const DE: Record<TranslationKey, string> = {
   compare_title: '📊 Vergleichen',
   compare_sub:
     'Wähle bis zu vier Ergebnisse zum Überlagern aus. Öffne eine Kategorie für ein Netzdiagramm.',
-  compare_import_btn: '📥 Ergebnis Importieren',
+  compare_import_btn: '📥 Neuer Import...',
   compare_no_imports_yet: 'Du hast noch keine Beziehungskarten importiert. Importiere ein Ergebnis von einem Mitmenschen, um eure Antworten übereinander zu legen und zu vergleichen. Du benötigst dazu das geteilte Paket und ein Passwort von deinem Gegenüber.',
   btn_compare_overview: 'Vergleich mit anderen Karten/Personen',
   cat_no_answers: 'Für diese Kategorie wurden noch keine Antworten gespeichert.',
-  spider_min_data_hint: 'Zu wenige Datenpunkte. Beantworte mindestens 2 Fragen in dieser Kategorie, um ein Netzdiagramm zu sehen.',
+  spider_min_data_hint: 'Zu wenige Datenpunkte. Beantworte mindestens 3 Fragen in dieser Kategorie, um ein Netzdiagramm zu sehen.',
   fabi_spider_title: 'Kategorien-übergreifendes Netzdiagramm (Fabi-Modus)',
   fabi_spider_sub: 'Dieses Diagramm zeigt den Durchschnitt aller skalenbasierter Antworten in der jeweiligen Kategorie. Elemente, deren Antwortformat nicht skalenbasiert ist (z.B. Freitext, Auswahl), fliessen nicht in diese zusammenfassende Darstellung mit ein.',
   profile_no_imports_yet: 'Du hast noch keine Beziehungskarten importiert.',
@@ -694,6 +694,9 @@ export const DE: Record<TranslationKey, string> = {
   // Vergleichsdetailseite
   compare_go_to_details: 'Ausgewählte Karten vergleichen →',
   compare_overview_btn: 'Kategorieübergreifende Ergebnisse',
+  compare_no_common_title: 'Keine gemeinsamen Kategorien',
+  compare_no_common_body: 'Die ausgewählten Karten haben keine gemeinsamen Kategorien mit Antworten. Trotzdem vergleichen?',
+  btn_view_import: '👁 Ansehen',
 
   // PDF-Bericht
   btn_pdf_report: '📄 PDF-Bericht',
