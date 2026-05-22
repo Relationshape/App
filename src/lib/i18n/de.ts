@@ -733,4 +733,40 @@ export const DE: Record<TranslationKey, string> = {
   q_save_item_to_profile_body: 'Möchtest du dieses Element in deiner Profilkategorie speichern? Es erscheint dann automatisch in zukünftigen Karten (nicht in bestehenden).',
   btn_yes: 'Ja',
   btn_no: 'Nein',
+
+  // Process guide
+  guide_title: 'Wie Relationshape nutzen',
+  guide_sub: 'Ein Leitfaden für den gemeinsamen Prozess',
+  guide_prep_title: 'Bevor ihr beginnt',
+  guide_prep_body:
+    'Wählt einen Rahmen, in dem ihr euch wohl und fokussiert fühlen könnt. Dieser Prozess braucht Zeit und kann Emotionen und Konflikte — alte wie neue — auslösen. Plant Pausen ein und überlegt vorab, wie ihr mit schwierigen Momenten umgehen wollt — gemeinsam und individuell. Begegnet euch mit Dankbarkeit und Grosszügigkeit.',
+  guide_step1_title: 'Gemeinsam durchlesen',
+  guide_step1_body:
+    'Lest den Fragebogen zunächst zusammen durch, ohne ihn auszufüllen — idealerweise gemeinsam, damit ihr direkt kommunizieren könnt.',
+  guide_step2_title: 'Kategorien auswählen',
+  guide_step2_body:
+    'Wählt gemeinsam die Bereiche aus, die auf eure Beziehung zutreffen. Fügt Punkte hinzu oder entfernt sie. Allein dieser Schritt löst oft schon gute Gespräche aus.',
+  guide_step3_title: 'Skala kalibrieren',
+  guide_step3_body:
+    'Besprecht, was die einzelnen Stufen der Skala für euch jeweils bedeuten. Das Ziel ist ein gemeinsames, nuanciertes Verständnis. Ihr könnt die Skala auch anpassen oder umbenennen.',
+  guide_step4_title: 'Getrennt ausfüllen',
+  guide_step4_body:
+    'Füllt den Fragebogen unabhängig voneinander aus — im selben Raum oder völlig getrennt. Klärt mehrdeutige Begriffe vorher gemeinsam, beantwortet die Fragen dann aber ohne gegenseitige Beeinflussung.',
+  guide_step5_title: 'Karten vergleichen',
+  guide_step5_body:
+    'Tragt eure Antworten zusammen und markiert starke Übereinstimmungen und Diskrepanzen — diese zeigen euch mögliche Gesprächspunkte und Kompromisse.',
+  guide_step6_title: 'Besprechen',
+  guide_step6_body:
+    'Teilt eure Gefühle und Gedanken offen miteinander. Bei Uneinigkeiten: Besprecht, was diese für euch bedeuten. Bei Unklarheiten: Bittet einander um Erläuterung, bevor ihr Schlüsse zieht.',
+  guide_step7_title: 'In die Praxis tragen',
+  guide_step7_body:
+    'Tragt die neuen Erkenntnisse in euren Beziehungsalltag und lasst euch inspirieren, kontinuierlich Vereinbarungen zu treffen und einander besser zu verstehen.',
+  guide_step8_title: 'Regelmässig wiederholen',
+  guide_step8_body:
+    'Kehrt in regelmässigen Abständen (z. B. alle 6 Monate) zu euren Karten zurück. Besprecht, was sich verändert hat und welche Konsequenzen das hat.',
+  guide_step9_title: 'Anpassen',
+  guide_step9_body:
+    'Verändert eure Praxis im Laufe der Zeit, ergänzt eure Karten und findet euren eigenen Weg mit Relationshape.',
+  guide_close: 'Verstanden',
+  guide_open_btn: 'Prozess-Leitfaden',
 }

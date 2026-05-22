@@ -8,6 +8,7 @@ import { dialog } from '@/lib/dialog/dialog'
 import { CreateProfileModal } from '@/components/CreateProfileModal'
 import { t } from '@/lib/i18n/i18n'
 import { RsHeroConstellation } from '@/components/RsHeroConstellation'
+import { ProcessGuideModal } from '@/components/ProcessGuideModal'
 import { useToast } from '@/lib/hooks/useToast'
 import type { MutableScaleStep } from '@/lib/data/types'
 
@@ -127,6 +128,7 @@ export function Welcome() {
   const navigate = useNavigate()
   const { toast } = useToast()
   const [createProfileOpen, setCreateProfileOpen] = useState(false)
+  const [guideOpen, setGuideOpen] = useState(false)
 
   async function startNowFlow() {
     if (profiles.length === 0) {
@@ -210,6 +212,14 @@ export function Welcome() {
       <section className="page-section howto-section" aria-labelledby="welcome-how">
         <header className="section-head">
           <h2 id="welcome-how">{t('howto_title')}</h2>
+          <button
+            type="button"
+            className="btn btn-ghost btn-sm"
+            onClick={() => setGuideOpen(true)}
+            data-testid="welcome-guide-btn"
+          >
+            {t('guide_open_btn')} →
+          </button>
         </header>
         <div className="howto-steps">
           {HOWTO_STEPS.map(({ num, titleKey, descKey, icon }) => (
@@ -229,6 +239,7 @@ export function Welcome() {
       onOpenChange={setCreateProfileOpen}
       onCreated={(id) => navigate(`/profile/${id}`)}
     />
+    <ProcessGuideModal open={guideOpen} onClose={() => setGuideOpen(false)} />
     </>
   )
 }

@@ -3677,3 +3677,15 @@ button.rs-tile:hover {
 .cat-wizard-items-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; }
 .cat-wizard-item-row { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 8px; background: var(--surface-raised, var(--surface)); }
 .cat-wizard-item-format { font-size: 11px; padding: 2px 6px; border-radius: 4px; background: var(--line); color: var(--muted); flex-shrink: 0; }
+
+/* ── Process guide modal ─────────────────────────────────────────────────── */
+.guide-body { display: flex; flex-direction: column; gap: 16px; max-height: 60vh; overflow-y: auto; padding-right: 4px; }
+.guide-prep { background: color-mix(in srgb, var(--accent) 8%, transparent); border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0; padding: 12px 14px; display: flex; flex-direction: column; gap: 4px; }
+.guide-prep-title { font-size: 13px; font-weight: 600; color: var(--accent); }
+.guide-prep-body { font-size: 13px; line-height: 1.55; color: var(--fg); margin: 0; }
+.guide-steps { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 14px; }
+.guide-step { display: grid; grid-template-columns: 26px 1fr; gap: 0 10px; align-items: start; }
+.guide-step-num { width: 26px; height: 26px; border-radius: 50%; background: var(--accent); color: #fff; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+.guide-step-content { display: flex; flex-direction: column; gap: 2px; }
+.guide-step-title { font-size: 14px; font-weight: 600; line-height: 1.35; }
+.guide-step-body { font-size: 13px; line-height: 1.5; color: var(--muted); margin: 0; }
