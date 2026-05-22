@@ -1635,10 +1635,8 @@ a:hover { text-decoration: underline; }
 .cat-overview-rename-btn {
   background: none; border: none; cursor: pointer;
   color: var(--muted); font-size: 13px; line-height: 1; padding: 1px 3px; border-radius: 4px;
-  opacity: 0; transition: opacity .15s, color .12s;
+  transition: color .12s;
 }
-.result-card-title:hover .result-card-rename-btn,
-.cat-overview-breadcrumb:hover .cat-overview-rename-btn { opacity: 1; }
 .result-card-rename-btn:hover,
 .cat-overview-rename-btn:hover { color: var(--primary); }
 .result-card-rename-input {
@@ -1651,7 +1649,8 @@ a:hover { text-decoration: underline; }
   border: none; border-bottom: 1.5px solid var(--primary); background: transparent;
   outline: none; padding: 0; min-width: 120px; max-width: 280px;
 }
-.cat-tile-wrap { position: relative; }
+.cat-tile-wrap { position: relative; display: block; }
+.cat-tile-wrap > .rs-tile { width: 100%; }
 .cat-tile-remove-btn {
   position: absolute; top: 5px; right: 5px; z-index: 1;
   width: 20px; height: 20px; padding: 0;
@@ -3643,6 +3642,7 @@ button.rs-tile:hover {
   transition: background .1s, border-color .1s;
 }
 .format-picker-tile:hover { border-color: var(--primary); background: color-mix(in oklab, var(--primary) 8%, var(--surface-2)); }
+.format-picker-tile.is-active { border-color: var(--primary); background: color-mix(in oklab, var(--primary) 15%, var(--surface-2)); box-shadow: 0 0 0 2px color-mix(in oklab, var(--primary) 30%, transparent); }
 .format-picker-tile-label { font-weight: 600; font-size: 14px; }
 .format-picker-tile-desc { font-size: 12px; }
 /* Non-scale item rows in CategoryBars */

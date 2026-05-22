@@ -5,11 +5,18 @@
 
 import type { MutableScaleStep } from '@/lib/data/types'
 
+export interface CustomCategoryItem {
+  name: string
+  format: CustomItemFormat
+  options?: string[]
+}
+
 export interface CustomCategoryDef {
   id: string    // format: 'ccat-<random8>'
   title: string // user-provided
   icon: string  // emoji, default '✶'
   color: string // hex from palette
+  items?: CustomCategoryItem[]
 }
 
 export interface Profile {

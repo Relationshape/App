@@ -35,6 +35,7 @@ describe('ItemSpider (RESULT-04)', () => {
       [CAT_ID]: {
         'Shared activities / interests': { scale: 'need' },
         'Intellectual / philosophical discussions': { scale: 'need' },
+        'Political discussions': { scale: 'maybe' },
       },
     }
     const datasets: ChartDataset[] = [
@@ -63,6 +64,7 @@ describe('ItemSpider (RESULT-04)', () => {
         [CAT_ID]: {
           'Shared activities / interests': { scale: 'need' },
           'Intellectual / philosophical discussions': { scale: 'need' },
+          'Political discussions': { scale: 'maybe' },
         },
       },
     })

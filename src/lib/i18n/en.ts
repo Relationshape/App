@@ -224,11 +224,11 @@ export const EN = {
   // Compare
   compare_title: '📊 Compare',
   compare_sub: 'Pick up to four results to overlay. Open a category for a per-item radar chart.',
-  compare_import_btn: '📥 Import Result',
+  compare_import_btn: '📥 New import...',
   compare_no_imports_yet: 'You haven\'t imported any relationship maps yet. Import a result from someone to overlay and compare your answers. You will need the shared package and a password from your counterpart.',
   btn_compare_overview: 'Compare with other maps/people',
   cat_no_answers: 'No answers have been saved for this category yet.',
-  spider_min_data_hint: 'Not enough data points. Answer at least 2 questions in this category to see a radar chart.',
+  spider_min_data_hint: 'Not enough data points. Answer at least 3 questions in this category to see a radar chart.',
   fabi_spider_title: 'Cross-category Radar Chart (Fabi Mode)',
   fabi_spider_sub: 'This chart shows the average of all scale-based answers per category. Items whose answer format is not scale-based (e.g. free text, selection) are not included in this summary view.',
   profile_no_imports_yet: 'You haven\'t imported any maps yet.',
@@ -675,6 +675,9 @@ export const EN = {
   // Compare detail page
   compare_go_to_details: 'Compare selected maps →',
   compare_overview_btn: 'Cross-category overview',
+  compare_no_common_title: 'No common categories',
+  compare_no_common_body: 'The selected maps have no categories in common that contain answers. Compare anyway?',
+  btn_view_import: '👁 View',
 
   // PDF report
   btn_pdf_report: '📄 PDF Report',

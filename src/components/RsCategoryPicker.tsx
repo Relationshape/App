@@ -154,7 +154,23 @@ export function RsCategoryPicker({ open, onOpenChange, existingIds, result, prof
     if (!canSubmit) return
     const mergedResultCats = [...existingResultCats, ...pendingNewResultCats]
     const mergedProfileCats = [...existingProfileCats, ...pendingNewProfileCats]
-    onSubmit(Array.from(checkedIds), mergedResultCats, mergedProfileCats, pendingItemsByCat)
+
+    // Seed items from profile cat definitions for newly-added profile cats
+    const allProfileCats = [...existingProfileCats, ...pendingNewProfileCats]
+    const seededItemsByCat = { ...pendingItemsByCat }
+    for (const id of checkedIds) {
+      if (lockedIds.has(id) || id in seededItemsByCat) continue
+      const profileCat = allProfileCats.find((c) => c.id === id)
+      if (profileCat?.items && profileCat.items.length > 0) {
+        seededItemsByCat[id] = profileCat.items.map((item) => ({
+          name: item.name,
+          format: item.format,
+          ...(item.options ? { options: item.options } : {}),
+        }))
+      }
+    }
+
+    onSubmit(Array.from(checkedIds), mergedResultCats, mergedProfileCats, seededItemsByCat)
     onOpenChange(false)
   }
 
@@ -226,6 +242,11 @@ export function RsCategoryPicker({ open, onOpenChange, existingIds, result, prof
       title: pendingCat.title,
       icon: pendingCat.icon,
       color: newColor,
+      items: pendingItems.map((item) => ({
+        name: item.name,
+        format: item.format,
+        ...(item.options ? { options: item.options } : {}),
+      })),
     }
 
     if (createForProfile) {
