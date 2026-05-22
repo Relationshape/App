@@ -8,6 +8,7 @@ interface Props {
   datasets: readonly ChartDataset[]
   size?: number  // default 640
   axes?: readonly string[]  // override; otherwise pickCategoryAxes
+  alignmentScores?: Record<string, number | null>
   activeAxis?: string | null
   onAxisEnter?: (axis: string) => void
   onAxisLeave?: () => void
@@ -19,6 +20,7 @@ export function Spider({
   datasets,
   size = 640,
   axes: axesOverride,
+  alignmentScores,
   activeAxis,
   onAxisEnter,
   onAxisLeave,
@@ -126,6 +128,25 @@ export function Spider({
               <text x={lx} y={ly - yOffset - fs * 1.0} textAnchor={anchor} fontSize={fs * 0.7} fill="currentColor" fillOpacity={0.7} aria-hidden="true">
                 {ax.icon}
               </text>
+              {alignmentScores?.[ax.key] != null && (() => {
+                const score = alignmentScores![ax.key]!
+                const scoreColor = score >= 0.8 ? '#22c55e' : score >= 0.6 ? '#eab308' : score >= 0.4 ? '#f97316' : '#ef4444'
+                const scoreFontSize = Math.round(fs * 0.82)
+                const scoreY = ly - yOffset + lines.length * lineHeight + scoreFontSize * 0.9
+                return (
+                  <text
+                    x={lx}
+                    y={scoreY}
+                    textAnchor={anchor}
+                    fontSize={scoreFontSize}
+                    fontWeight={600}
+                    fill={scoreColor}
+                    aria-label={`Alignment: ${Math.round(score * 100)}%`}
+                  >
+                    {Math.round(score * 100)}%
+                  </text>
+                )
+              })()}
             </g>
           )
         })}

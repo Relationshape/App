@@ -232,6 +232,8 @@ export const EN = {
   fabi_spider_title: 'Cross-category Radar Chart (Fabi Mode)',
   compare_tab_highlights: 'Highlights',
   compare_tab_radar: 'Radar Chart',
+  compare_need_two_maps: 'The radar chart comparison requires exactly 2 maps. Please adjust your selection on the previous page.',
+  compare_alignment_hint: 'Score per category: item-level proximity between both maps (100% = identical answers, 0% = maximally different).',
   fabi_spider_sub: 'This chart shows the average of all scale-based answers per category. Items whose answer format is not scale-based (e.g. free text, selection) are not included in this summary view.',
   profile_no_imports_yet: 'You haven\'t imported any maps yet.',
   compare_import_title: 'Import a result',

@@ -244,6 +244,8 @@ export const DE: Record<TranslationKey, string> = {
   fabi_spider_title: 'Kategorien-übergreifendes Netzdiagramm (Fabi-Modus)',
   compare_tab_highlights: 'Highlights',
   compare_tab_radar: 'Netzdiagramm',
+  compare_need_two_maps: 'Das Netzdiagramm erfordert genau 2 Karten. Bitte passe deine Auswahl auf der vorherigen Seite an.',
+  compare_alignment_hint: 'Score pro Kategorie: punkt-genaue Nähe zwischen beiden Karten (100% = identische Antworten, 0% = maximale Abweichung).',
   fabi_spider_sub: 'Dieses Diagramm zeigt den Durchschnitt aller skalenbasierter Antworten in der jeweiligen Kategorie. Elemente, deren Antwortformat nicht skalenbasiert ist (z.B. Freitext, Auswahl), fliessen nicht in diese zusammenfassende Darstellung mit ein.',
   profile_no_imports_yet: 'Du hast noch keine Beziehungskarten importiert.',
   compare_import_title: 'Ergebnis importieren',

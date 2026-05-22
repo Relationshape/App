@@ -10,7 +10,8 @@ import { CategoryModal } from '@/components/charts/CategoryModal'
 import { RsCategoryCard } from '@/components/RsCategoryCard'
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { mapResultToDataset, mapImportToDataset } from '@/lib/charts/datasets'
-import { CATEGORIES } from '@/lib/data/data'
+import { CATEGORIES, DEFAULT_SCALE } from '@/lib/data/data'
+import { categoryAverage, categoryItemAlignment, pickCategoryAxes } from '@/lib/charts/math'
 import { resolveAnyCat } from '@/lib/data/customCategories'
 import type { AnswersBlob } from '@/lib/storage/types'
 import { useToast } from '@/lib/hooks/useToast'
@@ -57,6 +58,32 @@ export function CompareDetails() {
     return firstResultId ? results.find((r) => r.id === firstResultId) ?? null : null
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [effectiveIds.join(','), results])
+
+  // Axes for the 2-map spider: only categories with answers in BOTH datasets
+  const twoMapSpiderAxes = useMemo(() => {
+    if (datasets.length !== 2 || !datasets[0] || !datasets[1]) return undefined
+    const [a, b] = datasets
+    const defaultScale = a.scale ?? DEFAULT_SCALE
+    const allAxes = pickCategoryAxes(datasets, defaultScale)
+    return allAxes.filter((catId) =>
+      categoryAverage(a.answers, catId, a.scale) !== null &&
+      categoryAverage(b.answers, catId, b.scale) !== null
+    )
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [datasets])
+
+  // Item-granular alignment score per category axis
+  const alignmentScores = useMemo<Record<string, number | null> | undefined>(() => {
+    if (datasets.length !== 2 || !twoMapSpiderAxes || !datasets[0] || !datasets[1]) return undefined
+    const [a, b] = datasets
+    return Object.fromEntries(
+      twoMapSpiderAxes.map((catId) => [
+        catId,
+        categoryItemAlignment(a.answers, b.answers, catId, a.scale, b.scale),
+      ])
+    )
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [datasets, twoMapSpiderAxes?.join(',')])
 
   function hasItemValues(answers: AnswersBlob | undefined, catId: string): boolean {
     const slot = answers?.[catId]
@@ -240,11 +267,24 @@ export function CompareDetails() {
             )}
             {activeTab === 'spider' && (
               <div data-testid="compare-overview-panel-spider">
-                <Spider
-                  datasets={datasets}
-                  activeAxis={activeAxis}
-                  onAxisTap={(ax) => setActiveAxis((p) => (p === ax ? null : ax))}
-                />
+                {datasets.length !== 2 ? (
+                  <p className="muted small text-center py-8" data-testid="compare-spider-need-two">
+                    {t('compare_need_two_maps')}
+                  </p>
+                ) : (
+                  <>
+                    <p className="muted small text-center mb-3" style={{ opacity: 0.75, fontSize: '0.82rem', lineHeight: 1.4 }}>
+                      {t('compare_alignment_hint')}
+                    </p>
+                    <Spider
+                      datasets={datasets}
+                      {...(twoMapSpiderAxes !== undefined ? { axes: twoMapSpiderAxes } : {})}
+                      {...(alignmentScores !== undefined ? { alignmentScores } : {})}
+                      activeAxis={activeAxis}
+                      onAxisTap={(ax) => setActiveAxis((p) => (p === ax ? null : ax))}
+                    />
+                  </>
+                )}
               </div>
             )}
           </div>
