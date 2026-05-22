@@ -700,6 +700,12 @@ export const EN = {
   pdf_scale_legend: 'Scale',
   pdf_items_section: 'Item by Item',
   pdf_no_answer: '—',
+
+  // Custom item save-to-profile
+  q_save_item_to_profile_title: 'Save item to profile?',
+  q_save_item_to_profile_body: 'Do you want to save this item to your profile category? It will then appear automatically in future maps (not in existing ones).',
+  btn_yes: 'Yes',
+  btn_no: 'No',
 } as const
 
 export type TranslationKey = keyof typeof EN

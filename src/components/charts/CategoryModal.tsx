@@ -300,10 +300,15 @@ interface EditTabProps {
 
 function EditTabContent({ result, cat, onLocalChange, onImmediateSave, addingRef }: EditTabProps) {
   const saveResult = useStore((s) => s.saveResult)
+  const updateProfile = useStore((s) => s.updateProfile)
   const storeScale = useStore((s) => s.scale)
   const storeTemplateWarningDisabled = useStore((s) =>
     s.results.find((r) => r.id === result.id)?.templateWarningDisabled ?? false
   )
+  const profileCustomCats = useStore((s) => {
+    const profile = s.profiles.find((p) => p.id === result.profileId)
+    return profile?.customCategories ?? []
+  })
   const { confirmIfTemplate } = useTemplateWarning(result)
   const { toast } = useToast()
   const lang = getLang()
@@ -335,6 +340,15 @@ function EditTabContent({ result, cat, onLocalChange, onImmediateSave, addingRef
         if (onLocalChange) onLocalChange(next)
         else if (onImmediateSave) onImmediateSave(next)
         else saveResult(next)
+      },
+      profileCustomCats,
+      onSaveToProfile: (catId, item) => {
+        const updatedCats = profileCustomCats.map((c) =>
+          c.id === catId
+            ? { ...c, items: [...(c.items ?? []), item] }
+            : c
+        )
+        updateProfile(result.profileId, { customCategories: updatedCats })
       },
     })
     if (createdName) setAutoOpenItem(createdName)

@@ -162,13 +162,13 @@ export function Compare() {
 
   return (
     <section className="page" data-testid="compare-page">
-      <header className="page-head">
+      <header className="page-head" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
         <button
           type="button"
           className="btn btn-ghost"
           onClick={() => navigate('/')}
           data-testid="compare-back-btn"
-          style={{ alignSelf: 'flex-start', marginBottom: 4 }}
+          style={{ alignSelf: 'flex-start' }}
         >
           {t('btn_back')}
         </button>

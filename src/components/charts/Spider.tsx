@@ -79,24 +79,39 @@ export function Spider({
           return <line key={`spoke-${i}`} x1={cx} y1={cy} x2={x} y2={y} stroke="currentColor" strokeOpacity={0.2} />
         })}
         {/* Datasets — text labels via React text node ⇒ XSS-safe by construction (D-05) */}
-        {truncatedDatasets.map((ds, di) => {
-          const pts = axes.map((ax, i) => {
-            const avg = categoryAverage(ds.answers, ax.key, ds.scale)
-            const norm = avg ? Math.max(0, Math.min(1, avg.norm)) : 0
-            return polarToCartesian(i, axes.length, r * norm, cx, cy)
+        {alignmentScores != null ? (
+          // Alignment mode: single polygon with per-axis agreement scores
+          <polygon
+            data-testid="alignment-poly"
+            points={axes.map((ax, i) => {
+              const score = alignmentScores[ax.key] ?? 0
+              return polarToCartesian(i, axes.length, r * Math.max(0, Math.min(1, score)), cx, cy)
+            }).map((p) => p.join(',')).join(' ')}
+            fill="var(--primary, #8b5cf6)"
+            fillOpacity={0.3}
+            stroke="var(--primary, #8b5cf6)"
+            strokeWidth={2}
+          />
+        ) : (
+          truncatedDatasets.map((ds, di) => {
+            const pts = axes.map((ax, i) => {
+              const avg = categoryAverage(ds.answers, ax.key, ds.scale)
+              const norm = avg ? Math.max(0, Math.min(1, avg.norm)) : 0
+              return polarToCartesian(i, axes.length, r * norm, cx, cy)
+            })
+            return (
+              <polygon
+                key={`ds-${ds.id ?? di}`}
+                data-testid={`dataset-poly-${di}`}
+                points={pts.map((p) => p.join(',')).join(' ')}
+                fill={ds.color}
+                fillOpacity={0.25}
+                stroke={ds.color}
+                strokeWidth={2}
+              />
+            )
           })
-          return (
-            <polygon
-              key={`ds-${ds.id ?? di}`}
-              data-testid={`dataset-poly-${di}`}
-              points={pts.map((p) => p.join(',')).join(' ')}
-              fill={ds.color}
-              fillOpacity={0.25}
-              stroke={ds.color}
-              strokeWidth={2}
-            />
-          )
-        })}
+        )}
         {/* Axis labels with per-handler event binding */}
         {axes.map((ax, i) => {
           const [lx, ly] = polarToCartesian(i, axes.length, r + fs * 1.8, cx, cy)
@@ -150,8 +165,8 @@ export function Spider({
             </g>
           )
         })}
-        {/* Dataset legend at top */}
-        {truncatedDatasets.length > 0 && (
+        {/* Dataset legend at top — hidden in alignment mode since % labels are on the axes */}
+        {truncatedDatasets.length > 0 && alignmentScores == null && (
           <g data-testid="spider-legend">
             {truncatedDatasets.map((ds, di) => (
               <g key={`legend-${di}`} transform={`translate(${10}, ${10 + di * 18})`}>

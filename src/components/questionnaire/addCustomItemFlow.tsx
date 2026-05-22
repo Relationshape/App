@@ -128,6 +128,9 @@ export interface RunAddCustomItemFlowParams {
   onSave: (next: Result) => void
   onDuplicate: () => void
   storeTemplateWarningDisabled?: boolean
+  /** If provided and catId matches one of these cats, offer to save the item to the profile cat */
+  profileCustomCats?: Array<{ id: string; items?: Array<{ name: string; format: CustomItemFormat; options?: string[] }> }>
+  onSaveToProfile?: (catId: string, item: { name: string; format: CustomItemFormat; options?: string[] }) => void
 }
 
 /**
@@ -143,6 +146,8 @@ export async function runAddCustomItemFlow({
   onSave,
   onDuplicate,
   storeTemplateWarningDisabled,
+  profileCustomCats,
+  onSaveToProfile,
 }: RunAddCustomItemFlowParams): Promise<string | null> {
   const slot = result.answers[catId] ?? {}
   let initialName = ''
@@ -243,6 +248,25 @@ export async function runAddCustomItemFlow({
     }
 
     onSave(next)
+
+    // Offer to save this item to the profile custom category (future cards only)
+    if (onSaveToProfile && profileCustomCats) {
+      const profileCat = profileCustomCats.find((c) => c.id === catId)
+      if (profileCat) {
+        const saveToProfile = await dialog<boolean>({
+          title: t('q_save_item_to_profile_title'),
+          body: <p>{t('q_save_item_to_profile_body')}</p>,
+          actions: [
+            { label: t('btn_no') as string, kind: 'ghost', value: false },
+            { label: t('btn_yes') as string, kind: 'primary', value: true },
+          ],
+        })
+        if (saveToProfile) {
+          onSaveToProfile(catId, { name, format, ...(options ? { options } : {}) })
+        }
+      }
+    }
+
     return name
   }
   return null

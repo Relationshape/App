@@ -24,6 +24,7 @@ interface Props { result: Result; profile: Profile }
 
 export function ListMode({ result, profile }: Props) {
   const saveResult = useStore((s) => s.saveResult)
+  const updateProfile = useStore((s) => s.updateProfile)
   const storeScale = useStore((s) => s.scale)
   const scale = result.scale ?? storeScale
   const { confirmIfTemplate } = useTemplateWarning(result)
@@ -69,12 +70,22 @@ export function ListMode({ result, profile }: Props) {
 
   async function addCustom(catId: string) {
     if (!await confirmIfTemplate()) return
+    const profileCustomCats = profile.customCategories ?? []
     const createdName = await runAddCustomItemFlow({
       result,
       catId,
       scale,
       onDuplicate: () => toast.message(t('q_item_already_exists')),
       onSave: saveResult,
+      profileCustomCats,
+      onSaveToProfile: (cid, item) => {
+        const updatedCats = profileCustomCats.map((c) =>
+          c.id === cid
+            ? { ...c, items: [...(c.items ?? []), item] }
+            : c
+        )
+        updateProfile(profile.id, { customCategories: updatedCats })
+      },
     })
     if (createdName) setAutoOpenItem(createdName)
   }

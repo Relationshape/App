@@ -719,4 +719,10 @@ export const DE: Record<TranslationKey, string> = {
   pdf_scale_legend: 'Skala',
   pdf_items_section: 'Element für Element',
   pdf_no_answer: '—',
+
+  // Custom-Element im Profil speichern
+  q_save_item_to_profile_title: 'Element im Profil speichern?',
+  q_save_item_to_profile_body: 'Möchtest du dieses Element in deiner Profilkategorie speichern? Es erscheint dann automatisch in zukünftigen Karten (nicht in bestehenden).',
+  btn_yes: 'Ja',
+  btn_no: 'Nein',
 }
