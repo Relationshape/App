@@ -582,31 +582,33 @@ export function NewMapWizard({ profile }: Props) {
                             : cat.items
                           return (
                             <div key={cat.id} className="cat-picker-item-wrap">
-                              <label
-                                htmlFor={`nmw-cp-${cat.id}`}
-                                className={`cat-picker-item${isChecked ? ' is-checked' : ''}`}
-                                data-testid={`wizard-cat-item-${cat.id}`}
-                              >
-                                <input
-                                  type="checkbox"
-                                  id={`nmw-cp-${cat.id}`}
-                                  checked={isChecked}
-                                  onChange={() => toggleCategory(cat.id)}
-                                />
-                                <span className="cat-picker-icon" aria-hidden>{cat.icon}</span>
-                                <span className="cat-picker-label">{catTitle}</span>
-                                <span className="cat-picker-check" aria-hidden>{isChecked ? '✓' : ''}</span>
+                              <div className="cat-picker-item-row">
+                                <label
+                                  htmlFor={`nmw-cp-${cat.id}`}
+                                  className={`cat-picker-item${isChecked ? ' is-checked' : ''}`}
+                                  data-testid={`wizard-cat-item-${cat.id}`}
+                                >
+                                  <input
+                                    type="checkbox"
+                                    id={`nmw-cp-${cat.id}`}
+                                    checked={isChecked}
+                                    onChange={() => toggleCategory(cat.id)}
+                                  />
+                                  <span className="cat-picker-icon" aria-hidden>{cat.icon}</span>
+                                  <span className="cat-picker-label">{catTitle}</span>
+                                  <span className="cat-picker-check" aria-hidden>{isChecked ? '✓' : ''}</span>
+                                </label>
                                 <span
                                   role="button"
                                   tabIndex={0}
                                   className={`cat-picker-expand-btn${isExpanded ? ' is-open' : ''}`}
-                                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleExpandCat(cat.id) }}
+                                  onClick={() => toggleExpandCat(cat.id)}
                                   onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleExpandCat(cat.id) } }}
                                   aria-expanded={isExpanded}
                                 >
                                   {isExpanded ? '▲' : '▼'}
                                 </span>
-                              </label>
+                              </div>
                               {isExpanded && (
                                 <div className="cat-picker-item-preview">
                                   {itemLabels.join(' · ')}
