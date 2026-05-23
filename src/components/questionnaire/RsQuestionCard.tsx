@@ -25,6 +25,7 @@ import { isGrCat } from '@/lib/charts/items'
 import type { AnswerCell, Result, CustomItemDef, CustomItemFormat, CustomCategoryDef } from '@/lib/storage/types'
 import type { MutableScaleStep } from '@/lib/data/types'
 import { t, getLang } from '@/lib/i18n/i18n'
+import { useToast } from '@/lib/hooks/useToast'
 
 const NO_CUSTOM_CATS: CustomCategoryDef[] = []
 
@@ -69,6 +70,7 @@ export function RsQuestionCard({
   const profileCustomCats = useStore((s) =>
     s.profiles.find((p) => p.id === result.profileId)?.customCategories ?? NO_CUSTOM_CATS
   )
+  const { toast } = useToast()
   // Read templateWarningDisabled reactively so saves don't overwrite it
   // when confirmIfTemplate sets it in the store before React re-renders.
   const storeTemplateWarningDisabled = useStore((s) =>
@@ -331,7 +333,7 @@ export function RsQuestionCard({
     try {
       choice = await dialog<'card' | 'permanent' | null>({
         title: t('confirm_hide_item_title'),
-        body: <p>{t('confirm_hide_item_body')}</p>,
+        body: <p>{isCustom ? t('confirm_hide_item_body') : t('confirm_hide_preset_item_body')}</p>,
         actions: [
           { label: t('btn_cancel'), kind: 'ghost', value: null },
           { label: t('confirm_remove_for_card'), kind: 'ghost', value: 'card' },
@@ -379,6 +381,21 @@ export function RsQuestionCard({
     } else {
       slot.__hidden = { ...(slot.__hidden ?? {}), [item]: true }
       delete (slot as Record<string, unknown>)[item]
+      if (choice === 'permanent') {
+        // Add to profile's hiddenItems so future new maps exclude this item
+        const state = useStore.getState()
+        const prof = state.profiles.find((p) => p.id === result.profileId)
+        if (prof) {
+          const existing = prof.hiddenItems ?? {}
+          const catList = existing[catId] ?? []
+          if (!catList.includes(item)) {
+            updateProfile(result.profileId, {
+              hiddenItems: { ...existing, [catId]: [...catList, item] },
+            })
+            toast.info(t('item_preset_hidden_profile_note'))
+          }
+        }
+      }
     }
     next.answers[catId] = slot
     saveResult(next)

@@ -116,6 +116,11 @@ export const DE: Record<TranslationKey, string> = {
   wizard_next: 'Weiter →',
   wizard_finish: "Los geht's! ✨",
   wizard_skip: 'Einleitung überspringen',
+  wizard_before_profile_title: 'Bevor du beginnst',
+  wizard_before_profile_body: 'Hast du ein Backup aus einer früheren Sitzung? Du kannst es jetzt wiederherstellen, anstatt ein neues Profil zu erstellen.',
+  wizard_before_profile_backup_hint: 'Tipp: Backups kannst du jederzeit unter Einstellungen erstellen und herunterladen.',
+  wizard_before_profile_create: 'Neues Profil erstellen',
+  wizard_before_profile_restore: '📂 Aus Backup wiederherstellen',
 
   // Profile edit
   profile_new_title: 'Neues Profil',
@@ -350,7 +355,8 @@ export const DE: Record<TranslationKey, string> = {
   scale_step_remove_confirm:
     'Die Stufe „{label}" wird in einigen Antworten verwendet. Das Entfernen löscht diese Antworten. Fortfahren?',
   scale_col_color: 'Farbe',
-  scale_col_label: 'Bezeichnung',
+  scale_col_label: 'Bezeichnung/Bedeutung',
+  scale_save_btn: 'Skala speichern',
   scale_col_short: 'Kurzform',
   scale_col_value: 'Wert',
   scale_col_desc: 'Bedeutung',
@@ -528,6 +534,8 @@ export const DE: Record<TranslationKey, string> = {
   confirm_hide_item_body: 'Soll dieses Element nur für diese Karte ausgeblendet oder permanent gelöscht werden? «Permanent löschen» entfernt es auch aus der Kategoriendefinition (gilt für zukünftige Karten).',
   confirm_remove_for_card: 'Nur für diese Karte',
   confirm_remove_permanent: 'Permanent löschen',
+  confirm_hide_preset_item_body: 'Dieses Element nur für diese Karte entfernen oder permanent? «Permanent löschen» blendet es aus allen zukünftigen neuen Karten dieses Profils aus. Bestehende Karten sind nicht betroffen.',
+  item_preset_hidden_profile_note: 'Element wird in künftigen neuen Karten dieses Profils ausgeblendet.',
   scale_mismatch_title: 'Unterschiedliche Skalen',
   scale_mismatch_body: 'Die verglichenen Karten verwenden unterschiedliche Bewertungsskalen (z.B. andere Stufenanzahl oder einzelne Fragen mit eigener Skala). Die Werte werden normalisiert und sind grundsätzlich vergleichbar, aber Ergebnisse können bei sehr unterschiedlichen Skalen irreführend sein.',
   btn_compare_anyway: 'Trotzdem vergleichen',

@@ -59,6 +59,7 @@ export function CategoryBars({ datasets, catId }: Props) {
       if (isCustom) {
         const def = ds.customItemDefs?.[catId]?.[key]
         if (def && def.format !== 'scale') return false
+        if (!cell.scale) return false
         if (cell.scale === 'open' && cell.scaleFrac == null) return false
       }
       // GR answered: check giving/receiving (new format) or legacy gr field

@@ -22,7 +22,7 @@ import {
 } from '@/components/RsCategoryPicker'
 import { ImportForm } from '@/components/ImportForm'
 import { useShareData } from '@/components/providers/ShareDataProvider'
-import { t, getLang } from '@/lib/i18n/i18n'
+import { t, getLang, getLocalizedDefaultScale } from '@/lib/i18n/i18n'
 import type { MutableScaleStep } from '@/lib/data/types'
 import type { CustomCategoryDef, CustomItemFormat, Import, Profile } from '@/lib/storage/types'
 
@@ -67,7 +67,9 @@ export function NewMapWizard({ profile }: Props) {
   const [step, setStep] = useState<Step>('source')
   const [subject, setSubject] = useState('')
   const [checkedIds, setCheckedIds] = useState<Set<string>>(() => new Set())
-  const [scale, setScale] = useState<MutableScaleStep[]>(() => globalScale.map((s) => ({ ...s })))
+  const [scale, setScale] = useState<MutableScaleStep[]>(() =>
+    (getLocalizedDefaultScale(globalScale as MutableScaleStep[]) as MutableScaleStep[]).map((s) => ({ ...s }))
+  )
   const [customizeScale, setCustomizeScale] = useState(false)
   const [scaleWasCustomized, setScaleWasCustomized] = useState(false)
   const [templateSource, setTemplateSource] = useState<TemplateSource | null>(null)
@@ -178,10 +180,24 @@ export function NewMapWizard({ profile }: Props) {
           name: item.name,
           format: item.format,
           ...(item.options ? { options: item.options } : {}),
+          ...(item.itemScale ? { itemScale: item.itemScale } : {}),
         }))
       }
     }
-    saveResult(applyPendingItems(base, seededItemsByCat))
+    // Apply profile-level hidden items so new maps inherit them
+    const profileHiddenItems = profile.hiddenItems ?? {}
+    const seedAnswers: Record<string, { __hidden: Record<string, true> }> = {}
+    for (const [catId, hiddenList] of Object.entries(profileHiddenItems)) {
+      if (hiddenList.length > 0) {
+        seedAnswers[catId] = {
+          __hidden: Object.fromEntries(hiddenList.map((it) => [it, true as const])),
+        }
+      }
+    }
+    const resultWithHidden = Object.keys(seedAnswers).length > 0
+      ? { ...base, answers: seedAnswers as unknown as typeof base.answers }
+      : base
+    saveResult(applyPendingItems(resultWithHidden, seededItemsByCat))
     await promptShareTemplate(id)
   }
 
@@ -306,6 +322,7 @@ export function NewMapWizard({ profile }: Props) {
         name: item.name,
         format: item.format,
         ...(item.options ? { options: item.options } : {}),
+        ...(item.itemScale ? { itemScale: item.itemScale } : {}),
       })),
     }
     if (createForProfile) {
@@ -521,42 +538,86 @@ export function NewMapWizard({ profile }: Props) {
                   <div className="cat-picker-items mt-2">
                     {(profile.customCategories ?? []).map((cat) => {
                       const isChecked = checkedIds.has(cat.id)
+                      const isExpanded = expandedCats.has(cat.id)
+                      const hasItems = cat.items && cat.items.length > 0
                       return (
-                        <label
-                          key={cat.id}
-                          htmlFor={`nmw-pc-${cat.id}`}
-                          className={`cat-picker-item${isChecked ? ' is-checked' : ''}`}
-                        >
-                          <input
-                            type="checkbox"
-                            id={`nmw-pc-${cat.id}`}
-                            checked={isChecked}
-                            onChange={() => toggleCategory(cat.id)}
-                          />
-                          <span className="cat-picker-icon" aria-hidden>{cat.icon}</span>
-                          <span className="cat-picker-label">{cat.title}</span>
-                          <span className="cat-picker-check" aria-hidden>{isChecked ? '✓' : ''}</span>
-                        </label>
+                        <div key={cat.id} className="cat-picker-item-wrap">
+                          <div className="cat-picker-item-row">
+                            <label
+                              htmlFor={`nmw-pc-${cat.id}`}
+                              className={`cat-picker-item${isChecked ? ' is-checked' : ''}`}
+                            >
+                              <input
+                                type="checkbox"
+                                id={`nmw-pc-${cat.id}`}
+                                checked={isChecked}
+                                onChange={() => toggleCategory(cat.id)}
+                              />
+                              <span className="cat-picker-icon" aria-hidden>{cat.icon}</span>
+                              <span className="cat-picker-label">{cat.title}</span>
+                              <span className="cat-picker-check" aria-hidden>{isChecked ? '✓' : ''}</span>
+                            </label>
+                            {hasItems && (
+                              <span
+                                role="button"
+                                tabIndex={0}
+                                className={`cat-picker-expand-btn${isExpanded ? ' is-open' : ''}`}
+                                onClick={() => toggleExpandCat(cat.id)}
+                                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleExpandCat(cat.id) } }}
+                                aria-expanded={isExpanded}
+                              >
+                                {isExpanded ? '▲' : '▼'}
+                              </span>
+                            )}
+                          </div>
+                          {isExpanded && hasItems && (
+                            <div className="cat-picker-item-preview">
+                              {cat.items!.map((i) => i.name).join(' · ')}
+                            </div>
+                          )}
+                        </div>
                       )
                     })}
                     {customCats.map((cat) => {
                       const isChecked = checkedIds.has(cat.id)
+                      const isExpanded = expandedCats.has(cat.id)
+                      const hasItems = cat.items && cat.items.length > 0
                       return (
-                        <label
-                          key={cat.id}
-                          htmlFor={`nmw-cc-${cat.id}`}
-                          className={`cat-picker-item${isChecked ? ' is-checked' : ''}`}
-                        >
-                          <input
-                            type="checkbox"
-                            id={`nmw-cc-${cat.id}`}
-                            checked={isChecked}
-                            onChange={() => toggleCategory(cat.id)}
-                          />
-                          <span className="cat-picker-icon" aria-hidden>{cat.icon}</span>
-                          <span className="cat-picker-label">{cat.title}</span>
-                          <span className="cat-picker-check" aria-hidden>{isChecked ? '✓' : ''}</span>
-                        </label>
+                        <div key={cat.id} className="cat-picker-item-wrap">
+                          <div className="cat-picker-item-row">
+                            <label
+                              htmlFor={`nmw-cc-${cat.id}`}
+                              className={`cat-picker-item${isChecked ? ' is-checked' : ''}`}
+                            >
+                              <input
+                                type="checkbox"
+                                id={`nmw-cc-${cat.id}`}
+                                checked={isChecked}
+                                onChange={() => toggleCategory(cat.id)}
+                              />
+                              <span className="cat-picker-icon" aria-hidden>{cat.icon}</span>
+                              <span className="cat-picker-label">{cat.title}</span>
+                              <span className="cat-picker-check" aria-hidden>{isChecked ? '✓' : ''}</span>
+                            </label>
+                            {hasItems && (
+                              <span
+                                role="button"
+                                tabIndex={0}
+                                className={`cat-picker-expand-btn${isExpanded ? ' is-open' : ''}`}
+                                onClick={() => toggleExpandCat(cat.id)}
+                                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleExpandCat(cat.id) } }}
+                                aria-expanded={isExpanded}
+                              >
+                                {isExpanded ? '▲' : '▼'}
+                              </span>
+                            )}
+                          </div>
+                          {isExpanded && hasItems && (
+                            <div className="cat-picker-item-preview">
+                              {cat.items!.map((i) => i.name).join(' · ')}
+                            </div>
+                          )}
+                        </div>
                       )
                     })}
                   </div>
@@ -660,6 +721,15 @@ export function NewMapWizard({ profile }: Props) {
                   onKeyDown={(e) => { if (e.key === 'Enter' && createTitle.trim()) goToItemsStep() }}
                 />
               </div>
+              <label className="flex items-center gap-2 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={createForProfile}
+                  onChange={(e) => setCreateForProfile(e.target.checked)}
+                  className="rounded"
+                />
+                <span className="text-sm">{t('cat_create_save_to_profile')}</span>
+              </label>
               <div className="flex flex-col gap-1">
                 <label className="text-sm font-medium">{t('cat_create_emoji_label')}</label>
                 <div className="cat-wizard-emoji-palette overflow-y-auto" style={{ maxHeight: '280px' }}>
@@ -690,15 +760,6 @@ export function NewMapWizard({ profile }: Props) {
                   maxLength={4}
                 />
               </div>
-              <label className="flex items-center gap-2 cursor-pointer select-none">
-                <input
-                  type="checkbox"
-                  checked={createForProfile}
-                  onChange={(e) => setCreateForProfile(e.target.checked)}
-                  className="rounded"
-                />
-                <span className="text-sm">{t('cat_create_save_to_profile')}</span>
-              </label>
             </div>
             <div className="rs-modal-actions">
               <Button variant="ghost" onClick={() => setCatSubStep('list')} data-testid="wizard-cat-create-back">

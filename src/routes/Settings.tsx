@@ -1,10 +1,12 @@
 // SETTINGS-01/02/04 + quick-260516-fj5 (legacy parity: section-head wrappers + Fabi-Modus toggle).
 // Port of public/legacy/js/app.js:3547-3756.
+import { useState } from 'react'
 import { useStore } from '@/lib/storage/store'
 import { ScaleEditor } from '@/components/ScaleEditor'
 import { DataManagement } from '@/components/DataManagement'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { LangToggle } from '@/components/LangToggle'
+import { Button } from '@/components/ui/button'
 import { t } from '@/lib/i18n/i18n'
 import type { MutableScaleStep } from '@/lib/data/types'
 
@@ -12,6 +14,7 @@ export function Settings() {
   const scale = useStore((s) => s.scale)
   const setScale = useStore((s) => s.setScale)
   const results = useStore((s) => s.results)
+  const [pendingScale, setPendingScale] = useState<MutableScaleStep[] | null>(null)
 
   function hasData(key: string): boolean {
     for (const r of results) {
@@ -50,9 +53,22 @@ export function Settings() {
         </header>
         <ScaleEditor
           scale={scale}
-          onChange={(next: MutableScaleStep[]) => setScale(next)}
+          onChange={(next: MutableScaleStep[]) => setPendingScale(next)}
           hasData={hasData}
         />
+        {pendingScale && (
+          <div className="flex gap-2 mt-3" data-testid="settings-scale-save-row">
+            <Button
+              onClick={() => { setScale(pendingScale); setPendingScale(null) }}
+              data-testid="settings-scale-save"
+            >
+              {t('scale_save_btn')}
+            </Button>
+            <Button variant="ghost" onClick={() => setPendingScale(null)} data-testid="settings-scale-cancel">
+              {t('btn_cancel')}
+            </Button>
+          </div>
+        )}
       </section>
 
       {/* 5. Data management (renders its own .page-section internally) */}
