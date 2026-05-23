@@ -659,7 +659,7 @@ export const DE: Record<TranslationKey, string> = {
   cat_picker_expand: 'Elemente anzeigen',
   cat_picker_collapse: 'Elemente ausblenden',
   cat_remove_title: 'Kategorie löschen',
-  cat_remove_body: 'Du kannst die Kategorie zwar später wieder hinzufügen, aber deine Antworten gehen verloren.',
+  cat_remove_body: 'Du kannst die Kategorie zwar später wieder hinzufügen, aber deine Antworten sowie alle Personalisierungen (Skalenanpassungen, eigene Fragen) gehen verloren.',
   btn_remove_cat: 'Entfernen',
   cat_create_save_to_profile: 'Auch im Profil speichern (für künftige Karten)',
   template_copy_answers_title: 'Antworten übernehmen?',
