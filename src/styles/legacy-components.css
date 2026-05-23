@@ -1676,7 +1676,7 @@ a:hover { text-decoration: underline; }
 .cat-picker-item-row { display: flex; align-items: center; }
 .cat-picker-item-row .cat-picker-item { flex: 1; }
 .cat-picker-expand-btn {
-  flex-shrink: 0; padding: 0 8px 0 10px;
+  flex-shrink: 0; padding: 0 2px 0 6px;
   cursor: pointer; color: var(--muted); font-size: 9px; line-height: 1;
   user-select: none; transition: color .12s ease;
 }

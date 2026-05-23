@@ -106,15 +106,17 @@ export function RsQuestionCard({
   }
 
   async function openEditDialog() {
-    const confirmed = await dialog<boolean>({
-      title: t('confirm_item_scale_edit_title'),
-      body: () => <p>{t('confirm_item_scale_edit_body')}</p>,
-      actions: [
-        { label: t('btn_cancel'), kind: 'ghost', value: false },
-        { label: t('btn_continue'), kind: 'primary', value: true },
-      ],
-    })
-    if (!confirmed) return
+    if (format === 'scale') {
+      const confirmed = await dialog<boolean>({
+        title: t('confirm_item_scale_edit_title'),
+        body: () => <p>{t('confirm_item_scale_edit_body')}</p>,
+        actions: [
+          { label: t('btn_cancel'), kind: 'ghost', value: false },
+          { label: t('btn_continue'), kind: 'primary', value: true },
+        ],
+      })
+      if (!confirmed) return
+    }
     initEditDialog()
   }
 

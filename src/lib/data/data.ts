@@ -13,7 +13,7 @@
 export const DEFAULT_SCALE = [
   { key: 'no',         label: 'No',             short: 'No',         value: 0, color: '#264653', description: 'I do not want / agree to this.' },
   { key: 'not-really', label: 'Not really',     short: 'Not really', value: 1, color: '#577590', description: 'I lean against this.' },
-  { key: 'maybe',      label: 'Maybe / future', short: 'Maybe',      value: 2, color: '#43aa8b', description: 'Hopefully or maybe in the future.' },
+  { key: 'maybe',      label: 'Maybe',          short: 'Maybe',      value: 2, color: '#43aa8b', description: 'Hopefully or maybe in the future.' },
   { key: 'open',       label: 'Open to it',     short: 'Open',       value: 3, color: '#90be6d', description: 'I am open, neutral, willing to explore.' },
   { key: 'want',       label: 'Want / like',    short: 'Want',       value: 4, color: '#f9c74f', description: 'I would like this.' },
   { key: 'hell-yes',   label: 'Hell, yes!',     short: 'Hell yes',   value: 5, color: '#f3722c', description: 'Strong yes, exciting and welcome.' },

@@ -189,7 +189,6 @@ export function CompareDetails() {
                 cat={cat}
                 datasets={datasets}
                 editableResult={firstEditableResult}
-                fabiMode={true}
                 onClick={() => setModalCat(cat)}
                 testId={`compare-details-cat-${cat.id}`}
               />
@@ -281,6 +280,8 @@ export function CompareDetails() {
                       {...(twoMapSpiderAxes !== undefined ? { axes: twoMapSpiderAxes } : {})}
                       {...(alignmentScores !== undefined ? { alignmentScores } : {})}
                       activeAxis={activeAxis}
+                      onAxisEnter={(ax) => setActiveAxis(ax)}
+                      onAxisLeave={() => setActiveAxis(null)}
                       onAxisTap={(ax) => setActiveAxis((p) => (p === ax ? null : ax))}
                     />
                   </>

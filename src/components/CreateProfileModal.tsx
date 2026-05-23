@@ -3,6 +3,7 @@
 // Notes are available later in ProfileEdit.
 
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from '@/components/ui/dialog'
@@ -25,15 +26,18 @@ interface Props {
 }
 
 export function CreateProfileModal({ open, onOpenChange, onCreated }: Props) {
+  const navigate = useNavigate()
   const createProfile = useStore((s) => s.createProfile)
+  const [step, setStep] = useState<'choice' | 'form'>('choice')
   const [name, setName] = useState('')
   const [pronouns, setPronouns] = useState('')
   const [emoji, setEmoji] = useState('🌷')
   const [color, setColor] = useState(PALETTE[0]!)
 
-  // Reset form each time the modal opens
+  // Reset form and step each time the modal opens
   useEffect(() => {
     if (open) {
+      setStep('choice')
       setName('')
       setPronouns('')
       setEmoji('🌷')
@@ -48,64 +52,91 @@ export function CreateProfileModal({ open, onOpenChange, onCreated }: Props) {
     onOpenChange(false)
   }
 
+  function handleRestore() {
+    onOpenChange(false)
+    navigate('/settings')
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-sm" data-testid="create-profile-modal">
-        <DialogHeader>
-          <DialogTitle>{t('profile_new_title')}</DialogTitle>
-        </DialogHeader>
-        <form id="create-profile-modal-form" onSubmit={handleSubmit} className="flex flex-col gap-4 py-1">
-          <label className="flex flex-col gap-1">
-            <span className="text-sm font-medium">{t('profile_name_label')}</span>
-            <input
-              autoFocus
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder={t('profile_name_placeholder') as string}
-              className="rounded border border-line px-2 py-1"
-              data-testid="create-profile-name-input"
-              required
-            />
-          </label>
-          <label className="flex flex-col gap-1">
-            <span className="text-sm font-medium">{t('profile_pronouns_label')}</span>
-            <input
-              value={pronouns}
-              onChange={(e) => setPronouns(e.target.value)}
-              placeholder={t('profile_pronouns_placeholder') as string}
-              className="rounded border border-line px-2 py-1"
-              data-testid="create-profile-pronouns-input"
-            />
-          </label>
-          <label className="flex flex-col gap-1">
-            <span className="text-sm font-medium">{t('profile_emoji_label')}</span>
-            <EmojiPicker value={emoji} onChange={setEmoji} />
-          </label>
-          <fieldset className="flex flex-col gap-1">
-            <legend className="text-sm font-medium mb-1">{t('profile_color_label')}</legend>
-            <div className="flex flex-wrap gap-2">
-              {PALETTE.map((p) => (
-                <button
-                  key={p}
-                  type="button"
-                  aria-label={p}
-                  aria-pressed={p === color}
-                  onClick={() => setColor(p)}
-                  className="h-7 w-7 rounded-full border-2 transition-transform hover:scale-110"
-                  style={{ background: p, borderColor: p === color ? 'white' : 'transparent' }}
-                />
-              ))}
+        {step === 'choice' ? (
+          <>
+            <DialogHeader>
+              <DialogTitle>{t('wizard_before_profile_title')}</DialogTitle>
+            </DialogHeader>
+            <div className="flex flex-col gap-3 py-2">
+              <p className="text-sm">{t('wizard_before_profile_body')}</p>
+              <p className="muted small">{t('wizard_before_profile_backup_hint')}</p>
             </div>
-          </fieldset>
-        </form>
-        <DialogFooter>
-          <Button variant="ghost" type="button" onClick={() => onOpenChange(false)}>
-            {t('btn_cancel')}
-          </Button>
-          <Button type="submit" form="create-profile-modal-form" data-testid="create-profile-save-btn">
-            {t('btn_create_profile')}
-          </Button>
-        </DialogFooter>
+            <DialogFooter>
+              <Button variant="ghost" type="button" onClick={handleRestore} data-testid="create-profile-restore-btn">
+                {t('wizard_before_profile_restore')}
+              </Button>
+              <Button type="button" onClick={() => setStep('form')} data-testid="create-profile-new-btn">
+                {t('wizard_before_profile_create')}
+              </Button>
+            </DialogFooter>
+          </>
+        ) : (
+          <>
+            <DialogHeader>
+              <DialogTitle>{t('profile_new_title')}</DialogTitle>
+            </DialogHeader>
+            <form id="create-profile-modal-form" onSubmit={handleSubmit} className="flex flex-col gap-4 py-1">
+              <label className="flex flex-col gap-1">
+                <span className="text-sm font-medium">{t('profile_name_label')}</span>
+                <input
+                  autoFocus
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder={t('profile_name_placeholder') as string}
+                  className="rounded border border-line px-2 py-1"
+                  data-testid="create-profile-name-input"
+                  required
+                />
+              </label>
+              <label className="flex flex-col gap-1">
+                <span className="text-sm font-medium">{t('profile_pronouns_label')}</span>
+                <input
+                  value={pronouns}
+                  onChange={(e) => setPronouns(e.target.value)}
+                  placeholder={t('profile_pronouns_placeholder') as string}
+                  className="rounded border border-line px-2 py-1"
+                  data-testid="create-profile-pronouns-input"
+                />
+              </label>
+              <label className="flex flex-col gap-1">
+                <span className="text-sm font-medium">{t('profile_emoji_label')}</span>
+                <EmojiPicker value={emoji} onChange={setEmoji} />
+              </label>
+              <fieldset className="flex flex-col gap-1">
+                <legend className="text-sm font-medium mb-1">{t('profile_color_label')}</legend>
+                <div className="flex flex-wrap gap-2">
+                  {PALETTE.map((p) => (
+                    <button
+                      key={p}
+                      type="button"
+                      aria-label={p}
+                      aria-pressed={p === color}
+                      onClick={() => setColor(p)}
+                      className="h-7 w-7 rounded-full border-2 transition-transform hover:scale-110"
+                      style={{ background: p, borderColor: p === color ? 'white' : 'transparent' }}
+                    />
+                  ))}
+                </div>
+              </fieldset>
+            </form>
+            <DialogFooter>
+              <Button variant="ghost" type="button" onClick={() => setStep('choice')}>
+                {t('btn_back')}
+              </Button>
+              <Button type="submit" form="create-profile-modal-form" data-testid="create-profile-save-btn">
+                {t('btn_create_profile')}
+              </Button>
+            </DialogFooter>
+          </>
+        )}
       </DialogContent>
     </Dialog>
   )

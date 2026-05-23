@@ -28,7 +28,7 @@ export function getItemLabel(catId: string, item: string, lang: string): string 
 const DE_SCALE: Record<string, { label: string; short: string; description: string }> = {
   'no':         { label: 'Nein',                  short: 'Nein',        description: 'Ich will / stimme dem nicht zu.' },
   'not-really': { label: 'Eher nein',              short: 'Eher nein',   description: 'Ich tendiere dagegen.' },
-  'maybe':      { label: 'Vielleicht / Zukunft',   short: 'Vielleicht',  description: 'Hoffentlich oder vielleicht in Zukunft.' },
+  'maybe':      { label: 'Vielleicht',              short: 'Vielleicht',  description: 'Hoffentlich oder vielleicht in Zukunft.' },
   'open':       { label: 'Offen dafür',            short: 'Offen',       description: 'Ich bin offen, neutral, bereit zu erkunden.' },
   'want':       { label: 'Möchte ich',             short: 'Möchte',      description: 'Ich würde das gerne.' },
   'hell-yes':   { label: 'Auf jeden Fall!',         short: 'Ja!',         description: 'Starkes Ja, aufregend und willkommen.' },

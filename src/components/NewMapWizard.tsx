@@ -24,7 +24,7 @@ import { ImportForm } from '@/components/ImportForm'
 import { useShareData } from '@/components/providers/ShareDataProvider'
 import { t, getLang, getLocalizedDefaultScale } from '@/lib/i18n/i18n'
 import type { MutableScaleStep } from '@/lib/data/types'
-import type { CustomCategoryDef, CustomItemFormat, Import, Profile } from '@/lib/storage/types'
+import type { AnswersBlob, CustomCategoryDef, CustomItemFormat, Import, Profile } from '@/lib/storage/types'
 
 interface Props {
   profile: Profile
@@ -114,17 +114,28 @@ export function NewMapWizard({ profile }: Props) {
           ],
         })
         if (copyAnswers === null) return
+        // When not copying answers, seed empty cells for each custom item so they appear in the questionnaire.
+        const templateAnswers: AnswersBlob = copyAnswers
+          ? structuredClone(srcResult?.answers ?? {})
+          : Object.fromEntries(
+              Object.entries(srcResult?.customItemDefs ?? {})
+                .filter(([, defs]) => Object.keys(defs).length > 0)
+                .map(([catId, defs]) => [
+                  catId,
+                  { __custom: Object.fromEntries(Object.keys(defs).map((n) => [n, { scale: '' }])) },
+                ]),
+            ) as AnswersBlob
         saveResult({
           id,
           profileId: profile.id,
           subject: subject.trim() || profile.name,
           subjectColor: profile.color,
           subjectEmoji: profile.emoji,
-          answers: copyAnswers ? structuredClone(srcResult?.answers ?? {}) : {},
+          answers: templateAnswers,
           enabledCategories: srcResult?.enabledCategories ?? CATEGORIES.map((c) => c.id),
           ...(srcResult?.scale ? { scale: srcResult.scale } : {}),
           ...(srcResult?.customCategories ? { customCategories: structuredClone(srcResult.customCategories) } : {}),
-          ...(copyAnswers && srcResult?.customItemDefs ? { customItemDefs: structuredClone(srcResult.customItemDefs) } : {}),
+          ...(srcResult?.customItemDefs ? { customItemDefs: structuredClone(srcResult.customItemDefs) } : {}),
           seededFromResultId: templateSource.id,
           progress: { mode: 'list' },
           createdAt: Date.now(),
@@ -132,15 +143,25 @@ export function NewMapWizard({ profile }: Props) {
         })
       } else {
         const tmplImport = allImports.find((i) => i.id === templateSource.id)
+        const importTemplateAnswers: AnswersBlob = Object.fromEntries(
+          Object.entries(tmplImport?.customItemDefs ?? {})
+            .filter(([, defs]) => Object.keys(defs).length > 0)
+            .map(([catId, defs]) => [
+              catId,
+              { __custom: Object.fromEntries(Object.keys(defs).map((n) => [n, { scale: '' }])) },
+            ]),
+        ) as AnswersBlob
         saveResult({
           id,
           profileId: profile.id,
           subject: subject.trim() || profile.name,
           subjectColor: profile.color,
           subjectEmoji: profile.emoji,
-          answers: {},
+          answers: importTemplateAnswers,
           enabledCategories: tmplImport?.enabledCategories ?? CATEGORIES.map((c) => c.id),
           ...(tmplImport?.scale ? { scale: tmplImport.scale } : {}),
+          ...(tmplImport?.customCategories ? { customCategories: structuredClone(tmplImport.customCategories) } : {}),
+          ...(tmplImport?.customItemDefs ? { customItemDefs: structuredClone(tmplImport.customItemDefs) } : {}),
           seededFromImportId: templateSource.id,
           progress: { mode: 'list' },
           createdAt: Date.now(),
@@ -556,19 +577,19 @@ export function NewMapWizard({ profile }: Props) {
                               <span className="cat-picker-icon" aria-hidden>{cat.icon}</span>
                               <span className="cat-picker-label">{cat.title}</span>
                               <span className="cat-picker-check" aria-hidden>{isChecked ? '✓' : ''}</span>
+                              {hasItems && (
+                                <span
+                                  role="button"
+                                  tabIndex={0}
+                                  className={`cat-picker-expand-btn${isExpanded ? ' is-open' : ''}`}
+                                  onClick={(e) => { e.stopPropagation(); toggleExpandCat(cat.id) }}
+                                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); toggleExpandCat(cat.id) } }}
+                                  aria-expanded={isExpanded}
+                                >
+                                  {isExpanded ? '▲' : '▼'}
+                                </span>
+                              )}
                             </label>
-                            {hasItems && (
-                              <span
-                                role="button"
-                                tabIndex={0}
-                                className={`cat-picker-expand-btn${isExpanded ? ' is-open' : ''}`}
-                                onClick={() => toggleExpandCat(cat.id)}
-                                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleExpandCat(cat.id) } }}
-                                aria-expanded={isExpanded}
-                              >
-                                {isExpanded ? '▲' : '▼'}
-                              </span>
-                            )}
                           </div>
                           {isExpanded && hasItems && (
                             <div className="cat-picker-item-preview">
@@ -598,19 +619,19 @@ export function NewMapWizard({ profile }: Props) {
                               <span className="cat-picker-icon" aria-hidden>{cat.icon}</span>
                               <span className="cat-picker-label">{cat.title}</span>
                               <span className="cat-picker-check" aria-hidden>{isChecked ? '✓' : ''}</span>
+                              {hasItems && (
+                                <span
+                                  role="button"
+                                  tabIndex={0}
+                                  className={`cat-picker-expand-btn${isExpanded ? ' is-open' : ''}`}
+                                  onClick={(e) => { e.stopPropagation(); toggleExpandCat(cat.id) }}
+                                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); toggleExpandCat(cat.id) } }}
+                                  aria-expanded={isExpanded}
+                                >
+                                  {isExpanded ? '▲' : '▼'}
+                                </span>
+                              )}
                             </label>
-                            {hasItems && (
-                              <span
-                                role="button"
-                                tabIndex={0}
-                                className={`cat-picker-expand-btn${isExpanded ? ' is-open' : ''}`}
-                                onClick={() => toggleExpandCat(cat.id)}
-                                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleExpandCat(cat.id) } }}
-                                aria-expanded={isExpanded}
-                              >
-                                {isExpanded ? '▲' : '▼'}
-                              </span>
-                            )}
                           </div>
                           {isExpanded && hasItems && (
                             <div className="cat-picker-item-preview">
@@ -658,17 +679,17 @@ export function NewMapWizard({ profile }: Props) {
                                   <span className="cat-picker-icon" aria-hidden>{cat.icon}</span>
                                   <span className="cat-picker-label">{catTitle}</span>
                                   <span className="cat-picker-check" aria-hidden>{isChecked ? '✓' : ''}</span>
+                                  <span
+                                    role="button"
+                                    tabIndex={0}
+                                    className={`cat-picker-expand-btn${isExpanded ? ' is-open' : ''}`}
+                                    onClick={(e) => { e.stopPropagation(); toggleExpandCat(cat.id) }}
+                                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); toggleExpandCat(cat.id) } }}
+                                    aria-expanded={isExpanded}
+                                  >
+                                    {isExpanded ? '▲' : '▼'}
+                                  </span>
                                 </label>
-                                <span
-                                  role="button"
-                                  tabIndex={0}
-                                  className={`cat-picker-expand-btn${isExpanded ? ' is-open' : ''}`}
-                                  onClick={() => toggleExpandCat(cat.id)}
-                                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleExpandCat(cat.id) } }}
-                                  aria-expanded={isExpanded}
-                                >
-                                  {isExpanded ? '▲' : '▼'}
-                                </span>
                               </div>
                               {isExpanded && (
                                 <div className="cat-picker-item-preview">

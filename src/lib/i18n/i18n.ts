@@ -37,7 +37,7 @@ export const DEFAULT_SCALE_DE: readonly MutableScaleStep[] = [
   },
   {
     key: 'maybe',
-    label: 'Vielleicht / Zukünftig',
+    label: 'Vielleicht',
     short: 'Vielleicht',
     value: 2,
     color: '#43aa8b',

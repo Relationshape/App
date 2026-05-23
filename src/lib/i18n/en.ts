@@ -640,7 +640,7 @@ export const EN = {
   cat_picker_expand: 'Show items',
   cat_picker_collapse: 'Hide items',
   cat_remove_title: 'Remove category',
-  cat_remove_body: 'You can add this category back later, but your answers will be lost.',
+  cat_remove_body: 'You can add this category back later, but your answers and all personalizations (scale customizations, custom items) will be lost.',
   btn_remove_cat: 'Remove',
   cat_create_save_to_profile: 'Save to profile (available for all future maps)',
   template_copy_answers_title: 'Copy answers?',

@@ -361,20 +361,20 @@ export function RsCategoryPicker({ open, onOpenChange, existingIds, result, prof
                               ) : (
                                 <span className="cat-picker-check" aria-hidden>{isChecked ? '✓' : ''}</span>
                               )}
+                              {hasItems && (
+                                <span
+                                  role="button"
+                                  tabIndex={0}
+                                  className={`cat-picker-expand-btn${isExpanded ? ' is-open' : ''}`}
+                                  onClick={(e) => { e.stopPropagation(); toggleExpand(cat.id) }}
+                                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); toggleExpand(cat.id) } }}
+                                  aria-expanded={isExpanded}
+                                  aria-label={isExpanded ? t('cat_picker_collapse') as string : t('cat_picker_expand') as string}
+                                >
+                                  {isExpanded ? '▲' : '▼'}
+                                </span>
+                              )}
                             </label>
-                            {hasItems && (
-                              <span
-                                role="button"
-                                tabIndex={0}
-                                className={`cat-picker-expand-btn${isExpanded ? ' is-open' : ''}`}
-                                onClick={() => toggleExpand(cat.id)}
-                                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleExpand(cat.id) } }}
-                                aria-expanded={isExpanded}
-                                aria-label={isExpanded ? t('cat_picker_collapse') as string : t('cat_picker_expand') as string}
-                              >
-                                {isExpanded ? '▲' : '▼'}
-                              </span>
-                            )}
                           </div>
                           {isExpanded && hasItems && (
                             <div className="cat-picker-item-preview">
@@ -432,18 +432,18 @@ export function RsCategoryPicker({ open, onOpenChange, existingIds, result, prof
                                   ) : (
                                     <span className="cat-picker-check" aria-hidden>{isChecked ? '✓' : ''}</span>
                                   )}
+                                  <span
+                                    role="button"
+                                    tabIndex={0}
+                                    className={`cat-picker-expand-btn${isExpanded ? ' is-open' : ''}`}
+                                    onClick={(e) => { e.stopPropagation(); toggleExpand(cat.id) }}
+                                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); toggleExpand(cat.id) } }}
+                                    aria-expanded={isExpanded}
+                                    aria-label={isExpanded ? t('cat_picker_collapse') as string : t('cat_picker_expand') as string}
+                                  >
+                                    {isExpanded ? '▲' : '▼'}
+                                  </span>
                                 </label>
-                                <span
-                                  role="button"
-                                  tabIndex={0}
-                                  className={`cat-picker-expand-btn${isExpanded ? ' is-open' : ''}`}
-                                  onClick={() => toggleExpand(cat.id)}
-                                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleExpand(cat.id) } }}
-                                  aria-expanded={isExpanded}
-                                  aria-label={isExpanded ? t('cat_picker_collapse') as string : t('cat_picker_expand') as string}
-                                >
-                                  {isExpanded ? '▲' : '▼'}
-                                </span>
                               </div>
                               {isExpanded && (
                                 <div className="cat-picker-item-preview">
