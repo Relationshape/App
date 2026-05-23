@@ -205,7 +205,7 @@ export function Result() {
             setModalCat(null)
             if (deepLinkedModalRef.current) {
               deepLinkedModalRef.current = false
-              navigate(-1)
+              navigate(`/result/${result.id}`, { replace: true })
             }
           }
         }}
