@@ -69,7 +69,7 @@ export function NewMapWizard({ profile }: Props) {
   const [subject, setSubject] = useState('')
   const [checkedIds, setCheckedIds] = useState<Set<string>>(() => new Set())
   const [scale, setScale] = useState<MutableScaleStep[]>(() =>
-    (getLocalizedDefaultScale(globalScale as MutableScaleStep[]) as MutableScaleStep[]).map((s) => ({ ...s }))
+    (globalScale as MutableScaleStep[]).map((s) => ({ ...s }))
   )
   const [customizeScale, setCustomizeScale] = useState(false)
   const [scaleWasCustomized, setScaleWasCustomized] = useState(false)
@@ -77,7 +77,7 @@ export function NewMapWizard({ profile }: Props) {
   // Keep scale in sync with the store default as long as the user hasn't customized it.
   useEffect(() => {
     if (!scaleWasCustomized) {
-      setScale((getLocalizedDefaultScale(globalScale as MutableScaleStep[]) as MutableScaleStep[]).map((s) => ({ ...s })))
+      setScale((globalScale as MutableScaleStep[]).map((s) => ({ ...s })))
     }
   }, [globalScale, scaleWasCustomized])
   const [templateSource, setTemplateSource] = useState<TemplateSource | null>(null)
@@ -120,9 +120,9 @@ export function NewMapWizard({ profile }: Props) {
             { label: t('template_copy_answers_no') as string, kind: 'ghost', value: false },
             { label: t('template_copy_answers_yes') as string, kind: 'primary', value: true },
           ],
+          dismissable: false,
         })
         if (copyAnswers === null) return
-        // When not copying answers, seed empty cells for each custom item so they appear in the questionnaire.
         const templateAnswers: AnswersBlob = copyAnswers
           ? structuredClone(srcResult?.answers ?? {})
           : seedAnswersFromTemplate(srcResult?.customItemDefs, srcResult?.customCategories)
@@ -144,7 +144,24 @@ export function NewMapWizard({ profile }: Props) {
         })
       } else {
         const tmplImport = allImports.find((i) => i.id === templateSource.id)
-        const importTemplateAnswers = seedAnswersFromTemplate(tmplImport?.customItemDefs, tmplImport?.customCategories)
+        // Ask whether to copy answers only when the import actually has answers.
+        let copyImportAnswers = false
+        if (tmplImport && !hasNoAnswersForImport(tmplImport)) {
+          const choice = await dialog<boolean | null>({
+            title: t('template_copy_answers_title') as string,
+            body: <p style={{ lineHeight: 1.5 }}>{t('template_copy_answers_body')}</p>,
+            actions: [
+              { label: t('template_copy_answers_no') as string, kind: 'ghost', value: false },
+              { label: t('template_copy_answers_yes') as string, kind: 'primary', value: true },
+            ],
+            dismissable: false,
+          })
+          if (choice === null) return
+          copyImportAnswers = choice
+        }
+        const importTemplateAnswers: AnswersBlob = copyImportAnswers
+          ? structuredClone(tmplImport?.answers ?? {})
+          : seedAnswersFromTemplate(tmplImport?.customItemDefs, tmplImport?.customCategories)
         saveResult({
           id,
           profileId: profile.id,

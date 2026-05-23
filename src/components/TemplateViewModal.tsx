@@ -86,15 +86,21 @@ export function TemplateViewModal({ open, onOpenChange, imp, onUseAsTemplate }: 
               />
             )
           })}
-          {customCats.map((cat) => (
-            <CategoryRow
-              key={cat.id}
-              title={cat.title}
-              icon={cat.icon}
-              color={cat.color}
-              items={(cat.items ?? []).map((item) => item.name)}
-            />
-          ))}
+          {customCats.map((cat) => {
+            // Prefer items from cat.items definition; fall back to customItemDefs keys
+            const defItems = (cat.items ?? []).map((item) => item.name)
+            const defsFromCustomItemDefs = Object.keys(imp.customItemDefs?.[cat.id] ?? {})
+            const items = defItems.length > 0 ? defItems : defsFromCustomItemDefs
+            return (
+              <CategoryRow
+                key={cat.id}
+                title={cat.title}
+                icon={cat.icon}
+                color={cat.color}
+                items={items}
+              />
+            )
+          })}
         </div>
 
         <DialogFooter className="mt-2">
