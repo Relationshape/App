@@ -203,10 +203,8 @@ export function Result() {
         onOpenChange={(open) => {
           if (!open) {
             setModalCat(null)
-            if (deepLinkedModalRef.current) {
-              deepLinkedModalRef.current = false
-              navigate(`/result/${result.id}`, { replace: true })
-            }
+            deepLinkedModalRef.current = false
+            if (catId) navigate(`/result/${result.id}`, { replace: true })
           }
         }}
         datasets={datasets}
