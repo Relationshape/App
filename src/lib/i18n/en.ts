@@ -110,6 +110,11 @@ export const EN = {
   wizard_next: 'Next →',
   wizard_finish: "Let's go! ✨",
   wizard_skip: 'Skip intro',
+  wizard_before_profile_title: 'Before you begin',
+  wizard_before_profile_body: 'Do you have a backup from a previous session? You can restore it now instead of creating a new profile.',
+  wizard_before_profile_backup_hint: 'Tip: You can create and download backups at any time under Settings.',
+  wizard_before_profile_create: 'Create new profile',
+  wizard_before_profile_restore: '📂 Restore from backup',
 
   // Profile edit
   profile_new_title: 'New profile',
@@ -337,7 +342,8 @@ export const EN = {
   scale_step_remove_confirm:
     'The step "{label}" is in use in some answers. Removing it will clear those answers. Continue?',
   scale_col_color: 'Color',
-  scale_col_label: 'Label',
+  scale_col_label: 'Label / Meaning',
+  scale_save_btn: 'Save scale',
   scale_col_short: 'Shorthand',
   scale_col_value: 'Value',
   scale_col_desc: 'Meaning',
@@ -509,6 +515,8 @@ export const EN = {
   confirm_hide_item_body: 'Remove this item only for this map, or permanently? «Permanently delete» also removes it from the category definition (applies to future maps).',
   confirm_remove_for_card: 'Only for this map',
   confirm_remove_permanent: 'Permanently delete',
+  confirm_hide_preset_item_body: 'Remove this item only for this map, or permanently? «Permanently delete» hides it from all future new maps of this profile. Existing maps are not affected.',
+  item_preset_hidden_profile_note: 'Item hidden from future new maps of this profile.',
   scale_mismatch_title: 'Different scales',
   scale_mismatch_body: 'The compared maps use different answer scales (e.g. different number of steps, or individual questions with their own scale). Values are normalised and are generally comparable, but results can be misleading if scales differ significantly.',
   btn_compare_anyway: 'Compare anyway',

@@ -1,6 +1,6 @@
 // PROFILE-05, D-23. First-visit wizard. Reads settings.wizardSeen.
 // After the final "Los geht's" button, opens CreateProfileModal if no profile exists yet.
-import { useReducer, useEffect, useMemo, useState } from 'react'
+import { useReducer, useEffect, useMemo, useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription,
@@ -10,8 +10,11 @@ import { useStore } from '@/lib/storage/store'
 import { useSwipe } from '@/lib/hooks/useSwipe'
 import { useKeydown } from '@/lib/hooks/useKeydown'
 import { CreateProfileModal } from './CreateProfileModal'
+import { dialog } from '@/lib/dialog/dialog'
 import { t } from '@/lib/i18n/i18n'
+import { useToast } from '@/lib/hooks/useToast'
 import type { TranslationKey } from '@/lib/i18n/en'
+import type { MutableScaleStep } from '@/lib/data/types'
 
 interface WizardStep { title: TranslationKey; body: TranslationKey }
 
@@ -45,9 +48,12 @@ export function WizardHost() {
   const ageConfirmed = useStore((s) => s.settings.ageConfirmed)
   const hasProfile = useStore((s) => s.profiles.length > 0)
   const setSettings = useStore((s) => s.setSettings)
+  const replaceAll = useStore((s) => s.replaceAll)
   const [state, dispatch] = useReducer(reducer, { step: 0, finished: false })
   const [createProfileOpen, setCreateProfileOpen] = useState(false)
   const navigate = useNavigate()
+  const { toast } = useToast()
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const stepCfg = WIZARD_STEPS[state.step]!
   const isLast = state.step === WIZARD_STEPS.length - 1
@@ -76,9 +82,50 @@ export function WizardHost() {
   if (wizardSeen && !createProfileOpen) return null
   if (state.finished && !createProfileOpen) return null
 
-  function handleFinish() {
+  async function handleRestoreBackup(file: File) {
+    try {
+      const text = await file.text()
+      const parsed = JSON.parse(text) as unknown
+      if (typeof parsed !== 'object' || parsed === null) throw new Error('Invalid backup file')
+      const ok = await dialog<boolean>({
+        title: t('backup_restore_confirm_title'),
+        body: <p>{t('backup_restore_confirm_body')}</p>,
+        actions: [
+          { label: t('btn_cancel'), kind: 'ghost', value: false },
+          { label: t('btn_restore'), kind: 'danger', value: true },
+        ],
+      })
+      if (!ok) return
+      replaceAll(parsed as Partial<{ profiles: any[]; results: any[]; imports: any[]; settings: any; scale: MutableScaleStep[] }>)
+      toast.success(t('backup_imported'))
+      navigate('/')
+    } catch (e) {
+      toast.error((e as Error).message)
+    }
+  }
+
+  async function handleFinish() {
     dispatch({ type: 'finish' })
-    if (!hasProfile) setCreateProfileOpen(true)
+    if (!hasProfile) {
+      const choice = await dialog<'restore' | 'create' | null>({
+        title: t('wizard_before_profile_title'),
+        body: (
+          <div style={{ lineHeight: 1.6 }}>
+            <p>{t('wizard_before_profile_body')}</p>
+            <p className="muted small" style={{ marginTop: 8 }}>{t('wizard_before_profile_backup_hint')}</p>
+          </div>
+        ),
+        actions: [
+          { label: t('wizard_before_profile_create'), kind: 'primary', value: 'create' },
+          { label: t('wizard_before_profile_restore'), kind: 'ghost', value: 'restore' },
+        ],
+      })
+      if (choice === 'restore') {
+        fileInputRef.current?.click()
+      } else {
+        setCreateProfileOpen(true)
+      }
+    }
   }
 
   function handleSkip() {
@@ -100,7 +147,7 @@ export function WizardHost() {
             <DialogFooter>
               <Button variant="ghost" onClick={handleSkip} data-testid="wizard-skip">{t('wizard_skip')}</Button>
               <Button variant="ghost" onClick={() => dispatch({ type: 'prev' })} disabled={state.step === 0} data-testid="wizard-prev">{t('btn_back')}</Button>
-              <Button onClick={() => { if (isLast) { handleFinish() } else { dispatch({ type: 'next' }) } }} data-testid="wizard-next">
+              <Button onClick={() => { if (isLast) { void handleFinish() } else { dispatch({ type: 'next' }) } }} data-testid="wizard-next">
                 {isLast ? t('wizard_finish') : t('wizard_next')}
               </Button>
             </DialogFooter>
@@ -112,6 +159,17 @@ export function WizardHost() {
         open={createProfileOpen}
         onOpenChange={setCreateProfileOpen}
         onCreated={(id) => navigate(`/profile/${id}`)}
+      />
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".json"
+        className="hidden"
+        onChange={(e) => {
+          const f = e.target.files?.[0]
+          if (f) void handleRestoreBackup(f)
+          e.target.value = ''
+        }}
       />
     </>
   )

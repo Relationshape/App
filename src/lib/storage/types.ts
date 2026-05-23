@@ -9,6 +9,7 @@ export interface CustomCategoryItem {
   name: string
   format: CustomItemFormat
   options?: string[]
+  itemScale?: MutableScaleStep[]
 }
 
 export interface CustomCategoryDef {
@@ -28,6 +29,8 @@ export interface Profile {
   notes?: string
   createdAt: number
   customCategories?: CustomCategoryDef[]
+  /** Items hidden profile-wide (future maps only). Maps catId → item names. */
+  hiddenItems?: Record<string, string[]>
 }
 
 export type GROfBoth = 'G' | 'R' | 'Both'
