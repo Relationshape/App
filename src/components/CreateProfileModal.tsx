@@ -2,7 +2,7 @@
 // finish, and Welcome CTA. Keeps the form minimal: name, pronouns, emoji, colour.
 // Notes are available later in ProfileEdit.
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
@@ -10,7 +10,10 @@ import {
 import { Button } from '@/components/ui/button'
 import { EmojiPicker } from '@/components/EmojiPicker'
 import { useStore } from '@/lib/storage/store'
+import { useToast } from '@/lib/hooks/useToast'
+import { dialog } from '@/lib/dialog/dialog'
 import { t } from '@/lib/i18n/i18n'
+import type { MutableScaleStep } from '@/lib/data/types'
 
 const PALETTE = [
   '#7c3aed', '#8b5cf6', '#a78bfa', '#6366f1', '#3b82f6', '#0ea5e9', '#06b6d4', '#14b8a6',
@@ -28,6 +31,9 @@ interface Props {
 export function CreateProfileModal({ open, onOpenChange, onCreated }: Props) {
   const navigate = useNavigate()
   const createProfile = useStore((s) => s.createProfile)
+  const replaceAll = useStore((s) => s.replaceAll)
+  const { toast } = useToast()
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const [step, setStep] = useState<'choice' | 'form'>('choice')
   const [name, setName] = useState('')
   const [pronouns, setPronouns] = useState('')
@@ -53,13 +59,48 @@ export function CreateProfileModal({ open, onOpenChange, onCreated }: Props) {
   }
 
   function handleRestore() {
-    onOpenChange(false)
-    navigate('/settings')
+    fileInputRef.current?.click()
+  }
+
+  async function handleRestoreFile(file: File) {
+    try {
+      const text = await file.text()
+      const parsed = JSON.parse(text) as unknown
+      if (typeof parsed !== 'object' || parsed === null) throw new Error('Invalid backup file')
+      const ok = await dialog<boolean>({
+        title: t('backup_restore_confirm_title') as string,
+        body: <p>{t('backup_restore_confirm_body')}</p>,
+        actions: [
+          { label: t('btn_cancel') as string, kind: 'ghost', value: false },
+          { label: t('btn_restore') as string, kind: 'danger', value: true },
+        ],
+      })
+      if (!ok) return
+      replaceAll(parsed as Partial<{ profiles: unknown[]; results: unknown[]; imports: unknown[]; settings: unknown; scale: MutableScaleStep[] }>)
+      toast.success(t('backup_imported'))
+      onOpenChange(false)
+      const firstProfile = useStore.getState().profiles[0]
+      if (firstProfile) navigate(`/profile/${firstProfile.id}`)
+    } catch (e) {
+      toast.error((e as Error).message)
+    }
   }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-sm" data-testid="create-profile-modal">
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".json"
+          className="hidden"
+          data-testid="create-profile-restore-file"
+          onChange={(e) => {
+            const f = e.target.files?.[0]
+            if (f) void handleRestoreFile(f)
+            e.target.value = ''
+          }}
+        />
         {step === 'choice' ? (
           <>
             <DialogHeader>

@@ -58,6 +58,24 @@ export function SingleMode({ result, profile }: Props) {
 
   const safeIdx = Math.min(Math.max(0, result.progress?.catIndex ?? 0), Math.max(0, enabledCats.length - 1))
   const cat = enabledCats[safeIdx]
+  const hasNextCat = safeIdx + 1 < enabledCats.length
+  const hasPrevCat = safeIdx > 0
+
+  function goToNextCat() {
+    saveResult({
+      ...result,
+      progress: { ...(result.progress ?? { mode: 'single' }), catIndex: safeIdx + 1, flatIndex: 0 },
+    })
+    dispatch({ type: 'set', cursor: 0 })
+  }
+
+  function goToPrevCat() {
+    saveResult({
+      ...result,
+      progress: { ...(result.progress ?? { mode: 'single' }), catIndex: safeIdx - 1, flatIndex: 0 },
+    })
+    dispatch({ type: 'set', cursor: 0 })
+  }
 
   const items = useMemo<FlatItem[]>(() => {
     if (!cat) return []
@@ -157,9 +175,30 @@ export function SingleMode({ result, profile }: Props) {
 
   if (isDone) {
     return (
-      <div data-testid="single-mode-done" className="p-8 text-center">
-        <h2>{t('q_done_title')}</h2>
-        <QuestionnaireNav result={result} profileId={profile.id} activeCat={cat} />
+      <div data-testid="single-mode-done" className="q-full-height flex flex-col">
+        <div className="flex-1 flex flex-col items-center justify-center gap-4 p-8 text-center">
+          <h2>{t('q_done_title')}</h2>
+          <p className="muted">{t('q_done_body')}</p>
+          <div className="flex gap-3 flex-wrap justify-center mt-2">
+            {hasPrevCat && (
+              <button type="button" className="btn btn-outline" onClick={goToPrevCat} data-testid="done-prev-cat">
+                ← {t('q_done_prev_cat')}
+              </button>
+            )}
+            {hasNextCat && (
+              <button type="button" className="btn btn-outline" onClick={goToNextCat} data-testid="done-next-cat">
+                {t('q_done_next_cat')} →
+              </button>
+            )}
+          </div>
+        </div>
+        <QuestionnaireNav
+          result={result}
+          profileId={profile.id}
+          activeCat={cat}
+          onPrevCat={hasPrevCat ? goToPrevCat : undefined}
+          onNextCat={hasNextCat ? goToNextCat : undefined}
+        />
       </div>
     )
   }
@@ -562,7 +601,13 @@ export function SingleMode({ result, profile }: Props) {
           </Dialog>
         )}
       </section>
-      <QuestionnaireNav result={result} profileId={profile.id} activeCat={cat} />
+      <QuestionnaireNav
+        result={result}
+        profileId={profile.id}
+        activeCat={cat}
+        onPrevCat={hasPrevCat ? goToPrevCat : undefined}
+        onNextCat={hasNextCat ? goToNextCat : undefined}
+      />
     </div>
   )
 }

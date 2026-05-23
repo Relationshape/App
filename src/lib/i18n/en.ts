@@ -594,6 +594,10 @@ export const EN = {
   import_adopt_cats_btn: 'Add to profile',
   compare_too_many_truncated: 'Showing first 4 of {n} comparisons.',
   compare_empty: 'Pick at least two maps to compare.',
+  compare_has_empty_map: 'You have selected at least one map with no answers. You can only compare maps that have at least one answer.',
+  q_no_answers_for_results: 'Answer at least one question to view the results.',
+  q_done_next_cat: 'Next category',
+  q_done_prev_cat: 'Previous category',
 
   // Settings — plan 02-07 (SETTINGS-01..05)
   settings_theme_title: 'Theme',

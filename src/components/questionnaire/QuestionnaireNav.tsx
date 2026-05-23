@@ -1,14 +1,33 @@
 // Sticky bottom nav pair (D-31 "always-visible save button").
 // Provides ← Categories + (Next category |) See results → navigation always visible during questionnaire.
 
+import { useNavigate } from 'react-router-dom'
 import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
+import { dialog } from '@/lib/dialog/dialog'
 import type { Result } from '@/lib/storage/types'
 import type { CATEGORIES } from '@/lib/data/data'
 import type { ResolvedCat } from '@/lib/data/customCategories'
 import { t } from '@/lib/i18n/i18n'
 
 type Category = (typeof CATEGORIES)[number]
+type AnyCell = { scale?: string; scaleFrac?: number; giving?: string; receiving?: string }
+
+/** Returns true when the given category slot has at least one real answer. */
+function catHasAnswers(result: Result, catId: string): boolean {
+  const slot = result.answers[catId]
+  if (!slot) return false
+  for (const [k, v] of Object.entries(slot)) {
+    if (k === '__hidden' || k === '__custom') continue
+    const cell = v as AnyCell | null
+    if (cell?.scale || cell?.giving || cell?.receiving) return true
+  }
+  for (const cell of Object.values(slot.__custom ?? {}) as AnyCell[]) {
+    if (cell?.giving || cell?.receiving) return true
+    if (cell?.scale && (cell.scale !== 'open' || cell.scaleFrac != null)) return true
+  }
+  return false
+}
 
 interface Props {
   result: Result
@@ -19,9 +38,24 @@ interface Props {
 }
 
 export function QuestionnaireNav({ result, profileId, activeCat, onNextCat, onPrevCat }: Props) {
+  const navigate = useNavigate()
   const resultsHref = activeCat
     ? `/result/${result.id}/${activeCat.id}`
     : `/result/${result.id}`
+
+  async function handleResultsClick(e: React.MouseEvent) {
+    e.preventDefault()
+    if (activeCat && !catHasAnswers(result, activeCat.id)) {
+      await dialog<null>({
+        title: t('q_nav_see_results') as string,
+        body: <p>{t('q_no_answers_for_results')}</p>,
+        actions: [{ label: 'OK', kind: 'primary', value: null }],
+      })
+      return
+    }
+    navigate(resultsHref)
+  }
+
   return (
     <nav
       className="q-nav shrink-0"
@@ -56,9 +90,14 @@ export function QuestionnaireNav({ result, profileId, activeCat, onNextCat, onPr
             <span className="q-nav-label-short" aria-hidden>›</span>
           </button>
         )}
-        <Link to={resultsHref} data-testid="q-nav-see-results" className="btn btn-primary ml-auto shrink-0">
+        <button
+          type="button"
+          onClick={(e) => { void handleResultsClick(e) }}
+          data-testid="q-nav-see-results"
+          className="btn btn-primary ml-auto shrink-0"
+        >
           {t('q_nav_see_results')} →
-        </Link>
+        </button>
       </div>
     </nav>
   )

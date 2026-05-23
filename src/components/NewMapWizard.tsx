@@ -2,7 +2,7 @@
 // 3 steps: map name → scale confirm/customize → category picker.
 // Shown in CategoryOverview when resultId === 'new'.
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription,
@@ -72,6 +72,13 @@ export function NewMapWizard({ profile }: Props) {
   )
   const [customizeScale, setCustomizeScale] = useState(false)
   const [scaleWasCustomized, setScaleWasCustomized] = useState(false)
+
+  // Keep scale in sync with the store default as long as the user hasn't customized it.
+  useEffect(() => {
+    if (!scaleWasCustomized) {
+      setScale((getLocalizedDefaultScale(globalScale as MutableScaleStep[]) as MutableScaleStep[]).map((s) => ({ ...s })))
+    }
+  }, [globalScale, scaleWasCustomized])
   const [templateSource, setTemplateSource] = useState<TemplateSource | null>(null)
   const [skipSharePrompt, setSkipSharePrompt] = useState(false)
 
@@ -243,7 +250,7 @@ export function NewMapWizard({ profile }: Props) {
       openShareTemplate(
         id,
         () => navigate(`/q-categories/${profile.id}/${id}`, { replace: true }),
-        () => void promptShareTemplate(id),
+        () => navigate(`/q-categories/${profile.id}/${id}`, { replace: true }),
       )
     } else if (choice === 'skip') {
       navigate(`/q-categories/${profile.id}/${id}`, { replace: true })
