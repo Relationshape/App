@@ -43,7 +43,7 @@ body {
    which would zero out a body padding-top and cause the page to jump up by the
    reserved nav height when a dialog opens. Mobile override below also targets
    #root for the same reason. */
-#root { padding-top: 80px; }
+#root { padding-top: 80px; --nav-offset: 80px; }
 
 a { color: var(--primary); text-decoration: none; }
 a:hover { text-decoration: underline; }
@@ -78,7 +78,7 @@ a:hover { text-decoration: underline; }
     gap: 6px;
     border-radius: 14px;
   }
-  #root { padding-top: 66px; }
+  #root { padding-top: 66px; --nav-offset: 66px; }
   .nav-title { display: none; }
   .nav-links a { padding: 5px 7px; font-size: 12px; }
 }
@@ -701,6 +701,9 @@ a:hover { text-decoration: underline; }
   color: var(--muted); padding: 12px; border-radius: 14px; font: inherit; cursor: pointer;
 }
 .q-add:hover { color: var(--text); border-color: var(--primary); }
+
+/* Full-height questionnaire container — exact available height after fixed global nav */
+.q-full-height { height: calc(100dvh - var(--nav-offset, 80px)); }
 
 .q-nav {
   display: flex; gap: 10px; justify-content: space-between;

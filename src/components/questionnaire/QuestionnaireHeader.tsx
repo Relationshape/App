@@ -44,8 +44,8 @@ export function QuestionnaireHeader({ result, profileId, activeCat }: Props) {
     : null
 
   const resultsHref = activeCat
-    ? `/q-categories/${profileId}/${result.id}?cat=${activeCat.id}`
-    : `/q-categories/${profileId}/${result.id}`
+    ? `/result/${result.id}/${activeCat.id}`
+    : `/result/${result.id}`
 
   return (
     <header className="q-header sticky top-0 z-10 bg-surface border-b border-line">
