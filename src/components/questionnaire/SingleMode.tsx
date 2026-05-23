@@ -95,7 +95,6 @@ export function SingleMode({ result, profile }: Props) {
   const isDone = state.cursor >= items.length
 
   async function advance(delta: 1 | -1, dir: Dir) {
-    if (!await confirmIfTemplate()) return
     const newCursor = Math.max(0, Math.min(items.length, state.cursor + delta))
     saveResult({ ...result, progress: { ...result.progress, mode: 'single', flatIndex: newCursor } })
     if (delta > 0) dispatch({ type: 'next', dir })
@@ -182,7 +181,6 @@ export function SingleMode({ result, profile }: Props) {
 
   async function saveNonScaleAnswer(patch: Partial<AnswerCell>) {
     if (!cur) return
-    if (!(await confirmIfTemplate())) return
     const next = structuredClone(result)
     const slot = next.answers[cur.catId] ?? {}
     const customs = slot.__custom ?? {}
@@ -194,7 +192,6 @@ export function SingleMode({ result, profile }: Props) {
 
   async function patchCurrentCell(patch: Partial<AnswerCell>) {
     if (!cur) return
-    if (!(await confirmIfTemplate())) return
     const next = structuredClone(result)
     const slot = next.answers[cur.catId] ?? {}
     if (cur.isCustom) {
@@ -222,7 +219,6 @@ export function SingleMode({ result, profile }: Props) {
 
   async function clearGiving() {
     if (!cur) return
-    if (!(await confirmIfTemplate())) return
     const next = structuredClone(result)
     const slot = next.answers[cur.catId] ?? {}
     const existing = cur.isCustom ? (slot.__custom ?? {})[cur.item] : slot[cur.item]
@@ -243,7 +239,6 @@ export function SingleMode({ result, profile }: Props) {
 
   async function clearReceiving() {
     if (!cur) return
-    if (!(await confirmIfTemplate())) return
     const next = structuredClone(result)
     const slot = next.answers[cur.catId] ?? {}
     const existing = cur.isCustom ? (slot.__custom ?? {})[cur.item] : slot[cur.item]
@@ -264,7 +259,6 @@ export function SingleMode({ result, profile }: Props) {
 
   async function clearAnswer() {
     if (!cur) return
-    if (!(await confirmIfTemplate())) return
     const next = structuredClone(result)
     const slot = next.answers[cur.catId] ?? {}
     if (cur.isCustom) {
@@ -335,7 +329,6 @@ export function SingleMode({ result, profile }: Props) {
   async function setNoteValue(value: string) {
     if (!cur) return
     if (value === (cell?.note ?? '')) return
-    if (!(await confirmIfTemplate())) return
     const next = structuredClone(result)
     const slot = next.answers[cur.catId] ?? {}
     if (cur.isCustom) {
