@@ -39,9 +39,6 @@ interface Props {
 
 export function QuestionnaireNav({ result, profileId, activeCat, onNextCat, onPrevCat }: Props) {
   const navigate = useNavigate()
-  const resultsHref = activeCat
-    ? `/result/${result.id}/${activeCat.id}`
-    : `/result/${result.id}`
 
   async function handleResultsClick(e: React.MouseEvent) {
     e.preventDefault()
@@ -53,7 +50,7 @@ export function QuestionnaireNav({ result, profileId, activeCat, onNextCat, onPr
       })
       return
     }
-    navigate(resultsHref)
+    navigate(`/q-categories/${profileId}/${result.id}?results=1`)
   }
 
   return (

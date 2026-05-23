@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button'
 import { RsTile } from '@/components/RsTile'
 import { RsCategoryPicker, applyPendingItems, type PendingItemsByCat } from '@/components/RsCategoryPicker'
 import { CategoryModal } from '@/components/charts/CategoryModal'
+import { ResultModal } from '@/components/ResultModal'
 import { NewMapWizard } from '@/components/NewMapWizard'
 import { dialog } from '@/lib/dialog/dialog'
 import { useToast } from '@/lib/hooks/useToast'
@@ -38,6 +39,7 @@ export function CategoryOverview() {
   const [renamingSubject, setRenamingSubject] = useState(false)
   const [subjectDraft, setSubjectDraft] = useState('')
   const [searchParams, setSearchParams] = useSearchParams()
+  const resultsOpen = searchParams.get('results') === '1'
   const { openShareTemplate } = useShareData()
   const { toast } = useToast()
 
@@ -354,6 +356,21 @@ export function CategoryOverview() {
         cat={overviewModalCat}
         result={result}
       />
+
+      {resultsOpen && profile && (
+        <ResultModal
+          open={resultsOpen}
+          onOpenChange={(o) => {
+            if (!o) {
+              const next = new URLSearchParams(searchParams)
+              next.delete('results')
+              setSearchParams(next, { replace: true })
+            }
+          }}
+          result={result}
+          profile={profile}
+        />
+      )}
     </section>
   )
 }

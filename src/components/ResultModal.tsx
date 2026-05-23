@@ -3,7 +3,7 @@
 
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogTitle, DialogClose } from '@/components/ui/dialog'
 import { CategoryModal } from '@/components/charts/CategoryModal'
 import { RsCategoryCard } from '@/components/RsCategoryCard'
 import { mapResultToDataset } from '@/lib/charts/datasets'
@@ -84,7 +84,7 @@ export function ResultModal({ open, onOpenChange, result, profile }: Props) {
           onInteractOutside={() => handleClose()}
         >
           {/* Header */}
-          <div className="cat-modal-head-row">
+          <div className="cat-modal-head-row" style={{ position: 'relative' }}>
             <div className="cat-modal-icon-wrap">
               <span className="cat-modal-icon" style={{ fontSize: '1.6rem' }} aria-hidden="true">
                 {dataset.emoji}
@@ -98,6 +98,17 @@ export function ResultModal({ open, onOpenChange, result, profile }: Props) {
                 </p>
               </div>
             </div>
+            <DialogClose asChild>
+              <button
+                type="button"
+                className="cat-modal-close-x"
+                onClick={handleClose}
+                aria-label={t('btn_close')}
+                data-testid="result-modal-close-x"
+              >
+                ✕
+              </button>
+            </DialogClose>
           </div>
 
           {/* Category grid */}
@@ -125,14 +136,6 @@ export function ResultModal({ open, onOpenChange, result, profile }: Props) {
           <div className="rs-modal-actions" style={{ borderTop: '1px solid var(--glass-border)', padding: '12px 24px 16px', flexShrink: 0 }}>
             <button
               type="button"
-              className="btn btn-ghost"
-              onClick={handleClose}
-              data-testid="result-modal-close"
-            >
-              {t('btn_close')}
-            </button>
-            <button
-              type="button"
               className="btn btn-outline"
               onClick={() => { void handlePdfReport() }}
               disabled={generatingPdf}
@@ -150,6 +153,17 @@ export function ResultModal({ open, onOpenChange, result, profile }: Props) {
               data-testid="result-modal-continue"
             >
               {t('btn_continue_editing')}
+            </button>
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={() => {
+                handleClose()
+                navigate(`/compare?ids=${result.id}`)
+              }}
+              data-testid="result-modal-compare"
+            >
+              {t('btn_compare_overview')} →
             </button>
           </div>
         </DialogContent>
