@@ -169,7 +169,31 @@ export function Compare() {
     return allCatIds.some((catId) => datasets.every((ds) => hasItemValues(ds.answers, catId)))
   }
 
+  function datasetHasAnyAnswers(ds: ChartDataset): boolean {
+    return Object.values(ds.answers).some((slot) => {
+      type Cell = { scale?: string; giving?: string; receiving?: string; scaleFrac?: number }
+      for (const [k, v] of Object.entries(slot)) {
+        if (k === '__hidden' || k === '__custom') continue
+        const c = v as Cell | null
+        if (c?.scale || c?.giving || c?.receiving) return true
+      }
+      for (const c of Object.values(slot.__custom ?? {}) as Cell[]) {
+        if (c?.giving || c?.receiving) return true
+        if (c?.scale && (c.scale !== 'open' || c.scaleFrac != null)) return true
+      }
+      return false
+    })
+  }
+
   async function handleGoToDetails() {
+    if (datasets.some((ds) => !datasetHasAnyAnswers(ds))) {
+      await dialog<null>({
+        title: t('compare_empty') as string,
+        body: <p>{t('compare_has_empty_map')}</p>,
+        actions: [{ label: 'OK', kind: 'primary', value: null }],
+      })
+      return
+    }
     if (hasScaleMismatch(datasets)) {
       const proceed = await dialog<boolean>({
         title: t('scale_mismatch_title') as string,

@@ -15,12 +15,14 @@ export function ImportListRow({
   testIdBase,
   onUseTemplate,
   onUnlock,
+  onViewTemplate,
 }: {
   imp: Import
   category: ImportCategory
   testIdBase?: string
   onUseTemplate: (imp: Import) => void
   onUnlock: (imp: Import) => void
+  onViewTemplate?: (imp: Import) => void
 }) {
   const navigate = useNavigate()
   const deleteImport = useStore((s) => s.deleteImport)
@@ -96,6 +98,16 @@ export function ImportListRow({
             data-testid={`${base}-unlock`}
           >
             {t('unlock_answers_btn')}
+          </button>
+        )}
+        {onViewTemplate && (
+          <button
+            type="button"
+            className="btn"
+            onClick={() => onViewTemplate(imp)}
+            data-testid={`${base}-view-template`}
+          >
+            {t('btn_view_template')}
           </button>
         )}
         <button

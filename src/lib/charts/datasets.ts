@@ -22,6 +22,13 @@ function resolveScale(maybe: Result['scale'] | Import['scale']) {
 }
 
 export function mapResultToDataset(result: Result, profile: Profile | null): ChartDataset {
+  // Merge result-level and profile-level custom categories so charts recognise
+  // categories from either source (profile cats are not stored on the result).
+  const resultCats = result.customCategories ?? []
+  const profileCats = (profile?.customCategories ?? []).filter(
+    (pc) => !resultCats.some((rc) => rc.id === pc.id),
+  )
+  const allCustomCats = [...resultCats, ...profileCats]
   return {
     id: result.id,
     name: resultLabel(result, profile),
@@ -30,7 +37,7 @@ export function mapResultToDataset(result: Result, profile: Profile | null): Cha
     answers: result.answers,
     scale: resolveScale(result.scale),
     ...(result.customItemDefs ? { customItemDefs: result.customItemDefs } : {}),
-    ...(result.customCategories ? { customCategories: result.customCategories } : {}),
+    ...(allCustomCats.length > 0 ? { customCategories: allCustomCats } : {}),
   }
 }
 

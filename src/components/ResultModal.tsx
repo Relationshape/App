@@ -157,13 +157,7 @@ export function ResultModal({ open, onOpenChange, result, profile }: Props) {
 
       <CategoryModal
         open={selectedCat !== null}
-        onOpenChange={(o) => {
-          if (!o) {
-            setSelectedCat(null)
-            handleClose()
-            navigate(`/result/${result.id}`)
-          }
-        }}
+        onOpenChange={(o) => { if (!o) setSelectedCat(null) }}
         datasets={datasets}
         cat={selectedCat}
         result={result}

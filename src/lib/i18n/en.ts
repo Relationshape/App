@@ -475,6 +475,10 @@ export const EN = {
   use_as_template_step1_sub: 'Under which profile should the new card be created?',
   btn_start_from_template: 'Start card based on template',
   template_badge: 'Template',
+  btn_view_template: '👁 View template',
+  template_view_title: 'Template preview',
+  template_view_categories: 'Categories & questions',
+  template_view_no_custom_items: 'Standard questions only',
   locked_answers_badge: '🔒 Answers locked',
   btn_unlock_and_compare: 'Unlock & compare',
 
@@ -545,6 +549,8 @@ export const EN = {
   unlock_answers_title: 'Enter reveal passphrase',
   unlock_answers_sub: 'Enter the reveal passphrase to decrypt the answers in this import.',
   unlock_answers_error: 'Wrong passphrase or corrupted data. Please try again.',
+  unlock_answers_skip: 'Skip for now',
+  unlock_answers_skip_hint: 'You can unlock the answers later from the Compare view.',
   use_template_step2_title: 'Name your map',
   use_template_start_btn: 'Start map from template',
   wizard_source_blank: 'Start blank',
@@ -594,6 +600,10 @@ export const EN = {
   import_adopt_cats_btn: 'Add to profile',
   compare_too_many_truncated: 'Showing first 4 of {n} comparisons.',
   compare_empty: 'Pick at least two maps to compare.',
+  compare_has_empty_map: 'You have selected at least one map with no answers. You can only compare maps that have at least one answer.',
+  q_no_answers_for_results: 'Answer at least one question to view the results.',
+  q_done_next_cat: 'Next category',
+  q_done_prev_cat: 'Previous category',
 
   // Settings — plan 02-07 (SETTINGS-01..05)
   settings_theme_title: 'Theme',

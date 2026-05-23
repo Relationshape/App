@@ -494,6 +494,10 @@ export const DE: Record<TranslationKey, string> = {
   use_as_template_step1_sub: 'Unter welchem Profil soll die neue Karte erstellt werden?',
   btn_start_from_template: 'Karte basierend auf Vorlage starten',
   template_badge: 'Vorlage',
+  btn_view_template: '👁 Vorlage ansehen',
+  template_view_title: 'Vorlagenvorschau',
+  template_view_categories: 'Kategorien & Fragen',
+  template_view_no_custom_items: 'Nur Standardfragen',
   locked_answers_badge: '🔒 Antworten gesperrt',
   btn_unlock_and_compare: 'Entsperren & vergleichen',
 
@@ -564,6 +568,8 @@ export const DE: Record<TranslationKey, string> = {
   unlock_answers_title: 'Entsperr-Passwort eingeben',
   unlock_answers_sub: 'Gib das Entsperr-Passwort ein, um die Antworten dieses Imports freizuschalten.',
   unlock_answers_error: 'Falsches Passwort oder fehlerhafte Daten. Bitte erneut versuchen.',
+  unlock_answers_skip: 'Überspringen',
+  unlock_answers_skip_hint: 'Du kannst die Antworten später in der Vergleichsansicht entsperren.',
   use_template_step2_title: 'Karte benennen',
   use_template_start_btn: 'Karte basierend auf Vorlage starten',
   wizard_source_blank: 'Leer beginnen',
@@ -613,6 +619,10 @@ export const DE: Record<TranslationKey, string> = {
   import_adopt_cats_btn: 'Zum Profil hinzufügen',
   compare_too_many_truncated: 'Erste 4 von {n} Vergleichen angezeigt.',
   compare_empty: 'Wähle mindestens zwei Karten zum Vergleichen.',
+  compare_has_empty_map: 'Du hast mindestens eine Karte ausgewählt, die keine Antworten enthält. Du kannst nur Karten vergleichen, die mindestens eine Antwort enthalten.',
+  q_no_answers_for_results: 'Beantworte mindestens eine Frage, um zu den Ergebnissen zu gelangen.',
+  q_done_next_cat: 'Nächste Kategorie',
+  q_done_prev_cat: 'Vorherige Kategorie',
 
   // Settings — plan 02-07 (SETTINGS-01..05)
   settings_theme_title: 'Design',

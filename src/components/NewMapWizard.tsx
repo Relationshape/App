@@ -2,7 +2,7 @@
 // 3 steps: map name → scale confirm/customize → category picker.
 // Shown in CategoryOverview when resultId === 'new'.
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription,
@@ -25,6 +25,7 @@ import { useShareData } from '@/components/providers/ShareDataProvider'
 import { t, getLang, getLocalizedDefaultScale } from '@/lib/i18n/i18n'
 import type { MutableScaleStep } from '@/lib/data/types'
 import type { AnswersBlob, CustomCategoryDef, CustomItemFormat, Import, Profile } from '@/lib/storage/types'
+import { seedAnswersFromTemplate } from '@/lib/charts/items'
 
 interface Props {
   profile: Profile
@@ -72,6 +73,13 @@ export function NewMapWizard({ profile }: Props) {
   )
   const [customizeScale, setCustomizeScale] = useState(false)
   const [scaleWasCustomized, setScaleWasCustomized] = useState(false)
+
+  // Keep scale in sync with the store default as long as the user hasn't customized it.
+  useEffect(() => {
+    if (!scaleWasCustomized) {
+      setScale((getLocalizedDefaultScale(globalScale as MutableScaleStep[]) as MutableScaleStep[]).map((s) => ({ ...s })))
+    }
+  }, [globalScale, scaleWasCustomized])
   const [templateSource, setTemplateSource] = useState<TemplateSource | null>(null)
   const [skipSharePrompt, setSkipSharePrompt] = useState(false)
 
@@ -117,14 +125,7 @@ export function NewMapWizard({ profile }: Props) {
         // When not copying answers, seed empty cells for each custom item so they appear in the questionnaire.
         const templateAnswers: AnswersBlob = copyAnswers
           ? structuredClone(srcResult?.answers ?? {})
-          : Object.fromEntries(
-              Object.entries(srcResult?.customItemDefs ?? {})
-                .filter(([, defs]) => Object.keys(defs).length > 0)
-                .map(([catId, defs]) => [
-                  catId,
-                  { __custom: Object.fromEntries(Object.keys(defs).map((n) => [n, { scale: '' }])) },
-                ]),
-            ) as AnswersBlob
+          : seedAnswersFromTemplate(srcResult?.customItemDefs, srcResult?.customCategories)
         saveResult({
           id,
           profileId: profile.id,
@@ -143,14 +144,7 @@ export function NewMapWizard({ profile }: Props) {
         })
       } else {
         const tmplImport = allImports.find((i) => i.id === templateSource.id)
-        const importTemplateAnswers: AnswersBlob = Object.fromEntries(
-          Object.entries(tmplImport?.customItemDefs ?? {})
-            .filter(([, defs]) => Object.keys(defs).length > 0)
-            .map(([catId, defs]) => [
-              catId,
-              { __custom: Object.fromEntries(Object.keys(defs).map((n) => [n, { scale: '' }])) },
-            ]),
-        ) as AnswersBlob
+        const importTemplateAnswers = seedAnswersFromTemplate(tmplImport?.customItemDefs, tmplImport?.customCategories)
         saveResult({
           id,
           profileId: profile.id,
@@ -243,7 +237,7 @@ export function NewMapWizard({ profile }: Props) {
       openShareTemplate(
         id,
         () => navigate(`/q-categories/${profile.id}/${id}`, { replace: true }),
-        () => void promptShareTemplate(id),
+        () => navigate(`/q-categories/${profile.id}/${id}`, { replace: true }),
       )
     } else if (choice === 'skip') {
       navigate(`/q-categories/${profile.id}/${id}`, { replace: true })

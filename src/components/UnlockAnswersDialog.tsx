@@ -7,10 +7,12 @@ export function UnlockAnswersBody({
   imp,
   onUnlock,
   onCancel,
+  onSkip,
 }: {
   imp: Import
   onUnlock: (answers: AnswersBlob) => void
   onCancel: () => void
+  onSkip?: () => void
 }) {
   const [passphrase, setPassphrase] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -34,6 +36,7 @@ export function UnlockAnswersBody({
   return (
     <div className="flex flex-col gap-3">
       <p className="muted small">{t('unlock_answers_sub')}</p>
+      {onSkip && <p className="muted small">{t('unlock_answers_skip_hint')}</p>}
       <input
         type="password"
         className="w-full rounded border border-line px-3 py-2 text-sm bg-surface"
@@ -46,9 +49,15 @@ export function UnlockAnswersBody({
       />
       {error && <p className="text-red-500 text-sm" data-testid="unlock-answers-error">{error}</p>}
       <div className="flex justify-end gap-2">
-        <button type="button" className="btn btn-ghost" onClick={onCancel} disabled={busy}>
-          {t('btn_cancel')}
-        </button>
+        {onSkip ? (
+          <button type="button" className="btn btn-ghost" onClick={onSkip} disabled={busy} data-testid="unlock-answers-skip">
+            {t('unlock_answers_skip')}
+          </button>
+        ) : (
+          <button type="button" className="btn btn-ghost" onClick={onCancel} disabled={busy}>
+            {t('btn_cancel')}
+          </button>
+        )}
         <button
           type="button"
           className="btn"

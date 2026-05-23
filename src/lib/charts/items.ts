@@ -3,7 +3,38 @@
 // v1.0 analogs: app.js:2134 flatItemsForResult; charts.js:380 enabled-items rule (Pitfall 5).
 
 import { CATEGORIES } from '@/lib/data/data'
-import type { Result, AnswersBlob } from '@/lib/storage/types'
+import type { Result, AnswersBlob, CustomCategoryDef, CustomItemDef } from '@/lib/storage/types'
+
+/**
+ * Build a seed AnswersBlob for a newly-created map that was based on a template.
+ * Reads from customItemDefs first; falls back to customCategories[x].items so that
+ * custom-category items are seeded even when customItemDefs is missing/empty.
+ */
+export function seedAnswersFromTemplate(
+  customItemDefs: Record<string, Record<string, CustomItemDef>> | undefined | null,
+  customCategories: CustomCategoryDef[] | undefined | null,
+): AnswersBlob {
+  const answers: AnswersBlob = {}
+
+  for (const [catId, defs] of Object.entries(customItemDefs ?? {})) {
+    const names = Object.keys(defs)
+    if (names.length === 0) continue
+    const slot = answers[catId] ?? {}
+    slot.__custom = { ...(slot.__custom ?? {}), ...Object.fromEntries(names.map((n) => [n, { scale: '' }])) }
+    answers[catId] = slot
+  }
+
+  for (const cat of customCategories ?? []) {
+    if (!cat.items?.length) continue
+    const existing = answers[cat.id]?.__custom
+    if (existing && Object.keys(existing).length > 0) continue
+    const slot = answers[cat.id] ?? {}
+    slot.__custom = Object.fromEntries(cat.items.map((item) => [item.name, { scale: '' }]))
+    answers[cat.id] = slot
+  }
+
+  return answers
+}
 
 /** Returns true when the category natively supports Giving/Receiving dual-scale answers. */
 export function isGrCat(catId: string): boolean {
