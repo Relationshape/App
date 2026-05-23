@@ -392,7 +392,7 @@ export function RsQuestionCard({
             updateProfile(result.profileId, {
               hiddenItems: { ...existing, [catId]: [...catList, item] },
             })
-            toast.info(t('item_preset_hidden_profile_note'))
+            toast.message(t('item_preset_hidden_profile_note'))
           }
         }
       }
