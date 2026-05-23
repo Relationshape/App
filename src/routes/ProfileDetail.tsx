@@ -161,8 +161,6 @@ export function ProfileDetail() {
         </div>
         <div className="flex-spacer" />
         <div className="profile-head-actions">
-          <Button variant="outline" onClick={() => setGuideOpen(true)} data-testid="profile-guide-btn">{t('guide_open_btn')}</Button>
-          <Button variant="outline" onClick={downloadBackup} data-testid="profile-backup-btn">{t('btn_backup')}</Button>
           <Button asChild variant="outline" data-testid="profile-edit-btn">
             <Link to={`/profile/${profile.id}/edit`}>{t('btn_edit')}</Link>
           </Button>
@@ -173,6 +171,7 @@ export function ProfileDetail() {
         <header className="section-head">
           <h2>{t('maps_title')}</h2>
           <p className="muted">{t('maps_sub')}</p>
+          <Button variant="ghost" size="sm" onClick={() => setGuideOpen(true)} data-testid="profile-guide-btn">{t('guide_open_btn')}</Button>
         </header>
         <div className="list" data-testid="result-list">
           {results.map((r) => (
@@ -267,6 +266,10 @@ export function ProfileDetail() {
             {t('btn_import_cards')}
           </button>
         </div>
+      </section>
+
+      <section className="page-section">
+        <Button variant="outline" onClick={downloadBackup} data-testid="profile-backup-btn">{t('btn_backup')}</Button>
       </section>
 
       <Dialog open={!!templateImp} onOpenChange={(o) => { if (!o) closeTemplateWizard() }}>
