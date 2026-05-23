@@ -1,12 +1,10 @@
 // Shared import row for Home and ProfileDetail.
 
-import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useStore } from '@/lib/storage/store'
 import { dialog } from '@/lib/dialog/dialog'
 import { fmtDate } from '@/lib/format/date'
 import { t } from '@/lib/i18n/i18n'
-import { ImportViewModal } from '@/components/ImportViewModal'
 import type { Import } from '@/lib/storage/types'
 
 export type ImportCategory = 'answers' | 'locked' | 'template'
@@ -26,7 +24,6 @@ export function ImportListRow({
 }) {
   const navigate = useNavigate()
   const deleteImport = useStore((s) => s.deleteImport)
-  const [viewOpen, setViewOpen] = useState(false)
   const v = (imp.version ?? 1) > 1 ? ` (v${imp.version})` : ''
   const color = imp.color || '#7c3aed'
   const subject = imp.subject?.trim() || '—'
@@ -76,7 +73,7 @@ export function ImportListRow({
             <button
               type="button"
               className="btn"
-              onClick={() => setViewOpen(true)}
+              onClick={() => navigate(`/import-view/${imp.id}`)}
               data-testid={`${base}-view`}
             >
               {t('btn_view_import')}
@@ -118,13 +115,6 @@ export function ImportListRow({
           {t('btn_delete')}
         </button>
       </div>
-      {viewOpen && (
-        <ImportViewModal
-          open={viewOpen}
-          onOpenChange={setViewOpen}
-          imp={imp}
-        />
-      )}
     </div>
   )
 }

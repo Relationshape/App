@@ -1664,8 +1664,8 @@ a:hover { text-decoration: underline; }
 .cat-tile-wrap > .rs-tile { width: 100%; }
 .cat-tile-wrap > button.rs-tile { padding-right: 28px; }
 .cat-tile-remove-btn {
-  position: absolute; top: 5px; right: 5px; z-index: 1;
-  width: 20px; height: 20px; padding: 0;
+  position: absolute; top: 2px; right: 2px; z-index: 2;
+  width: 32px; height: 32px; padding: 0;
   background: none; border: none; cursor: pointer;
   color: var(--muted); font-size: 16px; line-height: 1;
   display: flex; align-items: center; justify-content: center;
