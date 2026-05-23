@@ -22,7 +22,7 @@ import {
 } from '@/components/RsCategoryPicker'
 import { ImportForm } from '@/components/ImportForm'
 import { useShareData } from '@/components/providers/ShareDataProvider'
-import { t, getLang, getLocalizedDefaultScale } from '@/lib/i18n/i18n'
+import { t, getLang } from '@/lib/i18n/i18n'
 import type { MutableScaleStep } from '@/lib/data/types'
 import type { AnswersBlob, CustomCategoryDef, CustomItemFormat, Import, Profile } from '@/lib/storage/types'
 import { seedAnswersFromTemplate } from '@/lib/charts/items'
