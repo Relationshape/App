@@ -556,19 +556,19 @@ export function NewMapWizard({ profile }: Props) {
                               <span className="cat-picker-icon" aria-hidden>{cat.icon}</span>
                               <span className="cat-picker-label">{cat.title}</span>
                               <span className="cat-picker-check" aria-hidden>{isChecked ? '✓' : ''}</span>
+                              {hasItems && (
+                                <span
+                                  role="button"
+                                  tabIndex={0}
+                                  className={`cat-picker-expand-btn${isExpanded ? ' is-open' : ''}`}
+                                  onClick={(e) => { e.stopPropagation(); toggleExpandCat(cat.id) }}
+                                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); toggleExpandCat(cat.id) } }}
+                                  aria-expanded={isExpanded}
+                                >
+                                  {isExpanded ? '▲' : '▼'}
+                                </span>
+                              )}
                             </label>
-                            {hasItems && (
-                              <span
-                                role="button"
-                                tabIndex={0}
-                                className={`cat-picker-expand-btn${isExpanded ? ' is-open' : ''}`}
-                                onClick={() => toggleExpandCat(cat.id)}
-                                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleExpandCat(cat.id) } }}
-                                aria-expanded={isExpanded}
-                              >
-                                {isExpanded ? '▲' : '▼'}
-                              </span>
-                            )}
                           </div>
                           {isExpanded && hasItems && (
                             <div className="cat-picker-item-preview">
@@ -598,19 +598,19 @@ export function NewMapWizard({ profile }: Props) {
                               <span className="cat-picker-icon" aria-hidden>{cat.icon}</span>
                               <span className="cat-picker-label">{cat.title}</span>
                               <span className="cat-picker-check" aria-hidden>{isChecked ? '✓' : ''}</span>
+                              {hasItems && (
+                                <span
+                                  role="button"
+                                  tabIndex={0}
+                                  className={`cat-picker-expand-btn${isExpanded ? ' is-open' : ''}`}
+                                  onClick={(e) => { e.stopPropagation(); toggleExpandCat(cat.id) }}
+                                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); toggleExpandCat(cat.id) } }}
+                                  aria-expanded={isExpanded}
+                                >
+                                  {isExpanded ? '▲' : '▼'}
+                                </span>
+                              )}
                             </label>
-                            {hasItems && (
-                              <span
-                                role="button"
-                                tabIndex={0}
-                                className={`cat-picker-expand-btn${isExpanded ? ' is-open' : ''}`}
-                                onClick={() => toggleExpandCat(cat.id)}
-                                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleExpandCat(cat.id) } }}
-                                aria-expanded={isExpanded}
-                              >
-                                {isExpanded ? '▲' : '▼'}
-                              </span>
-                            )}
                           </div>
                           {isExpanded && hasItems && (
                             <div className="cat-picker-item-preview">
@@ -658,17 +658,17 @@ export function NewMapWizard({ profile }: Props) {
                                   <span className="cat-picker-icon" aria-hidden>{cat.icon}</span>
                                   <span className="cat-picker-label">{catTitle}</span>
                                   <span className="cat-picker-check" aria-hidden>{isChecked ? '✓' : ''}</span>
+                                  <span
+                                    role="button"
+                                    tabIndex={0}
+                                    className={`cat-picker-expand-btn${isExpanded ? ' is-open' : ''}`}
+                                    onClick={(e) => { e.stopPropagation(); toggleExpandCat(cat.id) }}
+                                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); toggleExpandCat(cat.id) } }}
+                                    aria-expanded={isExpanded}
+                                  >
+                                    {isExpanded ? '▲' : '▼'}
+                                  </span>
                                 </label>
-                                <span
-                                  role="button"
-                                  tabIndex={0}
-                                  className={`cat-picker-expand-btn${isExpanded ? ' is-open' : ''}`}
-                                  onClick={() => toggleExpandCat(cat.id)}
-                                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleExpandCat(cat.id) } }}
-                                  aria-expanded={isExpanded}
-                                >
-                                  {isExpanded ? '▲' : '▼'}
-                                </span>
                               </div>
                               {isExpanded && (
                                 <div className="cat-picker-item-preview">

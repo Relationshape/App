@@ -168,9 +168,11 @@ export function ProfileDetail() {
         </div>
       </header>
       <section className="page-section">
-        <header className="section-head">
-          <h2>{t('maps_title')}</h2>
-          <p className="muted">{t('maps_sub')}</p>
+        <header className="section-head flex items-start justify-between gap-2">
+          <div>
+            <h2>{t('maps_title')}</h2>
+            <p className="muted">{t('maps_sub')}</p>
+          </div>
           <Button variant="ghost" size="sm" onClick={() => setGuideOpen(true)} data-testid="profile-guide-btn">{t('guide_open_btn')}</Button>
         </header>
         <div className="list" data-testid="result-list">
