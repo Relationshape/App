@@ -76,7 +76,7 @@ export function CreateProfileModal({ open, onOpenChange, onCreated }: Props) {
         ],
       })
       if (!ok) return
-      replaceAll(parsed as Partial<{ profiles: unknown[]; results: unknown[]; imports: unknown[]; settings: unknown; scale: MutableScaleStep[] }>)
+      replaceAll(parsed as Partial<{ profiles: any[]; results: any[]; imports: any[]; settings: any; scale: MutableScaleStep[] }>)
       toast.success(t('backup_imported'))
       onOpenChange(false)
       const firstProfile = useStore.getState().profiles[0]
