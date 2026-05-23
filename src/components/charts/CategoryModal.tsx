@@ -20,6 +20,9 @@ import type { CATEGORIES } from '@/lib/data/data'
 import type { Result } from '@/lib/storage/types'
 import type { ResolvedCat } from '@/lib/data/customCategories'
 import { t, getLang } from '@/lib/i18n/i18n'
+import type { CustomCategoryDef } from '@/lib/storage/types'
+
+const NO_CUSTOM_CATS: CustomCategoryDef[] = []
 
 type CategoryDef = (typeof CATEGORIES)[number]
 type Tab = 'spider' | 'items' | 'edit'
@@ -305,10 +308,9 @@ function EditTabContent({ result, cat, onLocalChange, onImmediateSave, addingRef
   const storeTemplateWarningDisabled = useStore((s) =>
     s.results.find((r) => r.id === result.id)?.templateWarningDisabled ?? false
   )
-  const profileCustomCats = useStore((s) => {
-    const profile = s.profiles.find((p) => p.id === result.profileId)
-    return profile?.customCategories ?? []
-  })
+  const profileCustomCats = useStore((s) =>
+    s.profiles.find((p) => p.id === result.profileId)?.customCategories ?? NO_CUSTOM_CATS
+  )
   const { confirmIfTemplate } = useTemplateWarning(result)
   const { toast } = useToast()
   const lang = getLang()
