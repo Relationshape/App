@@ -1238,7 +1238,7 @@ a:hover { text-decoration: underline; }
 .scale-row-short   { display: none; }
 .scale-row-value   { grid-row: 1; grid-column: 4; }
 .scale-row-actions { grid-row: 1; grid-column: 5; }
-.scale-row-desc    { grid-row: 2; grid-column: 3 / 5; }
+.scale-row-desc    { grid-row: 2; grid-column: 3 / -1; }
 .scale-row input[type=color] { padding: 2px; height: 36px; border-radius: 8px; width: 36px; }
 .scale-row input[type=text],
 .scale-row input[type=number] {

@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/dialog'
 import { UnlockAnswersBody } from '@/components/UnlockAnswersDialog'
 import { ImportListRow } from '@/components/ImportListRow'
+import { TemplateViewModal } from '@/components/TemplateViewModal'
 import { CATEGORIES } from '@/lib/data/data'
 import { t } from '@/lib/i18n/i18n'
 import { ProcessGuideModal } from '@/components/ProcessGuideModal'
@@ -60,6 +61,7 @@ export function ProfileDetail() {
   // "Use as template" dialog — single step (profile already known)
   const [templateImp, setTemplateImp] = useState<Import | null>(null)
   const [templateSubject, setTemplateSubject] = useState('')
+  const [viewTemplateImp, setViewTemplateImp] = useState<Import | null>(null)
   const [guideOpen, setGuideOpen] = useState(false)
 
   function openTemplateWizard(imp: Import) {
@@ -251,6 +253,7 @@ export function ProfileDetail() {
                   testIdBase={`profile-template-${i.id}`}
                   onUseTemplate={openTemplateWizard}
                   onUnlock={handleUnlockImport}
+                  onViewTemplate={setViewTemplateImp}
                 />
               ))}
             </div>
@@ -297,6 +300,15 @@ export function ProfileDetail() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {viewTemplateImp && (
+        <TemplateViewModal
+          open={!!viewTemplateImp}
+          onOpenChange={(o) => { if (!o) setViewTemplateImp(null) }}
+          imp={viewTemplateImp}
+          onUseAsTemplate={() => openTemplateWizard(viewTemplateImp)}
+        />
+      )}
 
       <ProcessGuideModal open={guideOpen} onClose={() => setGuideOpen(false)} />
     </section>

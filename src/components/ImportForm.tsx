@@ -75,10 +75,11 @@ export function ImportForm({ onSuccess, className, testIdPrefix = 'import' }: Pr
               imp={imp}
               onUnlock={(answers) => { unlockImport(imp.id, answers); close(true) }}
               onCancel={() => close(false)}
+              onSkip={() => close(false)}
             />
           ),
           actions: [],
-          dismissable: false,
+          dismissable: true,
         })
       }
 
