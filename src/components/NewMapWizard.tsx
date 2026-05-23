@@ -25,6 +25,7 @@ import { useShareData } from '@/components/providers/ShareDataProvider'
 import { t, getLang, getLocalizedDefaultScale } from '@/lib/i18n/i18n'
 import type { MutableScaleStep } from '@/lib/data/types'
 import type { AnswersBlob, CustomCategoryDef, CustomItemFormat, Import, Profile } from '@/lib/storage/types'
+import { seedAnswersFromTemplate } from '@/lib/charts/items'
 
 interface Props {
   profile: Profile
@@ -124,14 +125,7 @@ export function NewMapWizard({ profile }: Props) {
         // When not copying answers, seed empty cells for each custom item so they appear in the questionnaire.
         const templateAnswers: AnswersBlob = copyAnswers
           ? structuredClone(srcResult?.answers ?? {})
-          : Object.fromEntries(
-              Object.entries(srcResult?.customItemDefs ?? {})
-                .filter(([, defs]) => Object.keys(defs).length > 0)
-                .map(([catId, defs]) => [
-                  catId,
-                  { __custom: Object.fromEntries(Object.keys(defs).map((n) => [n, { scale: '' }])) },
-                ]),
-            ) as AnswersBlob
+          : seedAnswersFromTemplate(srcResult?.customItemDefs, srcResult?.customCategories)
         saveResult({
           id,
           profileId: profile.id,
@@ -150,14 +144,7 @@ export function NewMapWizard({ profile }: Props) {
         })
       } else {
         const tmplImport = allImports.find((i) => i.id === templateSource.id)
-        const importTemplateAnswers: AnswersBlob = Object.fromEntries(
-          Object.entries(tmplImport?.customItemDefs ?? {})
-            .filter(([, defs]) => Object.keys(defs).length > 0)
-            .map(([catId, defs]) => [
-              catId,
-              { __custom: Object.fromEntries(Object.keys(defs).map((n) => [n, { scale: '' }])) },
-            ]),
-        ) as AnswersBlob
+        const importTemplateAnswers = seedAnswersFromTemplate(tmplImport?.customItemDefs, tmplImport?.customCategories)
         saveResult({
           id,
           profileId: profile.id,
