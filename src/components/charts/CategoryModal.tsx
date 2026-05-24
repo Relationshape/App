@@ -4,6 +4,7 @@
 
 import * as React from 'react'
 import { useState, useEffect, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { ItemSpider } from './ItemSpider'
@@ -36,10 +37,13 @@ interface Props {
   result?: Result | null
   /** Tab to open on when the modal first becomes visible. Defaults to 'spider'. */
   initialTab?: Tab
+  /** When set, shows a Compare button in the footer that navigates to /compare?ids=<id>. */
+  compareResultId?: string
 }
 
-export function CategoryModal({ open, onOpenChange, datasets, cat, result, initialTab }: Props) {
+export function CategoryModal({ open, onOpenChange, datasets, cat, result, initialTab, compareResultId }: Props) {
   const [tab, setTab] = useState<Tab>(initialTab ?? 'spider')
+  const navigate = useNavigate()
   const lang = getLang()
   const showEdit = Boolean(result)
   const saveStore = useStore((s) => s.saveResult)
@@ -281,6 +285,16 @@ export function CategoryModal({ open, onOpenChange, datasets, cat, result, initi
               data-testid="cat-modal-save"
             >
               {t('btn_save_changes')}
+            </button>
+          )}
+          {compareResultId && (
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={() => { void handleOpenChange(false); navigate(`/compare?ids=${compareResultId}`) }}
+              data-testid="cat-modal-compare"
+            >
+              {t('btn_compare_overview')} →
             </button>
           )}
         </div>

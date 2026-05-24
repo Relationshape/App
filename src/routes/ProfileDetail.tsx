@@ -37,6 +37,7 @@ export function ProfileDetail() {
   const deleteProfile = useStore((s) => s.deleteProfile)
   const saveResult = useStore((s) => s.saveResult)
   const unlockImport = useStore((s) => s.unlockImport)
+  const storeScale = useStore((s) => s.scale)
   const navigate = useNavigate()
   const { toast } = useToast()
 
@@ -64,6 +65,37 @@ export function ProfileDetail() {
   const [templateSubject, setTemplateSubject] = useState('')
   const [viewTemplateImp, setViewTemplateImp] = useState<Import | null>(null)
   const [guideOpen, setGuideOpen] = useState(false)
+  // "Copy map" dialog — same simple flow as use-as-template
+  const [copySourceResult, setCopySourceResult] = useState<import('@/lib/storage/types').Result | null>(null)
+  const [copySubject, setCopySubject] = useState('')
+
+  function startCopyResult(r: import('@/lib/storage/types').Result) {
+    setCopySubject(r.subject?.trim() ?? '')
+    setCopySourceResult(r)
+  }
+
+  function confirmCopyResult() {
+    if (!copySourceResult || !profile) return
+    const newId = crypto.randomUUID()
+    saveResult({
+      id: newId,
+      profileId: profile.id,
+      subject: copySubject.trim() || profile.name,
+      subjectEmoji: copySourceResult.subjectEmoji || profile.emoji,
+      subjectColor: copySourceResult.subjectColor || profile.color,
+      enabledCategories: copySourceResult.enabledCategories ?? CATEGORIES.map((c) => c.id),
+      scale: copySourceResult.scale ?? storeScale,
+      ...(copySourceResult.customItemDefs ? { customItemDefs: structuredClone(copySourceResult.customItemDefs) } : {}),
+      ...(copySourceResult.customCategories ? { customCategories: structuredClone(copySourceResult.customCategories) } : {}),
+      answers: structuredClone(copySourceResult.answers),
+      seededFromResultId: copySourceResult.id,
+      progress: { mode: 'list' },
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    })
+    setCopySourceResult(null)
+    navigate(`/q-categories/${profile.id}/${newId}`)
+  }
 
   function openTemplateWizard(imp: Import) {
     setTemplateSubject(imp.subject?.trim() ?? '')
@@ -85,7 +117,7 @@ export function ProfileDetail() {
       subjectEmoji: templateImp.subjectEmoji || profile.emoji,
       subjectColor: templateImp.subjectColor || profile.color,
       enabledCategories: templateImp.enabledCategories ?? CATEGORIES.map((c) => c.id),
-      ...(templateImp.scale ? { scale: templateImp.scale } : {}),
+      scale: templateImp.scale ?? storeScale,
       ...(templateImp.customItemDefs ? { customItemDefs: templateImp.customItemDefs } : {}),
       ...(templateImp.customCategories ? { customCategories: templateImp.customCategories } : {}),
       answers: seedAnswersFromTemplate(templateImp.customItemDefs, templateImp.customCategories),
@@ -180,7 +212,7 @@ export function ProfileDetail() {
         </header>
         <div className="list" data-testid="result-list">
           {results.map((r) => (
-            <ResultCard key={r.id} result={r} profile={profile} />
+            <ResultCard key={r.id} result={r} profile={profile} onCopy={startCopyResult} />
           ))}
           <button
             type="button"
@@ -310,6 +342,30 @@ export function ProfileDetail() {
           onUseAsTemplate={() => openTemplateWizard(viewTemplateImp)}
         />
       )}
+
+      <Dialog open={!!copySourceResult} onOpenChange={(o) => { if (!o) setCopySourceResult(null) }}>
+        <DialogContent className="max-w-sm" data-testid="profile-copy-map-dialog">
+          <DialogTitle>{t('copy_map_title')}</DialogTitle>
+          <div className="flex flex-col gap-2 py-1">
+            <input
+              type="text"
+              className="w-full rounded border border-line px-3 py-2 text-sm bg-surface"
+              value={copySubject}
+              onChange={(e) => setCopySubject(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') confirmCopyResult() }}
+              placeholder={t('map_name_label')}
+              autoFocus
+              data-testid="profile-copy-map-subject"
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setCopySourceResult(null)}>{t('btn_cancel')}</Button>
+            <Button onClick={confirmCopyResult} data-testid="profile-copy-map-confirm">
+              {t('btn_copy_map')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <ProcessGuideModal open={guideOpen} onClose={() => setGuideOpen(false)} />
     </section>
