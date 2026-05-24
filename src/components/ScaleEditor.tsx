@@ -39,8 +39,10 @@ export function ScaleEditor({ scale, onChange, hasData }: Props) {
     if (i < 0 || j < 0 || i >= local.length || j >= local.length) return
     const next = local.slice()
     const a = next[i]!
-    next[i] = next[j]!
-    next[j] = a
+    const b = next[j]!
+    // Values stay at their positions; only the step's label/color/key moves.
+    next[i] = { ...b, value: a.value }
+    next[j] = { ...a, value: b.value }
     commit(next)
   }
   async function removeAt(i: number) {
