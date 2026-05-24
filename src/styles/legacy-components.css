@@ -1524,14 +1524,14 @@ a:hover { text-decoration: underline; }
   }
 }
 .rs-click-scale-ref-label {
-  position: absolute; top: 34px;
+  position: absolute; top: 46px;
   font-size: 10px; color: var(--muted); white-space: nowrap;
   max-width: 100px; overflow: hidden; text-overflow: ellipsis; text-align: left;
   transform: rotate(-30deg); transform-origin: top left;
 }
 @media (max-width: 560px) {
   .rs-click-scale { padding-bottom: 108px; }
-  .rs-click-scale-ref-label { top: 38px; }
+  .rs-click-scale-ref-label { top: 50px; }
 }
 
 .q-slider-wrap { grid-column: 1 / -1; padding: 28px 4px 0; }
@@ -1675,6 +1675,14 @@ a:hover { text-decoration: underline; }
   font-size: 11.5px; color: var(--muted); line-height: 1.65;
   border-left: 2px solid var(--glass-border); margin: 0 4px 0 16px;
 }
+.cat-picker-add-item-btn {
+  display: inline-flex; align-items: center; gap: 3px;
+  margin-top: 5px; padding: 2px 8px; border-radius: 4px;
+  border: 1px solid var(--accent, #7c3aed); background: transparent;
+  color: var(--accent, #7c3aed); cursor: pointer; font-size: 11.5px; font-weight: 500;
+  transition: background 0.15s;
+}
+.cat-picker-add-item-btn:hover { background: color-mix(in srgb, var(--accent, #7c3aed) 12%, transparent); }
 
 /* ================================================================
    Theme picker
@@ -1728,6 +1736,12 @@ a:hover { text-decoration: underline; }
 .cat-card.cat-card-btn { text-align: left; font: inherit; color: var(--text); cursor: pointer; padding: 0; }
 .cat-card.cat-card-btn .cat-card-toggle { transform: none; color: var(--c); font-size: 18px; }
 .cat-card.cat-card-btn:hover .cat-card-toggle { transform: translateX(3px); }
+.cat-card-align-badge {
+  padding: 4px 12px 8px;
+  font-size: 12px;
+  color: var(--c);
+  opacity: 0.85;
+}
 
 .cat-modal-body { --c: var(--primary); display: grid; gap: 16px; max-width: 720px; }
 .cat-modal-head {
@@ -3645,6 +3659,7 @@ button.rs-tile:hover {
 }
 .q-ranking-row .btn-icon:hover:not(:disabled) { background: var(--surface-3); color: var(--text); }
 .q-ranking-row .btn-icon:disabled { opacity: 0.3; cursor: default; }
+.q-ranking-confirm-btn { margin-top: 6px; font-size: 12px; opacity: 0.75; }
 .q-text-answer {
   width: 100%; border-radius: 8px; border: 1.5px solid var(--glass-border);
   background: var(--surface-2); color: var(--text);

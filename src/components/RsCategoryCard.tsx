@@ -16,7 +16,7 @@ import type { CSSProperties } from 'react'
 import type { ChartDataset } from '@/components/charts/types'
 import type { Result } from '@/lib/storage/types'
 import type { ResolvedCat } from '@/lib/data/customCategories'
-import { getLang } from '@/lib/i18n/i18n'
+import { getLang, t } from '@/lib/i18n/i18n'
 import { RsSummaryCells } from '@/components/RsSummaryCells'
 
 export interface RsCategoryCardProps {
@@ -26,6 +26,8 @@ export interface RsCategoryCardProps {
   editableResult?: Result | null
   /** D-06: when true, renders an RsSummaryCells block inside .cat-card-head. */
   fabiMode?: boolean
+  /** When provided, shows an alignment % badge at the bottom of the card. */
+  alignmentScore?: number | null
   onClick: () => void
   testId?: string
 }
@@ -62,6 +64,7 @@ export function RsCategoryCard({
   datasets,
   editableResult,
   fabiMode,
+  alignmentScore,
   onClick,
   testId,
 }: RsCategoryCardProps) {
@@ -99,6 +102,11 @@ export function RsCategoryCard({
           →
         </span>
       </div>
+      {alignmentScore != null && (
+        <div className="cat-card-align-badge muted small">
+          {t('alignment_score_badge', { pct: Math.round(alignmentScore * 100) })}
+        </div>
+      )}
     </button>
   )
 }

@@ -195,6 +195,7 @@ export function CompareDetails() {
                 cat={cat}
                 datasets={datasets}
                 editableResult={firstEditableResult}
+                alignmentScore={alignmentScores?.[cat.id] ?? null}
                 onClick={() => setModalCat(cat)}
                 testId={`compare-details-cat-${cat.id}`}
               />
