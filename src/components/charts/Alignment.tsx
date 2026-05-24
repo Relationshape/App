@@ -35,8 +35,9 @@ export function Alignment({ datasets }: Props) {
     return { id, title, icon, align, diff: 1 - align }
   }).filter((r): r is NonNullable<typeof r> => r !== null).sort((x, y) => x.diff - y.diff)
 
-  const top = rows.slice(0, 5)
-  const bottom = rows.slice(-5).reverse()
+  const maxEach = Math.min(5, Math.floor(rows.length / 2))
+  const top = rows.slice(0, maxEach)
+  const bottom = rows.slice(-maxEach).reverse()
 
   function Row({ row }: { row: typeof rows[number] }) {
     const pct = Math.round(row.align * 100)

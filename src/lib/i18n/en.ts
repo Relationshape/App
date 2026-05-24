@@ -550,7 +550,7 @@ export const EN = {
   q_item_rename_label: 'Custom label (optional)',
   q_item_scale_reset: 'Reset to default scale',
   q_item_scale_confirm: 'Use this scale',
-  unlock_answers_btn: 'Unlock answers',
+  unlock_answers_btn: 'Unlock',
   unlock_answers_title: 'Enter reveal passphrase',
   unlock_answers_sub: 'Enter the reveal passphrase to decrypt the answers in this import.',
   unlock_answers_error: 'Wrong passphrase or corrupted data. Please try again.',

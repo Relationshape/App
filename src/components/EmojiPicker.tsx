@@ -26,7 +26,7 @@ export function EmojiPicker({ value, onChange }: Props) {
     setOpen(false)
   }
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={setOpen} modal={true}>
       <PopoverTrigger
         aria-label={t('emoji_picker_label')}
         data-testid="emoji-picker"
