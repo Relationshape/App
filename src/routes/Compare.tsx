@@ -188,7 +188,7 @@ export function Compare() {
   async function handleGoToDetails() {
     if (datasets.some((ds) => !datasetHasAnyAnswers(ds))) {
       await dialog<null>({
-        title: t('compare_empty') as string,
+        title: t('compare_has_empty_title') as string,
         body: <p>{t('compare_has_empty_map')}</p>,
         actions: [{ label: 'OK', kind: 'primary', value: null }],
       })

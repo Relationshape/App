@@ -623,6 +623,7 @@ export const DE: Record<TranslationKey, string> = {
   import_adopt_cats_btn: 'Zum Profil hinzufügen',
   compare_too_many_truncated: 'Erste 4 von {n} Vergleichen angezeigt.',
   compare_empty: 'Wähle mindestens zwei Karten zum Vergleichen.',
+  compare_has_empty_title: 'Wähle Karten mit gespeicherten Antworten',
   compare_has_empty_map: 'Du hast mindestens eine Karte ausgewählt, die keine Antworten enthält. Du kannst nur Karten vergleichen, die mindestens eine Antwort enthalten.',
   q_no_answers_for_results: 'Beantworte mindestens eine Frage, um zu den Ergebnissen zu gelangen.',
   q_done_next_cat: 'Nächste Kategorie',
