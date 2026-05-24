@@ -70,6 +70,9 @@ export function RsQuestionCard({
   const profileCustomCats = useStore((s) =>
     s.profiles.find((p) => p.id === result.profileId)?.customCategories ?? NO_CUSTOM_CATS
   )
+  const profileCustomItemDefs = useStore((s) =>
+    s.profiles.find((p) => p.id === result.profileId)?.customItemDefs
+  )
   const { toast } = useToast()
   // Read templateWarningDisabled reactively so saves don't overwrite it
   // when confirmIfTemplate sets it in the store before React re-renders.
@@ -369,15 +372,23 @@ export function RsQuestionCard({
               : c
           )
         }
-        // Remove from profile custom category items
+        // Remove from profile
         const profileCat = profileCustomCats.find((c) => c.id === catId)
         if (profileCat) {
+          // Custom category: remove from profile.customCategories[x].items
           const updatedCats = profileCustomCats.map((c) =>
             c.id === catId
               ? { ...c, items: (c.items ?? []).filter((i) => i.name !== item) }
               : c
           )
           updateProfile(result.profileId, { customCategories: updatedCats })
+        } else if (profileCustomItemDefs?.[catId]?.[item]) {
+          // Standard category: remove from profile.customItemDefs[catId]
+          const newDefs = { ...profileCustomItemDefs }
+          const catDefs = { ...newDefs[catId] }
+          delete catDefs[item]
+          newDefs[catId] = catDefs
+          updateProfile(result.profileId, { customItemDefs: newDefs })
         }
       }
     } else {

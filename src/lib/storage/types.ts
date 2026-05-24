@@ -31,6 +31,8 @@ export interface Profile {
   customCategories?: CustomCategoryDef[]
   /** Items hidden profile-wide (future maps only). Maps catId → item names. */
   hiddenItems?: Record<string, string[]>
+  /** Custom items added to standard (non-custom) categories, profile-wide. catId → itemName → def */
+  customItemDefs?: Record<string, Record<string, CustomItemDef>>
 }
 
 export type GROfBoth = 'G' | 'R' | 'Both'

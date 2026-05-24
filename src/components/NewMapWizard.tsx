@@ -216,6 +216,16 @@ export function NewMapWizard({ profile }: Props) {
         }))
       }
     }
+    // Seed profile-level custom items for standard categories
+    const enabledSet = new Set(enabledCategories)
+    for (const [catId, defs] of Object.entries(profile.customItemDefs ?? {})) {
+      if (!enabledSet.has(catId) || Object.keys(defs).length === 0) continue
+      const existing = seededItemsByCat[catId] ?? []
+      const added = Object.entries(defs)
+        .filter(([name]) => !existing.some((i) => i.name === name))
+        .map(([name, def]) => ({ name, format: def.format, ...(def.options ? { options: def.options } : {}) }))
+      if (added.length > 0) seededItemsByCat[catId] = [...existing, ...added]
+    }
     // Apply profile-level hidden items so new maps inherit them
     const profileHiddenItems = profile.hiddenItems ?? {}
     const seedAnswers: Record<string, { __hidden: Record<string, true> }> = {}

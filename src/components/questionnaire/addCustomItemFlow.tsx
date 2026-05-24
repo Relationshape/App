@@ -148,7 +148,7 @@ export async function runAddCustomItemFlow({
   onSave,
   onDuplicate,
   storeTemplateWarningDisabled,
-  profileCustomCats,
+  profileCustomCats: _profileCustomCats,
   onSaveToProfile,
 }: RunAddCustomItemFlowParams): Promise<string | null> {
   const slot = result.answers[catId] ?? {}
@@ -251,21 +251,18 @@ export async function runAddCustomItemFlow({
 
     onSave(next)
 
-    // Offer to save this item to the profile custom category (future cards only)
-    if (onSaveToProfile && profileCustomCats) {
-      const profileCat = profileCustomCats.find((c) => c.id === catId)
-      if (profileCat) {
-        const saveToProfile = await dialog<boolean>({
-          title: t('q_save_item_to_profile_title'),
-          body: <p>{t('q_save_item_to_profile_body')}</p>,
-          actions: [
-            { label: t('btn_no') as string, kind: 'ghost', value: false },
-            { label: t('btn_yes') as string, kind: 'primary', value: true },
-          ],
-        })
-        if (saveToProfile) {
-          onSaveToProfile(catId, { name, format, ...(options ? { options } : {}) })
-        }
+    // Offer to save this item to the profile (future cards only)
+    if (onSaveToProfile) {
+      const saveToProfile = await dialog<boolean>({
+        title: t('q_save_item_to_profile_title'),
+        body: <p>{t('q_save_item_to_profile_body')}</p>,
+        actions: [
+          { label: t('btn_no') as string, kind: 'ghost', value: false },
+          { label: t('btn_yes') as string, kind: 'primary', value: true },
+        ],
+      })
+      if (saveToProfile) {
+        onSaveToProfile(catId, { name, format, ...(options ? { options } : {}) })
       }
     }
 
