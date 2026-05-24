@@ -18,11 +18,13 @@ import { CompareDetails } from './routes/CompareDetails'
 import { Settings } from './routes/Settings'
 import { MapSettings } from './routes/MapSettings'
 import { ImportView } from './routes/ImportView'
+import { RouteErrorFallback } from './routes/RouteErrorFallback'
 
 export const router = createHashRouter([
   {
     path: '/',
     element: <RootLayout />,
+    errorElement: <RouteErrorFallback />,
     children: [
       { index: true, element: <Home /> },
       { path: 'welcome', element: <Welcome /> },
