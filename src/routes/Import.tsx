@@ -44,21 +44,19 @@ export function Import() {
       setAdoptProfileId(profiles[0]?.id ?? '')
       setAdoptState({ imp, cats, itemDefs })
     } else {
-      navigate(`/compare?ids=imp:${imp.id}`)
+      goToProfile()
     }
   }
 
-  function goToCompare(imp: Import) {
-    navigate(`/compare?ids=imp:${imp.id}`)
+  function goToProfile(profileId?: string) {
+    const id = profileId || profiles[0]?.id
+    if (id) { navigate(`/profile/${id}`); return }
+    navigate('/')
   }
 
-  function navigateAfterAdopt(imp: Import) {
-    const storeImp = useStore.getState().imports.find((i) => i.id === imp.id) ?? null
-    if (storeImp?.exportMode === 'restricted' && !storeImp.answersUnlocked) {
-      const profileId = adoptProfileId || profiles[0]?.id
-      if (profileId) { navigate(`/profile/${profileId}`); return }
-    }
-    goToCompare(imp)
+  function navigateAfterAdopt() {
+    const profileId = adoptProfileId || profiles[0]?.id
+    goToProfile(profileId)
   }
 
   function confirmAdopt() {
@@ -88,16 +86,14 @@ export function Import() {
         updateProfile(profile.id, { customItemDefs: merged })
       }
     }
-    const imp = adoptState.imp
     setAdoptState(null)
-    navigateAfterAdopt(imp)
+    navigateAfterAdopt()
   }
 
   function skipAdopt() {
     if (!adoptState) return
-    const imp = adoptState.imp
     setAdoptState(null)
-    navigateAfterAdopt(imp)
+    navigateAfterAdopt()
   }
 
   const selectedProfile = profiles.find((p) => p.id === adoptProfileId)
