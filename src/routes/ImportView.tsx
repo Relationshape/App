@@ -16,6 +16,7 @@ import { resolveAnyCat } from '@/lib/data/customCategories'
 import { fmtDate } from '@/lib/format/date'
 import { t, getLang } from '@/lib/i18n/i18n'
 import { useToast } from '@/lib/hooks/useToast'
+import { dialog } from '@/lib/dialog/dialog'
 import type { ResolvedCat } from '@/lib/data/customCategories'
 import type { Import, Profile, CustomItemDef } from '@/lib/storage/types'
 
@@ -87,6 +88,15 @@ export function ImportView() {
 
   async function handlePdfReport() {
     if (!imp || generatingPdf) return
+    const confirmed = await dialog<boolean>({
+      title: t('btn_download_pdf') as string,
+      body: <p>{t('pdf_confirm_body')}</p>,
+      actions: [
+        { label: t('btn_cancel') as string, kind: 'ghost', value: false },
+        { label: t('btn_generate_pdf') as string, kind: 'primary', value: true },
+      ],
+    })
+    if (!confirmed) return
     setGeneratingPdf(true)
     toast.message(t('pdf_generating'))
     try {
@@ -179,16 +189,6 @@ export function ImportView() {
             {`${imp.name?.trim() || ''} · ${t('imported_on')} ${fmtDate(imp.importedAt)}`}
           </p>
         </div>
-        <div className="result-head-actions">
-          <Button
-            variant="outline"
-            onClick={() => { void handlePdfReport() }}
-            disabled={generatingPdf}
-            data-testid="import-view-pdf"
-          >
-            {t('btn_pdf_report')}
-          </Button>
-        </div>
       </header>
 
       <section className="page-section" data-testid="import-view-cat-grid-section">
@@ -209,6 +209,23 @@ export function ImportView() {
           ))}
         </div>
       </section>
+
+      <div className="compare-details-actions">
+        <Button
+          variant="outline"
+          onClick={() => { void handlePdfReport() }}
+          disabled={generatingPdf}
+          data-testid="import-view-pdf"
+        >
+          {t('btn_download_pdf')}
+        </Button>
+        <Button
+          onClick={() => navigate(`/compare?ids=imp:${imp.id}`)}
+          data-testid="import-view-compare"
+        >
+          {t('btn_compare_overview')}
+        </Button>
+      </div>
 
       <CategoryModal
         open={modalCat !== null}

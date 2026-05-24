@@ -68,15 +68,13 @@ export function ProfileDetail() {
   // "Copy map" dialog — same simple flow as use-as-template
   const [copySourceResult, setCopySourceResult] = useState<import('@/lib/storage/types').Result | null>(null)
   const [copySubject, setCopySubject] = useState('')
-  const [copyWithAnswers, setCopyWithAnswers] = useState(true)
 
   function startCopyResult(r: import('@/lib/storage/types').Result) {
     setCopySubject(r.subject?.trim() ?? '')
-    setCopyWithAnswers(true)
     setCopySourceResult(r)
   }
 
-  function confirmCopyResult() {
+  function confirmCopyResult(withAnswers: boolean) {
     if (!copySourceResult || !profile) return
     const newId = crypto.randomUUID()
     saveResult({
@@ -89,7 +87,7 @@ export function ProfileDetail() {
       scale: copySourceResult.scale ?? storeScale,
       ...(copySourceResult.customItemDefs ? { customItemDefs: structuredClone(copySourceResult.customItemDefs) } : {}),
       ...(copySourceResult.customCategories ? { customCategories: structuredClone(copySourceResult.customCategories) } : {}),
-      answers: copyWithAnswers
+      answers: withAnswers
         ? structuredClone(copySourceResult.answers)
         : seedAnswersFromTemplate(copySourceResult.customItemDefs, copySourceResult.customCategories),
       seededFromResultId: copySourceResult.id,
@@ -356,7 +354,6 @@ export function ProfileDetail() {
               className="w-full rounded border border-line px-3 py-2 text-sm bg-surface"
               value={copySubject}
               onChange={(e) => setCopySubject(e.target.value)}
-              onKeyDown={(e) => { if (e.key === 'Enter') confirmCopyResult() }}
               placeholder={t('map_name_label')}
               autoFocus
               data-testid="profile-copy-map-subject"
@@ -364,28 +361,22 @@ export function ProfileDetail() {
             <div className="flex gap-2">
               <button
                 type="button"
-                className={`btn flex-1${copyWithAnswers ? ' btn-primary' : ''}`}
-                onClick={() => setCopyWithAnswers(true)}
+                className="btn btn-primary flex-1"
+                onClick={() => confirmCopyResult(true)}
                 data-testid="profile-copy-with-answers"
               >
                 {t('copy_map_with_answers')}
               </button>
               <button
                 type="button"
-                className={`btn flex-1${!copyWithAnswers ? ' btn-primary' : ''}`}
-                onClick={() => setCopyWithAnswers(false)}
+                className="btn flex-1"
+                onClick={() => confirmCopyResult(false)}
                 data-testid="profile-copy-without-answers"
               >
                 {t('copy_map_without_answers')}
               </button>
             </div>
           </div>
-          <DialogFooter>
-            <Button variant="ghost" onClick={() => setCopySourceResult(null)}>{t('btn_cancel')}</Button>
-            <Button onClick={confirmCopyResult} data-testid="profile-copy-map-confirm">
-              {t('btn_copy_map')}
-            </Button>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
 
