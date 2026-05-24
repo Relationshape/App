@@ -504,7 +504,7 @@ export function NewMapWizard({ profile }: Props) {
         }
       }
     } finally {
-      addingItemRef.current = false
+      setTimeout(() => { addingItemRef.current = false }, 0)
     }
   }
 
