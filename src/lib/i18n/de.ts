@@ -496,7 +496,7 @@ export const DE: Record<TranslationKey, string> = {
   use_as_template_step1_sub: 'Unter welchem Profil soll die neue Karte erstellt werden?',
   btn_start_from_template: 'Karte basierend auf Vorlage starten',
   template_badge: 'Vorlage',
-  btn_view_template: '👁 Vorlage ansehen',
+  btn_view_template: 'Ansehen',
   template_view_title: 'Vorlagenvorschau',
   template_view_categories: 'Kategorien & Fragen',
   template_view_no_custom_items: 'Nur Standardfragen',

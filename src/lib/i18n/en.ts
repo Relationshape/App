@@ -477,7 +477,7 @@ export const EN = {
   use_as_template_step1_sub: 'Under which profile should the new card be created?',
   btn_start_from_template: 'Start card based on template',
   template_badge: 'Template',
-  btn_view_template: '👁 View template',
+  btn_view_template: 'View',
   template_view_title: 'Template preview',
   template_view_categories: 'Categories & questions',
   template_view_no_custom_items: 'Standard questions only',

@@ -183,7 +183,7 @@ describe('Profile lifecycle (PROFILE-01..04)', () => {
     }))
     expect(document.querySelector(`[data-testid="result-card-${RESULT_A}"]`)).not.toBeNull()
     expect(document.querySelector(`[data-testid="result-view-${RESULT_A}"]`)).not.toBeNull()
-    expect(document.querySelector(`[data-testid="result-pdf-${RESULT_A}"]`)).not.toBeNull()
+    expect(document.querySelector(`[data-testid="result-copy-${RESULT_A}"]`)).not.toBeNull()
     expect(document.querySelector(`[data-testid="result-share-${RESULT_A}"]`)).not.toBeNull()
     expect(document.querySelector(`[data-testid="result-delete-${RESULT_A}"]`)).not.toBeNull()
   })
