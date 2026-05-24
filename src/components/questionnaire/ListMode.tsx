@@ -3,7 +3,7 @@
 // as a header (emoji + title + blurb + keyboard tip), 7-chip scale legend, then
 // rounded question cards. Legacy parity (quick task 260516-rm2).
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useStore } from '@/lib/storage/store'
 import { useTemplateWarning } from '@/lib/hooks/useTemplateWarning'
@@ -48,8 +48,14 @@ export function ListMode({ result, profile }: Props) {
   const cat = enabledCats[safeIdx]!
   const hasNextCat = safeIdx + 1 < enabledCats.length
   const hasPrevCat = safeIdx > 0
+  const mainRef = useRef<HTMLElement>(null)
+
+  function scrollToTop() {
+    mainRef.current?.scrollTo({ top: 0, behavior: 'instant' })
+  }
 
   function goToNextCat() {
+    scrollToTop()
     saveResult({
       ...result,
       progress: { ...(result.progress ?? { mode: 'list' }), catIndex: safeIdx + 1 },
@@ -57,6 +63,7 @@ export function ListMode({ result, profile }: Props) {
   }
 
   function goToPrevCat() {
+    scrollToTop()
     saveResult({
       ...result,
       progress: { ...(result.progress ?? { mode: 'list' }), catIndex: safeIdx - 1 },
@@ -99,7 +106,7 @@ export function ListMode({ result, profile }: Props) {
         idx={safeIdx}
         total={enabledCats.length}
       />
-      <main className="flex-1 min-h-0 overflow-y-auto mx-auto w-full max-w-[920px] px-4 py-3">
+      <main ref={mainRef} className="flex-1 min-h-0 overflow-y-auto mx-auto w-full max-w-[920px] px-4 py-3">
         <section
           className="q-cat"
           style={{ ['--c' as string]: cat.color } as React.CSSProperties}

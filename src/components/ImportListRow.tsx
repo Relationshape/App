@@ -120,11 +120,12 @@ export function ImportListRow({
         </button>
         <button
           type="button"
-          className="btn btn-danger-outline"
+          className="btn btn-danger-ghost"
           onClick={onDelete}
+          aria-label={t('btn_delete')}
           data-testid={`${base}-delete`}
         >
-          {t('btn_delete')}
+          🗑
         </button>
       </div>
     </div>

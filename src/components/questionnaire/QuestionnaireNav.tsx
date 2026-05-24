@@ -50,7 +50,8 @@ export function QuestionnaireNav({ result, profileId, activeCat, onNextCat, onPr
       })
       return
     }
-    navigate(`/q-categories/${profileId}/${result.id}?results=1`)
+    const catParam = activeCat ? `?cat=${activeCat.id}` : ''
+    navigate(`/q-categories/${profileId}/${result.id}${catParam}`)
   }
 
   return (

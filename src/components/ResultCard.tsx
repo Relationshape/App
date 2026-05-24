@@ -10,20 +10,15 @@ import { useStore } from '@/lib/storage/store'
 import { dialog } from '@/lib/dialog/dialog'
 import { fmtDate, countAnswers } from '@/lib/format/date'
 import { useShareData } from '@/components/providers/ShareDataProvider'
-import { useToast } from '@/lib/hooks/useToast'
-import { mapResultToDataset } from '@/lib/charts/datasets'
-import { CATEGORIES } from '@/lib/data/data'
-import { t, getLang } from '@/lib/i18n/i18n'
+import { t } from '@/lib/i18n/i18n'
 
-export function ResultCard({ result, profile }: { result: Result; profile: Profile }) {
+export function ResultCard({ result, profile, onCopy }: { result: Result; profile: Profile; onCopy?: (r: Result) => void }) {
   const color = result.subjectColor || profile.color
   const title =
     (result.subject || 'Untitled') + ((result.version ?? 1) > 1 ? ` (v${result.version})` : '')
   const deleteResult = useStore((s) => s.deleteResult)
   const saveResult = useStore((s) => s.saveResult)
   const { openShare } = useShareData()
-  const { toast } = useToast()
-  const [generatingPdf, setGeneratingPdf] = useState(false)
   const [renaming, setRenaming] = useState(false)
   const [renameDraft, setRenameDraft] = useState('')
 
@@ -32,35 +27,6 @@ export function ResultCard({ result, profile }: { result: Result; profile: Profi
     const next = renameDraft.trim()
     if (next) saveResult({ ...result, subject: next, updatedAt: Date.now() })
     setRenaming(false)
-  }
-
-  async function handlePdfReport() {
-    if (generatingPdf) return
-    const confirmed = await dialog<boolean>({
-      title: t('btn_download_pdf') as string,
-      body: <p>{t('pdf_confirm_body')}</p>,
-      actions: [
-        { label: t('btn_cancel') as string, kind: 'ghost', value: false },
-        { label: t('btn_generate_pdf') as string, kind: 'primary', value: true },
-      ],
-    })
-    if (!confirmed) return
-    setGeneratingPdf(true)
-    toast.message(t('pdf_generating'))
-    try {
-      const { generatePdfReport } = await import('@/lib/pdf/generateReport')
-      const dataset = mapResultToDataset(result, profile)
-      const allCatIds = Array.from(new Set([
-        ...(result.enabledCategories ?? CATEGORIES.map((c) => c.id)),
-        ...(result.customCategories ?? []).map((c) => c.id),
-      ]))
-      const mapName = result.subject?.trim() || profile.name
-      const safeFilename = `relationshapes-${mapName.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.pdf`
-      const ok = await generatePdfReport({ datasets: [dataset], categoryIds: allCatIds, lang: getLang(), filename: safeFilename })
-      if (!ok) toast.message(t('pdf_no_answers'))
-    } finally {
-      setGeneratingPdf(false)
-    }
   }
 
   async function onDelete() {
@@ -118,15 +84,16 @@ export function ResultCard({ result, profile }: { result: Result; profile: Profi
         >
           {t('btn_view')}
         </Link>
-        <button
-          type="button"
-          className="btn"
-          onClick={() => { void handlePdfReport() }}
-          disabled={generatingPdf}
-          data-testid={`result-pdf-${result.id}`}
-        >
-          {t('btn_download_pdf')}
-        </button>
+        {onCopy && (
+          <button
+            type="button"
+            className="btn"
+            onClick={() => onCopy(result)}
+            data-testid={`result-copy-${result.id}`}
+          >
+            {t('btn_copy_map')}
+          </button>
+        )}
         <button
           type="button"
           className="btn btn-primary"

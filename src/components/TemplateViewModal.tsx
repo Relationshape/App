@@ -51,8 +51,22 @@ export function TemplateViewModal({ open, onOpenChange, imp, onUseAsTemplate }: 
   const lang = getLang()
   const enabledIds = imp.enabledCategories ?? CATEGORIES.map((c) => c.id)
 
+  const standardCatIds = new Set<string>(CATEGORIES.map((c) => c.id))
   const standardCats = CATEGORIES.filter((c) => enabledIds.includes(c.id))
-  const customCats: CustomCategoryDef[] = imp.customCategories ?? []
+
+  // Derive custom category rows: use customCategories definitions where available,
+  // fall back to building from customItemDefs for any custom IDs in enabledCategories.
+  const customCatDefsMap = new Map((imp.customCategories ?? []).map((c) => [c.id, c]))
+  const customIds = enabledIds.filter((id) => !standardCatIds.has(id))
+  const customCats: CustomCategoryDef[] = customIds
+    .map((id) => {
+      const def = customCatDefsMap.get(id)
+      if (def) return def
+      const itemKeys = Object.keys(imp.customItemDefs?.[id] ?? {})
+      if (!itemKeys.length) return null
+      return { id, title: id.replace(/^ccat-[0-9a-f]+-?/i, '') || id, icon: '✶', color: '#6366f1', items: itemKeys.map((name) => ({ name, format: 'scale' as const })) } as CustomCategoryDef
+    })
+    .filter((c): c is CustomCategoryDef => c !== null)
 
   function getStandardItems(catId: string, baseItems: readonly string[]): string[] {
     const extras = imp.customItemDefs?.[catId]
