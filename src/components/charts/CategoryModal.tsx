@@ -325,6 +325,9 @@ function EditTabContent({ result, cat, onLocalChange, onImmediateSave, addingRef
   const profileCustomCats = useStore((s) =>
     s.profiles.find((p) => p.id === result.profileId)?.customCategories ?? NO_CUSTOM_CATS
   )
+  const profileCustomItemDefs = useStore((s) =>
+    s.profiles.find((p) => p.id === result.profileId)?.customItemDefs
+  )
   const { confirmIfTemplate } = useTemplateWarning(result)
   const { toast } = useToast()
   const lang = getLang()
@@ -359,12 +362,20 @@ function EditTabContent({ result, cat, onLocalChange, onImmediateSave, addingRef
       },
       profileCustomCats,
       onSaveToProfile: (catId, item) => {
-        const updatedCats = profileCustomCats.map((c) =>
-          c.id === catId
-            ? { ...c, items: [...(c.items ?? []), item] }
-            : c
-        )
-        updateProfile(result.profileId, { customCategories: updatedCats })
+        const profileCat = profileCustomCats.find((c) => c.id === catId)
+        if (profileCat) {
+          const updatedCats = profileCustomCats.map((c) =>
+            c.id === catId ? { ...c, items: [...(c.items ?? []), { name: item.name, format: item.format, ...(item.options ? { options: item.options } : {}) }] } : c
+          )
+          updateProfile(result.profileId, { customCategories: updatedCats })
+        } else {
+          updateProfile(result.profileId, {
+            customItemDefs: {
+              ...(profileCustomItemDefs ?? {}),
+              [catId]: { ...(profileCustomItemDefs?.[catId] ?? {}), [item.name]: { format: item.format, ...(item.options ? { options: item.options } : {}) } },
+            },
+          })
+        }
       },
     })
     if (createdName) setAutoOpenItem(createdName)

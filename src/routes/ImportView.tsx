@@ -5,8 +5,6 @@ import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useStore } from '@/lib/storage/store'
 import { mapImportToDataset } from '@/lib/charts/datasets'
-import { Spider } from '@/components/charts/Spider'
-import { EnlargedSpider } from '@/components/charts/EnlargedSpider'
 import { CategoryModal } from '@/components/charts/CategoryModal'
 import { RsCategoryCard } from '@/components/RsCategoryCard'
 import { Button } from '@/components/ui/button'
@@ -24,7 +22,6 @@ export function ImportView() {
   const imp = useStore((s) => (importId ? s.imports.find((i) => i.id === importId) ?? null : null))
 
   const [modalCat, setModalCat] = useState<ResolvedCat | CategoryDef | null>(null)
-  const [enlargedOpen, setEnlargedOpen] = useState(false)
 
   if (!imp) {
     navigate('/')
@@ -76,25 +73,11 @@ export function ImportView() {
               cat={cat}
               datasets={datasets}
               editableResult={null}
-              fabiMode={true}
+              fabiMode={false}
               onClick={() => setModalCat(cat)}
               testId={`import-view-cat-${cat.id}`}
             />
           ))}
-        </div>
-      </section>
-
-      <section className="page-section panel" data-testid="import-view-spider-section">
-        <header className="section-head">
-          <h2>{t('fabi_spider_title')}</h2>
-          <p className="muted small">{t('fabi_spider_sub')}</p>
-        </header>
-        <div
-          className="rs-chart-clickable"
-          title={t('enlarge_chart')}
-          onClick={() => setEnlargedOpen(true)}
-        >
-          <Spider datasets={datasets} />
         </div>
       </section>
 
@@ -104,14 +87,6 @@ export function ImportView() {
         datasets={datasets}
         cat={modalCat}
         result={null}
-      />
-
-      <EnlargedSpider
-        open={enlargedOpen}
-        onOpenChange={setEnlargedOpen}
-        datasets={datasets}
-        activeAxis={null}
-        onAxisTap={() => {}}
       />
     </section>
   )

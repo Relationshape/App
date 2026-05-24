@@ -86,12 +86,20 @@ export function ListMode({ result, profile }: Props) {
       onSave: saveResult,
       profileCustomCats,
       onSaveToProfile: (cid, item) => {
-        const updatedCats = profileCustomCats.map((c) =>
-          c.id === cid
-            ? { ...c, items: [...(c.items ?? []), item] }
-            : c
-        )
-        updateProfile(profile.id, { customCategories: updatedCats })
+        const profileCat = profileCustomCats.find((c) => c.id === cid)
+        if (profileCat) {
+          const updatedCats = profileCustomCats.map((c) =>
+            c.id === cid ? { ...c, items: [...(c.items ?? []), { name: item.name, format: item.format, ...(item.options ? { options: item.options } : {}) }] } : c
+          )
+          updateProfile(profile.id, { customCategories: updatedCats })
+        } else {
+          updateProfile(profile.id, {
+            customItemDefs: {
+              ...(profile.customItemDefs ?? {}),
+              [cid]: { ...(profile.customItemDefs?.[cid] ?? {}), [item.name]: { format: item.format, ...(item.options ? { options: item.options } : {}) } },
+            },
+          })
+        }
       },
     })
     if (createdName) setAutoOpenItem(createdName)
