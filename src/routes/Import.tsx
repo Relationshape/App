@@ -8,12 +8,16 @@ import {
 } from '@/components/ui/dialog'
 import { ImportForm } from '@/components/ImportForm'
 import { useShareData } from '@/components/providers/ShareDataProvider'
-import { t } from '@/lib/i18n/i18n'
-import type { Import, CustomCategoryDef } from '@/lib/storage/types'
+import { CATEGORIES } from '@/lib/data/data'
+import { t, getLang } from '@/lib/i18n/i18n'
+import type { Import, CustomCategoryDef, CustomItemDef } from '@/lib/storage/types'
+
+const STANDARD_CAT_IDS = new Set<string>(CATEGORIES.map((c) => c.id))
 
 interface AdoptState {
   imp: Import
   cats: CustomCategoryDef[]
+  itemDefs: Record<string, Record<string, CustomItemDef>>
 }
 
 export function Import() {
@@ -22,6 +26,7 @@ export function Import() {
   const results = useStore((s) => s.results)
   const updateProfile = useStore((s) => s.updateProfile)
   const { openShare } = useShareData()
+  const lang = getLang()
 
   const [adoptState, setAdoptState] = useState<AdoptState | null>(null)
   const [adoptProfileId, setAdoptProfileId] = useState<string>('')
@@ -31,10 +36,13 @@ export function Import() {
     .filter((g) => g.results.length > 0)
 
   function onImportSuccess(imp: Import) {
-    const cats = imp.customCategories
-    if (cats && cats.length > 0 && profiles.length > 0) {
+    const cats = imp.customCategories ?? []
+    const itemDefs = Object.fromEntries(
+      Object.entries(imp.customItemDefs ?? {}).filter(([catId]) => STANDARD_CAT_IDS.has(catId))
+    )
+    if ((cats.length > 0 || Object.keys(itemDefs).length > 0) && profiles.length > 0) {
       setAdoptProfileId(profiles[0]?.id ?? '')
-      setAdoptState({ imp, cats })
+      setAdoptState({ imp, cats, itemDefs })
     } else {
       navigate(`/compare?ids=imp:${imp.id}`)
     }
@@ -47,8 +55,6 @@ export function Import() {
   function navigateAfterAdopt(imp: Import) {
     const storeImp = useStore.getState().imports.find((i) => i.id === imp.id) ?? null
     if (storeImp?.exportMode === 'restricted' && !storeImp.answersUnlocked) {
-      // Locked restricted import: go to profile page so the user can create new maps
-      // with the adopted categories; the locked card is visible in the profile's locked section
       const profileId = adoptProfileId || profiles[0]?.id
       if (profileId) { navigate(`/profile/${profileId}`); return }
     }
@@ -59,12 +65,27 @@ export function Import() {
     if (!adoptState) return
     const profile = profiles.find((p) => p.id === adoptProfileId)
     if (profile) {
+      // Adopt custom categories
       const existingIds = new Set((profile.customCategories ?? []).map((c) => c.id))
       const toAdd = adoptState.cats.filter((c) => !existingIds.has(c.id))
       if (toAdd.length > 0) {
         updateProfile(profile.id, {
           customCategories: [...(profile.customCategories ?? []), ...toAdd],
         })
+      }
+      // Adopt custom items for standard categories
+      const newItemsByCat: Record<string, Record<string, CustomItemDef>> = {}
+      for (const [catId, items] of Object.entries(adoptState.itemDefs)) {
+        const existing = profile.customItemDefs?.[catId] ?? {}
+        const toAddItems = Object.fromEntries(Object.entries(items).filter(([n]) => !existing[n]))
+        if (Object.keys(toAddItems).length > 0) newItemsByCat[catId] = toAddItems
+      }
+      if (Object.keys(newItemsByCat).length > 0) {
+        const merged: Record<string, Record<string, CustomItemDef>> = { ...(profile.customItemDefs ?? {}) }
+        for (const [catId, items] of Object.entries(newItemsByCat)) {
+          merged[catId] = { ...(merged[catId] ?? {}), ...items }
+        }
+        updateProfile(profile.id, { customItemDefs: merged })
       }
     }
     const imp = adoptState.imp
@@ -79,11 +100,25 @@ export function Import() {
     navigateAfterAdopt(imp)
   }
 
-  // Categories from the import that are not yet in the currently selected profile
   const selectedProfile = profiles.find((p) => p.id === adoptProfileId)
-  const existingIds = new Set((selectedProfile?.customCategories ?? []).map((c) => c.id))
-  const newCats = (adoptState?.cats ?? []).filter((c) => !existingIds.has(c.id))
-  const alreadyCats = (adoptState?.cats ?? []).filter((c) => existingIds.has(c.id))
+  const existingCatIds = new Set((selectedProfile?.customCategories ?? []).map((c) => c.id))
+  const newCats = (adoptState?.cats ?? []).filter((c) => !existingCatIds.has(c.id))
+  const alreadyCats = (adoptState?.cats ?? []).filter((c) => existingCatIds.has(c.id))
+
+  // Custom items grouped by category for display
+  const newItemsByCatDisplay: { catId: string; catName: string; items: string[] }[] = []
+  const alreadyItemsByCatDisplay: { catId: string; catName: string; items: string[] }[] = []
+  for (const [catId, items] of Object.entries(adoptState?.itemDefs ?? {})) {
+    const stdCat = CATEGORIES.find((c) => c.id === catId)
+    const catName = (lang === 'de' && stdCat?.de ? stdCat.de : stdCat?.title) ?? catId
+    const existing = selectedProfile?.customItemDefs?.[catId] ?? {}
+    const newNames = Object.keys(items).filter((n) => !existing[n])
+    const alreadyNames = Object.keys(items).filter((n) => !!existing[n])
+    if (newNames.length > 0) newItemsByCatDisplay.push({ catId, catName, items: newNames })
+    if (alreadyNames.length > 0) alreadyItemsByCatDisplay.push({ catId, catName, items: alreadyNames })
+  }
+
+  const hasAnythingNew = newCats.length > 0 || newItemsByCatDisplay.length > 0
 
   return (
     <>
@@ -131,21 +166,46 @@ export function Import() {
         <DialogTitle>{t('import_adopt_cats_title')}</DialogTitle>
         <p className="muted small">{t('import_adopt_cats_body')}</p>
 
-        <ul className="flex flex-col gap-1 my-1">
-          {newCats.map((cat) => (
-            <li key={cat.id} className="flex items-center gap-2 text-sm">
-              <span aria-hidden>{cat.icon}</span>
-              <span className="font-medium" style={{ color: cat.color }}>{cat.title}</span>
-            </li>
-          ))}
-          {alreadyCats.map((cat) => (
-            <li key={cat.id} className="flex items-center gap-2 text-sm opacity-40">
-              <span aria-hidden>{cat.icon}</span>
-              <span>{cat.title}</span>
-              <span className="text-xs">✓</span>
-            </li>
-          ))}
-        </ul>
+        {/* Custom categories */}
+        {(newCats.length > 0 || alreadyCats.length > 0) && (
+          <ul className="flex flex-col gap-1 my-1">
+            {newCats.map((cat) => (
+              <li key={cat.id} className="flex items-center gap-2 text-sm">
+                <span aria-hidden>{cat.icon}</span>
+                <span className="font-medium" style={{ color: cat.color }}>{cat.title}</span>
+              </li>
+            ))}
+            {alreadyCats.map((cat) => (
+              <li key={cat.id} className="flex items-center gap-2 text-sm opacity-40">
+                <span aria-hidden>{cat.icon}</span>
+                <span>{cat.title}</span>
+                <span className="text-xs">✓</span>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {/* Custom items for standard categories */}
+        {(newItemsByCatDisplay.length > 0 || alreadyItemsByCatDisplay.length > 0) && (
+          <div className="mt-2">
+            <p className="text-xs font-medium text-muted mb-1">{t('import_adopt_items_header')}</p>
+            <ul className="flex flex-col gap-1">
+              {newItemsByCatDisplay.map(({ catId, catName, items }) => (
+                <li key={catId} className="text-sm">
+                  <span className="font-medium">{catName}:</span>{' '}
+                  <span className="muted">{items.join(' · ')}</span>
+                </li>
+              ))}
+              {alreadyItemsByCatDisplay.map(({ catId, catName, items }) => (
+                <li key={catId} className="text-sm opacity-40">
+                  <span>{catName}:</span>{' '}
+                  <span>{items.join(' · ')}</span>{' '}
+                  <span className="text-xs">✓</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         {profiles.length > 1 && (
           <div className="flex flex-col gap-1 mt-1">
@@ -167,7 +227,7 @@ export function Import() {
           <Button variant="ghost" onClick={skipAdopt} data-testid="import-adopt-skip">{t('btn_skip')}</Button>
           <Button
             onClick={confirmAdopt}
-            disabled={newCats.length === 0}
+            disabled={!hasAnythingNew}
             data-testid="import-adopt-confirm"
           >
             {t('import_adopt_cats_btn')}
