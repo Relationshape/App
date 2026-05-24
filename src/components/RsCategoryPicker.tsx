@@ -366,7 +366,7 @@ export function RsCategoryPicker({ open, onOpenChange, existingIds, result, prof
                                   role="button"
                                   tabIndex={0}
                                   className={`cat-picker-expand-btn${isExpanded ? ' is-open' : ''}`}
-                                  onClick={(e) => { e.stopPropagation(); toggleExpand(cat.id) }}
+                                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleExpand(cat.id) }}
                                   onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); toggleExpand(cat.id) } }}
                                   aria-expanded={isExpanded}
                                   aria-label={isExpanded ? t('cat_picker_collapse') as string : t('cat_picker_expand') as string}
@@ -436,7 +436,7 @@ export function RsCategoryPicker({ open, onOpenChange, existingIds, result, prof
                                     role="button"
                                     tabIndex={0}
                                     className={`cat-picker-expand-btn${isExpanded ? ' is-open' : ''}`}
-                                    onClick={(e) => { e.stopPropagation(); toggleExpand(cat.id) }}
+                                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleExpand(cat.id) }}
                                     onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); toggleExpand(cat.id) } }}
                                     aria-expanded={isExpanded}
                                     aria-label={isExpanded ? t('cat_picker_collapse') as string : t('cat_picker_expand') as string}
