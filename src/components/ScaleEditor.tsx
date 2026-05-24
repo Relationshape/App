@@ -4,7 +4,8 @@ import type { MutableScaleStep } from '@/lib/data/types'
 import { Button } from '@/components/ui/button'
 import { RsTile } from '@/components/RsTile'
 import { dialog } from '@/lib/dialog/dialog'
-import { t } from '@/lib/i18n/i18n'
+import { t, getLang } from '@/lib/i18n/i18n'
+import { localizeStep } from '@/lib/data/locale'
 
 interface Props {
   scale: readonly MutableScaleStep[]
@@ -25,7 +26,10 @@ function freshStep(idx: number): MutableScaleStep {
 }
 
 export function ScaleEditor({ scale, onChange, hasData }: Props) {
-  const [local, setLocal] = useState<MutableScaleStep[]>(() => scale.map((s) => ({ ...s })))
+  const [local, setLocal] = useState<MutableScaleStep[]>(() => {
+    const lang = getLang()
+    return scale.map((s) => { const loc = localizeStep(s, lang); return { ...s, ...loc } })
+  })
 
   function commit(next: MutableScaleStep[]) {
     setLocal(next)
