@@ -49,7 +49,10 @@ function CategoryRow({ title, icon, color, items }: {
 
 export function TemplateViewModal({ open, onOpenChange, imp, onUseAsTemplate }: Props) {
   const lang = getLang()
-  const enabledIds = imp.enabledCategories ?? CATEGORIES.map((c) => c.id)
+  const enabledIds = [...new Set([
+    ...(imp.enabledCategories ?? CATEGORIES.map((c) => c.id)),
+    ...(imp.customCategories ?? []).map((c) => c.id),
+  ])]
 
   const standardCatIds = new Set<string>(CATEGORIES.map((c) => c.id))
   const standardCats = CATEGORIES.filter((c) => enabledIds.includes(c.id))

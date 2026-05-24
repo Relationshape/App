@@ -54,10 +54,14 @@ export function CategoryOverview() {
     if (profile && !result && resultId !== 'new') navigate(`/profile/${profile.id}`)
   }, [result, resultId, profile, navigate])
 
-  const enabledIds = useMemo(
-    () => result?.enabledCategories ?? CATEGORIES.map((c) => c.id),
-    [result?.enabledCategories],
-  )
+  const enabledIds = useMemo(() => {
+    const base = result?.enabledCategories ?? [
+      ...CATEGORIES.map((c) => c.id),
+      ...(result?.customCategories ?? []).map((c) => c.id),
+      ...(profile?.customCategories ?? []).map((c) => c.id),
+    ]
+    return base
+  }, [result?.enabledCategories, result?.customCategories, profile?.customCategories])
   const enabledCats = useMemo(
     () =>
       enabledIds
