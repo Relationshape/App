@@ -1410,7 +1410,7 @@ a:hover { text-decoration: underline; }
 /* ================================================================
    Scale slider
    ================================================================ */
-.rs-slider { position: relative; padding: 8px 0 38px; user-select: none; width: 100%; outline: none; }
+.rs-slider { position: relative; padding: 8px 0 70px; user-select: none; width: 100%; outline: none; }
 .rs-slider:focus-visible { box-shadow: 0 0 0 3px rgba(185, 110, 255, 0.3); border-radius: 8px; }
 .rs-slider-track-wrap {
   position: relative; height: 24px;
@@ -1448,12 +1448,13 @@ a:hover { text-decoration: underline; }
 }
 .rs-slider-tick-label {
   position: absolute; top: 22px;
-  font-size: 11px; color: var(--muted); white-space: nowrap; max-width: 84px;
-  overflow: hidden; text-overflow: ellipsis; text-align: center;
+  font-size: 10.5px; color: var(--muted); white-space: nowrap; max-width: 100px;
+  overflow: hidden; text-overflow: ellipsis; text-align: left;
+  transform: rotate(-30deg); transform-origin: top left;
   transition: color .15s ease, font-weight .15s ease;
 }
 .rs-slider-tick.is-active .rs-slider-tick-label { color: var(--c); font-weight: 600; }
-.rs-slider-tick:first-child .rs-slider-tick-label { transform: translateX(min(0px, calc(100% - 84px))); }
+.rs-slider-tick:first-child .rs-slider-tick-label { transform: rotate(-30deg); }
 .rs-slider-clear {
   position: absolute; right: 0; top: -22px;
   background: var(--surface-3); border: 1px solid var(--glass-border);
@@ -1465,15 +1466,10 @@ a:hover { text-decoration: underline; }
 .rs-slider-clear:hover { color: var(--red); border-color: var(--red); }
 .rs-slider-hint { position: absolute; bottom: 4px; left: 0; right: 0; text-align: center; font-size: 11px; }
 
-@media (max-width: 560px) {
-  .rs-slider { padding-bottom: 70px; }
-  .rs-slider-tick-label { transform: rotate(-30deg); transform-origin: top left; top: 22px; max-width: 100px; text-align: left; font-size: 10.5px; }
-  .rs-slider-tick:first-child .rs-slider-tick-label { transform: rotate(-30deg); }
-}
 
 /* ---- Click-to-place scale control ---- */
 .rs-click-scale {
-  position: relative; padding: 8px 0 40px; user-select: none; width: 100%; outline: none;
+  position: relative; padding: 8px 0 96px; user-select: none; width: 100%; outline: none;
 }
 .rs-click-scale:focus-visible { box-shadow: 0 0 0 3px rgba(185,110,255,0.3); border-radius: 8px; }
 .rs-click-scale-track {
@@ -1528,22 +1524,14 @@ a:hover { text-decoration: underline; }
   }
 }
 .rs-click-scale-ref-label {
-  position: absolute; top: 22px;
-  font-size: 11px; color: var(--muted); white-space: nowrap;
-  max-width: 84px; overflow: hidden; text-overflow: ellipsis; text-align: center;
-}
-@media (max-width: 680px) {
-  .rs-click-scale { padding-bottom: 96px; }
-  .rs-click-scale-ref-label {
-    top: 34px; font-size: 10px;
-  }
+  position: absolute; top: 34px;
+  font-size: 10px; color: var(--muted); white-space: nowrap;
+  max-width: 100px; overflow: hidden; text-overflow: ellipsis; text-align: left;
+  transform: rotate(-30deg); transform-origin: top left;
 }
 @media (max-width: 560px) {
   .rs-click-scale { padding-bottom: 108px; }
-  .rs-click-scale-ref-label {
-    transform: rotate(-30deg); transform-origin: top left;
-    top: 38px; max-width: 100px; text-align: left; font-size: 10px;
-  }
+  .rs-click-scale-ref-label { top: 38px; }
 }
 
 .q-slider-wrap { grid-column: 1 / -1; padding: 28px 4px 0; }

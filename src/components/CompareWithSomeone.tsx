@@ -22,19 +22,24 @@ import { t } from '@/lib/i18n/i18n'
 
 export interface CompareWithSomeoneProps {
   /** The current result viewed on /result/:id — excluded from "Overlay your own maps". */
-  currentResultId: string
+  currentResultId?: string
+  /** When viewing an imported card, pass the import id (without 'imp:' prefix). */
+  currentImportId?: string
 }
 
-export function CompareWithSomeone({ currentResultId }: CompareWithSomeoneProps) {
+export function CompareWithSomeone({ currentResultId, currentImportId }: CompareWithSomeoneProps) {
   const profiles = useStore((s) => s.profiles)
   const results = useStore((s) => s.results)
   const imports = useStore((s) => s.imports)
   const navigate = useNavigate()
 
-  const others = results.filter((r) => r.id !== currentResultId)
+  const currentId = currentImportId ? `imp:${currentImportId}` : (currentResultId ?? '')
+  const others = currentResultId ? results.filter((r) => r.id !== currentResultId) : results
+
+  const visibleImports = currentImportId ? imports.filter((i) => i.id !== currentImportId) : imports
 
   // Empty state — neither own-maps NOR imports to show.
-  if (others.length === 0 && imports.length === 0) {
+  if (others.length === 0 && visibleImports.length === 0) {
     return (
       <div className="flex flex-col gap-3 items-start" data-testid="compare-with-empty">
         <p className="muted">{t('no_compare')}</p>
@@ -64,7 +69,7 @@ export function CompareWithSomeone({ currentResultId }: CompareWithSomeoneProps)
                   emoji={emoji}
                   title={title}
                   sub={sub}
-                  onClick={() => navigate(`/compare?ids=${currentResultId},${o.id}`)}
+                  onClick={() => navigate(`/compare?ids=${currentId},${o.id}`)}
                   testId={`compare-with-own-${o.id}`}
                   ariaLabel={title}
                 />
@@ -77,7 +82,7 @@ export function CompareWithSomeone({ currentResultId }: CompareWithSomeoneProps)
       <div className="compare-section">
         <h3 className="compare-section-title">{t('compare_imports_title')}</h3>
         <div className="compare-grid">
-          {imports.map((i) => {
+          {visibleImports.map((i) => {
             const color = i.color || '#7c3aed'
             const emoji = i.emoji || '📨'
             const title = `${i.name ?? '?'} → ${i.subject ?? ''}`
@@ -89,7 +94,7 @@ export function CompareWithSomeone({ currentResultId }: CompareWithSomeoneProps)
                 emoji={emoji}
                 title={title}
                 sub={sub}
-                onClick={() => navigate(`/compare?ids=${currentResultId},imp:${i.id}`)}
+                onClick={() => navigate(`/compare?ids=${currentId},imp:${i.id}`)}
                 testId={`compare-with-imp-${i.id}`}
                 ariaLabel={title}
               />

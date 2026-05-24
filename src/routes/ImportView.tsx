@@ -6,12 +6,14 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useStore } from '@/lib/storage/store'
 import { mapImportToDataset } from '@/lib/charts/datasets'
 import { CategoryModal } from '@/components/charts/CategoryModal'
+import { CompareWithSomeone } from '@/components/CompareWithSomeone'
 import { RsCategoryCard } from '@/components/RsCategoryCard'
 import { Button } from '@/components/ui/button'
 import { CATEGORIES } from '@/lib/data/data'
 import { resolveAnyCat } from '@/lib/data/customCategories'
 import { fmtDate } from '@/lib/format/date'
-import { t } from '@/lib/i18n/i18n'
+import { t, getLang } from '@/lib/i18n/i18n'
+import { useToast } from '@/lib/hooks/useToast'
 import type { ResolvedCat } from '@/lib/data/customCategories'
 
 type CategoryDef = (typeof CATEGORIES)[number]
@@ -22,6 +24,8 @@ export function ImportView() {
   const imp = useStore((s) => (importId ? s.imports.find((i) => i.id === importId) ?? null : null))
 
   const [modalCat, setModalCat] = useState<ResolvedCat | CategoryDef | null>(null)
+  const [generatingPdf, setGeneratingPdf] = useState(false)
+  const { toast } = useToast()
 
   if (!imp) {
     navigate('/')
@@ -38,6 +42,30 @@ export function ImportView() {
 
   const v = (imp.version ?? 1) > 1 ? ` (v${imp.version})` : ''
   const title = (imp.subject?.trim() || imp.name?.trim() || 'Imported result') + v
+
+  async function handlePdfReport() {
+    if (generatingPdf) return
+    setGeneratingPdf(true)
+    toast.message(t('pdf_generating'))
+    try {
+      const { generatePdfReport } = await import('@/lib/pdf/generateReport')
+      const allCatIds = Array.from(new Set([
+        ...enabledIds,
+        ...(imp.customCategories ?? []).map((c) => c.id),
+      ]))
+      const mapName = (imp.subject?.trim() || imp.name?.trim() || 'import')
+      const safeFilename = `relationshapes-${mapName.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.pdf`
+      const ok = await generatePdfReport({
+        datasets,
+        categoryIds: allCatIds,
+        lang: getLang(),
+        filename: safeFilename,
+      })
+      if (!ok) toast.message(t('pdf_no_answers'))
+    } finally {
+      setGeneratingPdf(false)
+    }
+  }
 
   return (
     <section className="page" data-testid="import-view-page">
@@ -60,7 +88,24 @@ export function ImportView() {
             {`${imp.name?.trim() || ''} · ${t('imported_on')} ${fmtDate(imp.importedAt)}`}
           </p>
         </div>
+        <div className="result-head-actions">
+          <Button
+            variant="outline"
+            onClick={() => { void handlePdfReport() }}
+            disabled={generatingPdf}
+            data-testid="import-view-pdf"
+          >
+            {t('btn_pdf_report')}
+          </Button>
+        </div>
       </header>
+
+      <section className="page-section" data-testid="import-view-compare-section">
+        <header className="section-head">
+          <h2>{t('compare_with')}</h2>
+        </header>
+        <CompareWithSomeone currentImportId={imp.id} />
+      </section>
 
       <section className="page-section" data-testid="import-view-cat-grid-section">
         <header className="section-head">

@@ -44,6 +44,17 @@ export function Import() {
     navigate(`/compare?ids=imp:${imp.id}`)
   }
 
+  function navigateAfterAdopt(imp: Import) {
+    const storeImp = useStore.getState().imports.find((i) => i.id === imp.id) ?? null
+    if (storeImp?.exportMode === 'restricted' && !storeImp.answersUnlocked) {
+      // Locked restricted import: go to profile page so the user can create new maps
+      // with the adopted categories; the locked card is visible in the profile's locked section
+      const profileId = adoptProfileId || profiles[0]?.id
+      if (profileId) { navigate(`/profile/${profileId}`); return }
+    }
+    goToCompare(imp)
+  }
+
   function confirmAdopt() {
     if (!adoptState) return
     const profile = profiles.find((p) => p.id === adoptProfileId)
@@ -58,14 +69,14 @@ export function Import() {
     }
     const imp = adoptState.imp
     setAdoptState(null)
-    goToCompare(imp)
+    navigateAfterAdopt(imp)
   }
 
   function skipAdopt() {
     if (!adoptState) return
     const imp = adoptState.imp
     setAdoptState(null)
-    goToCompare(imp)
+    navigateAfterAdopt(imp)
   }
 
   // Categories from the import that are not yet in the currently selected profile

@@ -205,6 +205,14 @@ export function RsQuestionCard({
             [item]: newDef,
           },
         }
+        // Remove stale rankingValues entries that no longer exist in the new options.
+        if (pendingFormat === 'ranking' && options) {
+          const optSet = new Set(options)
+          const cellRef = slot.__custom?.[item]
+          if (cellRef?.rankingValues) {
+            slot.__custom![item] = { ...cellRef, rankingValues: cellRef.rankingValues.filter((v) => optSet.has(v)) }
+          }
+        }
       }
     } else {
       slot[item] = patchCell(slot[item])
@@ -734,9 +742,8 @@ export function NonScaleRankingAnswer({ options, cell, onSave }: {
   cell: AnswerCell | undefined
   onSave: (p: Partial<AnswerCell>) => void
 }) {
-  // Show all items ranked from the start in their defined order.
-  // saved = explicitly ranked; append any options not yet in the saved list.
-  const saved = cell?.rankingValues ?? []
+  // Only keep saved positions for options that still exist (handles removed/renamed options).
+  const saved = (cell?.rankingValues ?? []).filter((o) => options.includes(o))
   const effective = [...saved, ...options.filter((o) => !saved.includes(o))]
 
   function move(index: number, dir: 1 | -1) {
