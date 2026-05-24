@@ -44,7 +44,7 @@ export function ImportView() {
   const title = (imp.subject?.trim() || imp.name?.trim() || 'Imported result') + v
 
   async function handlePdfReport() {
-    if (generatingPdf) return
+    if (!imp || generatingPdf) return
     setGeneratingPdf(true)
     toast.message(t('pdf_generating'))
     try {
