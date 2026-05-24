@@ -158,6 +158,7 @@ export function ListMode({ result, profile }: Props) {
               })}
               {base.map((item) => {
                 const slot = result.answers[cat.id] ?? {}
+                const customItemDef = result.customItemDefs?.[cat.id]?.[item]
                 return (
                   <RsQuestionCard
                     key={item}
@@ -169,6 +170,7 @@ export function ListMode({ result, profile }: Props) {
                     scale={scale}
                     onBeforeMutate={confirmIfTemplate}
                     variant="list"
+                    {...(customItemDef !== undefined ? { customItemDef } : {})}
                   />
                 )
               })}

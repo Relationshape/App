@@ -754,6 +754,8 @@ export const DE: Record<TranslationKey, string> = {
   // Custom-Element im Profil speichern
   q_save_item_to_profile_title: 'Element im Profil speichern?',
   q_save_item_to_profile_body: 'Möchtest du dieses Element in deiner Profilkategorie speichern? Es erscheint dann automatisch in zukünftigen Karten (nicht in bestehenden).',
+  q_save_format_to_profile_title: 'Formatänderung im Profil speichern?',
+  q_save_format_to_profile_body: 'Soll das neue Antwortformat für dieses Element im Profil gespeichert werden? Zukünftige neue Karten verwenden dann automatisch dieses Format (bestehende Karten werden nicht beeinflusst).',
   btn_yes: 'Ja',
   btn_no: 'Nein',
 
