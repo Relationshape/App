@@ -88,7 +88,7 @@ export function RsQuestionCard({
   const [pendingOptions, setPendingOptions] = useState('')
   const [optionsError, setOptionsError] = useState(false)
 
-  const format: CustomItemFormat = (isCustom && customItemDef?.format) ? customItemDef.format : 'scale'
+  const format: CustomItemFormat = customItemDef?.format ?? 'scale'
   const showGR = isGrCat(catId) && format === 'scale'
 
   // Backward compat: old data stores GR answer in cell.gr + cell.scale; new data uses giving/receiving.
@@ -159,7 +159,7 @@ export function RsQuestionCard({
     wasAutoOpenedRef.current = false
     // Validate options if the pending format requires them
     const needsOptions = pendingFormat === 'single' || pendingFormat === 'multi' || pendingFormat === 'ranking'
-    if (isCustom && needsOptions) {
+    if (needsOptions) {
       const lines = pendingOptions.split('\n').map((l) => l.trim()).filter(Boolean)
       if (lines.length < 2) { setOptionsError(true); return }
     }
@@ -167,13 +167,13 @@ export function RsQuestionCard({
     const next = structuredClone(result)
     if (storeTemplateWarningDisabled) next.templateWarningDisabled = true
     const slot = next.answers[catId] ?? {}
-    const formatChanged = isCustom && pendingFormat !== format
+    const formatChanged = pendingFormat !== format
 
     function patchCell(existing: AnswerCell | undefined): AnswerCell {
       const c: AnswerCell = existing ? { ...existing } : { scale: 'open' }
       const label = pendingLabel.trim()
       if (label) c.customLabel = label; else delete c.customLabel
-      if (!isCustom || pendingFormat === 'scale') {
+      if (pendingFormat === 'scale') {
         if (pendingScale) c.itemScale = pendingScale; else delete c.itemScale
       }
       // Clear answer fields when format changes
@@ -216,10 +216,68 @@ export function RsQuestionCard({
       }
     } else {
       slot[item] = patchCell(slot[item])
+      // Update customItemDef for predefined items when format changes
+      if (formatChanged || needsOptions) {
+        if (pendingFormat === 'scale') {
+          // Reverting to default — remove format override so 'scale' is implicit
+          if (next.customItemDefs?.[catId]?.[item]) {
+            const defs = { ...next.customItemDefs }
+            const catDefs = { ...defs[catId] }
+            delete catDefs[item]
+            defs[catId] = catDefs
+            next.customItemDefs = defs
+          }
+        } else {
+          const options = needsOptions
+            ? pendingOptions.split('\n').map((l) => l.trim()).filter(Boolean)
+            : undefined
+          const newDef: CustomItemDef = { format: pendingFormat }
+          if (options) newDef.options = options
+          next.customItemDefs = {
+            ...(next.customItemDefs ?? {}),
+            [catId]: {
+              ...((next.customItemDefs ?? {})[catId] ?? {}),
+              [item]: newDef,
+            },
+          }
+        }
+      }
     }
     next.answers[catId] = slot
     saveResult(next)
     setEditOpen(false)
+
+    // For predefined items: offer to persist format change to the profile
+    if (!isCustom && formatChanged) {
+      const saveToProfile = await dialog<boolean>({
+        title: t('q_save_format_to_profile_title'),
+        body: <p>{t('q_save_format_to_profile_body')}</p>,
+        actions: [
+          { label: t('btn_no') as string, kind: 'ghost', value: false },
+          { label: t('btn_yes') as string, kind: 'primary', value: true },
+        ],
+      })
+      if (saveToProfile) {
+        const profileDefs = { ...(profileCustomItemDefs ?? {}) }
+        if (pendingFormat === 'scale') {
+          // Remove format override from profile
+          if (profileDefs[catId]?.[item]) {
+            const catDefs = { ...profileDefs[catId] }
+            delete catDefs[item]
+            profileDefs[catId] = catDefs
+          }
+        } else {
+          const options = needsOptions
+            ? pendingOptions.split('\n').map((l) => l.trim()).filter(Boolean)
+            : undefined
+          profileDefs[catId] = {
+            ...(profileDefs[catId] ?? {}),
+            [item]: { format: pendingFormat, ...(options ? { options } : {}) },
+          }
+        }
+        updateProfile(result.profileId, { customItemDefs: profileDefs })
+      }
+    }
   }
 
   function patchCell(patch: Partial<AnswerCell>) {
@@ -303,9 +361,20 @@ export function RsQuestionCard({
   function resetNonScaleAnswer() {
     const next = structuredClone(result)
     const slot = next.answers[catId] ?? {}
-    const customs = { ...(slot.__custom ?? {}) }
-    customs[item] = { scale: '' }
-    slot.__custom = customs
+    if (isCustom) {
+      const customs = { ...(slot.__custom ?? {}) }
+      customs[item] = { scale: '' }
+      slot.__custom = customs
+    } else {
+      const existing = slot[item]
+      if (existing) {
+        const updated = { ...existing }
+        delete updated.textValue
+        delete updated.selectedValues
+        delete updated.rankingValues
+        slot[item] = updated
+      }
+    }
     next.answers[catId] = slot
     saveResult(next)
   }
@@ -476,7 +545,7 @@ export function RsQuestionCard({
           <strong>{displayName}</strong>
         </div>
 
-        {isCustom && format !== 'scale' && (
+        {format !== 'scale' && (
           <p className="q-format-badge">
             {t(`q_format_${format}_badge` as Parameters<typeof t>[0])}
           </p>
@@ -556,17 +625,17 @@ export function RsQuestionCard({
               {t('btn_hide_item')}
             </Button>
           )}
-          {isCustom && format === 'text' && !!cell?.textValue && (
+          {format === 'text' && !!cell?.textValue && (
             <Button variant="ghost" size="sm" onClick={resetNonScaleAnswer} data-testid={`item-reset-${catId}-${item}`}>
               {t('q_slider_reset')}
             </Button>
           )}
-          {isCustom && (format === 'single' || format === 'multi') && (cell?.selectedValues?.length ?? 0) > 0 && (
+          {(format === 'single' || format === 'multi') && (cell?.selectedValues?.length ?? 0) > 0 && (
             <Button variant="ghost" size="sm" onClick={resetNonScaleAnswer} data-testid={`item-reset-${catId}-${item}`}>
               {t('q_slider_reset')}
             </Button>
           )}
-          {isCustom && format === 'ranking' && (cell?.rankingValues?.length ?? 0) > 0 && (
+          {format === 'ranking' && (cell?.rankingValues?.length ?? 0) > 0 && (
             <Button variant="ghost" size="sm" onClick={resetNonScaleAnswer} data-testid={`item-reset-${catId}-${item}`}>
               {t('q_slider_reset')}
             </Button>
@@ -601,46 +670,44 @@ export function RsQuestionCard({
                 data-testid={`item-edit-label-${catId}-${item}`}
               />
             </label>
-            {isCustom && (
-              <div className="flex flex-col gap-2">
-                <span className="text-sm font-medium">{t('q_edit_format_section')}</span>
-                <div className="flex flex-col gap-1">
-                  {(['scale', 'text', 'single', 'multi', 'ranking'] as CustomItemFormat[]).map((f) => (
-                    <label key={f} className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="radio"
-                        name={`edit-format-${catId}-${item}`}
-                        value={f}
-                        checked={pendingFormat === f}
-                        onChange={() => { setPendingFormat(f); setOptionsError(false) }}
-                        data-testid={`item-edit-format-${f}-${catId}-${item}`}
-                      />
-                      <span className="text-sm">{t(`q_format_${f}` as Parameters<typeof t>[0])}</span>
-                    </label>
-                  ))}
-                </div>
-                {pendingFormat !== 'scale' && (
-                  <p className="callout text-sm">{t('q_format_non_scale_hint')}</p>
-                )}
-                {pendingFormat !== format && (
-                  <p className="text-sm text-destructive">{t('q_edit_format_change_warn')}</p>
-                )}
-                {(pendingFormat === 'single' || pendingFormat === 'multi' || pendingFormat === 'ranking') && (
-                  <label className="flex flex-col gap-1">
-                    <span className="text-sm font-medium">{t('q_edit_format_options_label')}</span>
-                    <textarea
-                      rows={5}
-                      className="w-full rounded border border-line px-2 py-1 font-mono text-sm"
-                      value={pendingOptions}
-                      onChange={(e) => { setPendingOptions(e.target.value); setOptionsError(false) }}
-                      data-testid={`item-edit-options-${catId}-${item}`}
+            <div className="flex flex-col gap-2">
+              <span className="text-sm font-medium">{t('q_edit_format_section')}</span>
+              <div className="flex flex-col gap-1">
+                {(['scale', 'text', 'single', 'multi', 'ranking'] as CustomItemFormat[]).map((f) => (
+                  <label key={f} className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name={`edit-format-${catId}-${item}`}
+                      value={f}
+                      checked={pendingFormat === f}
+                      onChange={() => { setPendingFormat(f); setOptionsError(false) }}
+                      data-testid={`item-edit-format-${f}-${catId}-${item}`}
                     />
-                    {optionsError && <p className="text-sm text-destructive">{t('q_edit_format_options_min')}</p>}
+                    <span className="text-sm">{t(`q_format_${f}` as Parameters<typeof t>[0])}</span>
                   </label>
-                )}
+                ))}
               </div>
-            )}
-            {(!isCustom || pendingFormat === 'scale') && (
+              {pendingFormat !== 'scale' && (
+                <p className="callout text-sm">{t('q_format_non_scale_hint')}</p>
+              )}
+              {pendingFormat !== format && (
+                <p className="text-sm text-destructive">{t('q_edit_format_change_warn')}</p>
+              )}
+              {(pendingFormat === 'single' || pendingFormat === 'multi' || pendingFormat === 'ranking') && (
+                <label className="flex flex-col gap-1">
+                  <span className="text-sm font-medium">{t('q_edit_format_options_label')}</span>
+                  <textarea
+                    rows={5}
+                    className="w-full rounded border border-line px-2 py-1 font-mono text-sm"
+                    value={pendingOptions}
+                    onChange={(e) => { setPendingOptions(e.target.value); setOptionsError(false) }}
+                    data-testid={`item-edit-options-${catId}-${item}`}
+                  />
+                  {optionsError && <p className="text-sm text-destructive">{t('q_edit_format_options_min')}</p>}
+                </label>
+              )}
+            </div>
+            {pendingFormat === 'scale' && (
               <div className="flex flex-col gap-2">
                 <p className="muted text-sm">{t('q_edit_item_scale_warning')}</p>
                 <ScaleEditor

@@ -208,8 +208,8 @@ export function SingleMode({ result, profile }: Props) {
     ? result.answers[cur.catId]?.__custom?.[cur.item]
     : result.answers[cur.catId]?.[cur.item]
 
-  const customItemDef = cur.isCustom ? result.customItemDefs?.[cur.catId]?.[cur.item] : undefined
-  const format = (cur.isCustom && customItemDef?.format) ? customItemDef.format : 'scale'
+  const customItemDef = result.customItemDefs?.[cur.catId]?.[cur.item]
+  const format = customItemDef?.format ?? 'scale'
   const showGR = isGrCat(cur.catId) && format === 'scale'
 
   // Backward compat: old data stores GR answer in cell.gr + cell.scale; new data uses giving/receiving.
@@ -222,9 +222,13 @@ export function SingleMode({ result, profile }: Props) {
     if (!cur) return
     const next = structuredClone(result)
     const slot = next.answers[cur.catId] ?? {}
-    const customs = slot.__custom ?? {}
-    customs[cur.item] = { ...(customs[cur.item] ?? { scale: 'open' }), ...patch } as AnswerCell
-    slot.__custom = customs
+    if (cur.isCustom) {
+      const customs = slot.__custom ?? {}
+      customs[cur.item] = { ...(customs[cur.item] ?? { scale: 'open' }), ...patch } as AnswerCell
+      slot.__custom = customs
+    } else {
+      slot[cur.item] = { ...(slot[cur.item] ?? { scale: 'open' }), ...patch } as AnswerCell
+    }
     next.answers[cur.catId] = slot
     saveResult(next)
   }

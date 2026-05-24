@@ -735,6 +735,8 @@ export const EN = {
   // Custom item save-to-profile
   q_save_item_to_profile_title: 'Save item to profile?',
   q_save_item_to_profile_body: 'Do you want to save this item to your profile category? It will then appear automatically in future maps (not in existing ones).',
+  q_save_format_to_profile_title: 'Save format change to profile?',
+  q_save_format_to_profile_body: 'Save the new answer format for this item to your profile? Future new maps will use this format automatically (existing maps are not affected).',
   btn_yes: 'Yes',
   btn_no: 'No',
 
