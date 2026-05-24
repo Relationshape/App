@@ -331,11 +331,11 @@ export function nonScaleItemDiff(
 
 export interface CategoryItemAlignmentOpts {
   /** Format lookup for custom items inside standard categories (catId → itemName → def). */
-  customItemDefsA?: Record<string, Record<string, CustomItemDef>>
-  customItemDefsB?: Record<string, Record<string, CustomItemDef>>
+  customItemDefsA?: Record<string, Record<string, CustomItemDef>> | undefined
+  customItemDefsB?: Record<string, Record<string, CustomItemDef>> | undefined
   /** Custom category definitions — used to look up item formats for custom categories. */
-  customCatsA?: readonly CustomCategoryDef[]
-  customCatsB?: readonly CustomCategoryDef[]
+  customCatsA?: readonly CustomCategoryDef[] | undefined
+  customCatsB?: readonly CustomCategoryDef[] | undefined
 }
 
 /**
