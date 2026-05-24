@@ -259,14 +259,14 @@ export function ShareDataProvider({ children }: { children: ReactNode }) {
           answers: {},
           lockedAnswers,
           exportMode: 'restricted',
-          askedItems: buildExportAskedItems(exportResult),
+          askedItems: buildExportAskedItems(exportResult, profile),
         }
       } else {
         payload = {
           ...base,
           answers: {},
           exportMode: 'template',
-          askedItems: buildExportAskedItems(exportResult),
+          askedItems: buildExportAskedItems(exportResult, profile),
         }
       }
       const out = await encryptResult(payload, pass)

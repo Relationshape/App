@@ -203,6 +203,7 @@ export function ImportView() {
               datasets={datasets}
               editableResult={null}
               fabiMode={false}
+              alwaysShow={true}
               onClick={() => setModalCat(cat)}
               testId={`import-view-cat-${cat.id}`}
             />

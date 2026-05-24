@@ -136,7 +136,10 @@ export function NewMapWizard({ profile }: Props) {
           subjectColor: profile.color,
           subjectEmoji: profile.emoji,
           answers: templateAnswers,
-          enabledCategories: srcResult?.enabledCategories ?? CATEGORIES.map((c) => c.id),
+          enabledCategories: [...new Set([
+            ...(srcResult?.enabledCategories ?? CATEGORIES.map((c) => c.id)),
+            ...(srcResult?.customCategories ?? []).map((c) => c.id),
+          ])],
           scale: srcResult?.scale ?? scale,
           ...(srcResult?.customCategories ? { customCategories: structuredClone(srcResult.customCategories) } : {}),
           ...(srcResult?.customItemDefs ? { customItemDefs: structuredClone(srcResult.customItemDefs) } : {}),
@@ -172,7 +175,10 @@ export function NewMapWizard({ profile }: Props) {
           subjectColor: profile.color,
           subjectEmoji: profile.emoji,
           answers: importTemplateAnswers,
-          enabledCategories: tmplImport?.enabledCategories ?? CATEGORIES.map((c) => c.id),
+          enabledCategories: [...new Set([
+            ...(tmplImport?.enabledCategories ?? CATEGORIES.map((c) => c.id)),
+            ...(tmplImport?.customCategories ?? []).map((c) => c.id),
+          ])],
           scale: tmplImport?.scale ?? scale,
           ...(tmplImport?.customCategories ? { customCategories: structuredClone(tmplImport.customCategories) } : {}),
           ...(tmplImport?.customItemDefs ? { customItemDefs: structuredClone(tmplImport.customItemDefs) } : {}),

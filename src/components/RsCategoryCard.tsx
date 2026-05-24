@@ -28,6 +28,8 @@ export interface RsCategoryCardProps {
   fabiMode?: boolean
   /** When provided, shows an alignment % badge at the bottom of the card. */
   alignmentScore?: number | null
+  /** When true, show the card even if filledCount === 0 and no editable result. */
+  alwaysShow?: boolean
   onClick: () => void
   testId?: string
 }
@@ -65,13 +67,14 @@ export function RsCategoryCard({
   editableResult,
   fabiMode,
   alignmentScore,
+  alwaysShow,
   onClick,
   testId,
 }: RsCategoryCardProps) {
   const filledCount = computeFilledCount(datasets, cat.id)
 
   // Hide entirely when there are no answers AND no editable result owns this map.
-  if (filledCount === 0 && !editableResult) return null
+  if (filledCount === 0 && !editableResult && !alwaysShow) return null
 
   const isEmpty = filledCount === 0
   const className = `cat-card cat-card-btn${isEmpty ? ' is-empty' : ''}`

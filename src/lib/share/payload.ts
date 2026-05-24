@@ -54,7 +54,14 @@ export function buildSharePayload(result: Result, profile: Profile): SharePayloa
   if (result.subjectEmoji !== undefined) payload.subjectEmoji = result.subjectEmoji
   if (result.subjectColor !== undefined) payload.subjectColor = result.subjectColor
   if (result.customItemDefs) payload.customItemDefs = result.customItemDefs
-  if (result.customCategories) payload.customCategories = result.customCategories
+  // Include profile-level custom cats referenced in enabledCategories but absent from result.customCategories
+  const enabledSet = result.enabledCategories ? new Set(result.enabledCategories) : null
+  const resultCatIds = new Set((result.customCategories ?? []).map((c) => c.id))
+  const profileOnlyCats = (profile.customCategories ?? []).filter((c) =>
+    (!enabledSet || enabledSet.has(c.id)) && !resultCatIds.has(c.id)
+  )
+  const allCustomCats = [...(result.customCategories ?? []), ...profileOnlyCats]
+  if (allCustomCats.length > 0) payload.customCategories = allCustomCats
   return payload
 }
 
@@ -63,7 +70,7 @@ export function buildSharePayload(result: Result, profile: Profile): SharePayloa
  * For each enabled category, returns { base, custom } so the recipient can
  * answer the same per-category set even when none of the answers are sent.
  */
-export function buildExportAskedItems(result: Result): Record<string, { base: string[]; custom: string[] }> {
+export function buildExportAskedItems(result: Result, profile?: Profile): Record<string, { base: string[]; custom: string[] }> {
   const out: Record<string, { base: string[]; custom: string[] }> = {}
   const enabledCats = result.enabledCategories
     ? CATEGORIES.filter((c) => result.enabledCategories!.includes(c.id))
@@ -76,6 +83,24 @@ export function buildExportAskedItems(result: Result): Record<string, { base: st
     const base = askedBase ? [...askedBase] : cat.items.slice()
     const custom = Array.from(new Set([...askedCustom, ...customKeys]))
     if (base.length || custom.length) out[cat.id] = { base, custom }
+  }
+  // Include custom categories (result-level + profile-level)
+  const resultCatIds = new Set((result.customCategories ?? []).map((c) => c.id))
+  const allCustomCats = [...(result.customCategories ?? [])]
+  if (profile) {
+    const enabledSet = result.enabledCategories ? new Set(result.enabledCategories) : null
+    for (const cat of profile.customCategories ?? []) {
+      if (!resultCatIds.has(cat.id) && (!enabledSet || enabledSet.has(cat.id))) {
+        allCustomCats.push(cat)
+      }
+    }
+  }
+  for (const cat of allCustomCats) {
+    if (result.enabledCategories && !result.enabledCategories.includes(cat.id)) continue
+    const items = (cat.items ?? []).map((item) => item.name)
+    const customKeys = Object.keys(result.answers?.[cat.id]?.__custom || {})
+    const allItems = Array.from(new Set([...items, ...customKeys]))
+    if (allItems.length > 0) out[cat.id] = { base: [], custom: allItems }
   }
   return out
 }
@@ -102,7 +127,14 @@ export function buildBaseSharePayload(result: Result, profile: Profile): Omit<Sh
   if (result.subjectEmoji !== undefined) payload.subjectEmoji = result.subjectEmoji
   if (result.subjectColor !== undefined) payload.subjectColor = result.subjectColor
   if (result.customItemDefs) payload.customItemDefs = result.customItemDefs
-  if (result.customCategories) payload.customCategories = result.customCategories
+  // Include profile-level custom cats referenced in enabledCategories but absent from result.customCategories
+  const enabledSet = result.enabledCategories ? new Set(result.enabledCategories) : null
+  const resultCatIds = new Set((result.customCategories ?? []).map((c) => c.id))
+  const profileOnlyCats = (profile.customCategories ?? []).filter((c) =>
+    (!enabledSet || enabledSet.has(c.id)) && !resultCatIds.has(c.id)
+  )
+  const allCustomCats = [...(result.customCategories ?? []), ...profileOnlyCats]
+  if (allCustomCats.length > 0) payload.customCategories = allCustomCats
   return payload
 }
 

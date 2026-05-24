@@ -83,7 +83,10 @@ export function ProfileDetail() {
       subject: copySubject.trim() || profile.name,
       subjectEmoji: copySourceResult.subjectEmoji || profile.emoji,
       subjectColor: copySourceResult.subjectColor || profile.color,
-      enabledCategories: copySourceResult.enabledCategories ?? CATEGORIES.map((c) => c.id),
+      enabledCategories: [...new Set([
+        ...(copySourceResult.enabledCategories ?? CATEGORIES.map((c) => c.id)),
+        ...(copySourceResult.customCategories ?? []).map((c) => c.id),
+      ])],
       scale: copySourceResult.scale ?? storeScale,
       ...(copySourceResult.customItemDefs ? { customItemDefs: structuredClone(copySourceResult.customItemDefs) } : {}),
       ...(copySourceResult.customCategories ? { customCategories: structuredClone(copySourceResult.customCategories) } : {}),
@@ -118,7 +121,10 @@ export function ProfileDetail() {
       subject: templateSubject.trim() || profile.name,
       subjectEmoji: templateImp.subjectEmoji || profile.emoji,
       subjectColor: templateImp.subjectColor || profile.color,
-      enabledCategories: templateImp.enabledCategories ?? CATEGORIES.map((c) => c.id),
+      enabledCategories: [...new Set([
+        ...(templateImp.enabledCategories ?? CATEGORIES.map((c) => c.id)),
+        ...(templateImp.customCategories ?? []).map((c) => c.id),
+      ])],
       scale: templateImp.scale ?? storeScale,
       ...(templateImp.customItemDefs ? { customItemDefs: templateImp.customItemDefs } : {}),
       ...(templateImp.customCategories ? { customCategories: templateImp.customCategories } : {}),
