@@ -7,6 +7,7 @@ import { useShareData } from '@/components/providers/ShareDataProvider'
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { ImportForm } from '@/components/ImportForm'
 import { UnlockAnswersBody } from '@/components/UnlockAnswersDialog'
+import { TemplateViewModal } from '@/components/TemplateViewModal'
 import { mapResultToDataset, mapImportToDataset } from '@/lib/charts/datasets'
 import { CATEGORIES } from '@/lib/data/data'
 import type { Import, AnswersBlob, AnswerCell } from '@/lib/storage/types'
@@ -74,6 +75,7 @@ export function Compare() {
     : truncatedRaw
 
   const [importOpen, setImportOpen] = useState(false)
+  const [viewTemplateImp, setViewTemplateImp] = useState<Import | null>(null)
 
   function handleImportSuccess(imp: Import) {
     setImportOpen(false)
@@ -330,6 +332,14 @@ export function Compare() {
                       <button
                         type="button"
                         className="compare-row-unlock"
+                        onClick={() => setViewTemplateImp(imports.find((i) => i.id === o.impId) ?? null)}
+                        data-testid={`compare-view-${o.id}`}
+                      >
+                        {t('btn_view_template')}
+                      </button>
+                      <button
+                        type="button"
+                        className="compare-row-unlock"
                         onClick={() => handleUnlockImport(o.impId)}
                         data-testid={`compare-unlock-${o.id}`}
                       >
@@ -385,6 +395,14 @@ export function Compare() {
           <ImportForm onSuccess={handleImportSuccess} testIdPrefix="compare-import" />
         </DialogContent>
       </Dialog>
+
+      {viewTemplateImp && (
+        <TemplateViewModal
+          open={!!viewTemplateImp}
+          onOpenChange={(o) => { if (!o) setViewTemplateImp(null) }}
+          imp={viewTemplateImp}
+        />
+      )}
     </section>
   )
 }

@@ -275,6 +275,7 @@ export function ProfileDetail() {
                   testIdBase={`profile-locked-${i.id}`}
                   onUseTemplate={openTemplateWizard}
                   onUnlock={handleUnlockImport}
+                  onViewTemplate={setViewTemplateImp}
                 />
               ))}
             </div>
