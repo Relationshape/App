@@ -222,6 +222,11 @@ describe('Phase-final golden path (parity.smoke)', () => {
       const impId = useStore.getState().imports[0]!.id
 
       // ── Step 6: Compare ─────────────────────────────────────────────────
+      // Import now routes to the profile page; navigate to compare manually.
+      window.location.hash = `#/compare?ids=imp:${impId}`
+      await act(async () => {
+        window.dispatchEvent(new Event('hashchange'))
+      })
       await waitFor(() => {
         const comparePage = document.querySelector('[data-testid="compare-page"]')
         expect(comparePage).not.toBeNull()

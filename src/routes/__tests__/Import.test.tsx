@@ -33,7 +33,7 @@ async function mountAtHash(hash: string, storeJson?: string) {
 describe('Import route (SHARE-03)', () => {
   afterEach(() => { cleanup(); vi.restoreAllMocks() })
 
-  it('pasted bundle + correct passphrase → saveImport + navigate to /compare?ids=imp:<id>', async () => {
+  it('pasted bundle + correct passphrase → saveImport + navigate away from import page', async () => {
     const passphrase = 'my-test-passphrase'
     const syntheticPayload = {
       type: 'relationshape-result',
@@ -69,9 +69,9 @@ describe('Import route (SHARE-03)', () => {
       expect(parsed.imports?.length).toBe(1)
     }, { timeout: 15000 })
 
-    // After navigate, hash should point to compare
+    // After navigate, should have left the import page (now routes to profile/home)
     await waitFor(() => {
-      expect(window.location.hash).toContain('/compare')
+      expect(window.location.hash).not.toContain('/import')
     }, { timeout: 5000 })
   })
 
