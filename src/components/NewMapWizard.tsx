@@ -20,8 +20,10 @@ import {
   applyPendingItems,
   type PendingCustomItem, type PendingItemsByCat,
 } from '@/components/RsCategoryPicker'
+import { FormatPicker, OptionsInput } from '@/components/questionnaire/addCustomItemFlow'
 import { ImportForm } from '@/components/ImportForm'
 import { useShareData } from '@/components/providers/ShareDataProvider'
+import { useToast } from '@/lib/hooks/useToast'
 import { t, getLang } from '@/lib/i18n/i18n'
 import type { MutableScaleStep } from '@/lib/data/types'
 import type { AnswersBlob, CustomCategoryDef, CustomItemFormat, Import, Profile } from '@/lib/storage/types'
@@ -51,6 +53,7 @@ export function NewMapWizard({ profile }: Props) {
   const saveResult = useStore((s) => s.saveResult)
   const updateProfile = useStore((s) => s.updateProfile)
   const { openShareTemplate } = useShareData()
+  const { toast } = useToast()
   const lang = getLang()
   const allResults = useStore((s) => s.results)
   const allImports = useStore((s) => s.imports)
@@ -379,6 +382,126 @@ export function NewMapWizard({ profile }: Props) {
     setCatSubStep('list')
   }
 
+  async function addWizardCustomItem(catId: string, kind: 'profile-cat' | 'wizard-cat' | 'standard') {
+    if (addingItemRef.current) return
+    addingItemRef.current = true
+    try {
+      const existingPending = itemsByCat[catId]
+      let existingNames: string[]
+      if (existingPending) {
+        existingNames = existingPending.map((i) => i.name)
+      } else if (kind === 'standard') {
+        const stdCat = CATEGORIES.find((c) => c.id === catId)
+        existingNames = stdCat ? [...(stdCat.items as readonly string[])] : []
+      } else if (kind === 'profile-cat') {
+        const profileCat = (profile.customCategories ?? []).find((c) => c.id === catId)
+        existingNames = (profileCat?.items ?? []).map((i) => i.name)
+      } else {
+        existingNames = []
+      }
+      const existingSet = new Set(existingNames)
+
+      const nameResult = await dialog<string | null>({
+        title: t('q_add_custom_title'),
+        dismissable: false,
+        body: (close) => {
+          let value = ''
+          const submit = () => close(value.trim() || null)
+          return (
+            <div className="flex flex-col gap-2">
+              <input
+                autoFocus
+                placeholder={t('q_add_custom_placeholder')}
+                onChange={(e) => { value = e.target.value }}
+                onKeyDown={(e) => { if (e.key === 'Enter') submit() }}
+                className="w-full rounded border border-line px-2 py-1"
+                data-testid="modal-add-custom-input"
+              />
+              <button type="button" onClick={submit}
+                className="self-end px-3 py-1 rounded bg-accent text-on-accent"
+                data-testid="modal-add-custom-ok">
+                {t('btn_ok')}
+              </button>
+            </div>
+          )
+        },
+        actions: [{ label: t('btn_cancel'), kind: 'ghost', value: null }],
+      })
+      if (!nameResult) return
+      if (existingSet.has(nameResult)) { toast.message(t('q_item_already_exists') as string); return }
+
+      const fmtResult = await dialog<CustomItemFormat | false | 'back'>({
+        title: t('q_add_custom_format_title'),
+        dismissable: false,
+        body: (close) => <FormatPicker onClose={close} />,
+        actions: [],
+      })
+      if (!fmtResult || fmtResult === 'back') return
+      const format = fmtResult
+
+      let options: string[] | undefined
+      if (format === 'single' || format === 'multi' || format === 'ranking') {
+        const optsResult = await dialog<string[] | false | 'back'>({
+          title: t('q_add_custom_options_title'),
+          dismissable: false,
+          body: (close) => <OptionsInput onClose={close} />,
+          actions: [],
+        })
+        if (!optsResult || optsResult === 'back') return
+        options = optsResult
+      }
+
+      const item: PendingCustomItem = { name: nameResult, format, ...(options ? { options } : {}) }
+      setItemsByCat((prev) => {
+        let base = prev[catId]
+        if (!base && kind === 'profile-cat') {
+          const profileCat = (profile.customCategories ?? []).find((c) => c.id === catId)
+          base = (profileCat?.items ?? []).map((i) => ({
+            name: i.name,
+            format: i.format,
+            ...(i.options ? { options: i.options } : {}),
+            ...(i.itemScale ? { itemScale: i.itemScale } : {}),
+          }))
+        }
+        return { ...prev, [catId]: [...(base ?? []), item] }
+      })
+      setExpandedCats((prev) => { const next = new Set(prev); next.add(catId); return next })
+
+      if (kind !== 'wizard-cat') {
+        const saveToProfile = await dialog<boolean | null>({
+          title: t('q_save_item_to_profile_title'),
+          body: <p>{t('q_save_item_to_profile_body')}</p>,
+          actions: [
+            { label: t('btn_no'), kind: 'ghost', value: false },
+            { label: t('btn_yes'), kind: 'primary', value: true },
+          ],
+        })
+        if (saveToProfile) {
+          if (kind === 'profile-cat') {
+            const updatedCats = (profile.customCategories ?? []).map((c) =>
+              c.id === catId
+                ? { ...c, items: [...(c.items ?? []), { name: nameResult, format, ...(options ? { options } : {}) }] }
+                : c
+            )
+            updateProfile(profile.id, { customCategories: updatedCats })
+          } else {
+            updateProfile(profile.id, {
+              customItemDefs: {
+                ...(profile.customItemDefs ?? {}),
+                [catId]: {
+                  ...(profile.customItemDefs?.[catId] ?? {}),
+                  [nameResult]: { format, ...(options ? { options } : {}) },
+                },
+              },
+            })
+          }
+        }
+      }
+    } finally {
+      addingItemRef.current = false
+    }
+  }
+
   return (
     <Dialog open={true} onOpenChange={(o) => { if (!o) onCancel() }}>
       <DialogContent
@@ -581,7 +704,7 @@ export function NewMapWizard({ profile }: Props) {
                     {(profile.customCategories ?? []).map((cat) => {
                       const isChecked = checkedIds.has(cat.id)
                       const isExpanded = expandedCats.has(cat.id)
-                      const hasItems = cat.items && cat.items.length > 0
+                      const allItemNames = itemsByCat[cat.id]?.map((i) => i.name) ?? (cat.items ?? []).map((i) => i.name)
                       return (
                         <div key={cat.id} className="cat-picker-item-wrap">
                           <div className="cat-picker-item-row">
@@ -598,23 +721,26 @@ export function NewMapWizard({ profile }: Props) {
                               <span className="cat-picker-icon" aria-hidden>{cat.icon}</span>
                               <span className="cat-picker-label">{cat.title}</span>
                               <span className="cat-picker-check" aria-hidden>{isChecked ? '✓' : ''}</span>
-                              {hasItems && (
-                                <span
-                                  role="button"
-                                  tabIndex={0}
-                                  className={`cat-picker-expand-btn${isExpanded ? ' is-open' : ''}`}
-                                  onClick={(e) => { e.stopPropagation(); toggleExpandCat(cat.id) }}
-                                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); toggleExpandCat(cat.id) } }}
-                                  aria-expanded={isExpanded}
-                                >
-                                  {isExpanded ? '▲' : '▼'}
-                                </span>
-                              )}
+                              <span
+                                role="button"
+                                tabIndex={0}
+                                className={`cat-picker-expand-btn${isExpanded ? ' is-open' : ''}`}
+                                onClick={(e) => { e.stopPropagation(); toggleExpandCat(cat.id) }}
+                                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); toggleExpandCat(cat.id) } }}
+                                aria-expanded={isExpanded}
+                              >
+                                {isExpanded ? '▲' : '▼'}
+                              </span>
                             </label>
                           </div>
-                          {isExpanded && hasItems && (
+                          {isExpanded && (
                             <div className="cat-picker-item-preview">
-                              {cat.items!.map((i) => i.name).join(' · ')}
+                              {allItemNames.length > 0 && <div>{allItemNames.join(' · ')}</div>}
+                              <button type="button" className="cat-picker-add-item-btn"
+                                onClick={() => { void addWizardCustomItem(cat.id, 'profile-cat') }}
+                                data-testid={`wizard-add-item-${cat.id}`}>
+                                + {t('q_add_custom')}
+                              </button>
                             </div>
                           )}
                         </div>
@@ -623,7 +749,7 @@ export function NewMapWizard({ profile }: Props) {
                     {customCats.map((cat) => {
                       const isChecked = checkedIds.has(cat.id)
                       const isExpanded = expandedCats.has(cat.id)
-                      const hasItems = cat.items && cat.items.length > 0
+                      const allItemNames = (itemsByCat[cat.id] ?? []).map((i) => i.name)
                       return (
                         <div key={cat.id} className="cat-picker-item-wrap">
                           <div className="cat-picker-item-row">
@@ -640,23 +766,26 @@ export function NewMapWizard({ profile }: Props) {
                               <span className="cat-picker-icon" aria-hidden>{cat.icon}</span>
                               <span className="cat-picker-label">{cat.title}</span>
                               <span className="cat-picker-check" aria-hidden>{isChecked ? '✓' : ''}</span>
-                              {hasItems && (
-                                <span
-                                  role="button"
-                                  tabIndex={0}
-                                  className={`cat-picker-expand-btn${isExpanded ? ' is-open' : ''}`}
-                                  onClick={(e) => { e.stopPropagation(); toggleExpandCat(cat.id) }}
-                                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); toggleExpandCat(cat.id) } }}
-                                  aria-expanded={isExpanded}
-                                >
-                                  {isExpanded ? '▲' : '▼'}
-                                </span>
-                              )}
+                              <span
+                                role="button"
+                                tabIndex={0}
+                                className={`cat-picker-expand-btn${isExpanded ? ' is-open' : ''}`}
+                                onClick={(e) => { e.stopPropagation(); toggleExpandCat(cat.id) }}
+                                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); toggleExpandCat(cat.id) } }}
+                                aria-expanded={isExpanded}
+                              >
+                                {isExpanded ? '▲' : '▼'}
+                              </span>
                             </label>
                           </div>
-                          {isExpanded && hasItems && (
+                          {isExpanded && (
                             <div className="cat-picker-item-preview">
-                              {cat.items!.map((i) => i.name).join(' · ')}
+                              {allItemNames.length > 0 && <div>{allItemNames.join(' · ')}</div>}
+                              <button type="button" className="cat-picker-add-item-btn"
+                                onClick={() => { void addWizardCustomItem(cat.id, 'wizard-cat') }}
+                                data-testid={`wizard-add-item-${cat.id}`}>
+                                + {t('q_add_custom')}
+                              </button>
                             </div>
                           )}
                         </div>
@@ -714,7 +843,12 @@ export function NewMapWizard({ profile }: Props) {
                               </div>
                               {isExpanded && (
                                 <div className="cat-picker-item-preview">
-                                  {itemLabels.join(' · ')}
+                                  <div>{[...itemLabels, ...(itemsByCat[cat.id] ?? []).map((i) => i.name)].join(' · ')}</div>
+                                  <button type="button" className="cat-picker-add-item-btn"
+                                    onClick={() => { void addWizardCustomItem(cat.id, 'standard') }}
+                                    data-testid={`wizard-add-item-${cat.id}`}>
+                                    + {t('q_add_custom')}
+                                  </button>
                                 </div>
                               )}
                             </div>
