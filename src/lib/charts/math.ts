@@ -5,7 +5,7 @@
 
 import { CATEGORIES, SPIDER_AXES } from '@/lib/data/data'
 import type { MutableScaleStep } from '@/lib/data/types'
-import type { AnswersBlob, CategoryAnswers, CustomItemDef } from '@/lib/storage/types'
+import type { AnswersBlob, CategoryAnswers, CustomItemDef, CustomCategoryDef } from '@/lib/storage/types'
 
 // Re-export types used by callers.
 export interface CategoryProgress { answered: number; total: number }
@@ -285,8 +285,63 @@ export function catProgress(
 }
 
 /**
+ * Compute a normalised diff (0 = identical, 1 = maximally different) for a
+ * single non-scale custom item answered by both users.
+ * Returns null when either answer is missing or the format is 'text' (unskippable).
+ *   single   – binary 0/1 (same choice or not)
+ *   multi    – 1 − Jaccard; skipped when either set is empty
+ *   ranking  – avg normalised position distance over ≥2 common items
+ */
+export function nonScaleItemDiff(
+  cellA: AnswerEntry | undefined,
+  cellB: AnswerEntry | undefined,
+  format: 'single' | 'multi' | 'ranking',
+): number | null {
+  const a = cellA as { selectedValues?: string[]; rankingValues?: string[] } | undefined
+  const b = cellB as { selectedValues?: string[]; rankingValues?: string[] } | undefined
+
+  if (format === 'single') {
+    const va = a?.selectedValues?.[0]
+    const vb = b?.selectedValues?.[0]
+    if (!va || !vb) return null
+    return va === vb ? 0 : 1
+  }
+
+  if (format === 'multi') {
+    const setA = new Set(a?.selectedValues ?? [])
+    const setB = new Set(b?.selectedValues ?? [])
+    if (setA.size === 0 || setB.size === 0) return null
+    const intersection = [...setA].filter((x) => setB.has(x)).length
+    const union = new Set([...setA, ...setB]).size
+    return union === 0 ? null : 1 - intersection / union
+  }
+
+  // ranking
+  const rankA = a?.rankingValues ?? []
+  const rankB = b?.rankingValues ?? []
+  const common = rankA.filter((x) => rankB.includes(x))
+  if (common.length < 2 || rankA.length < 2 || rankB.length < 2) return null
+  const totalDiff = common.reduce((sum, item) => {
+    const posA = rankA.indexOf(item) / (rankA.length - 1)
+    const posB = rankB.indexOf(item) / (rankB.length - 1)
+    return sum + Math.abs(posA - posB)
+  }, 0)
+  return totalDiff / common.length
+}
+
+export interface CategoryItemAlignmentOpts {
+  /** Format lookup for custom items inside standard categories (catId → itemName → def). */
+  customItemDefsA?: Record<string, Record<string, CustomItemDef>>
+  customItemDefsB?: Record<string, Record<string, CustomItemDef>>
+  /** Custom category definitions — used to look up item formats for custom categories. */
+  customCatsA?: readonly CustomCategoryDef[]
+  customCatsB?: readonly CustomCategoryDef[]
+}
+
+/**
  * Item-granular proximity score for exactly 2 answer sets in one category.
- * For each item answered by both: compute |norm_A - norm_B|, average, invert.
+ * For each item answered by both: compute |norm_A − norm_B|, average, invert.
+ * Supports non-scale custom items (single/multi/ranking) when opts are provided.
  * Returns null when fewer than 1 shared answered item exists.
  */
 export function categoryItemAlignment(
@@ -295,6 +350,7 @@ export function categoryItemAlignment(
   catId: string,
   scaleA: readonly MutableScaleStep[],
   scaleB: readonly MutableScaleStep[],
+  opts?: CategoryItemAlignmentOpts,
 ): number | null {
   const cat = CATEGORIES.find((c) => c.id === catId)
   const slotA = answersA?.[catId] ?? {}
@@ -308,6 +364,19 @@ export function categoryItemAlignment(
     return result ? result.norm : null
   }
 
+  function customItemFormat(key: string): 'scale' | 'text' | 'single' | 'multi' | 'ranking' {
+    // Standard category with custom items: look up in customItemDefs
+    const defA = opts?.customItemDefsA?.[catId]?.[key]
+    const defB = opts?.customItemDefsB?.[catId]?.[key]
+    if (defA?.format || defB?.format) return defA?.format ?? defB?.format ?? 'scale'
+    // Custom category: look up in CustomCategoryDef.items
+    const catDefA = opts?.customCatsA?.find((c) => c.id === catId)
+    const catDefB = opts?.customCatsB?.find((c) => c.id === catId)
+    const itemA = catDefA?.items?.find((i) => i.name === key)
+    const itemB = catDefB?.items?.find((i) => i.name === key)
+    return itemA?.format ?? itemB?.format ?? 'scale'
+  }
+
   if (cat) {
     for (const item of cat.items) {
       const nA = cellNorm(slotA[item], scaleA)
@@ -318,9 +387,16 @@ export function categoryItemAlignment(
 
   for (const key of Object.keys(slotA.__custom ?? {})) {
     if (!(key in (slotB.__custom ?? {}))) continue
-    const nA = cellNorm(slotA.__custom?.[key], scaleA)
-    const nB = cellNorm(slotB.__custom?.[key], scaleB)
-    if (nA !== null && nB !== null) diffs.push(Math.abs(nA - nB))
+    const format = customItemFormat(key)
+    if (format === 'text') continue
+    if (format === 'scale') {
+      const nA = cellNorm(slotA.__custom?.[key], scaleA)
+      const nB = cellNorm(slotB.__custom?.[key], scaleB)
+      if (nA !== null && nB !== null) diffs.push(Math.abs(nA - nB))
+    } else {
+      const diff = nonScaleItemDiff(slotA.__custom?.[key], slotB.__custom?.[key], format)
+      if (diff !== null) diffs.push(diff)
+    }
   }
 
   if (diffs.length === 0) return null

@@ -76,10 +76,16 @@ export function CompareDetails() {
   const alignmentScores = useMemo<Record<string, number | null> | undefined>(() => {
     if (datasets.length !== 2 || !twoMapSpiderAxes || !datasets[0] || !datasets[1]) return undefined
     const [a, b] = datasets
+    const opts = {
+      customItemDefsA: a.customItemDefs,
+      customItemDefsB: b.customItemDefs,
+      customCatsA: a.customCategories,
+      customCatsB: b.customCategories,
+    }
     return Object.fromEntries(
       twoMapSpiderAxes.map((catId) => [
         catId,
-        categoryItemAlignment(a.answers, b.answers, catId, a.scale, b.scale),
+        categoryItemAlignment(a.answers, b.answers, catId, a.scale, b.scale, opts),
       ])
     )
   // eslint-disable-next-line react-hooks/exhaustive-deps
