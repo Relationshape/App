@@ -68,9 +68,11 @@ export function ProfileDetail() {
   // "Copy map" dialog — same simple flow as use-as-template
   const [copySourceResult, setCopySourceResult] = useState<import('@/lib/storage/types').Result | null>(null)
   const [copySubject, setCopySubject] = useState('')
+  const [copyWithAnswers, setCopyWithAnswers] = useState(true)
 
   function startCopyResult(r: import('@/lib/storage/types').Result) {
     setCopySubject(r.subject?.trim() ?? '')
+    setCopyWithAnswers(true)
     setCopySourceResult(r)
   }
 
@@ -87,7 +89,9 @@ export function ProfileDetail() {
       scale: copySourceResult.scale ?? storeScale,
       ...(copySourceResult.customItemDefs ? { customItemDefs: structuredClone(copySourceResult.customItemDefs) } : {}),
       ...(copySourceResult.customCategories ? { customCategories: structuredClone(copySourceResult.customCategories) } : {}),
-      answers: structuredClone(copySourceResult.answers),
+      answers: copyWithAnswers
+        ? structuredClone(copySourceResult.answers)
+        : seedAnswersFromTemplate(copySourceResult.customItemDefs, copySourceResult.customCategories),
       seededFromResultId: copySourceResult.id,
       progress: { mode: 'list' },
       createdAt: Date.now(),
@@ -346,7 +350,7 @@ export function ProfileDetail() {
       <Dialog open={!!copySourceResult} onOpenChange={(o) => { if (!o) setCopySourceResult(null) }}>
         <DialogContent className="max-w-sm" data-testid="profile-copy-map-dialog">
           <DialogTitle>{t('copy_map_title')}</DialogTitle>
-          <div className="flex flex-col gap-2 py-1">
+          <div className="flex flex-col gap-3 py-1">
             <input
               type="text"
               className="w-full rounded border border-line px-3 py-2 text-sm bg-surface"
@@ -357,6 +361,24 @@ export function ProfileDetail() {
               autoFocus
               data-testid="profile-copy-map-subject"
             />
+            <div className="flex gap-2">
+              <button
+                type="button"
+                className={`btn flex-1${copyWithAnswers ? ' btn-primary' : ''}`}
+                onClick={() => setCopyWithAnswers(true)}
+                data-testid="profile-copy-with-answers"
+              >
+                {t('copy_map_with_answers')}
+              </button>
+              <button
+                type="button"
+                className={`btn flex-1${!copyWithAnswers ? ' btn-primary' : ''}`}
+                onClick={() => setCopyWithAnswers(false)}
+                data-testid="profile-copy-without-answers"
+              >
+                {t('copy_map_without_answers')}
+              </button>
+            </div>
           </div>
           <DialogFooter>
             <Button variant="ghost" onClick={() => setCopySourceResult(null)}>{t('btn_cancel')}</Button>
