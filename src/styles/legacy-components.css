@@ -1524,14 +1524,14 @@ a:hover { text-decoration: underline; }
   }
 }
 .rs-click-scale-ref-label {
-  position: absolute; top: 34px;
+  position: absolute; top: 46px;
   font-size: 10px; color: var(--muted); white-space: nowrap;
   max-width: 100px; overflow: hidden; text-overflow: ellipsis; text-align: left;
   transform: rotate(-30deg); transform-origin: top left;
 }
 @media (max-width: 560px) {
   .rs-click-scale { padding-bottom: 108px; }
-  .rs-click-scale-ref-label { top: 38px; }
+  .rs-click-scale-ref-label { top: 50px; }
 }
 
 .q-slider-wrap { grid-column: 1 / -1; padding: 28px 4px 0; }

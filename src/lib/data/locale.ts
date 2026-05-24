@@ -31,7 +31,7 @@ const DE_SCALE: Record<string, { label: string; short: string; description: stri
   'maybe':      { label: 'Vielleicht',              short: 'Vielleicht',  description: 'Hoffentlich oder vielleicht in Zukunft.' },
   'open':       { label: 'Offen dafür',            short: 'Offen',       description: 'Ich bin offen, neutral, bereit zu erkunden.' },
   'want':       { label: 'Möchte ich',             short: 'Möchte',      description: 'Ich würde das gerne.' },
-  'hell-yes':   { label: 'Auf jeden Fall!',         short: 'Ja!',         description: 'Starkes Ja, aufregend und willkommen.' },
+  'hell-yes':   { label: 'Ja, unbedingt!',           short: 'Ja!',         description: 'Starkes Ja, aufregend und willkommen.' },
   'need':       { label: 'Brauche ich',            short: 'Brauche',     description: 'Höchste Priorität. Wenn nicht erfüllt, überdenke ich die Beziehung.' },
 }
 
