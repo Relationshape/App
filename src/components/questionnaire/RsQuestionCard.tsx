@@ -821,6 +821,8 @@ export function NonScaleRankingAnswer({ options, cell, onSave }: {
     onSave({ rankingValues: next })
   }
 
+  const isConfirmed = saved.length > 0
+
   return (
     <div className="q-non-scale-wrap">
       <div className="q-ranking-list">
@@ -833,6 +835,15 @@ export function NonScaleRankingAnswer({ options, cell, onSave }: {
           </div>
         ))}
       </div>
+      {!isConfirmed && (
+        <button
+          type="button"
+          className="btn btn-sm btn-ghost q-ranking-confirm-btn"
+          onClick={() => onSave({ rankingValues: [...effective] })}
+        >
+          {t('ranking_confirm_order')}
+        </button>
+      )}
     </div>
   )
 }

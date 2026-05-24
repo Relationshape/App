@@ -3,7 +3,7 @@
 import { CATEGORIES } from '@/lib/data/data'
 import { categoryItemAlignment } from '@/lib/charts/math'
 import type { ChartDataset } from './types'
-import { t } from '@/lib/i18n/i18n'
+import { t, getLang } from '@/lib/i18n/i18n'
 
 interface Props { datasets: readonly ChartDataset[] }
 
@@ -25,8 +25,9 @@ export function Alignment({ datasets }: Props) {
     customCatsB: b.customCategories,
   }
 
+  const lang = getLang()
   const rows = [
-    ...CATEGORIES.map((cat) => ({ id: cat.id, title: cat.title, icon: cat.icon })),
+    ...CATEGORIES.map((cat) => ({ id: cat.id, title: lang === 'de' && cat.de ? cat.de : cat.title, icon: cat.icon })),
     ...Array.from(customCatMap.values()),
   ].map(({ id, title, icon }) => {
     const align = categoryItemAlignment(a.answers, b.answers, id, a.scale, b.scale, opts)

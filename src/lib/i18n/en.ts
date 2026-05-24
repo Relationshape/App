@@ -424,6 +424,7 @@ export const EN = {
   // Misc
   btn_ok: 'OK',
   alignment_match: '🎯 Strongest alignment',
+  alignment_score_badge: '{pct}% match',
   alignment_gaps: '⚡ Biggest gaps — talk about these',
   spider_empty: 'Not enough data yet.',
   item_spider_empty: 'Answer at least 3 items in this category to see a radar chart.',
@@ -693,6 +694,7 @@ export const EN = {
   q_format_single_badge: 'Single selection',
   q_format_multi_badge: 'Multiple selection possible',
   q_format_ranking_badge: 'Ranking: Rate the options using the arrow keys',
+  ranking_confirm_order: 'Confirm order',
   q_add_custom_options_title: 'Define options',
   q_add_custom_options_sub: 'Enter one option per line (min. 2)',
   q_add_custom_options_min: 'Please enter at least 2 options.',

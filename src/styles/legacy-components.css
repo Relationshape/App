@@ -1736,6 +1736,12 @@ a:hover { text-decoration: underline; }
 .cat-card.cat-card-btn { text-align: left; font: inherit; color: var(--text); cursor: pointer; padding: 0; }
 .cat-card.cat-card-btn .cat-card-toggle { transform: none; color: var(--c); font-size: 18px; }
 .cat-card.cat-card-btn:hover .cat-card-toggle { transform: translateX(3px); }
+.cat-card-align-badge {
+  padding: 4px 12px 8px;
+  font-size: 12px;
+  color: var(--c);
+  opacity: 0.85;
+}
 
 .cat-modal-body { --c: var(--primary); display: grid; gap: 16px; max-width: 720px; }
 .cat-modal-head {
@@ -3653,6 +3659,7 @@ button.rs-tile:hover {
 }
 .q-ranking-row .btn-icon:hover:not(:disabled) { background: var(--surface-3); color: var(--text); }
 .q-ranking-row .btn-icon:disabled { opacity: 0.3; cursor: default; }
+.q-ranking-confirm-btn { margin-top: 6px; font-size: 12px; opacity: 0.75; }
 .q-text-answer {
   width: 100%; border-radius: 8px; border: 1.5px solid var(--glass-border);
   background: var(--surface-2); color: var(--text);

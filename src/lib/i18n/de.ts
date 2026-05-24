@@ -442,6 +442,7 @@ export const DE: Record<TranslationKey, string> = {
   // Misc
   btn_ok: 'OK',
   alignment_match: '🎯 Stärkste Übereinstimmung',
+  alignment_score_badge: '{pct}% Übereinstimmung',
   alignment_gaps: '⚡ Größte Unterschiede – darüber reden',
   spider_empty: 'Noch nicht genug Daten.',
   item_spider_empty:
@@ -712,6 +713,7 @@ export const DE: Record<TranslationKey, string> = {
   q_format_single_badge: 'Einfachauswahl',
   q_format_multi_badge: 'Mehrfachauswahl möglich',
   q_format_ranking_badge: 'Ranking: Bewerte die Antwortmöglichkeiten mittels Pfeiltasten',
+  ranking_confirm_order: 'Reihenfolge bestätigen',
   q_add_custom_options_title: 'Optionen definieren',
   q_add_custom_options_sub: 'Eine Option pro Zeile eingeben (min. 2)',
   q_add_custom_options_min: 'Bitte mindestens 2 Optionen eingeben.',
