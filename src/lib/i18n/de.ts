@@ -770,49 +770,48 @@ export const DE: Record<TranslationKey, string> = {
   guide_skip: 'Überspringen',
   guide_p1_title: 'Wie Relationshapes nutzen',
   guide_p1_body:
-    'Relationshapes kann zwar auch zur individuellen Selbstreflexion genutzt werden, ist aber vor allem dafür konzipiert, gemeinsam mit anderen Menschen Beziehungen zu gestalten. Wir geben hier eine erfahrungsbasierte detaillierte Empfehlung für den gemeinsamen Prozess, aber auch eine Ermutigung, euren eigenen Flow zu finden!',
+    'Relationshapes eignet sich für Selbstreflexion, ist aber vor allem für gemeinsame Beziehungsgestaltung gedacht. Dieser Leitfaden bietet erfahrungsbasierte Empfehlungen für den Prozess, aber findet euren eigenen Flow. Es können beliebig viele Karten für beliebig viele Verbindungen erstellt werden.',
   guide_p1_note: 'Diesen Leitfaden kannst du jederzeit unter «How To» wieder aufrufen.',
   guide_p2_title: 'Ein technischer Tipp vorneweg',
   guide_p2_body:
-    'Das «Privacy First» Design der App hat zur Folge, dass ihr euch Files hin und her schicken müsst. Die App und Features funktionieren dann am besten, wenn ihr sicherstellt, dass ihr wirklich mit demselben Fragenkatalog arbeitet. Daher ist es am besten, jemand oder ihr zu zweit/als Gruppe erstellt zuerst den Katalog auf einem Gerät und teilt diesen dann als Vorlage mit den Anderen. Wenn danach noch Änderungen vorgenommen werden müssen, bietet die App zwar technische Workarounds – wir schlagen als einfachste Lösung jedoch vor, die Anpassungen parallel auf den jeweiligen Geräten vorzunehmen.',
-  guide_p3_title: 'Bevor ihr beginnt',
+    'Da die App auf «Privacy First» basiert, müsst ihr Dateien austauschen. Erstellt den Fragenkatalog idealerweise gemeinsam auf einem Gerät und teilt ihn als Vorlage. Änderungen danach am besten parallel auf allen Geräten vornehmen - für eine optimale Erfahrung sollten eure Fragenkataloge identisch sein.',
   guide_p3_body:
-    'Wählt einen Rahmen, in dem ihr euch wohl und fokussiert fühlen könnt. Dieser Prozess braucht Zeit und kann Emotionen und Konflikte hervorrufen. Macht nicht alles in einer Session, plant Pausen ein und überlegt vorab, wie ihr mit schwierigen Momenten umgehen wollt (gemeinsam und individuell). Begegnet euch mit Dankbarkeit und Grosszügigkeit. Versucht eine lustvolle Haltung einzunehmen, in der ihr euch freut, mehr übereinander zu lernen!',
+    'Schafft einen sicheren, ruhigen Rahmen. Der Prozess braucht Zeit und kann Emotionen oder Konflikte auslösen. Plant Pausen ein und besprecht vorab den Umgang mit schwierigen Momenten. Begegnet euch offen und grosszügig, und seid neugierig, mehr übereinander zu lernen!',
   guide_p4_s1_title: 'Gemeinsam durchlesen',
   guide_p4_s1_body:
-    "Startet zunächst gemeinsam auf einem einzigen Gerät. 'Unter Profil – Neue Beziehungskarte starten – Leer beginnen' könnt ihr euch mit der Bewertungsskala vertraut machen. Die Skala um Beziehungslemente zu bewerten ist als Standard 7-stufig von 'Nein/will ich nicht' bis zu 'Brauche ich', kann jedoch geändert werden. Es gibt auch Fragen, die nicht auf einer Skala beantwortet werden, z.B. Multiple Choice oder Freitext.\nGeht danach die vordefinierten Kategorien durch. Die Dropdowns zeigen im Detail, welche Fragen/Elemente in der jeweiligen Kategorie enthalten sind.",
+    'Startet gemeinsam auf einem Gerät, idealerweise am Desktop. Unter «Profil – Neue Beziehungskarte starten – Leer beginnen» könnt ihr die Fragen und Bewertungsskala kennenlernen und anpassen. Neben Skalenfragen gibt es auch z.B. Multiple Choice oder Freitext. Geht danach die Kategorien und die im Dropdown enthaltenen Fragen gemeinsam durch.',
   guide_p4_s2_title: 'Kategorien auswählen',
   guide_p4_s2_body:
-    'Entscheidet euch, welche Kategorien für eure Beziehung aktuell zutreffen und/oder wichtig sind zu besprechen. Wählt Einzelne aus, oder schliesst gleich alle mit ein. Ihr könnt auch eigene Kategorien erstellen, oder im Dropdown neue Elemente zu bestehenden Kategorien hinzufügen. Allein dieser Entscheidungsschritt löst oft schon gute Gespräche aus. Es können auch später noch Kategorien/Elemente hinzugefügt werden, aus technischen Gründen ist es jedoch sinnvoll, im Zweifelsfall eher zu viel als zu wenig miteinzubeziehen.',
+    'Wählt die für euch relevanten Kategorien aus oder ergänzt eigene. Oft entstehen dabei bereits wertvolle Gespräche. Spätere Änderungen sind zwar möglich, werden aber nicht automatisch auf anderen Geräten synchronisiert - daher lieber zu viel als zu wenig auswählen.',
   guide_p5_heading: 'Das Ausfüllen',
   guide_p5_s1_title: 'Vorlage Teilen',
   guide_p5_s1_body:
-    'Sobald ihr euch entschieden habt, könnt ihr den Fragebogen als Vorlage teilen. Kopiert oder downloadet den verschlüsselten Text, und importiert ihn in die App auf einem zweiten Gerät.',
+    'Teilt den Fragebogen als Vorlage, indem ihr den verschlüsselten Text exportiert und auf dem zweiten Gerät mit dem Passwort importiert.',
   guide_p5_s2_title: 'Skala kalibrieren',
   guide_p5_s2_body:
-    'Besprecht, was die einzelnen Stufen der Skala für euch jeweils bedeuten. Das Ziel ist ein gemeinsames, nuanciertes Verständnis, damit eure Antworten danach auch wirklich vergleichbar sind.',
+    'Klärt gemeinsam, was die einzelnen Skalenstufen bedeuten, damit eure Antworten vergleichbar sind. Das Ziel ist ein gemeinsames, nuanciertes Verständnis.',
   guide_p5_s3_title: 'Beantworten',
   guide_p5_s3_body:
-    "Ab jetzt empfehlen wir, die Fragen getrennt zu beantworten. Es kann jedoch dennoch hilfreich sein, im selben Raum zu bleiben, um spontan aufkommende Fragen zu klären. Wir ermutigen euch, diese Diskussionen zu führen (z.B. «Was bedeutet eigentlich 'Commitment'? Welche Handlungen gehen für mich unter 'Emotionaler Support'?», etc.).\nFalls ihr noch Änderungen an der Karte vornehmen möchtet, ist es am einfachsten, wenn ihr das parallel auf beiden Geräten macht. Andernfalls müsst ihr den File-Austausch erneut vornehmen, damit beide dieselbe Ausgangslage haben.",
+    'Beantwortet die Fragen danach möglichst unabhängig. Bleibt bei Bedarf im selben Raum oder ermöglicht sonstigen Austausch, um Begriffe und Bedeutungen gemeinsam zu klären. Nachträgliche Änderungen am Katalog am besten parallel auf beiden Geräten vornehmen.',
   guide_p6_heading: 'Vergleichen',
   guide_p6_s1_title: 'Karten exportieren/die des Gegenübers importieren',
   guide_p6_s1_body:
-    "Sobald ihr die Elemente bewertet/die Fragen beantwortet habt ist es Zeit, eure Relationshapes zu vergleichen. Dazu exportiert ihr beide eure Karten mit den jeweiligen Antworten unter 'Profil – Beziehungskarten – Teilen…'. Dort habt ihr neben dem uneingeschränkten Export auch die Möglichkeit, eure Antworten zusätzlich mit einem Passwort zu schützen, damit euer Gegenüber sie erst später freischalten kann, z.B. wenn ihr nicht gleichzeitig fertig seid.\nDie exportierten Files tauscht ihr dann aus, bzw. importiert die Daten eures Gegenübers auf eurem Gerät.",
+    'Exportiert eure beantworteten Karten unter "Profil – Beziehungskarten – Teilen…" und tauscht die Dateien aus. Importiert die Karte eures Gegenübers dann wiederum auf eurem Gerät unter "Profil – Beziehungskarten – Importieren".',
   guide_p6_s2_title: 'Ergebnisse übereinanderlegen',
   guide_p6_s2_body:
     "Unter dem Menupunkt 'Vergleichen' könnt ihr danach eure Karten übereinanderlegen und Kategorie für Kategorie eure Übereinstimmungen und Unterschiede sehen. Ihr könnt die Kategorien einzeln in der App ansehen, oder einen Vergleichsbericht als PDF herunterladen.",
   guide_p7_heading: 'Die Integration',
   guide_p7_s1_title: 'Besprechen',
   guide_p7_s1_body:
-    'Teilt eure Gefühle und Gedanken offen und ehrlich miteinander. Bei Uneinigkeiten: Besprecht, was diese für euch bedeuten. Bei Unklarheiten: Bittet einander um Erläuterung, bevor ihr Schlüsse zieht.',
+    'Teilt eure Gefühle und Gedanken offen.  Klärt Unterschiede gemeinsam und fragt bei Unklarheiten nach, bevor ihr Schlüsse zieht. Klärt auch hier nochmal Begriffe, falls nötig (z.B. "Welche Handlungen verstehst du als emotionalen Support?").',
   guide_p7_s2_title: 'In die Praxis tragen',
   guide_p7_s2_body:
-    'Findet Abmachungen und Kompromisse, die für euch stimmen. Tragt die neuen Erkenntnisse in eure Beziehungsgestaltung. Zieht Schlussfolgerungen und lasst euch inspirieren, kontinuierlich Vereinbarungen zu treffen und einander besser zu verstehen.',
+    'Findet Abmachungen und Kompromisse, die für euch stimmen. Tragt die neuen Erkenntnisse in eure Beziehungsgestaltung.',
   guide_p8_heading: 'In die Zukunft tragen',
   guide_p8_s1_title: 'Regelmässig wiederholen',
   guide_p8_s1_body:
-    'Kehrt in regelmässigen Abständen (z. B. einmal pro Jahr) zu euren Karten zurück. Besprecht, was sich verändert hat und welche Konsequenzen das hat. Die App erlaubt euch, bestehende Karten zu bearbeiten oder zu kopieren und als neue Version wieder auszutauschen.',
+    'Kehrt in regelmässigen Abständen (z. B. einmal pro Jahr) zu euren Karten zurück. Besprecht Veränderungen und passt Abmachungen an. Die App erlaubt euch, bestehende Karten zu bearbeiten oder zu kopieren und versionskontrolliert wieder auszutauschen.',
   guide_p8_s2_title: 'Anpassen',
   guide_p8_s2_body:
-    'Verändert eure Praxis im Laufe der Zeit, ergänzt eure Karten und findet euren eigenen Weg mit Relationshapes! Es können beliebig viele Karten für beliebig viele Verbindungen erstellt werden. Karten mit gleichem Titel werden auch automatisch Versions-kontrolliert.',
+    'Entwickelt eure Praxis, ergänzt Karten und findet euren eigenen Flow mit Relationshapes!',
 }
