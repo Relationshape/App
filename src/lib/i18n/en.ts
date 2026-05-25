@@ -748,49 +748,53 @@ export const EN = {
   guide_back: 'Back',
   guide_next: 'Next',
   guide_done: 'Get started!',
-  guide_p1_title: 'How to use Relationshape',
+  guide_p1_title: 'How to use Relationshapes',
   guide_p1_body:
-    'Relationshape helps you — as a couple or in any relationship — explore and share your needs, values, and expectations visually. Each person fills in their own map independently, then you compare results together.',
-  guide_p1_note: "You can find this guide at any time by tapping the 'How to' button.",
-  guide_p2_title: 'Technical note: Privacy First',
+    'Relationshapes can be used for individual self-reflection, but it is primarily designed for shaping relationships together with others. We offer an experience-based, detailed recommendation for the shared process — and an encouragement to find your own flow!',
+  guide_p1_note: 'You can open this guide at any time under «How To».',
+  guide_p2_title: 'A technical tip upfront',
   guide_p2_body:
-    'All data stays on your device — no servers, no accounts, no cloud sync. To share your map, export an encrypted file and send it directly (e.g. via messenger or email). The other person imports it into their own app. Everything stays under your control.',
+    "The «Privacy First» design of the app means you'll need to send files back and forth. The app and its features work best when you make sure you're really working with the same questionnaire. The easiest approach is to have one person (or the group) create the questionnaire on one device first, then share it as a template with the others. If changes need to be made afterwards, the app offers technical workarounds — but we suggest the simplest solution: make the adjustments in parallel on each device.",
   guide_p3_title: 'Before you begin',
   guide_p3_body:
-    'Choose a setting where you both feel comfortable and focused. This process takes time and may bring up emotions — old and new. Plan for breaks and think ahead about how you want to handle difficult moments — together and individually. Meet each other with gratitude and generosity.',
-  guide_p4_s1_title: 'Read together first',
+    "Choose a setting where you feel comfortable and focused. This process takes time and can bring up emotions and conflicts. Don't try to do everything in one session — plan for breaks and think ahead about how you want to handle difficult moments (together and individually). Meet each other with gratitude and generosity. Try to approach this with curiosity and joy, looking forward to learning more about each other!",
+  guide_p4_s1_title: 'Read together',
   guide_p4_s1_body:
-    'Read through the questionnaire together before filling it in — ideally side by side, so you can talk as you go.',
+    "Start together on a single device. Under 'Profile – Start new relationship map – Start blank' you can familiarise yourselves with the rating scale. The scale for rating relationship elements is 7 steps by default, from 'No/don't want' to 'I need this', but it can be changed. There are also questions that are not answered on a scale, e.g. multiple choice or free text.\nAfterwards, go through the predefined categories. The dropdowns show in detail what questions/elements are included in each category.",
   guide_p4_s2_title: 'Choose categories',
   guide_p4_s2_body:
-    'Together, pick the sections that feel relevant to your relationship. Add or remove items as you like. This step alone often sparks great conversations.',
+    "Decide which categories are currently relevant and/or important to discuss for your relationship. Pick individual ones, or include all of them. You can also create your own categories, or add new elements to existing categories in the dropdown. This decision step alone often sparks good conversations. Categories/elements can also be added later, but for technical reasons it's better to include too many rather than too few when in doubt.",
+  guide_p5_heading: 'Filling it in',
   guide_p5_s1_title: 'Share the template',
   guide_p5_s1_body:
-    'Before you start answering, share the questionnaire with your counterpart as a template — so you both use the same map structure.',
+    'Once you have decided, you can share the questionnaire as a template. Copy or download the encrypted text, and import it into the app on a second device.',
   guide_p5_s2_title: 'Calibrate the scale',
   guide_p5_s2_body:
-    'Talk through what each scale level means to you both. The goal is a shared, nuanced understanding. Rename or adjust the scale as needed.',
-  guide_p5_s3_title: 'Answer separately',
+    'Talk through what each step of the scale means to you. The goal is a shared, nuanced understanding so that your answers are genuinely comparable afterwards.',
+  guide_p5_s3_title: 'Answer',
   guide_p5_s3_body:
-    'Each person fills in their own map independently — in the same room or apart. Clarify ambiguous terms together beforehand, then answer without influencing each other.',
-  guide_p6_s1_title: 'Export & import maps',
+    "From now on we recommend answering the questions separately. It can still be helpful to stay in the same room, though, to clarify questions that come up spontaneously. We encourage you to have these discussions (e.g. «What does 'commitment' actually mean? What actions count as 'emotional support' for me?», etc.).\nIf you still want to make changes to the map, it's easiest to do this in parallel on both devices. Otherwise you'll need to repeat the file exchange so that both of you have the same starting point.",
+  guide_p6_heading: 'Compare',
+  guide_p6_s1_title: "Export your maps / import your counterpart's",
   guide_p6_s1_body:
-    'Export your map as an encrypted file and send it directly to your counterpart. They import it into their own app — and send theirs back to you.',
+    "Once you have rated the elements / answered the questions, it's time to compare your Relationshapes. To do this, both of you export your maps with your answers under 'Profile – Relationship maps – Share…'. In addition to the unrestricted export, you can also protect your answers with an additional password, so your counterpart can unlock them later — e.g. if you don't finish at the same time.\nYou then exchange the exported files and each import the other person's data into your own device.",
   guide_p6_s2_title: 'Overlay results',
   guide_p6_s2_body:
-    'Use the Compare view to look at both maps side by side. Strong matches and big gaps are highlighted — these are your starting points for conversation.',
-  guide_p7_s1_title: 'Talk it through',
+    "Under the 'Compare' menu item you can then overlay your maps and see your matches and differences category by category. You can view the categories individually in the app, or download a comparison report as a PDF.",
+  guide_p7_heading: 'Integration',
+  guide_p7_s1_title: 'Discuss',
   guide_p7_s1_body:
-    "Share your feelings and thoughts openly. When you disagree, explore what that means. When something's unclear, ask each other to elaborate before drawing conclusions.",
-  guide_p7_s2_title: 'Put it into practice',
+    'Share your feelings and thoughts openly and honestly with each other. When you disagree: discuss what this means for you. When things are unclear: ask each other for clarification before drawing conclusions.',
+  guide_p7_s2_title: 'Put into practice',
   guide_p7_s2_body:
-    'Carry new insights into your everyday relationship. Let them inspire ongoing agreements and a deeper understanding of each other.',
+    'Find agreements and compromises that work for you. Carry the new insights into how you shape your relationship. Draw conclusions and let yourself be inspired to continuously make agreements and understand each other better.',
+  guide_p8_heading: 'Carrying it forward',
   guide_p8_s1_title: 'Revisit regularly',
   guide_p8_s1_body:
-    'Return to your maps every few months (e.g. every 6 months). Talk about what has changed and what that means for you.',
-  guide_p8_s2_title: 'Adapt over time',
+    'Return to your maps at regular intervals (e.g. once a year). Discuss what has changed and what the consequences are. The app lets you edit existing maps or copy them and share them again as a new version.',
+  guide_p8_s2_title: 'Adapt',
   guide_p8_s2_body:
-    'Modify your practice, add to your maps, and find your own way of using Relationshape.',
+    'Modify your practice over time, add to your maps, and find your own way of using Relationshapes! Any number of maps can be created for any number of connections. Maps with the same title are also automatically version-controlled.',
 } as const
 
 export type TranslationKey = keyof typeof EN
