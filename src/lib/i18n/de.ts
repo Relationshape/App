@@ -685,6 +685,7 @@ export const DE: Record<TranslationKey, string> = {
   template_copy_answers_no: 'Ohne Antworten starten',
   result_rename_label: 'Umbenennen',
   result_rename_placeholder: 'Name…',
+  map_subject_placeholder: 'z.B. Vera, meine gute Freundin',
   cat_create_title_label: 'Kategoriename',
   cat_create_title_placeholder: 'z.B. Arbeit, Spiritualität...',
   cat_create_emoji_label: 'Symbol (optional)',

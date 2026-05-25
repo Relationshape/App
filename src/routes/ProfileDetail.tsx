@@ -16,6 +16,7 @@ import { TemplateViewModal } from '@/components/TemplateViewModal'
 import { CATEGORIES } from '@/lib/data/data'
 import { seedAnswersFromTemplate } from '@/lib/charts/items'
 import { t } from '@/lib/i18n/i18n'
+import { uniqueSubject } from '@/lib/storage/uniqueSubject'
 import { ProcessGuideModal } from '@/components/ProcessGuideModal'
 import { useToast } from '@/lib/hooks/useToast'
 import type { Import } from '@/lib/storage/types'
@@ -77,10 +78,11 @@ export function ProfileDetail() {
   function confirmCopyResult(withAnswers: boolean) {
     if (!copySourceResult || !profile) return
     const newId = crypto.randomUUID()
+    const existingSubjects = results.map((r) => r.subject ?? '')
     saveResult({
       id: newId,
       profileId: profile.id,
-      subject: copySubject.trim() || profile.name,
+      subject: uniqueSubject(copySubject.trim() || profile.name, existingSubjects),
       subjectEmoji: copySourceResult.subjectEmoji || profile.emoji,
       subjectColor: copySourceResult.subjectColor || profile.color,
       enabledCategories: [...new Set([
@@ -115,10 +117,11 @@ export function ProfileDetail() {
   function confirmUseAsTemplate() {
     if (!templateImp || !profile) return
     const newId = crypto.randomUUID()
+    const existingSubjects = results.map((r) => r.subject ?? '')
     saveResult({
       id: newId,
       profileId: profile.id,
-      subject: templateSubject.trim() || profile.name,
+      subject: uniqueSubject(templateSubject.trim() || profile.name, existingSubjects),
       subjectEmoji: templateImp.subjectEmoji || profile.emoji,
       subjectColor: templateImp.subjectColor || profile.color,
       enabledCategories: [...new Set([

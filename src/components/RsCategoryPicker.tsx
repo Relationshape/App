@@ -337,35 +337,31 @@ export function RsCategoryPicker({ open, onOpenChange, existingIds, result, prof
                       const hasItems = cat.items && cat.items.length > 0
                       return (
                         <div key={cat.id} className="cat-picker-item-wrap">
-                          <div className="cat-picker-item-row">
-                            <label
-                              htmlFor={`cp-${cat.id}`}
-                              className={
-                                'cat-picker-item' +
-                                (locked ? ' is-locked' : '') +
-                                (isChecked ? ' is-checked' : '')
-                              }
-                              data-testid={`cat-picker-item-${cat.id}`}
-                            >
-                              <input
-                                type="checkbox"
-                                id={`cp-${cat.id}`}
-                                checked={isChecked}
-                                disabled={locked}
-                                onChange={() => toggle(cat.id)}
-                              />
-                              <span className="cat-picker-icon" aria-hidden>{cat.icon}</span>
-                              <span className="cat-picker-label">{cat.title}</span>
-                              {locked ? (
-                                <span className="cat-picker-lock" aria-label="already added">✓</span>
-                              ) : (
-                                <span className="cat-picker-check" aria-hidden>{isChecked ? '✓' : ''}</span>
-                              )}
-                            </label>
+                          <div
+                            className={
+                              'cat-picker-item' +
+                              (locked ? ' is-locked' : '') +
+                              (isChecked ? ' is-checked' : '')
+                            }
+                            data-testid={`cat-picker-item-${cat.id}`}
+                          >
+                            <span className="cat-picker-icon" aria-hidden>{cat.icon}</span>
+                            <span className="cat-picker-label">{cat.title}</span>
+                            {locked ? (
+                              <span className="cat-picker-lock" aria-label="already added">✓</span>
+                            ) : (
+                              <button
+                                type="button"
+                                className="cat-picker-check"
+                                aria-hidden
+                                onClick={() => toggle(cat.id)}
+                              >
+                                {isChecked ? '✓' : ''}
+                              </button>
+                            )}
                             {hasItems && (
-                              <span
-                                role="button"
-                                tabIndex={0}
+                              <button
+                                type="button"
                                 className={`cat-picker-expand-btn${isExpanded ? ' is-open' : ''}`}
                                 onClick={() => toggleExpand(cat.id)}
                                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleExpand(cat.id) } }}
@@ -373,7 +369,7 @@ export function RsCategoryPicker({ open, onOpenChange, existingIds, result, prof
                                 aria-label={isExpanded ? t('cat_picker_collapse') as string : t('cat_picker_expand') as string}
                               >
                                 {isExpanded ? '▲' : '▼'}
-                              </span>
+                              </button>
                             )}
                           </div>
                           {isExpanded && hasItems && (
@@ -408,34 +404,30 @@ export function RsCategoryPicker({ open, onOpenChange, existingIds, result, prof
                             : cat.items
                           return (
                             <div key={cat.id} className="cat-picker-item-wrap">
-                              <div className="cat-picker-item-row">
-                                <label
-                                  htmlFor={`cp-${cat.id}`}
-                                  className={
-                                    'cat-picker-item' +
-                                    (locked ? ' is-locked' : '') +
-                                    (isChecked ? ' is-checked' : '')
-                                  }
-                                  data-testid={`cat-picker-item-${cat.id}`}
-                                >
-                                  <input
-                                    type="checkbox"
-                                    id={`cp-${cat.id}`}
-                                    checked={isChecked}
-                                    disabled={locked}
-                                    onChange={() => toggle(cat.id)}
-                                  />
-                                  <span className="cat-picker-icon" aria-hidden>{cat.icon}</span>
-                                  <span className="cat-picker-label">{catTitle}</span>
-                                  {locked ? (
-                                    <span className="cat-picker-lock" aria-label="already added">✓</span>
-                                  ) : (
-                                    <span className="cat-picker-check" aria-hidden>{isChecked ? '✓' : ''}</span>
-                                  )}
-                                </label>
-                                <span
-                                  role="button"
-                                  tabIndex={0}
+                              <div
+                                className={
+                                  'cat-picker-item' +
+                                  (locked ? ' is-locked' : '') +
+                                  (isChecked ? ' is-checked' : '')
+                                }
+                                data-testid={`cat-picker-item-${cat.id}`}
+                              >
+                                <span className="cat-picker-icon" aria-hidden>{cat.icon}</span>
+                                <span className="cat-picker-label">{catTitle}</span>
+                                {locked ? (
+                                  <span className="cat-picker-lock" aria-label="already added">✓</span>
+                                ) : (
+                                  <button
+                                    type="button"
+                                    className="cat-picker-check"
+                                    aria-hidden
+                                    onClick={() => toggle(cat.id)}
+                                  >
+                                    {isChecked ? '✓' : ''}
+                                  </button>
+                                )}
+                                <button
+                                  type="button"
                                   className={`cat-picker-expand-btn${isExpanded ? ' is-open' : ''}`}
                                   onClick={() => toggleExpand(cat.id)}
                                   onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleExpand(cat.id) } }}
@@ -443,7 +435,7 @@ export function RsCategoryPicker({ open, onOpenChange, existingIds, result, prof
                                   aria-label={isExpanded ? t('cat_picker_collapse') as string : t('cat_picker_expand') as string}
                                 >
                                   {isExpanded ? '▲' : '▼'}
-                                </span>
+                                </button>
                               </div>
                               {isExpanded && (
                                 <div className="cat-picker-item-preview">

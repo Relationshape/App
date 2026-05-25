@@ -666,6 +666,7 @@ export const EN = {
   template_copy_answers_no: 'Start without answers',
   result_rename_label: 'Rename',
   result_rename_placeholder: 'Name…',
+  map_subject_placeholder: 'e.g. Vera, my good friend',
   cat_create_title_label: 'Category name',
   cat_create_title_placeholder: 'e.g. Work, Spirituality...',
   cat_create_emoji_label: 'Icon (optional)',
