@@ -146,7 +146,7 @@ export function Welcome() {
         <p className="hero-sub">{t('welcome_sub')}</p>
         <div className="hero-actions">
           <div className="hero-actions-secondary">
-            <Link to="/intro" className="btn btn-ghost" data-testid="welcome-about">{t('welcome_about')}</Link>
+            <Link to="/intro" className="howto-btn" data-testid="welcome-about">{t('welcome_about')}</Link>
             <button type="button" className="howto-btn" data-testid="welcome-guide-btn-hero" onClick={() => setGuideOpen(true)}>{t('guide_howto_btn')}</button>
           </div>
           <button className="btn btn-primary" data-testid="welcome-cta" onClick={startNowFlow}>{t('welcome_cta')}</button>
@@ -174,14 +174,6 @@ export function Welcome() {
       <section className="page-section howto-section" aria-labelledby="welcome-how">
         <header className="section-head">
           <h2 id="welcome-how">{t('howto_title')}</h2>
-          <button
-            type="button"
-            className="howto-btn"
-            onClick={() => setGuideOpen(true)}
-            data-testid="welcome-guide-btn"
-          >
-            {t('guide_howto_btn')}
-          </button>
         </header>
         <div className="howto-steps">
           {HOWTO_STEPS.map(({ num, titleKey, descKey, icon }) => (
