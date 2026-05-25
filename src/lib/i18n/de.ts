@@ -762,39 +762,52 @@ export const DE: Record<TranslationKey, string> = {
   btn_yes: 'Ja',
   btn_no: 'Nein',
 
-  // Process guide
-  guide_title: 'Wie Relationshape nutzen',
-  guide_sub: 'Ein Leitfaden für den gemeinsamen Prozess',
-  guide_prep_title: 'Bevor ihr beginnt',
-  guide_prep_body:
-    'Wählt einen Rahmen, in dem ihr euch wohl und fokussiert fühlen könnt. Dieser Prozess braucht Zeit und kann Emotionen und Konflikte — alte wie neue — auslösen. Plant Pausen ein und überlegt vorab, wie ihr mit schwierigen Momenten umgehen wollt — gemeinsam und individuell. Begegnet euch mit Dankbarkeit und Grosszügigkeit.',
-  guide_step1_title: 'Gemeinsam durchlesen',
-  guide_step1_body:
-    'Lest den Fragebogen zunächst zusammen durch, ohne ihn auszufüllen — idealerweise gemeinsam, damit ihr direkt kommunizieren könnt.',
-  guide_step2_title: 'Kategorien auswählen',
-  guide_step2_body:
+  // Prozess-Leitfaden Wizard
+  guide_howto_btn: 'How to',
+  guide_back: 'Zurück',
+  guide_next: 'Weiter',
+  guide_done: 'Los geht\'s!',
+  guide_p1_title: 'Wie Relationshape nutzen',
+  guide_p1_body:
+    'Relationshape hilft euch — als Paar oder in jeder anderen Beziehung — eure Bedürfnisse, Werte und Erwartungen visuell zu erkunden und zu teilen. Jede Person füllt ihre eigene Karte unabhängig aus, danach vergleicht ihr die Ergebnisse gemeinsam.',
+  guide_p1_note: "Den Leitfaden findest du jederzeit über den 'How to' Button.",
+  guide_p2_title: 'Technischer Hinweis: Privacy First',
+  guide_p2_body:
+    'Alle Daten bleiben auf deinem Gerät — keine Server, keine Konten, keine Cloud-Synchronisation. Um deine Karte zu teilen, exportierst du eine verschlüsselte Datei und sendest sie direkt (z. B. per Messenger oder E-Mail). Die Gegenseite importiert sie in ihre eigene App. Alles bleibt unter eurer Kontrolle.',
+  guide_p3_title: 'Bevor ihr beginnt',
+  guide_p3_body:
+    'Wählt einen Rahmen, in dem ihr euch wohl und fokussiert fühlen könnt. Dieser Prozess braucht Zeit und kann Emotionen — alte wie neue — auslösen. Plant Pausen ein und überlegt vorab, wie ihr mit schwierigen Momenten umgehen wollt — gemeinsam und individuell. Begegnet euch mit Dankbarkeit und Grosszügigkeit.',
+  guide_p4_s1_title: 'Gemeinsam durchlesen',
+  guide_p4_s1_body:
+    'Lest den Fragebogen zunächst zusammen durch, ohne ihn auszufüllen — damit ihr direkt miteinander sprechen könnt.',
+  guide_p4_s2_title: 'Kategorien auswählen',
+  guide_p4_s2_body:
     'Wählt gemeinsam die Bereiche aus, die auf eure Beziehung zutreffen. Fügt Punkte hinzu oder entfernt sie. Allein dieser Schritt löst oft schon gute Gespräche aus.',
-  guide_step3_title: 'Skala kalibrieren',
-  guide_step3_body:
-    'Besprecht, was die einzelnen Stufen der Skala für euch jeweils bedeuten. Das Ziel ist ein gemeinsames, nuanciertes Verständnis. Ihr könnt die Skala auch anpassen oder umbenennen.',
-  guide_step4_title: 'Getrennt ausfüllen',
-  guide_step4_body:
+  guide_p5_s1_title: 'Vorlage teilen',
+  guide_p5_s1_body:
+    'Teilt den Fragebogen mit eurer Gegenperson als Vorlage, bevor ihr anfangt zu antworten — so verwendet ihr beide dieselbe Kartenstruktur.',
+  guide_p5_s2_title: 'Skala kalibrieren',
+  guide_p5_s2_body:
+    'Besprecht, was die einzelnen Stufen der Skala für euch jeweils bedeuten. Das Ziel ist ein gemeinsames, nuanciertes Verständnis. Ihr könnt die Skala umbenennen oder anpassen.',
+  guide_p5_s3_title: 'Getrennt ausfüllen',
+  guide_p5_s3_body:
     'Füllt den Fragebogen unabhängig voneinander aus — im selben Raum oder völlig getrennt. Klärt mehrdeutige Begriffe vorher gemeinsam, beantwortet die Fragen dann aber ohne gegenseitige Beeinflussung.',
-  guide_step5_title: 'Karten vergleichen',
-  guide_step5_body:
-    'Tragt eure Antworten zusammen und markiert starke Übereinstimmungen und Diskrepanzen — diese zeigen euch mögliche Gesprächspunkte und Kompromisse.',
-  guide_step6_title: 'Besprechen',
-  guide_step6_body:
-    'Teilt eure Gefühle und Gedanken offen miteinander. Bei Uneinigkeiten: Besprecht, was diese für euch bedeuten. Bei Unklarheiten: Bittet einander um Erläuterung, bevor ihr Schlüsse zieht.',
-  guide_step7_title: 'In die Praxis tragen',
-  guide_step7_body:
-    'Tragt die neuen Erkenntnisse in euren Beziehungsalltag und lasst euch inspirieren, kontinuierlich Vereinbarungen zu treffen und einander besser zu verstehen.',
-  guide_step8_title: 'Regelmässig wiederholen',
-  guide_step8_body:
-    'Kehrt in regelmässigen Abständen (z. B. alle 6 Monate) zu euren Karten zurück. Besprecht, was sich verändert hat und welche Konsequenzen das hat.',
-  guide_step9_title: 'Anpassen',
-  guide_step9_body:
-    'Verändert eure Praxis im Laufe der Zeit, ergänzt eure Karten und findet euren eigenen Weg mit Relationshape.',
-  guide_close: 'Verstanden',
-  guide_open_btn: 'Prozess-Leitfaden',
+  guide_p6_s1_title: 'Karten exportieren & importieren',
+  guide_p6_s1_body:
+    'Exportiert eure Karten als verschlüsselte Dateien und schickt sie euch gegenseitig. Die Gegenseite importiert sie in ihre eigene App — und schickt ihre Karte an euch.',
+  guide_p6_s2_title: 'Ergebnisse übereinanderlegen',
+  guide_p6_s2_body:
+    'Nutzt die Vergleichsansicht, um beide Karten gemeinsam zu betrachten. Starke Übereinstimmungen und grosse Diskrepanzen werden hervorgehoben — das sind eure Gesprächspunkte.',
+  guide_p7_s1_title: 'Besprechen',
+  guide_p7_s1_body:
+    'Teilt eure Gefühle und Gedanken offen. Bei Uneinigkeiten: Besprecht, was diese für euch bedeuten. Bei Unklarheiten: Bittet einander um Erläuterung, bevor ihr Schlüsse zieht.',
+  guide_p7_s2_title: 'In die Praxis tragen',
+  guide_p7_s2_body:
+    'Tragt die neuen Erkenntnisse in euren Beziehungsalltag. Lasst euch inspirieren, kontinuierlich Vereinbarungen zu treffen und einander besser zu verstehen.',
+  guide_p8_s1_title: 'Regelmässig wiederholen',
+  guide_p8_s1_body:
+    'Kehrt in regelmässigen Abständen (z. B. alle 6 Monate) zu euren Karten zurück. Besprecht, was sich verändert hat und was das für euch bedeutet.',
+  guide_p8_s2_title: 'Mit der Zeit anpassen',
+  guide_p8_s2_body:
+    'Verändert eure Praxis, ergänzt eure Karten und findet euren eigenen Weg mit Relationshape.',
 }
