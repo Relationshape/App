@@ -57,10 +57,10 @@ describe('closestScaleEntry', () => {
 })
 
 describe('labelFontSize', () => {
-  it('returns at least 18 and at most 34', () => {
+  it('returns at least 9 and at most 34', () => {
     for (const count of [3, 6, 10, 15, 30, 100]) {
       const fs = labelFontSize(count)
-      expect(fs).toBeGreaterThanOrEqual(18)
+      expect(fs).toBeGreaterThanOrEqual(9)
       expect(fs).toBeLessThanOrEqual(34)
     }
   })

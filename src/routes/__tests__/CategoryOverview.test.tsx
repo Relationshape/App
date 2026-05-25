@@ -105,18 +105,20 @@ describe('CategoryOverview (QUEST-01 + 260516-qva)', () => {
       expect(document.querySelector('[data-testid="cat-picker"]')).not.toBeNull()
     })
 
-    // Locked rows (already enabled) must have a disabled checkbox.
-    const lockedInput = document.querySelector<HTMLInputElement>(
-      `[data-testid="cat-picker-item-${CATEGORIES[0]!.id}"] input[type=checkbox]`,
+    // Locked rows (already enabled) must show the lock indicator, not a check button.
+    const lockedRow = document.querySelector(
+      `[data-testid="cat-picker-item-${CATEGORIES[0]!.id}"]`,
     )
-    expect(lockedInput?.disabled).toBe(true)
+    expect(lockedRow).not.toBeNull()
+    expect(lockedRow!.querySelector('.cat-picker-lock')).not.toBeNull()
+    expect(lockedRow!.querySelector('.cat-picker-check')).toBeNull()
 
-    // Add a previously-disabled category.
+    // Add a previously-disabled category by clicking its check button.
     const toAdd = CATEGORIES.find((c) => !enabled.includes(c.id))!
     const row = document.querySelector(`[data-testid="cat-picker-item-${toAdd.id}"]`) as HTMLElement
     expect(row).not.toBeNull()
-    const input = row.querySelector('input[type=checkbox]') as HTMLInputElement
-    await act(async () => { fireEvent.click(input) })
+    const checkBtn = row.querySelector('.cat-picker-check') as HTMLElement
+    await act(async () => { fireEvent.click(checkBtn) })
 
     const submit = document.querySelector('[data-testid="cat-picker-submit"]') as HTMLButtonElement
     expect(submit.disabled).toBe(false)
