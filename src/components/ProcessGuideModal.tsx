@@ -14,7 +14,7 @@ interface Section {
 type PageDef =
   | { type: 'intro'; icon: string; titleKey: TKey; bodyKey: TKey; noteKey: TKey }
   | { type: 'single'; icon: string; titleKey: TKey; bodyKey: TKey }
-  | { type: 'multi'; icon: string; sections: Section[] }
+  | { type: 'multi'; icon: string; headingKey?: TKey; sections: Section[] }
 
 const PAGES: PageDef[] = [
   {
@@ -47,6 +47,7 @@ const PAGES: PageDef[] = [
   {
     type: 'multi',
     icon: '✍️',
+    headingKey: 'guide_p5_heading',
     sections: [
       { icon: '📤', titleKey: 'guide_p5_s1_title', bodyKey: 'guide_p5_s1_body' },
       { icon: '🎚️', titleKey: 'guide_p5_s2_title', bodyKey: 'guide_p5_s2_body' },
@@ -56,6 +57,7 @@ const PAGES: PageDef[] = [
   {
     type: 'multi',
     icon: '🔍',
+    headingKey: 'guide_p6_heading',
     sections: [
       { icon: '↕️', titleKey: 'guide_p6_s1_title', bodyKey: 'guide_p6_s1_body' },
       { icon: '📊', titleKey: 'guide_p6_s2_title', bodyKey: 'guide_p6_s2_body' },
@@ -64,6 +66,7 @@ const PAGES: PageDef[] = [
   {
     type: 'multi',
     icon: '💬',
+    headingKey: 'guide_p7_heading',
     sections: [
       { icon: '🗣️', titleKey: 'guide_p7_s1_title', bodyKey: 'guide_p7_s1_body' },
       { icon: '🌱', titleKey: 'guide_p7_s2_title', bodyKey: 'guide_p7_s2_body' },
@@ -72,6 +75,7 @@ const PAGES: PageDef[] = [
   {
     type: 'multi',
     icon: '🌟',
+    headingKey: 'guide_p8_heading',
     sections: [
       { icon: '🔄', titleKey: 'guide_p8_s1_title', bodyKey: 'guide_p8_s1_body' },
       { icon: '✨', titleKey: 'guide_p8_s2_title', bodyKey: 'guide_p8_s2_body' },
@@ -116,7 +120,6 @@ export function ProcessGuideModal({ open, onClose }: { open: boolean; onClose: (
 
         {/* Page content */}
         <div className="guide-wiz-page" key={page}>
-          {/* Page header icon */}
           <div className="guide-wiz-page-icon" aria-hidden="true">{current.icon}</div>
 
           {current.type === 'intro' && (
@@ -138,17 +141,22 @@ export function ProcessGuideModal({ open, onClose }: { open: boolean; onClose: (
           )}
 
           {current.type === 'multi' && (
-            <div className="guide-wiz-sections">
-              {current.sections.map((s) => (
-                <div key={s.titleKey} className="guide-wiz-section">
-                  <div className="guide-wiz-section-icon" aria-hidden="true">{s.icon}</div>
-                  <div className="guide-wiz-section-content">
-                    <strong className="guide-wiz-section-title">{t(s.titleKey)}</strong>
-                    <p className="guide-wiz-section-body">{t(s.bodyKey)}</p>
+            <>
+              {current.headingKey && (
+                <h2 className="guide-wiz-page-title">{t(current.headingKey)}</h2>
+              )}
+              <div className="guide-wiz-sections">
+                {current.sections.map((s) => (
+                  <div key={s.titleKey} className="guide-wiz-section">
+                    <div className="guide-wiz-section-icon" aria-hidden="true">{s.icon}</div>
+                    <div className="guide-wiz-section-content">
+                      <strong className="guide-wiz-section-title">{t(s.titleKey)}</strong>
+                      <p className="guide-wiz-section-body">{t(s.bodyKey)}</p>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            </>
           )}
         </div>
 
