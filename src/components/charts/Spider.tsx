@@ -1,8 +1,13 @@
 // RESULT-02, D-04, D-05. Declarative SVG spider. Port of public/legacy/js/charts.js:303-322 + 137-300.
 
 import { CATEGORIES, DEFAULT_SCALE } from '@/lib/data/data'
-import { categoryAverage, labelFontSize, pickCategoryAxes, polarToCartesian, wrapLabel } from '@/lib/charts/math'
+import { categoryAverage, pickCategoryAxes, polarToCartesian, wrapLabel } from '@/lib/charts/math'
 import type { ChartDataset } from './types'
+
+function spiderLabelFontSize(axisCount: number, size: number): number {
+  const ref = Math.round(Math.max(10, size * 0.024))
+  return Math.round(Math.max(9, Math.min(ref, ref * 14 / Math.max(14, axisCount))))
+}
 
 interface Props {
   datasets: readonly ChartDataset[]
@@ -40,12 +45,11 @@ export function Spider({
     }
     return { key: id, title: id, icon: '•' }
   })
-  const fs = labelFontSize(axes.length)
+  const fs = spiderLabelFontSize(axes.length, size)
   const lineHeight = fs * 1.2
-  const maxCharsPerLine = Math.max(10, Math.round(200 / fs))
-  // Pad scales with font size; smaller font (many axes) = less padding needed
-  const pad = Math.max(55, Math.min(165, Math.ceil(fs * 5.2)))
-  const r = size / 2 - pad
+  const maxCharsPerLine = Math.round(12 * Math.sqrt(size / 480))
+  const pad = Math.max(size * 0.25, Math.ceil(fs * 10.5))
+  const r = Math.max(size * 0.12, size / 2 - pad)
   const cx = size / 2
   const cy = size / 2
 
@@ -53,7 +57,6 @@ export function Spider({
     <div className="rs-chart-wrap" data-testid="spider-chart">
       <svg
         viewBox={`0 0 ${size} ${size}`}
-        overflow="visible"
         role="img"
         aria-label="Spider chart"
         onClick={onChartTap}

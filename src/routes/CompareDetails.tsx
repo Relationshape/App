@@ -306,7 +306,7 @@ export function CompareDetails() {
 
       <Dialog open={spiderEnlarged} onOpenChange={setSpiderEnlarged}>
         <DialogContent
-          className="w-[min(96vw,92vh)] max-w-none p-2 sm:p-4 flex items-center justify-center overflow-hidden"
+          className="w-[min(98vw,96vh)] max-w-none p-2 sm:p-4 flex items-center justify-center"
           data-testid="compare-spider-enlarged"
         >
           <DialogTitle className="sr-only">{t('compare_tab_radar')}</DialogTitle>
