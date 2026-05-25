@@ -216,7 +216,7 @@ export function ProfileDetail() {
             <h2>{t('maps_title')}</h2>
             <p className="muted">{t('maps_sub')}</p>
           </div>
-          <Button variant="ghost" size="sm" onClick={() => setGuideOpen(true)} data-testid="profile-guide-btn">{t('guide_open_btn')}</Button>
+          <button type="button" className="howto-btn" onClick={() => setGuideOpen(true)} data-testid="profile-guide-btn">{t('guide_howto_btn')}</button>
         </header>
         <div className="list" data-testid="result-list">
           {results.map((r) => (

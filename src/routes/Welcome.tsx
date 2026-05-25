@@ -145,8 +145,11 @@ export function Welcome() {
         <h1 className="hero-title">{t('welcome_title')}</h1>
         <p className="hero-sub">{t('welcome_sub')}</p>
         <div className="hero-actions">
+          <div className="hero-actions-secondary">
+            <Link to="/intro" className="btn btn-ghost" data-testid="welcome-about">{t('welcome_about')}</Link>
+            <button type="button" className="howto-btn" data-testid="welcome-guide-btn-hero" onClick={() => setGuideOpen(true)}>{t('guide_howto_btn')}</button>
+          </div>
           <button className="btn btn-primary" data-testid="welcome-cta" onClick={startNowFlow}>{t('welcome_cta')}</button>
-          <Link to="/intro" className="btn btn-ghost" data-testid="welcome-about">{t('welcome_about')}</Link>
         </div>
         <ul className="hero-features">
           {FEATURES.map(({ key, icon }) => (
@@ -173,11 +176,11 @@ export function Welcome() {
           <h2 id="welcome-how">{t('howto_title')}</h2>
           <button
             type="button"
-            className="btn btn-ghost btn-sm"
+            className="howto-btn"
             onClick={() => setGuideOpen(true)}
             data-testid="welcome-guide-btn"
           >
-            {t('guide_open_btn')} →
+            {t('guide_howto_btn')}
           </button>
         </header>
         <div className="howto-steps">

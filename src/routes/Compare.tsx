@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { ImportForm } from '@/components/ImportForm'
 import { UnlockAnswersBody } from '@/components/UnlockAnswersDialog'
 import { TemplateViewModal } from '@/components/TemplateViewModal'
+import { ProcessGuideModal } from '@/components/ProcessGuideModal'
 import { mapResultToDataset, mapImportToDataset } from '@/lib/charts/datasets'
 import { CATEGORIES } from '@/lib/data/data'
 import type { Import, AnswersBlob, AnswerCell } from '@/lib/storage/types'
@@ -76,6 +77,7 @@ export function Compare() {
 
   const [importOpen, setImportOpen] = useState(false)
   const [viewTemplateImp, setViewTemplateImp] = useState<Import | null>(null)
+  const [guideOpen, setGuideOpen] = useState(false)
 
   function handleImportSuccess(imp: Import) {
     setImportOpen(false)
@@ -224,15 +226,19 @@ export function Compare() {
   return (
     <section className="page" data-testid="compare-page">
       <header className="page-head" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-        <button
-          type="button"
-          className="btn btn-ghost"
-          onClick={() => navigate('/')}
-          data-testid="compare-back-btn"
-          style={{ alignSelf: 'flex-start' }}
-        >
-          {t('btn_back')}
-        </button>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <button
+            type="button"
+            className="btn btn-ghost"
+            onClick={() => navigate('/')}
+            data-testid="compare-back-btn"
+          >
+            {t('btn_back')}
+          </button>
+          <button type="button" className="howto-btn" onClick={() => setGuideOpen(true)} data-testid="compare-guide-btn">
+            {t('guide_howto_btn')}
+          </button>
+        </div>
         <h1>{t('compare_title')}</h1>
         <p className="muted">{t('compare_sub')}</p>
       </header>
@@ -403,6 +409,8 @@ export function Compare() {
           imp={viewTemplateImp}
         />
       )}
+
+      <ProcessGuideModal open={guideOpen} onClose={() => setGuideOpen(false)} />
     </section>
   )
 }
