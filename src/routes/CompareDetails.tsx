@@ -10,8 +10,8 @@ import { CategoryModal } from '@/components/charts/CategoryModal'
 import { RsCategoryCard } from '@/components/RsCategoryCard'
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { mapResultToDataset, mapImportToDataset } from '@/lib/charts/datasets'
-import { CATEGORIES, DEFAULT_SCALE } from '@/lib/data/data'
-import { categoryAverage, categoryItemAlignment, pickCategoryAxes } from '@/lib/charts/math'
+import { CATEGORIES } from '@/lib/data/data'
+import { categoryAverage, categoryItemAlignment } from '@/lib/charts/math'
 import { resolveAnyCat } from '@/lib/data/customCategories'
 import type { AnswersBlob } from '@/lib/storage/types'
 import { useToast } from '@/lib/hooks/useToast'
@@ -60,37 +60,6 @@ export function CompareDetails() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [effectiveIds.join(','), results])
 
-  // Axes for the 2-map spider: only categories with answers in BOTH datasets
-  const twoMapSpiderAxes = useMemo(() => {
-    if (datasets.length !== 2 || !datasets[0] || !datasets[1]) return undefined
-    const [a, b] = datasets
-    const defaultScale = a.scale ?? DEFAULT_SCALE
-    const allAxes = pickCategoryAxes(datasets, defaultScale)
-    return allAxes.filter((catId) =>
-      categoryAverage(a.answers, catId, a.scale) !== null &&
-      categoryAverage(b.answers, catId, b.scale) !== null
-    )
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [datasets])
-
-  // Item-granular alignment score per category axis
-  const alignmentScores = useMemo<Record<string, number | null> | undefined>(() => {
-    if (datasets.length !== 2 || !twoMapSpiderAxes || !datasets[0] || !datasets[1]) return undefined
-    const [a, b] = datasets
-    const opts = {
-      customItemDefsA: a.customItemDefs,
-      customItemDefsB: b.customItemDefs,
-      customCatsA: a.customCategories,
-      customCatsB: b.customCategories,
-    }
-    return Object.fromEntries(
-      twoMapSpiderAxes.map((catId) => [
-        catId,
-        categoryItemAlignment(a.answers, b.answers, catId, a.scale, b.scale, opts),
-      ])
-    )
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [datasets, twoMapSpiderAxes?.join(',')])
 
   function hasItemValues(answers: AnswersBlob | undefined, catId: string): boolean {
     const slot = answers?.[catId]
@@ -124,6 +93,39 @@ export function CompareDetails() {
       .filter((cat) => datasets.length > 0 && datasets.every((ds) => hasItemValues(ds.answers, cat.id)))
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [allCatIds.join(','), datasets])
+
+  // Axes for the 2-map spider: all visible categories where BOTH maps have numeric answers.
+  // Derived from visibleCategories so it covers all categories, not just SPIDER_AXES.
+  const twoMapSpiderAxes = useMemo(() => {
+    if (datasets.length !== 2 || !datasets[0] || !datasets[1]) return undefined
+    const [a, b] = datasets
+    return visibleCategories
+      .map((cat) => cat.id)
+      .filter((id) =>
+        categoryAverage(a.answers, id, a.scale) !== null &&
+        categoryAverage(b.answers, id, b.scale) !== null
+      )
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [datasets, visibleCategories])
+
+  // Item-granular alignment score for ALL visible categories (feeds both cards and spider labels).
+  const alignmentScores = useMemo<Record<string, number | null> | undefined>(() => {
+    if (datasets.length !== 2 || !datasets[0] || !datasets[1]) return undefined
+    const [a, b] = datasets
+    const opts = {
+      customItemDefsA: a.customItemDefs,
+      customItemDefsB: b.customItemDefs,
+      customCatsA: a.customCategories,
+      customCatsB: b.customCategories,
+    }
+    return Object.fromEntries(
+      visibleCategories.map((cat) => [
+        cat.id,
+        categoryItemAlignment(a.answers, b.answers, cat.id, a.scale, b.scale, opts),
+      ])
+    )
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [datasets, visibleCategories])
 
   async function handlePdfReport() {
     if (generatingPdf || datasets.length === 0) return
