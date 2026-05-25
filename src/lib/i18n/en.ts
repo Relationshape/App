@@ -341,7 +341,7 @@ export const EN = {
   scale_step_new: 'New step',
   scale_step_remove_confirm:
     'The step "{label}" is in use in some answers. Removing it will clear those answers. Continue?',
-  scale_col_color: 'Color',
+  scale_col_color: 'Colour',
   scale_col_label: 'Label / Meaning',
   scale_save_btn: 'Save scale',
   scale_col_short: 'Shorthand',
@@ -706,7 +706,7 @@ export const EN = {
   q_edit_format_change_warn: 'Changing the format will delete any existing answer for this item.',
   q_edit_format_options_label: 'Options (one per line, min. 2)',
   q_edit_format_options_min: 'Please enter at least 2 options.',
-  q_format_non_scale_hint: 'Non-scale items only appear in the item-by-item view — they are not shown in the network diagram.',
+  q_format_non_scale_hint: 'Non-scale items only appear in the item-by-item view — they are not shown in the radar chart.',
   spider_scale_only_hint: 'Only scale-rated items are shown here.',
   confirm_delete_cat_title: 'Delete category?',
   confirm_delete_cat_body: 'Permanently delete this category from this map? Your answers will be lost. You can add the category again later and fill it in again.',

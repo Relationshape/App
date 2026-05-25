@@ -51,7 +51,7 @@ export const DE: Record<TranslationKey, string> = {
   feat_privacy_short:
     'Deine Daten bleiben auf deinem Gerät — vollständig privat, ohne Server oder Tracking.',
   feat_privacy_body:
-    'Privatsphäre und Datenschutz geniessen bei uns eine hohe Priorität. Deine Daten gehören dir und liegen lokal auf deinem Gerät, weder wir noch Drittparteien speichern personenbezogene Informationen über dich. Der Austausch und Abgleich deiner Beziehungskarten und beantworteter Fragen erfolgt über einen verschlüsselten Export. Du behältst jederzeit die Kontrolle.',
+    'Privatsphäre und Datenschutz genießen bei uns eine hohe Priorität. Deine Daten gehören dir und liegen lokal auf deinem Gerät, weder wir noch Drittparteien speichern personenbezogene Informationen über dich. Der Austausch und Abgleich deiner Beziehungskarten und beantworteter Fragen erfolgt über einen verschlüsselten Export. Du behältst jederzeit die Kontrolle.',
   feat_security_title: 'Gerätesicherheit',
   feat_security_sub: 'Bleibt auf diesem Gerät',
   feat_charts_title: 'Netzdiagramme',
@@ -252,7 +252,7 @@ export const DE: Record<TranslationKey, string> = {
   compare_tab_radar: 'Netzdiagramm',
   compare_need_two_maps: 'Das Netzdiagramm erfordert genau 2 Karten. Bitte passe deine Auswahl auf der vorherigen Seite an.',
   compare_alignment_hint: 'Score pro Kategorie: punkt-genaue Nähe zwischen beiden Karten (100% = identische Antworten, 0% = maximale Abweichung).',
-  fabi_spider_sub: 'Dieses Diagramm zeigt den Durchschnitt aller skalenbasierter Antworten in der jeweiligen Kategorie. Elemente, deren Antwortformat nicht skalenbasiert ist (z.B. Freitext, Auswahl), fliessen nicht in diese zusammenfassende Darstellung mit ein.',
+  fabi_spider_sub: 'Dieses Diagramm zeigt den Durchschnitt aller skalenbasierter Antworten in der jeweiligen Kategorie. Elemente, deren Antwortformat nicht skalenbasiert ist (z.B. Freitext, Auswahl), fließen nicht in diese zusammenfassende Darstellung mit ein.',
   profile_no_imports_yet: 'Du hast noch keine Beziehungskarten importiert.',
   compare_import_title: 'Ergebnis importieren',
   compare_own_section: 'Eigene Karten',
@@ -264,7 +264,7 @@ export const DE: Record<TranslationKey, string> = {
   cat_details_title: 'Kategorie-Details',
   cat_details_sub: 'Jede Karte öffnet ein Netzdiagramm der enthaltenen Elemente.',
   compare_fabi_tip:
-    'Tipp: Aktiviere den „Fabi-Modus" in den Einstellungen für ein Übersichts-Spinnendiagramm. Wähle unten eine Kategorie für einen detaillierten Item-Vergleich.',
+    'Tipp: Aktiviere den „Fabi-Modus" in den Einstellungen für ein Übersichts-Netzdiagramm. Wähle unten eine Kategorie für einen detaillierten Item-Vergleich.',
 
   // New card scale dialog
   new_card_scale_title: 'Skala für diese Karte',
@@ -284,7 +284,7 @@ export const DE: Record<TranslationKey, string> = {
   // Share
   share_title: '📤 Ergebnis verschlüsselt teilen',
   share_intro:
-    'Deine Antworten werden verpackt und mit einem Passwort verschlüsselt. Setze dazu das Passwort und sende den anschliessend generierten Text über einen beliebigen Kanal deinem Gegenüber. Teile anschliessend das Passwort separat (z.B. per Telefon oder persönlich) um maximale Datensicherheit zu garantieren. Für einen erfolgreichen Import wird beides benötigt.',
+    'Deine Antworten werden verpackt und mit einem Passwort verschlüsselt. Setze dazu das Passwort und sende den anschließend generierten Text über einen beliebigen Kanal deinem Gegenüber. Teile anschließend das Passwort separat (z.B. per Telefon oder persönlich) um maximale Datensicherheit zu garantieren. Für einen erfolgreichen Import wird beides benötigt.',
   share_intro_separately: '',
   share_intro_rest: '',
   share_callout_title: '🔐 Kein Server, keine Spuren.',
@@ -560,7 +560,7 @@ export const DE: Record<TranslationKey, string> = {
   q_add_custom_title: 'Eigenen Punkt hinzufügen',
   q_add_custom_placeholder: 'Name des Punkts…',
   q_add_custom_scale_title: 'Skala für diesen Punkt wählen',
-  q_add_custom_scale_sub: 'Standardmässig wird die Karten-Skala verwendet. Du kannst diesem Punkt eine eigene Skala zuweisen.',
+  q_add_custom_scale_sub: 'Standardmäßig wird die Karten-Skala verwendet. Du kannst diesem Punkt eine eigene Skala zuweisen.',
   q_add_custom_scale_use_default: 'Standard-Skala der Karte verwenden',
   q_add_custom_scale_customize: 'Eigene Skala für diesen Punkt',
   q_item_already_exists: 'Ein Punkt mit diesem Namen existiert bereits',
@@ -582,7 +582,7 @@ export const DE: Record<TranslationKey, string> = {
   wizard_source_template: 'Vorlage verwenden',
   wizard_source_template_sub: 'Struktur einer bestehenden Karte übernehmen',
   wizard_source_import: 'Karte importieren und als Vorlage verwenden',
-  wizard_source_import_sub: 'Dazu muss ein Gegenüber ein Kartenfile mit dir teilen',
+  wizard_source_import_sub: 'Dazu muss ein Gegenüber eine Kartendatei mit dir teilen',
   wizard_share_template_prompt_title: 'Fragebogen als Vorlage teilen?',
   wizard_share_template_prompt_body: 'Bevor du mit der Beantwortung beginnst, willst du den zusammengestellten Fragebogen bereits mit jemandem als Vorlage teilen? Dein Gegenüber kann dann parallel dieselben Fragen beantworten. Du kannst diesen Schritt auch später noch über die Funktion "Teilen/Exportieren" auslösen.',
   wizard_share_template_btn: 'Vorlage teilen',
@@ -660,7 +660,7 @@ export const DE: Record<TranslationKey, string> = {
   map_scale_clear_override: 'Anpassung zurücksetzen',
   map_scale_using_global: 'Standard-Antwortskala aktiv ({n} Stufen).',
   map_settings_add_cat: '➕ Kategorie neu zur Karte hinzufügen',
-  wizard_scale_hint: 'Diese Skala gilt standardmässig für alle Elemente dieser Karte. Beim Beantworten kannst du die Skala für jedes Element individuell anpassen. Die Standard-Skala für zukünftige Karten kannst du jederzeit in den Einstellungen ändern.',
+  wizard_scale_hint: 'Diese Skala gilt standardmäßig für alle Elemente dieser Karte. Beim Beantworten kannst du die Skala für jedes Element individuell anpassen. Die Standard-Skala für zukünftige Karten kannst du jederzeit in den Einstellungen ändern.',
   imports_with_answers_title: '📥 Karten mit Antworten',
   imports_with_answers_sub: 'Importierte Karten, deren Antworten sichtbar sind.',
   imports_locked_title: '🔒 Karten mit gesperrten Antworten',
@@ -778,7 +778,7 @@ export const DE: Record<TranslationKey, string> = {
     'Da die App auf «Privacy First» basiert, müsst ihr Dateien austauschen. Erstellt den Fragenkatalog idealerweise gemeinsam auf einem Gerät und teilt ihn als Vorlage. Änderungen danach am besten parallel auf allen Geräten vornehmen - für eine optimale Erfahrung sollten eure Fragenkataloge identisch sein.',
   guide_p3_title: 'Bevor ihr beginnt',
   guide_p3_body:
-    'Schafft einen sicheren, ruhigen Rahmen. Der Prozess braucht Zeit und kann Emotionen oder Konflikte auslösen. Plant Pausen ein und besprecht vorab den Umgang mit schwierigen Momenten. Begegnet euch offen und grosszügig, und seid neugierig, mehr übereinander zu lernen!',
+    'Schafft einen sicheren, ruhigen Rahmen. Der Prozess braucht Zeit und kann Emotionen oder Konflikte auslösen. Plant Pausen ein und besprecht vorab den Umgang mit schwierigen Momenten. Begegnet euch offen und großzügig, und seid neugierig, mehr übereinander zu lernen!',
   guide_p4_s1_title: 'Gemeinsam durchlesen',
   guide_p4_s1_body:
     'Startet gemeinsam auf einem Gerät, idealerweise am Desktop. Unter «Profil – Neue Beziehungskarte starten – Leer beginnen» könnt ihr die Fragen und Bewertungsskala kennenlernen und anpassen. Neben Skalenfragen gibt es auch z.B. Multiple Choice oder Freitext. Geht danach die Kategorien und die im Dropdown enthaltenen Fragen gemeinsam durch.',
@@ -801,18 +801,18 @@ export const DE: Record<TranslationKey, string> = {
     'Exportiert eure beantworteten Karten unter "Profil – Beziehungskarten – Teilen…" und tauscht die Dateien aus. Importiert die Karte eures Gegenübers dann wiederum auf eurem Gerät unter "Profil – Beziehungskarten – Importieren".',
   guide_p6_s2_title: 'Ergebnisse übereinanderlegen',
   guide_p6_s2_body:
-    "Unter dem Menupunkt 'Vergleichen' könnt ihr danach eure Karten übereinanderlegen und Kategorie für Kategorie eure Übereinstimmungen und Unterschiede sehen. Ihr könnt die Kategorien einzeln in der App ansehen, oder einen Vergleichsbericht als PDF herunterladen.",
+    "Unter dem Menüpunkt 'Vergleichen' könnt ihr danach eure Karten übereinanderlegen und Kategorie für Kategorie eure Übereinstimmungen und Unterschiede sehen. Ihr könnt die Kategorien einzeln in der App ansehen, oder einen Vergleichsbericht als PDF herunterladen.",
   guide_p7_heading: 'Die Integration',
   guide_p7_s1_title: 'Besprechen',
   guide_p7_s1_body:
-    'Teilt eure Gefühle und Gedanken offen.  Klärt Unterschiede gemeinsam und fragt bei Unklarheiten nach, bevor ihr Schlüsse zieht. Klärt auch hier nochmal Begriffe, falls nötig (z.B. "Welche Handlungen verstehst du als emotionalen Support?").',
+    'Teilt eure Gefühle und Gedanken offen. Klärt Unterschiede gemeinsam und fragt bei Unklarheiten nach, bevor ihr Schlüsse zieht. Klärt auch hier nochmal Begriffe, falls nötig (z.B. "Welche Handlungen verstehst du als emotionalen Support?").',
   guide_p7_s2_title: 'In die Praxis tragen',
   guide_p7_s2_body:
     'Findet Abmachungen und Kompromisse, die für euch stimmen. Tragt die neuen Erkenntnisse in eure Beziehungsgestaltung.',
   guide_p8_heading: 'In die Zukunft tragen',
-  guide_p8_s1_title: 'Regelmässig wiederholen',
+  guide_p8_s1_title: 'Regelmäßig wiederholen',
   guide_p8_s1_body:
-    'Kehrt in regelmässigen Abständen (z. B. einmal pro Jahr) zu euren Karten zurück. Besprecht Veränderungen und passt Abmachungen an. Die App erlaubt euch, bestehende Karten zu bearbeiten oder zu kopieren und versionskontrolliert wieder auszutauschen.',
+    'Kehrt in regelmäßigen Abständen (z. B. einmal pro Jahr) zu euren Karten zurück. Besprecht Veränderungen und passt Abmachungen an. Die App erlaubt euch, bestehende Karten zu bearbeiten oder zu kopieren und versionskontrolliert wieder auszutauschen.',
   guide_p8_s2_title: 'Anpassen',
   guide_p8_s2_body:
     'Entwickelt eure Praxis, ergänzt Karten und findet euren eigenen Flow mit Relationshapes!',
