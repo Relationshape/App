@@ -171,6 +171,16 @@ export function ProcessGuideModal({ open, onClose }: { open: boolean; onClose: (
           >
             {t('guide_back')}
           </button>
+          {!isLast && (
+            <button
+              type="button"
+              className="guide-wiz-skip"
+              onClick={onClose}
+              data-testid="guide-wiz-skip"
+            >
+              {t('guide_skip')}
+            </button>
+          )}
           <button
             type="button"
             className={`btn ${isLast ? 'btn-primary' : 'btn-outline'} guide-wiz-next`}

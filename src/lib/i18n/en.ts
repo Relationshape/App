@@ -748,6 +748,7 @@ export const EN = {
   guide_back: 'Back',
   guide_next: 'Next',
   guide_done: 'Get started!',
+  guide_skip: 'Skip',
   guide_p1_title: 'How to use Relationshapes',
   guide_p1_body:
     'Relationshapes can be used for individual self-reflection, but it is primarily designed for shaping relationships together with others. We offer an experience-based, detailed recommendation for the shared process — and an encouragement to find your own flow!',
