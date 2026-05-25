@@ -775,6 +775,7 @@ export const DE: Record<TranslationKey, string> = {
   guide_p2_title: 'Ein technischer Tipp vorneweg',
   guide_p2_body:
     'Da die App auf «Privacy First» basiert, müsst ihr Dateien austauschen. Erstellt den Fragenkatalog idealerweise gemeinsam auf einem Gerät und teilt ihn als Vorlage. Änderungen danach am besten parallel auf allen Geräten vornehmen - für eine optimale Erfahrung sollten eure Fragenkataloge identisch sein.',
+  guide_p3_title: 'Bevor ihr beginnt',
   guide_p3_body:
     'Schafft einen sicheren, ruhigen Rahmen. Der Prozess braucht Zeit und kann Emotionen oder Konflikte auslösen. Plant Pausen ein und besprecht vorab den Umgang mit schwierigen Momenten. Begegnet euch offen und grosszügig, und seid neugierig, mehr übereinander zu lernen!',
   guide_p4_s1_title: 'Gemeinsam durchlesen',
