@@ -767,6 +767,7 @@ export const DE: Record<TranslationKey, string> = {
   guide_back: 'Zurück',
   guide_next: 'Weiter',
   guide_done: 'Los geht\'s!',
+  guide_skip: 'Überspringen',
   guide_p1_title: 'Wie Relationshapes nutzen',
   guide_p1_body:
     'Relationshapes eignet sich für Selbstreflexion, ist aber vor allem für gemeinsame Beziehungsgestaltung gedacht. Dieser Leitfaden bietet erfahrungsbasierte Empfehlungen für den Prozess, aber findet euren eigenen Flow. Es können beliebig viele Karten für beliebig viele Verbindungen erstellt werden.',
@@ -814,4 +815,3 @@ export const DE: Record<TranslationKey, string> = {
   guide_p8_s2_body:
     'Entwickelt eure Praxis, ergänzt Karten und findet euren eigenen Flow mit Relationshapes!',
 }
-
