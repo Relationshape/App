@@ -177,7 +177,7 @@ export function pickCategoryAxes(
  * public/legacy/js/charts.js:114-116
  */
 export function labelFontSize(axisCount: number): number {
-  return Math.round(Math.max(18, Math.min(34, 220 / axisCount)))
+  return Math.round(Math.max(9, Math.min(34, 220 / axisCount)))
 }
 
 /**

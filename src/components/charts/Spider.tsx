@@ -42,10 +42,9 @@ export function Spider({
   })
   const fs = labelFontSize(axes.length)
   const lineHeight = fs * 1.2
-  // maxChars chosen so most category names fit in 1-2 lines with room for the 3rd
   const maxCharsPerLine = Math.max(10, Math.round(200 / fs))
-  // Extra padding when labels can wrap to 2-3 lines
-  const pad = Math.max(110, Math.min(165, Math.ceil(fs * 5.0)))
+  // Pad scales with font size; smaller font (many axes) = less padding needed
+  const pad = Math.max(55, Math.min(165, Math.ceil(fs * 5.2)))
   const r = size / 2 - pad
   const cx = size / 2
   const cy = size / 2
@@ -54,9 +53,11 @@ export function Spider({
     <div className="rs-chart-wrap" data-testid="spider-chart">
       <svg
         viewBox={`0 0 ${size} ${size}`}
+        overflow="visible"
         role="img"
         aria-label="Spider chart"
         onClick={onChartTap}
+        style={{ cursor: onChartTap ? 'zoom-in' : undefined }}
       >
         {/* Rings */}
         {[1, 2, 3, 4, 5].map((g) => {
@@ -114,7 +115,7 @@ export function Spider({
         )}
         {/* Axis labels with per-handler event binding */}
         {axes.map((ax, i) => {
-          const [lx, ly] = polarToCartesian(i, axes.length, r + fs * 1.8, cx, cy)
+          const [lx, ly] = polarToCartesian(i, axes.length, r + fs * 1.4, cx, cy)
           const anchor = Math.abs(lx - cx) < 4 ? 'middle' : lx > cx ? 'start' : 'end'
           const isActive = activeAxis === ax.key
           const lines = wrapLabel(ax.title, maxCharsPerLine).slice(0, 3)
@@ -139,9 +140,6 @@ export function Spider({
                 {lines.map((line, li) => (
                   <tspan key={li} x={lx} dy={li === 0 ? 0 : lineHeight}>{line}</tspan>
                 ))}
-              </text>
-              <text x={lx} y={ly - yOffset - fs * 1.0} textAnchor={anchor} fontSize={fs * 0.7} fill="currentColor" fillOpacity={0.7} aria-hidden="true">
-                {ax.icon}
               </text>
               {alignmentScores?.[ax.key] != null && (() => {
                 const score = alignmentScores![ax.key]!

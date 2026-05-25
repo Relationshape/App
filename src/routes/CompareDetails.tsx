@@ -39,6 +39,7 @@ export function CompareDetails() {
   const [generatingPdf, setGeneratingPdf] = useState(false)
   const [overviewOpen, setOverviewOpen] = useState(false)
   const [activeTab, setActiveTab] = useState<'alignment' | 'spider'>('alignment')
+  const [spiderEnlarged, setSpiderEnlarged] = useState(false)
 
   const datasets = useMemo(() => effectiveIds.map((id) => {
     if (id.startsWith('imp:')) {
@@ -290,11 +291,36 @@ export function CompareDetails() {
                       onAxisEnter={(ax) => setActiveAxis(ax)}
                       onAxisLeave={() => setActiveAxis(null)}
                       onAxisTap={(ax) => setActiveAxis((p) => (p === ax ? null : ax))}
+                      onChartTap={() => setSpiderEnlarged(true)}
                     />
+                    <p className="muted small text-center mt-1" style={{ opacity: 0.65 }}>
+                      {t('spider_click_to_enlarge')}
+                    </p>
                   </>
                 )}
               </div>
             )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={spiderEnlarged} onOpenChange={setSpiderEnlarged}>
+        <DialogContent
+          className="w-[min(96vw,92vh)] max-w-none p-2 sm:p-4 flex items-center justify-center overflow-hidden"
+          data-testid="compare-spider-enlarged"
+        >
+          <DialogTitle className="sr-only">{t('compare_tab_radar')}</DialogTitle>
+          <div className="w-full" onClick={(e) => e.stopPropagation()}>
+            <Spider
+              datasets={datasets}
+              size={1000}
+              {...(twoMapSpiderAxes !== undefined ? { axes: twoMapSpiderAxes } : {})}
+              {...(alignmentScores !== undefined ? { alignmentScores } : {})}
+              activeAxis={activeAxis}
+              onAxisEnter={(ax) => setActiveAxis(ax)}
+              onAxisLeave={() => setActiveAxis(null)}
+              onAxisTap={(ax) => setActiveAxis((p) => (p === ax ? null : ax))}
+            />
           </div>
         </DialogContent>
       </Dialog>
