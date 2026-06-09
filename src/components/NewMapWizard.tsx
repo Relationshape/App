@@ -111,7 +111,7 @@ export function NewMapWizard({ profile }: Props) {
     navigate(`/profile/${profile.id}`)
   }
 
-  async function onComplete() {
+  async function onComplete(overrideEnabled?: ReadonlySet<string>) {
     const id = crypto.randomUUID()
     const existingSubjects = profileResults.map((r) => r.subject ?? '')
     const resolvedSubject = uniqueSubject(subject.trim() || profile.name, existingSubjects)
@@ -195,9 +195,10 @@ export function NewMapWizard({ profile }: Props) {
       return
     }
 
+    const effectiveIds = overrideEnabled ?? checkedIds
     const enabledCategories =
-      checkedIds.size > 0
-        ? Array.from(checkedIds)
+      effectiveIds.size > 0
+        ? Array.from(effectiveIds)
         : CATEGORIES.map((c) => c.id)
 
     const base = {
@@ -216,7 +217,7 @@ export function NewMapWizard({ profile }: Props) {
     }
     // Seed items from profile cat definitions for checked profile cats not yet in itemsByCat
     const seededItemsByCat = { ...itemsByCat }
-    for (const id of checkedIds) {
+    for (const id of effectiveIds) {
       if (id in seededItemsByCat) continue
       const profileCat = (profile.customCategories ?? []).find((c) => c.id === id)
       if (profileCat?.items && profileCat.items.length > 0) {
@@ -302,13 +303,9 @@ export function NewMapWizard({ profile }: Props) {
   }
 
   function selectAllAndContinue() {
-    // Keep any custom cat IDs already checked, add all builtin cats
-    setCheckedIds((prev) => {
-      const next: Set<string> = new Set(CATEGORIES.map((c) => c.id))
-      for (const id of prev) if (!CATEGORIES.some((c) => c.id === id)) next.add(id)
-      return next
-    })
-    void onComplete()
+    const allIds: Set<string> = new Set(CATEGORIES.map((c) => c.id))
+    for (const id of checkedIds) if (!CATEGORIES.some((c) => c.id === id)) allIds.add(id)
+    void onComplete(allIds)
   }
 
   function startCreateCat() {
