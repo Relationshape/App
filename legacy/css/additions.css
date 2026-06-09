@@ -1,0 +1,1580 @@
+/* ============================================================
+   Relationshapes – ADDITIONS (Celestial Map edition)
+   ============================================================ */
+
+/* ---- Wizard modal ---- */
+.wizard-overlay .rs-modal-card,
+.wizard-card {
+  max-width: 500px;
+  display: grid;
+  gap: 22px;
+  padding: 28px 28px 24px;
+  position: relative;
+}
+.wizard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.wizard-close-btn {
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 20px;
+  padding: 4px 8px;
+  border-radius: 8px;
+  line-height: 1;
+  transition: color .15s ease, background .15s ease;
+  flex-shrink: 0;
+}
+.wizard-close-btn:hover { color: var(--text); background: color-mix(in oklab, var(--surface-2) 80%, transparent); }
+.wizard-dots {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  flex: 1;
+}
+.wizard-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--surface-3);
+  transition: background .2s ease, transform .25s ease, width .25s ease;
+  display: inline-block;
+}
+.wizard-dot.active {
+  background: var(--primary);
+  transform: scale(1.35);
+  width: 18px;
+  border-radius: 4px;
+  box-shadow: 0 0 8px rgba(185, 110, 255, 0.5);
+}
+.wizard-content {
+  display: grid;
+  gap: 14px;
+  text-align: center;
+  justify-items: center;
+}
+.wizard-emoji {
+  font-size: 54px;
+  line-height: 1;
+  filter: drop-shadow(0 4px 20px rgba(185,110,255,.45));
+}
+.wizard-visual {
+  width: 180px;
+  height: 180px;
+  display: grid;
+  place-items: center;
+  filter: drop-shadow(0 4px 24px rgba(185,110,255,.3));
+}
+.wizard-visual svg { overflow: visible; }
+.wizard-title {
+  margin: 0;
+  font-size: 21px;
+  font-weight: 700;
+  letter-spacing: -.3px;
+  line-height: 1.2;
+  font-family: var(--font-heading);
+}
+.wizard-body {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14.5px;
+  line-height: 1.65;
+  max-width: 380px;
+}
+.wizard-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+  align-items: center;
+}
+.wizard-actions > span { flex: 1; }
+.wizard-actions .btn { flex: 1; }
+.wizard-skip-row {
+  text-align: center;
+  margin-top: -8px;
+}
+.wizard-skip-link {
+  background: none;
+  border: none;
+  color: var(--muted);
+  font: inherit;
+  font-size: 12.5px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: color .15s ease;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-color: color-mix(in oklab, var(--muted) 40%, transparent);
+}
+.wizard-skip-link:hover { color: var(--text); }
+
+/* ---- How-to section on welcome ---- */
+.howto-section { padding-top: 8px; }
+.howto-steps {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, 1fr);
+}
+@media (min-width: 860px) {
+  .howto-steps { grid-template-columns: repeat(4, 1fr); }
+}
+.howto-step {
+  padding: 4px 0;
+  display: grid;
+  grid-template-columns: auto auto 1fr;
+  grid-template-rows: auto auto;
+  column-gap: 10px;
+  row-gap: 6px;
+  align-items: center;
+}
+.howto-step-icon { font-size: 24px; line-height: 1; grid-row: 1; grid-column: 1; }
+.howto-step-num {
+  font-size: 10px; font-weight: 800;
+  color: var(--primary);
+  background: color-mix(in oklab, var(--primary) 16%, var(--surface-2));
+  border-radius: 5px;
+  width: 19px; height: 19px;
+  display: grid; place-items: center;
+  grid-row: 1; grid-column: 2; flex-shrink: 0;
+}
+.howto-step-title { margin: 0; font-size: 14.5px; font-weight: 600; grid-row: 1; grid-column: 3; }
+.howto-step-desc  { margin: 0; font-size: 12.5px; line-height: 1.5; color: var(--muted); grid-row: 2; grid-column: 1 / -1; }
+
+/* ---- Compare section split layout ---- */
+.compare-pickers-split { display: flex; flex-direction: column; gap: 18px; }
+.compare-section-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin: 0 0 8px;
+}
+.compare-tile-import {
+  border-style: dashed;
+  opacity: .75;
+}
+.compare-tile-import:hover { opacity: 1; }
+
+/* ---- Categories back button in questionnaire header ---- */
+.btn-cats-back {
+  background: color-mix(in oklab, var(--primary) 14%, var(--surface-2));
+  border: 1px solid color-mix(in oklab, var(--primary) 40%, transparent);
+  color: var(--primary-strong);
+  font-weight: 600;
+  border-radius: 10px;
+  padding: 6px 14px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background .15s, border-color .15s, box-shadow .15s;
+}
+.btn-cats-back:hover {
+  background: color-mix(in oklab, var(--primary) 22%, var(--surface-2));
+  border-color: color-mix(in oklab, var(--primary) 60%, transparent);
+  box-shadow: var(--glow-sm);
+}
+
+/* ---- Hamburger / mobile nav ---- */
+.nav-hamburger {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px 8px;
+  border-radius: 8px;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background .15s ease;
+  margin-left: auto;
+}
+.nav-hamburger:hover { background: color-mix(in oklab, var(--surface-2) 80%, transparent); }
+.hb-bar {
+  display: block;
+  width: 18px; height: 2px;
+  background: var(--muted);
+  border-radius: 2px;
+  transition: transform .22s ease, opacity .22s ease, background .15s ease;
+  transform-origin: center;
+}
+.nav-hamburger:hover .hb-bar { background: var(--text); }
+
+/* Animate bars into × when open */
+#nav.nav-open .hb-bar:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+#nav.nav-open .hb-bar:nth-child(2) { opacity: 0; transform: scaleX(0); }
+#nav.nav-open .hb-bar:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+/* Slightly tighter nav links for the range where full nav is shown with longer labels */
+@media (min-width: 801px) and (max-width: 1040px) {
+  .nav-links a {
+    padding: 5px 7px;
+    font-size: 9px;
+    letter-spacing: 0.04em;
+  }
+}
+
+@media (max-width: 800px) {
+  .nav-hamburger { display: flex; margin-left: 0; }
+  .nav-lang { margin-left: auto; }
+
+  /* Hide nav links by default; show as overlay when nav-open */
+  #nav .nav-links {
+    display: none;
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0; right: 0;
+    background: var(--glass);
+    backdrop-filter: blur(28px) saturate(1.6);
+    -webkit-backdrop-filter: blur(28px) saturate(1.6);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    box-shadow: 0 16px 40px -8px rgba(0,0,0,.55), var(--glow);
+    flex-direction: column;
+    gap: 2px;
+    padding: 8px;
+    z-index: 300;
+  }
+  #nav.nav-open .nav-links { display: flex; }
+
+  #nav .nav-links a {
+    padding: 10px 14px;
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  #nav .nav-links a .nav-icon { display: inline-flex; }
+  #nav .nav-links a .nav-link-label { display: inline; }
+}
+
+/* ---- Mobile nav backdrop ---- */
+.nav-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 199;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s ease;
+}
+.nav-backdrop.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ---- Language picker in nav ---- */
+.nav-lang {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+.nav-lang-btn {
+  background: color-mix(in oklab, var(--surface-2) 70%, transparent);
+  border: 1px solid var(--glass-border);
+  color: var(--muted);
+  border-radius: 8px;
+  padding: 4px 9px;
+  font: inherit;
+  font-size: 10.5px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex; align-items: center; gap: 5px;
+  transition: background .15s ease, color .15s ease, border-color .15s ease;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.nav-lang-btn:hover { color: var(--text); background: var(--surface-2); border-color: color-mix(in oklab, var(--primary) 40%, var(--glass-border)); }
+.nav-lang-btn .lang-arrow {
+  font-size: 8px;
+  opacity: 0.6;
+  transition: transform .2s ease;
+}
+.nav-lang.open .lang-arrow { transform: rotate(180deg); }
+.nav-lang-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: var(--glass);
+  backdrop-filter: blur(24px) saturate(1.6);
+  -webkit-backdrop-filter: blur(24px) saturate(1.6);
+  border: 1px solid var(--glass-border);
+  border-radius: 14px;
+  box-shadow: 0 16px 40px -8px rgba(0,0,0,.55), var(--glow);
+  min-width: 130px;
+  padding: 6px;
+  z-index: 300;
+  display: none;
+  gap: 2px;
+  flex-direction: column;
+}
+.nav-lang.open .nav-lang-dropdown { display: flex; }
+.nav-lang-option {
+  background: none;
+  border: none;
+  color: var(--text);
+  font: inherit;
+  font-size: 13.5px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: left;
+  display: flex; align-items: center; gap: 10px;
+  transition: background .12s ease;
+}
+.nav-lang-option:hover { background: color-mix(in oklab, var(--surface-2) 80%, transparent); }
+.nav-lang-option.active {
+  color: var(--primary);
+  font-weight: 600;
+  background: color-mix(in oklab, var(--primary) 10%, transparent);
+}
+.nav-lang-option .lang-check { font-size: 12px; margin-left: auto; opacity: 0; }
+.nav-lang-option.active .lang-check { opacity: 1; }
+
+/* ---- Enlarged spider clickable panel ---- */
+.rs-chart-clickable {
+  cursor: zoom-in;
+  transition: box-shadow .15s ease;
+  position: relative;
+}
+.rs-chart-clickable::after {
+  content: "⤢";
+  position: absolute;
+  top: 10px; right: 14px;
+  font-size: 18px;
+  color: var(--muted);
+  opacity: 0;
+  transition: opacity .15s ease;
+  pointer-events: none;
+}
+.rs-chart-clickable:hover::after { opacity: 1; }
+.rs-chart-clickable:hover { box-shadow: var(--shadow); }
+
+/* Enlarged spider modal */
+.enlarged-spider-wrap { width: 100%; max-width: min(760px, 94vw); }
+.rs-modal-card:has(.enlarged-spider-wrap) { max-width: min(820px, 96vw); }
+
+/* ---- Category modal – tabs & scrollable ---- */
+.cat-modal-overlay .rs-modal-card {
+  max-width: min(820px, 96vw);
+  max-height: min(90vh, 900px);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  gap: 0;
+}
+.cat-modal-head-row {
+  padding: 20px 24px 12px;
+  border-bottom: 1px solid var(--glass-border);
+  flex-shrink: 0;
+}
+.cat-modal-icon-wrap { display: flex; align-items: center; gap: 14px; }
+.cat-modal-icon {
+  width: 48px; height: 48px; border-radius: 13px;
+  background: color-mix(in oklab, var(--c, var(--primary)) 22%, var(--surface-2));
+  display: grid; place-items: center; font-size: 24px; flex-shrink: 0;
+}
+.cat-modal-title { margin: 0; font-size: 19px; font-weight: 600; font-family: var(--font-heading); }
+
+/* Tab bar */
+.cat-modal-tabs {
+  display: flex; gap: 0;
+  border-bottom: 1px solid var(--glass-border);
+  flex-shrink: 0; padding: 0 24px;
+}
+.cat-modal-tab {
+  background: none; border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--muted); font: inherit; font-size: 13.5px;
+  padding: 10px 14px; cursor: pointer;
+  transition: color .15s ease, border-color .15s ease;
+  margin-bottom: -1px; font-weight: 500;
+}
+.cat-modal-tab:hover { color: var(--text); }
+.cat-modal-tab.active { color: var(--text); border-bottom-color: var(--primary); font-weight: 600; }
+
+/* Scrollable tab content area */
+.cat-modal-content {
+  flex: 1; overflow-y: auto; overflow-x: hidden;
+  padding: 20px 24px; min-height: 0;
+}
+
+/* Modal action row (bottom) */
+.cat-modal-overlay .rs-modal-actions {
+  padding: 12px 24px 16px;
+  border-top: 1px solid var(--glass-border);
+  flex-shrink: 0;
+  display: flex; gap: 8px; justify-content: flex-end;
+}
+
+/* Spider in tab */
+.cat-modal-spider { display: grid; place-items: center; }
+
+/* Item-by-item in tab */
+.cat-modal-bars-scroll { width: 100%; }
+
+/* Edit items in modal */
+.modal-edit-items { display: grid; gap: 8px; }
+.modal-edit-item {
+  background: var(--surface-2);
+  border: 1px solid var(--glass-border); border-radius: 14px;
+  padding: 12px 14px;
+  display: grid;
+  grid-template-columns: minmax(160px, 1fr) auto;
+  grid-template-rows: auto auto;
+  gap: 8px 14px; align-items: center;
+}
+@media (max-width: 720px) {
+  .modal-edit-item { grid-template-columns: 1fr; }
+}
+
+/* ---- Welcome page layout ---- */
+.page:has(.hero) { gap: 40px; }
+
+/* ---- Hero constellation ---- */
+.hero-constellation {
+  position: absolute;
+  top: 0; left: 50%;
+  transform: translateX(-50%) perspective(900px) rotateX(4deg);
+  transform-origin: center 80%;
+  width: min(980px, 170vw);
+  aspect-ratio: 840 / 340;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.65;
+}
+@media (prefers-color-scheme: light) {
+  :root[data-theme="auto"] .hero-constellation,
+  :root:not([data-theme]) .hero-constellation { opacity: 0.40; }
+}
+:root[data-theme="light"] .hero-constellation { opacity: 0.40; }
+
+/* Hero title / sub / actions need to sit above constellation */
+.hero-title, .hero-sub, .hero-actions, .hero-features { position: relative; z-index: 1; }
+
+/* ---- Hero feature highlight cards ---- */
+.hero-features {
+  list-style: none; padding: 0; margin: 8px 0 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  max-width: 760px; width: 100%;
+  position: relative; z-index: 1;
+}
+@media (max-width: 680px) {
+  .hero-features { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 400px) {
+  .hero-features { grid-template-columns: 1fr; }
+}
+.hero-features li {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+}
+.hero-feat-btn {
+  all: unset;
+  cursor: pointer;
+  display: grid; gap: 6px; justify-items: center;
+  padding: 18px 16px 16px;
+  width: 100%; box-sizing: border-box;
+  border-radius: 16px;
+  transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+}
+.hero-feat-btn:hover {
+  transform: translateY(-2px);
+}
+.hero-features li:has(.hero-feat-btn:hover) {
+  border-color: color-mix(in oklab, var(--primary) 40%, var(--glass-border));
+  box-shadow: var(--glow-sm);
+}
+.hero-feat-icon {
+  display: grid; place-items: center;
+  width: 46px; height: 46px; border-radius: 12px;
+  background: color-mix(in oklab, var(--primary) 14%, var(--surface-2));
+  color: var(--primary);
+  margin-bottom: 2px;
+}
+.hero-feat-icon svg { display: block; }
+.hero-feat-title {
+  display: block;
+  font-family: var(--font-sans);
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--text);
+}
+.hero-feat-sub {
+  display: block;
+  font-size: 11.5px; color: var(--muted);
+  line-height: 1.4;
+}
+
+/* ---- Nav icon ---- */
+.nav-icon {
+  display: inline-flex; align-items: center; flex-shrink: 0;
+  opacity: 0.7;
+  transition: opacity .15s ease;
+}
+.nav-links a:hover .nav-icon,
+.nav-links a.active .nav-icon { opacity: 1; }
+.nav-links a {
+  display: inline-flex; align-items: center; gap: 5px;
+}
+/* Hide nav icons on very small screens to save space */
+@media (max-width: 460px) {
+  .nav-icon { display: none; }
+}
+/* Optionally hide text labels on narrow screens, show only icons */
+@media (max-width: 380px) {
+  .nav-link-label { display: none; }
+  .nav-icon { display: inline-flex; }
+}
+
+/* ---- Howto step icon — SVG support ---- */
+.howto-step-icon {
+  display: grid; place-items: center;
+  color: var(--primary);
+}
+.howto-step-icon svg { display: block; }
+
+/* ---- Misc ---- */
+.cat-modal-overlay .rs-modal-card { --c: var(--primary); }
+
+
+/* ================================================================
+   DESIGN SYSTEM UPGRADE — Depth, texture & spatial consistency
+   ================================================================ */
+
+/* ---- Constellation opacity boost (dark mode) ---- */
+.hero-constellation { opacity: 0.90; }
+@media (prefers-color-scheme: light) {
+  :root[data-theme="auto"] .hero-constellation,
+  :root:not([data-theme]) .hero-constellation { opacity: 0.42; }
+}
+:root[data-theme="light"] .hero-constellation { opacity: 0.4; }
+
+/* ---- Subtle starfield in body background ---- */
+/* Tiny scattered dots reinforce the celestial theme on every page */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image:
+    radial-gradient(circle, rgba(185,110,255,0.55) 1px, transparent 1px),
+    radial-gradient(circle, rgba(255,77,166,0.42)  1px, transparent 1px),
+    radial-gradient(circle, rgba(185,110,255,0.38) 1px, transparent 1px),
+    radial-gradient(circle, rgba(255,77,166,0.32)  1px, transparent 1px);
+  background-size: 310px 250px, 420px 380px, 190px 280px, 480px 320px;
+  background-position: 60px 40px, 180px 120px, 290px 30px, 80px 200px;
+  background-attachment: fixed;
+  opacity: 0.5;
+}
+:root[data-theme="light"] body::before,
+:root[data-theme="auto"] body::before { opacity: 0.15; }
+
+/* Light mode body: keep background pale — blobs provide the vivid color */
+@media (prefers-color-scheme: light) {
+  :root[data-theme="auto"] body, :root:not([data-theme]) body {
+    background:
+      radial-gradient(ellipse 110% 70% at 15% -5%,  rgba(120, 50, 220, 0.22) 0%, transparent 55%),
+      radial-gradient(ellipse 70%  60% at 88% 105%, rgba(200, 50, 130, 0.18) 0%, transparent 55%),
+      radial-gradient(ellipse 50%  50% at 60%  80%, rgba(79, 172, 254, 0.14) 0%, transparent 60%),
+      var(--bg);
+  }
+}
+:root[data-theme="light"] body {
+  background:
+    radial-gradient(ellipse 110% 70% at 15% -5%,  rgba(120, 50, 220, 0.22) 0%, transparent 55%),
+    radial-gradient(ellipse 70%  60% at 88% 105%, rgba(200, 50, 130, 0.18) 0%, transparent 55%),
+    radial-gradient(ellipse 50%  50% at 60%  80%, rgba(79, 172, 254, 0.14) 0%, transparent 60%),
+    var(--bg);
+}
+/* Page content sits above the starfield */
+#app { position: relative; z-index: 1; }
+
+/* ---- Glass surface inner highlight (3D depth sheen) ----
+   A top-left light-catch on glass surfaces reads as a light source,
+   making flat cards look dimensional. Uses inset box-shadow to avoid
+   any position/stacking context conflicts. */
+.card,
+.panel,
+.q-cat,
+.compare-tile,
+.cat-overview-tile,
+.start-card {
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.06),
+    inset 1px 0 0 rgba(255,255,255,0.04);
+}
+
+/* Slightly more vibrant border tint on glass cards */
+.card,
+.panel,
+.q-cat,
+.compare-tile,
+.cat-overview-tile,
+.list-item {
+  border-color: color-mix(in oklab, var(--primary) 16%, var(--glass-border));
+}
+
+/* Dot-grid micropattern on large panels (spider chart area) */
+.panel {
+  background-image: radial-gradient(circle, rgba(185,110,255,0.06) 1px, transparent 1px);
+  background-size: 26px 26px;
+}
+
+/* ---- Page & section header accent underline ---- */
+.page-head h1,
+.section-head h2 {
+  position: relative;
+  display: inline-block;
+}
+.page-head h1::after,
+.section-head h2::after {
+  content: "";
+  display: block;
+  width: clamp(2em, 30%, 3.5em);
+  height: 2px;
+  margin-top: 9px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--primary), var(--accent), transparent);
+  opacity: 0.9;
+}
+
+/* ---- Avatar — orbital glow ring ---- */
+.avatar {
+  box-shadow:
+    0 4px 20px -6px var(--c, var(--primary)),
+    0 0 0 1px color-mix(in oklab, var(--c, var(--primary)) 22%, transparent),
+    inset 0 1px 0 rgba(255,255,255,0.18);
+}
+.avatar:hover {
+  box-shadow:
+    0 6px 28px -6px var(--c, var(--primary)),
+    0 0 0 2px color-mix(in oklab, var(--c, var(--primary)) 38%, transparent),
+    inset 0 1px 0 rgba(255,255,255,0.22);
+}
+
+/* ---- Icon containers — inner 3D highlight ---- */
+.cat-card-icon,
+.cat-modal-icon,
+.li-avatar,
+.hero-feat-icon {
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.14);
+}
+.q-cat-icon {
+  position: relative;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.14);
+}
+.cat-card-icon::after,
+.q-cat-icon::after,
+.cat-modal-icon::after,
+.li-avatar::after,
+.hero-feat-icon::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 55%);
+  pointer-events: none;
+}
+
+/* ---- Nav logo — layered depth glow ---- */
+.nav-logo {
+  box-shadow:
+    var(--glow-sm),
+    inset 0 1px 0 rgba(255,255,255,0.3),
+    inset 0 -1px 0 rgba(0,0,0,0.18);
+}
+
+/* ---- Cat card top bar — gradient + hover pulse ---- */
+.cat-card::before {
+  height: 2px;
+  background: linear-gradient(90deg, var(--c), color-mix(in oklab, var(--c) 50%, transparent));
+  opacity: 0.85;
+}
+.cat-card:hover::before { opacity: 1; height: 3px; }
+
+/* ---- Profile head — left inset accent glow ---- */
+.profile-head {
+  box-shadow:
+    inset 4px 0 14px -4px color-mix(in oklab, var(--c, var(--primary)) 30%, transparent),
+    var(--shadow-sm);
+}
+
+/* ---- List-item — richer left accent ---- */
+.list-item {
+  position: relative;
+  border-left-color: color-mix(in oklab, var(--c, var(--primary)) 70%, var(--glass-border));
+  box-shadow:
+    inset 3px 0 10px -3px color-mix(in oklab, var(--c, var(--primary)) 20%, transparent),
+    inset 0 1px 0 rgba(255,255,255,0.04);
+}
+
+/* ---- Q-item answered — subtle left glow ---- */
+.q-item.is-answered {
+  background: color-mix(in oklab, var(--primary) 6%, var(--surface-2));
+  box-shadow: inset 3px 0 0 color-mix(in oklab, var(--primary) 50%, transparent);
+}
+
+/* ---- Scale buttons — stronger active glow ---- */
+.scale-btn.is-active {
+  box-shadow:
+    0 0 14px color-mix(in oklab, var(--c) 38%, transparent),
+    inset 0 1px 0 rgba(255,255,255,0.12);
+}
+
+/* ---- Primary button — lifted depth ---- */
+.btn-primary {
+  box-shadow:
+    0 0 22px rgba(185,110,255,0.4),
+    0 4px 22px rgba(185,110,255,0.22),
+    inset 0 1px 0 rgba(255,255,255,0.24);
+}
+.btn-primary:hover:not(:disabled) {
+  box-shadow:
+    0 0 34px rgba(185,110,255,0.62),
+    0 6px 28px rgba(185,110,255,0.35),
+    inset 0 1px 0 rgba(255,255,255,0.28);
+  transform: translateY(-1px);
+}
+.btn-primary:active:not(:disabled) { transform: translateY(1px); }
+
+/* ---- Howto step cards — static, non-interactive ---- */
+
+/* ---- Cat overview tiles — depth hover glow ---- */
+.cat-overview-tile:hover {
+  box-shadow: 0 6px 20px -4px rgba(0,0,0,.35), 0 0 18px color-mix(in oklab, var(--c) 16%, transparent);
+}
+
+/* ---- Spider chart — richer ring lines ---- */
+.rs-grid-ring { opacity: 0.6; }
+.rs-grid-spoke { opacity: 0.32; }
+
+/* ---- Modal card — subtle primary tint ---- */
+.rs-modal-card {
+  border-color: color-mix(in oklab, var(--primary) 18%, var(--glass-border));
+  box-shadow:
+    0 40px 100px -20px rgba(0,0,0,.8),
+    var(--glow),
+    inset 0 1px 0 rgba(255,255,255,0.06);
+}
+
+/* ---- Onboarding modal — scrollable body ---- */
+.rs-modal-card:has(.onboarding-body) {
+  max-height: min(90dvh, 720px);
+  display: flex; flex-direction: column;
+}
+.rs-modal-card:has(.onboarding-body) .rs-modal-body {
+  overflow-y: auto; flex: 1; min-height: 0;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ---- Fabi-mode / display-mode toggles ---- */
+.onboard-toggles { display: flex; flex-direction: column; gap: 8px; }
+.onboard-toggle {
+  display: flex; align-items: center; gap: 14px;
+  background: var(--surface-2); border: 1px solid var(--glass-border);
+  border-radius: 14px; padding: 14px 16px;
+  cursor: pointer; font: inherit; color: var(--text); text-align: left;
+  transition: border-color .15s ease, background .15s ease;
+  width: 100%;
+}
+.onboard-toggle:hover {
+  border-color: color-mix(in oklab, var(--primary) 30%, var(--glass-border));
+  background: color-mix(in oklab, var(--primary) 4%, var(--surface-2));
+}
+.onboard-toggle.is-on {
+  border-color: color-mix(in oklab, var(--primary) 50%, var(--glass-border));
+  background: color-mix(in oklab, var(--primary) 8%, var(--surface-2));
+}
+.onboard-text { flex: 1; }
+.onboard-text strong { display: block; font-size: 14px; margin-bottom: 2px; }
+.onboard-text p { margin: 0; font-size: 13px; }
+.onboard-switch {
+  flex-shrink: 0;
+  width: 42px; height: 24px;
+  background: var(--surface-3); border-radius: 99px;
+  position: relative; transition: background .2s ease;
+}
+.onboard-switch::after {
+  content: ""; position: absolute;
+  top: 3px; left: 3px;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: white; transition: transform .2s ease;
+}
+.onboard-switch.on { background: var(--primary); }
+.onboard-switch.on::after { transform: translateX(18px); }
+
+/* ================================================================
+   Holographic / 3D effects — elegant, artistic
+   ================================================================ */
+
+/* ---- Hero blob animations ---- */
+@keyframes heroBlobPulse {
+  0%, 100% { transform: translateX(-50%) scale(1.00); opacity: 0.90; }
+  35%       { transform: translateX(-50%) scale(1.06); opacity: 1.00; }
+  70%       { transform: translateX(-50%) scale(0.97); opacity: 0.85; }
+}
+@keyframes holoOrbDrift {
+  0%   { transform: translateX(-50%) scale(1.00) rotate(0deg);   opacity: 0.65; }
+  28%  { transform: translateX(-50%) scale(1.10) rotate(8deg);   opacity: 0.85; }
+  55%  { transform: translateX(-50%) scale(0.95) rotate(-5deg);  opacity: 0.70; }
+  80%  { transform: translateX(-50%) scale(1.05) rotate(3deg);   opacity: 0.80; }
+  100% { transform: translateX(-50%) scale(1.00) rotate(0deg);   opacity: 0.65; }
+}
+
+/* ---- Light mode: gentle blobs, pastel iridescent (override handled below in vivid section) ---- */
+@media (prefers-color-scheme: light) {
+  :root[data-theme="auto"] .hero-blob,
+  :root:not([data-theme]) .hero-blob { filter: blur(60px) saturate(1.6); opacity: 0.90; }
+  :root[data-theme="auto"] .hero-blob-holo,
+  :root:not([data-theme]) .hero-blob-holo { filter: blur(72px) saturate(1.6); opacity: 0.88; }
+}
+:root[data-theme="light"] .hero-blob { filter: blur(60px) saturate(1.6); opacity: 0.90; }
+:root[data-theme="light"] .hero-blob-holo { filter: blur(72px) saturate(1.6); opacity: 0.88; }
+
+/* ---- Btn-primary iridescent sweep on hover ---- */
+.btn-primary { position: relative; overflow: hidden; }
+.btn-primary::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  background: conic-gradient(from 0deg at 50% 120%,
+    transparent 0deg,
+    rgba(255,255,255,0.14) 60deg,
+    transparent 120deg,
+    rgba(185,110,255,0.10) 200deg,
+    transparent 280deg);
+  opacity: 0;
+  transition: opacity .35s ease;
+  pointer-events: none;
+  animation: holoBtnSpin 5s linear infinite paused;
+}
+.btn-primary:hover::after {
+  opacity: 1;
+  animation-play-state: running;
+}
+@keyframes holoBtnSpin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* ---- Hero feature icons — holo ring on hover ---- */
+.hero-feat-icon {
+  position: relative;
+  z-index: 0;
+}
+.hero-feat-icon::before {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  background: conic-gradient(
+    var(--primary) 0%,
+    var(--accent)  35%,
+    rgba(79,172,254,0.7) 55%,
+    var(--primary) 100%);
+  filter: blur(8px);
+  opacity: 0;
+  z-index: -1;
+  transition: opacity .4s ease;
+  animation: holoIconSpin 5s linear infinite paused;
+}
+.hero-feat-btn:hover .hero-feat-icon::before {
+  opacity: 0.35;
+  animation-play-state: running;
+}
+@keyframes holoIconSpin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* ---- Cards — iridescent border shimmer on hover ---- */
+.card:hover,
+.panel:hover,
+.compare-tile:hover {
+  box-shadow:
+    var(--shadow), var(--glow),
+    inset 0 1px 0 rgba(255,255,255,0.08),
+    inset 1px 0 0 rgba(255,255,255,0.05),
+    0 0 0 1px color-mix(in oklab, var(--accent) 22%, var(--glass-border));
+}
+
+/* ---- Avatar — 3D sphere gradient ---- */
+.li-avatar {
+  background: radial-gradient(circle at 35% 30%,
+    color-mix(in oklab, var(--c) 80%, white),
+    var(--c) 55%,
+    color-mix(in oklab, var(--c) 70%, black));
+}
+
+/* ---- Section head h2 — iridescent underline ---- */
+.section-head h2::after {
+  background: linear-gradient(90deg, var(--primary), var(--accent), rgba(79,172,254,0.8), var(--primary));
+  background-size: 300% 100%;
+  animation: holoUnderlineSlide 6s linear infinite;
+}
+@keyframes holoUnderlineSlide {
+  from { background-position: 0% center; }
+  to   { background-position: 300% center; }
+}
+
+/* ---- Page head h1 — iridescent underline ---- */
+.page-head h1::after {
+  background: linear-gradient(90deg, var(--primary), var(--accent), rgba(79,172,254,0.8), var(--primary));
+  background-size: 300% 100%;
+  animation: holoUnderlineSlide 7s linear infinite;
+}
+
+
+/* ---- Nav SVG icons — holo glow on active ---- */
+.nav-link.active svg {
+  filter: drop-shadow(0 0 4px color-mix(in oklab, var(--accent) 70%, transparent));
+}
+
+/* ---- Glass surfaces — micro iridescent bottom sheen ---- */
+.card, .panel, .q-cat, .compare-tile, .cat-overview-tile, .start-card {
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.07),
+    inset 1px 0 0 rgba(255,255,255,0.04),
+    inset 0 -1px 0 rgba(185,110,255,0.04);
+}
+
+/* ================================================================
+   Global design boost — iridescent effects beyond landing page
+   ================================================================ */
+
+/* Animated iridescent gradient for reuse */
+@keyframes iridShift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ---- Scale buttons — rainbow shimmer on active ---- */
+.scale-btn.is-active {
+  background: color-mix(in oklab, var(--c) 28%, var(--surface));
+  border-color: var(--c);
+  color: var(--text);
+  box-shadow:
+    0 0 18px color-mix(in oklab, var(--c) 48%, transparent),
+    0 0 0 1px color-mix(in oklab, var(--c) 55%, transparent),
+    inset 0 1px 0 rgba(255,255,255,0.18);
+  position: relative; overflow: hidden;
+}
+.scale-btn.is-active::after {
+  content: "";
+  position: absolute; inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg,
+    rgba(192,132,252,0.18) 0%,
+    rgba(56,189,248,0.14) 30%,
+    rgba(244,114,182,0.16) 60%,
+    rgba(167,139,250,0.18) 100%);
+  background-size: 200% 200%;
+  animation: iridShift 4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* ---- Q-card — iridescent left accent bar ---- */
+.q-card::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 12px; bottom: 12px;
+  width: 3px;
+  border-radius: 3px;
+  background: linear-gradient(180deg,
+    var(--primary) 0%,
+    rgba(56,189,248,1) 40%,
+    var(--accent) 75%,
+    rgba(192,132,252,1) 100%);
+  background-size: 100% 200%;
+  animation: iridShift 5s ease-in-out infinite;
+  opacity: 0.7;
+}
+
+/* ---- Progress bar fill — animated gradient ---- */
+.q-progress-fill {
+  background: linear-gradient(90deg,
+    var(--c, var(--primary)) 0%,
+    color-mix(in oklab, var(--c, var(--primary)) 70%, rgba(56,189,248,1)) 40%,
+    color-mix(in oklab, var(--c, var(--primary)) 60%, var(--accent)) 80%,
+    var(--c, var(--primary)) 100%);
+  background-size: 200% 100%;
+  animation: iridShift 4s linear infinite;
+}
+
+/* ---- Category cards — vivid hover with gradient top bar ---- */
+.cat-card-btn:hover, .cat-card-btn:focus-visible {
+  border-color: color-mix(in oklab, var(--c, var(--primary)) 45%, var(--glass-border));
+  box-shadow:
+    var(--shadow),
+    0 0 0 1px color-mix(in oklab, var(--c, var(--primary)) 30%, transparent),
+    0 0 28px color-mix(in oklab, var(--c, var(--primary)) 22%, transparent);
+  transform: translateY(-2px);
+}
+
+/* ---- Result head — iridescent gradient bar ---- */
+.result-head, .profile-head {
+  position: relative;
+  overflow: hidden;
+}
+.result-head::after, .profile-head::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 2px;
+  background: linear-gradient(90deg,
+    transparent,
+    color-mix(in oklab, var(--c, var(--primary)) 60%, transparent) 20%,
+    rgba(56,189,248,0.6) 50%,
+    color-mix(in oklab, var(--accent) 60%, transparent) 80%,
+    transparent);
+  background-size: 200% 100%;
+  animation: iridShift 6s linear infinite;
+}
+
+/* ---- Li-avatar — iridescent glow ring on parent hover ---- */
+.list-item:hover .li-avatar,
+.compare-tile:hover .li-avatar {
+  box-shadow:
+    0 0 0 2px color-mix(in oklab, var(--c, var(--primary)) 30%, transparent),
+    0 0 14px color-mix(in oklab, var(--c, var(--primary)) 45%, transparent),
+    0 0 0 3.5px rgba(56,189,248,0.2);
+  transition: box-shadow .2s ease;
+}
+
+/* ---- Compare tiles — stronger iridescent hover ---- */
+.compare-tile:hover {
+  border-color: color-mix(in oklab, var(--c, var(--primary)) 50%, transparent) !important;
+  box-shadow:
+    var(--shadow), var(--glow),
+    0 0 0 1.5px color-mix(in oklab, var(--c, var(--primary)) 35%, rgba(56,189,248,0.25)),
+    inset 0 1px 0 rgba(255,255,255,0.10);
+}
+
+/* ---- Cards/panels — stronger iridescent hover ---- */
+.card:hover, .panel:hover {
+  box-shadow:
+    var(--shadow), var(--glow),
+    0 0 0 1px color-mix(in oklab, var(--accent) 28%, rgba(56,189,248,0.2)),
+    inset 0 1px 0 rgba(255,255,255,0.10);
+}
+
+/* ---- Section/page headings — thicker animated underline ---- */
+.section-head h2::after, .page-head h1::after {
+  height: 3px;
+  border-radius: 2px;
+}
+
+/* ---- Btn-primary — stronger, more colorful gradient ---- */
+.btn-primary {
+  background: linear-gradient(135deg,
+    var(--primary) 0%,
+    color-mix(in oklab, var(--primary) 55%, var(--accent)) 55%,
+    var(--accent) 100%);
+}
+.btn-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg,
+    color-mix(in oklab, var(--primary) 80%, white) 0%,
+    color-mix(in oklab, var(--primary) 50%, var(--accent)) 50%,
+    color-mix(in oklab, var(--accent) 80%, white) 100%);
+}
+
+/* ---- Scale dot — make it glow when active ---- */
+.scale-btn.is-active .scale-dot {
+  box-shadow: 0 0 8px var(--c), 0 0 3px var(--c);
+}
+
+/* ---- Onboarding cat-picker items — iridescent check ---- */
+.cat-picker-item.is-checked {
+  box-shadow:
+    inset 0 0 0 1.5px color-mix(in oklab, var(--primary) 55%, transparent),
+    inset 0 0 12px color-mix(in oklab, var(--primary) 10%, transparent);
+}
+
+/* ---- Light mode: maintain strong design intensity ---- */
+@media (prefers-color-scheme: light) {
+  :root[data-theme="auto"] .scale-btn.is-active,
+  :root:not([data-theme]) .scale-btn.is-active {
+    box-shadow:
+      0 0 20px color-mix(in oklab, var(--c) 38%, transparent),
+      0 0 0 1px color-mix(in oklab, var(--c) 45%, transparent),
+      inset 0 1px 0 rgba(255,255,255,0.3);
+  }
+}
+:root[data-theme="light"] .scale-btn.is-active {
+  box-shadow:
+    0 0 20px color-mix(in oklab, var(--c) 38%, transparent),
+    0 0 0 1px color-mix(in oklab, var(--c) 45%, transparent),
+    inset 0 1px 0 rgba(255,255,255,0.3);
+}
+
+/* ================================================================
+   LIGHT MODE — vivid iridescent boost
+   Make the light theme as visually rich as dark mode
+   ================================================================ */
+
+/* Light mode: stronger primary/accent tokens */
+@media (prefers-color-scheme: light) {
+  :root[data-theme="auto"], :root:not([data-theme]) {
+    --primary:        #6d28d9;
+    --primary-strong: #5b21b6;
+    --accent:         #c2185b;
+    --glow:    0 0 32px rgba(109, 40, 217, 0.32), 0 0 64px rgba(109, 40, 217, 0.14);
+    --glow-sm: 0 0 18px rgba(109, 40, 217, 0.28);
+  }
+}
+:root[data-theme="light"] {
+  --primary:        #6d28d9;
+  --primary-strong: #5b21b6;
+  --accent:         #c2185b;
+  --glow:    0 0 32px rgba(109, 40, 217, 0.32), 0 0 64px rgba(109, 40, 217, 0.14);
+  --glow-sm: 0 0 18px rgba(109, 40, 217, 0.28);
+}
+
+/* Light mode hero blobs: soft pastel iridescent, not oversaturated */
+@media (prefers-color-scheme: light) {
+  :root[data-theme="auto"] .hero-blob,
+  :root:not([data-theme]) .hero-blob {
+    background:
+      radial-gradient(circle at 36% 32%, rgba(255,255,255,0.30) 0%, transparent 30%),
+      radial-gradient(circle at center, color-mix(in oklab, var(--primary) 55%, transparent), transparent 62%);
+    filter: blur(60px) saturate(1.6);
+    opacity: 0.9;
+  }
+  :root[data-theme="auto"] .hero-blob-holo,
+  :root:not([data-theme]) .hero-blob-holo {
+    background:
+      radial-gradient(circle at 40% 38%, color-mix(in oklab, var(--accent) 50%, transparent), transparent 55%),
+      radial-gradient(circle at 65% 60%, rgba(79,172,254,0.35), transparent 60%);
+    filter: blur(72px) saturate(1.6);
+    opacity: 0.88;
+  }
+}
+:root[data-theme="light"] .hero-blob {
+  background:
+    radial-gradient(circle at 36% 32%, rgba(255,255,255,0.30) 0%, transparent 30%),
+    radial-gradient(circle at center, color-mix(in oklab, var(--primary) 55%, transparent), transparent 62%);
+  filter: blur(60px) saturate(1.6);
+  opacity: 0.9;
+}
+:root[data-theme="light"] .hero-blob-holo {
+  background:
+    radial-gradient(circle at 40% 38%, color-mix(in oklab, var(--accent) 50%, transparent), transparent 55%),
+    radial-gradient(circle at 65% 60%, rgba(79,172,254,0.35), transparent 60%);
+  filter: blur(72px) saturate(1.6);
+  opacity: 0.88;
+}
+
+/* Light mode body: iridescent pastel gradients spread across all four corners + centre */
+@media (prefers-color-scheme: light) {
+  :root[data-theme="auto"] body, :root:not([data-theme]) body {
+    background:
+      radial-gradient(ellipse 72% 52% at 5%  8%,  rgba(109, 40, 217, 0.22) 0%, transparent 62%),
+      radial-gradient(ellipse 62% 48% at 95% 6%,  rgba(219, 39, 119, 0.18) 0%, transparent 60%),
+      radial-gradient(ellipse 58% 52% at 88% 92%, rgba(56, 189, 248, 0.22) 0%, transparent 62%),
+      radial-gradient(ellipse 55% 46% at 8%  91%, rgba(244, 114, 182, 0.18) 0%, transparent 60%),
+      radial-gradient(ellipse 48% 42% at 50% 50%, rgba(167, 139, 250, 0.12) 0%, transparent 58%),
+      var(--bg);
+    background-attachment: fixed;
+  }
+}
+:root[data-theme="light"] body {
+  background:
+    radial-gradient(ellipse 72% 52% at 5%  8%,  rgba(109, 40, 217, 0.22) 0%, transparent 62%),
+    radial-gradient(ellipse 62% 48% at 95% 6%,  rgba(219, 39, 119, 0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 58% 52% at 88% 92%, rgba(56, 189, 248, 0.22) 0%, transparent 62%),
+    radial-gradient(ellipse 55% 46% at 8%  91%, rgba(244, 114, 182, 0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 48% 42% at 50% 50%, rgba(167, 139, 250, 0.12) 0%, transparent 58%),
+    var(--bg);
+  background-attachment: fixed;
+}
+
+/* Light mode glass surfaces: more vivid border */
+@media (prefers-color-scheme: light) {
+  :root[data-theme="auto"] .card,
+  :root:not([data-theme]) .card,
+  :root[data-theme="auto"] .panel,
+  :root:not([data-theme]) .panel,
+  :root[data-theme="auto"] .q-cat,
+  :root:not([data-theme]) .q-cat {
+    border-color: color-mix(in oklab, var(--primary) 22%, var(--glass-border));
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.55), inset 1px 0 0 rgba(255,255,255,0.30);
+  }
+}
+:root[data-theme="light"] .card,
+:root[data-theme="light"] .panel,
+:root[data-theme="light"] .q-cat {
+  border-color: color-mix(in oklab, var(--primary) 22%, var(--glass-border));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.55), inset 1px 0 0 rgba(255,255,255,0.30);
+}
+
+/* ================================================================
+   OUTSIDE LANDING PAGE — iridescent design elements
+   These apply globally (questionnaire, results, profiles, compare)
+   ================================================================ */
+
+/* ---- Q-cat header: animated gradient top border ---- */
+.q-cat {
+  border-top-width: 3px;
+  position: relative;
+}
+.q-cat::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  background: linear-gradient(90deg,
+    var(--c, var(--primary)) 0%,
+    rgba(56,189,248,0.9) 35%,
+    var(--accent) 65%,
+    var(--c, var(--primary)) 100%);
+  background-size: 300% 100%;
+  animation: iridShift 5s linear infinite;
+  opacity: 0.85;
+}
+
+/* ---- Scale pills in single mode: iridescent active state ---- */
+.scale-pill.is-active {
+  background: linear-gradient(135deg,
+    color-mix(in oklab, var(--c) 30%, var(--surface)) 0%,
+    color-mix(in oklab, var(--c) 20%, rgba(56,189,248,0.15)) 50%,
+    color-mix(in oklab, var(--c) 28%, var(--surface)) 100%);
+  border-color: var(--c);
+  box-shadow:
+    0 0 16px color-mix(in oklab, var(--c) 40%, transparent),
+    0 0 0 1px color-mix(in oklab, var(--c) 50%, transparent),
+    inset 0 1px 0 rgba(255,255,255,0.18);
+}
+
+/* ---- Profile card top accent: animated gradient border ---- */
+.profile-card {
+  position: relative;
+  overflow: hidden;
+}
+.profile-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+  background: linear-gradient(90deg,
+    var(--c, var(--primary)) 0%,
+    rgba(56,189,248,0.9) 40%,
+    var(--accent) 70%,
+    var(--c, var(--primary)) 100%);
+  background-size: 250% 100%;
+  animation: iridShift 6s linear infinite;
+}
+
+/* ---- Q-done card: iridescent ring ---- */
+.q-done {
+  position: relative;
+  overflow: hidden;
+}
+.q-done::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 22px;
+  background: conic-gradient(
+    from 0deg at 50% 50%,
+    rgba(192,132,252,0.12) 0deg,
+    rgba(56,189,248,0.10) 90deg,
+    rgba(244,114,182,0.12) 180deg,
+    rgba(167,139,250,0.10) 270deg,
+    rgba(192,132,252,0.12) 360deg);
+  pointer-events: none;
+  animation: holoBtnSpin 12s linear infinite;
+  opacity: 0.8;
+}
+
+/* ---- Callout box: iridescent border ---- */
+.callout {
+  border-color: color-mix(in oklab, var(--primary) 45%, var(--glass-border));
+  position: relative;
+  overflow: hidden;
+}
+.callout::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--primary), rgba(56,189,248,0.9), var(--accent), var(--primary));
+  background-size: 200% 100%;
+  animation: iridShift 4s linear infinite;
+}
+
+/* ---- Start card: iridescent hover glow ---- */
+.start-card:hover {
+  box-shadow:
+    0 0 24px rgba(185,110,255,0.22),
+    0 0 0 1px color-mix(in oklab, var(--accent) 22%, rgba(56,189,248,0.18)),
+    inset 0 1px 0 rgba(255,255,255,0.10);
+}
+
+/* ---- Nav logo: animated holo gradient ---- */
+.nav-logo {
+  background: linear-gradient(140deg, var(--primary), var(--accent), rgba(56,189,248,0.9), var(--primary));
+  background-size: 300% 300%;
+  animation: iridShift 6s ease-in-out infinite;
+}
+
+/* ---- Chip (scale legend): vivid colored chips ---- */
+.chip {
+  border-color: color-mix(in oklab, var(--c) 42%, var(--glass-border));
+  background: color-mix(in oklab, var(--c) 18%, var(--surface-2));
+}
+
+/* ---- Cat overview bar: gradient fill ---- */
+.cat-overview-bar {
+  background: linear-gradient(90deg, var(--c, var(--primary)), color-mix(in oklab, var(--c, var(--primary)) 70%, rgba(56,189,248,1)));
+}
+
+/* ---- Compare section headers: bolder ---- */
+.compare-section-title {
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  background-clip: text; -webkit-background-clip: text;
+  color: transparent;
+  font-size: 14px;
+  letter-spacing: 0.08em;
+}
+
+/* ---- Q-nav (bottom bar): iridescent border highlight ---- */
+.q-nav {
+  border-color: color-mix(in oklab, var(--primary) 22%, var(--glass-border));
+  box-shadow: var(--shadow), 0 0 20px rgba(185,110,255,0.14);
+}
+
+/* ---- Body: animated iridescent overlay (all modes) ---- */
+@keyframes bgPulse {
+  0%, 100% { opacity: 0.70; }
+  50%       { opacity: 1.0; }
+}
+body::after {
+  content: "";
+  position: fixed; inset: 0;
+  pointer-events: none; z-index: 0;
+  background:
+    radial-gradient(ellipse 55% 45% at 12% 18%,  rgba(192,132,252,0.11) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 42% at 88% 14%,  rgba(244,114,182,0.09) 0%, transparent 60%),
+    radial-gradient(ellipse 52% 44% at 85% 88%,  rgba(56, 189,248,0.10) 0%, transparent 60%),
+    radial-gradient(ellipse 48% 40% at 12% 88%,  rgba(167,139,250,0.09) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 35% at 50% 50%,  rgba(56, 189,248,0.06) 0%, transparent 55%);
+  animation: bgPulse 14s ease-in-out infinite;
+}
+/* In light mode, keep the overlay but at lower intensity — body background does the heavy lifting */
+@media (prefers-color-scheme: light) {
+  :root[data-theme="auto"] body::after,
+  :root:not([data-theme]) body::after { opacity: 0.5; }
+}
+:root[data-theme="light"] body::after { opacity: 0.5; }
+/* Page content sits above both pseudo-element layers */
+#app { position: relative; z-index: 1; }
+
+/* ================================================================
+   IRIDESCENT SILK — extended nav-logo effect to key elements
+   Smooth holographic rainbow sheen like silk or foil
+   ================================================================ */
+
+/* Keyframe: full rainbow sweep (silk shimmer) */
+@keyframes silkShift {
+  0%   { background-position: 0% 50%; }
+  25%  { background-position: 50% 0%; }
+  50%  { background-position: 100% 50%; }
+  75%  { background-position: 50% 100%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ---- Avatar circle — iridescent silk ring ---- */
+.li-avatar {
+  position: relative;
+}
+.li-avatar::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  background: linear-gradient(135deg,
+    rgba(192,132,252,0.7),
+    rgba(56,189,248,0.6),
+    rgba(244,114,182,0.65),
+    rgba(167,139,250,0.7),
+    rgba(79,172,254,0.55));
+  background-size: 300% 300%;
+  animation: silkShift 8s ease-in-out infinite;
+  opacity: 0;
+  z-index: -1;
+  border-radius: inherit;
+  transition: opacity .3s ease;
+}
+.list-item:hover .li-avatar::before,
+.compare-tile:hover .li-avatar::before {
+  opacity: 0.6;
+}
+
+/* ---- Profile emoji avatar — persistent silk shimmer ---- */
+.profile-card .li-avatar::before {
+  opacity: 0.25;
+}
+.profile-card:hover .li-avatar::before {
+  opacity: 0.55;
+}
+
+/* ---- Category picker icons — iridescent hover ---- */
+.cat-picker-item.is-checked .cat-picker-icon {
+  filter: drop-shadow(0 0 6px color-mix(in oklab, var(--primary) 70%, var(--accent)));
+  transition: filter .2s ease;
+}
+
+/* ---- Q-cat icon — animated silk gradient on hover ---- */
+.q-cat:hover .q-cat-icon,
+.cat-card:hover .cat-card-icon {
+  filter: drop-shadow(0 0 8px color-mix(in oklab, var(--primary) 60%, var(--accent)));
+  transition: filter .25s ease;
+}
+
+/* ---- Scale pills — silk shimmer on active ---- */
+.scale-pill.is-active::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg,
+    rgba(192,132,252,0.25),
+    rgba(56,189,248,0.2),
+    rgba(244,114,182,0.22),
+    rgba(79,172,254,0.18));
+  background-size: 300% 300%;
+  animation: silkShift 6s ease-in-out infinite;
+  pointer-events: none;
+}
+.scale-pill { position: relative; overflow: hidden; }
+
+/* ---- Modal header — silk gradient top edge ---- */
+.rs-modal-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 2px;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  background: linear-gradient(90deg,
+    var(--primary),
+    rgba(56,189,248,0.9),
+    var(--accent),
+    rgba(192,132,252,0.8),
+    var(--primary));
+  background-size: 300% 100%;
+  animation: iridShift 5s linear infinite;
+  opacity: 0.8;
+  pointer-events: none;
+}
+.rs-modal-card { position: relative; overflow: hidden; }
+
+/* ---- Card-add button — pulsing silk gradient background ---- */
+.card-add {
+  background: linear-gradient(135deg,
+    color-mix(in oklab, var(--primary) 10%, var(--surface-2)),
+    color-mix(in oklab, var(--accent) 8%, var(--surface-2)),
+    color-mix(in oklab, rgba(56,189,248,1) 8%, var(--surface-2)));
+  background-size: 300% 300%;
+  animation: silkShift 10s ease-in-out infinite;
+}
+.card-add:hover {
+  background: linear-gradient(135deg,
+    color-mix(in oklab, var(--primary) 16%, var(--surface-2)),
+    color-mix(in oklab, var(--accent) 14%, var(--surface-2)),
+    color-mix(in oklab, rgba(56,189,248,1) 14%, var(--surface-2)));
+  background-size: 300% 300%;
+}
+
+/* ---- Result/profile page head — silk gradient on avatar emoji ---- */
+.result-head .li-avatar,
+.profile-head .li-avatar {
+  box-shadow:
+    0 0 0 3px color-mix(in oklab, var(--c, var(--primary)) 25%, transparent),
+    0 0 20px color-mix(in oklab, var(--c, var(--primary)) 35%, transparent);
+}
+
+/* ---- Fab / primary action buttons — full silk flow ---- */
+.btn-primary {
+  position: relative;
+  overflow: hidden;
+}
+.btn-primary::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg,
+    rgba(255,255,255,0.12) 0%,
+    rgba(56,189,248,0.10) 25%,
+    rgba(192,132,252,0.12) 50%,
+    rgba(244,114,182,0.10) 75%,
+    rgba(255,255,255,0.08) 100%);
+  background-size: 300% 300%;
+  animation: silkShift 7s ease-in-out infinite;
+  pointer-events: none;
+  opacity: 0.6;
+}
+.btn-primary:hover::before { opacity: 1; }
+
+/* ---- Nav brand logo text — silk accent color ---- */
+.nav-title {
+  background: linear-gradient(90deg, var(--text), color-mix(in oklab, var(--primary) 60%, var(--text)));
+  background-clip: text; -webkit-background-clip: text;
+  color: transparent;
+  opacity: 1;
+}
+
+/* ---- Iridescent site-wide pastel overlay boost (light mode) ---- */
+/* Extra pastel shimmer on glass cards in light mode */
+@media (prefers-color-scheme: light) {
+  :root[data-theme="auto"] .card::after,
+  :root:not([data-theme]) .card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(135deg,
+      rgba(192,132,252,0.06) 0%,
+      rgba(56,189,248,0.05) 35%,
+      rgba(244,114,182,0.06) 65%,
+      rgba(167,139,250,0.05) 100%);
+    background-size: 300% 300%;
+    animation: silkShift 12s ease-in-out infinite;
+    pointer-events: none;
+  }
+}
+:root[data-theme="light"] .card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg,
+    rgba(192,132,252,0.06) 0%,
+    rgba(56,189,248,0.05) 35%,
+    rgba(244,114,182,0.06) 65%,
+    rgba(167,139,250,0.05) 100%);
+  background-size: 300% 300%;
+  animation: silkShift 12s ease-in-out infinite;
+  pointer-events: none;
+}
+.card { position: relative; overflow: hidden; }

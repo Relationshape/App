@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
+  <defs>
+    <linearGradient id="g" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#b794ff"/>
+      <stop offset="1" stop-color="#ffb3d9"/>
+    </linearGradient>
+    <radialGradient id="bg" cx="0.3" cy="0.2" r="1">
+      <stop offset="0" stop-color="#221a3a"/>
+      <stop offset="1" stop-color="#0f0c1a"/>
+    </radialGradient>
+  </defs>
+  <rect width="192" height="192" rx="42" fill="url(#bg)"/>
+  <!-- spider chart hint -->
+  <g transform="translate(96 96)" stroke="#3a2e5b" fill="none" stroke-width="1.2" opacity="0.6">
+    <polygon points="0,-58 50,-29 50,29 0,58 -50,29 -50,-29"/>
+    <polygon points="0,-39 33,-19 33,19 0,39 -33,19 -33,-19"/>
+    <polygon points="0,-20 17,-10 17,10 0,20 -17,10 -17,-10"/>
+  </g>
+  <!-- infinity heart -->
+  <g transform="translate(96 96)" fill="none" stroke="url(#g)" stroke-width="11" stroke-linecap="round">
+    <circle cx="-22" cy="0" r="26"/>
+    <circle cx="22" cy="0" r="26"/>
+  </g>
+</svg>
