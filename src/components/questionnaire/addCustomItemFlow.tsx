@@ -13,8 +13,9 @@ import { t, getLang } from '@/lib/i18n/i18n'
 // ── Picker sub-components ────────────────────────────────────────────────────
 
 export function FormatPicker({ onClose }: { onClose: (v: CustomItemFormat | false | 'back') => void }) {
-  const formats: { key: CustomItemFormat; labelKey: 'q_format_scale' | 'q_format_text' | 'q_format_single' | 'q_format_multi' | 'q_format_ranking'; descKey: 'q_format_scale_desc' | 'q_format_text_desc' | 'q_format_single_desc' | 'q_format_multi_desc' | 'q_format_ranking_desc' }[] = [
+  const formats: { key: CustomItemFormat; labelKey: Parameters<typeof t>[0]; descKey: Parameters<typeof t>[0] }[] = [
     { key: 'scale', labelKey: 'q_format_scale', descKey: 'q_format_scale_desc' },
+    { key: 'double-scale', labelKey: 'q_format_double_scale', descKey: 'q_format_double_scale_desc' },
     { key: 'text', labelKey: 'q_format_text', descKey: 'q_format_text_desc' },
     { key: 'single', labelKey: 'q_format_single', descKey: 'q_format_single_desc' },
     { key: 'multi', labelKey: 'q_format_multi', descKey: 'q_format_multi_desc' },

@@ -117,6 +117,7 @@ export function CompareDetails() {
       customItemDefsB: b.customItemDefs,
       customCatsA: a.customCategories,
       customCatsB: b.customCategories,
+      crossMapGR: true,
     }
     return Object.fromEntries(
       visibleCategories.map((cat) => [

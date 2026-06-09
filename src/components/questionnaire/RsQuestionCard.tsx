@@ -89,7 +89,7 @@ export function RsQuestionCard({
   const [optionsError, setOptionsError] = useState(false)
 
   const format: CustomItemFormat = customItemDef?.format ?? 'scale'
-  const showGR = isGrCat(catId) && format === 'scale'
+  const showGR = (isGrCat(catId) && format === 'scale') || format === 'double-scale'
 
   // Backward compat: old data stores GR answer in cell.gr + cell.scale; new data uses giving/receiving.
   const givingKey = cell?.giving ?? (cell?.gr === 'G' || cell?.gr === 'Both' ? (cell?.scale ?? null) : null)
@@ -109,7 +109,7 @@ export function RsQuestionCard({
   }
 
   async function openEditDialog() {
-    if (format === 'scale') {
+    if (format === 'scale' || format === 'double-scale') {
       const confirmed = await dialog<boolean>({
         title: t('confirm_item_scale_edit_title'),
         body: () => <p>{t('confirm_item_scale_edit_body')}</p>,
@@ -173,7 +173,7 @@ export function RsQuestionCard({
       const c: AnswerCell = existing ? { ...existing } : { scale: 'open' }
       const label = pendingLabel.trim()
       if (label) c.customLabel = label; else delete c.customLabel
-      if (pendingFormat === 'scale') {
+      if (pendingFormat === 'scale' || pendingFormat === 'double-scale') {
         if (pendingScale) c.itemScale = pendingScale; else delete c.itemScale
       }
       // Clear answer fields when format changes
@@ -181,9 +181,13 @@ export function RsQuestionCard({
         delete c.textValue
         delete c.selectedValues
         delete c.rankingValues
-        if (pendingFormat !== 'scale') {
+        if (pendingFormat !== 'scale' && pendingFormat !== 'double-scale') {
           c.scale = 'open'
           delete c.itemScale
+          delete c.giving
+          delete c.givingFrac
+          delete c.receiving
+          delete c.receivingFrac
         }
       }
       return c
@@ -551,7 +555,7 @@ export function RsQuestionCard({
           </p>
         )}
 
-        {format === 'scale' ? (
+        {(format === 'scale' || format === 'double-scale') ? (
           showGR ? (
             <div className="q-gr-sliders">
               <div className="q-gr-row">
@@ -673,7 +677,7 @@ export function RsQuestionCard({
             <div className="flex flex-col gap-2">
               <span className="text-sm font-medium">{t('q_edit_format_section')}</span>
               <div className="flex flex-col gap-1">
-                {(['scale', 'text', 'single', 'multi', 'ranking'] as CustomItemFormat[]).map((f) => (
+                {(['scale', 'double-scale', 'text', 'single', 'multi', 'ranking'] as CustomItemFormat[]).map((f) => (
                   <label key={f} className="flex items-center gap-2 cursor-pointer">
                     <input
                       type="radio"
@@ -687,7 +691,7 @@ export function RsQuestionCard({
                   </label>
                 ))}
               </div>
-              {pendingFormat !== 'scale' && (
+              {pendingFormat !== 'scale' && pendingFormat !== 'double-scale' && (
                 <p className="callout text-sm">{t('q_format_non_scale_hint')}</p>
               )}
               {pendingFormat !== format && (
@@ -707,7 +711,7 @@ export function RsQuestionCard({
                 </label>
               )}
             </div>
-            {pendingFormat === 'scale' && (
+            {(pendingFormat === 'scale' || pendingFormat === 'double-scale') && (
               <div className="flex flex-col gap-2">
                 <p className="muted text-sm">{t('q_edit_item_scale_warning')}</p>
                 <ScaleEditor

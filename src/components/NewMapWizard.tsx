@@ -1003,7 +1003,7 @@ export function NewMapWizard({ profile }: Props) {
               <div className="flex flex-col gap-1">
                 <label className="text-sm font-medium">{t('q_edit_format_section')}</label>
                 <div className="flex flex-col gap-1">
-                  {(['scale', 'text', 'single', 'multi', 'ranking'] as CustomItemFormat[]).map((f) => (
+                  {(['scale', 'double-scale', 'text', 'single', 'multi', 'ranking'] as CustomItemFormat[]).map((f) => (
                     <label key={f} className={`format-picker-tile${itemFormFormat === f ? ' is-active' : ''}`} style={{ cursor: 'pointer' }}>
                       <input
                         type="radio"

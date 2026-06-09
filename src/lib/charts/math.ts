@@ -336,6 +336,12 @@ export interface CategoryItemAlignmentOpts {
   /** Custom category definitions — used to look up item formats for custom categories. */
   customCatsA?: readonly CustomCategoryDef[] | undefined
   customCatsB?: readonly CustomCategoryDef[] | undefined
+  /**
+   * When true and comparing exactly 2 maps, cross-map GR sides:
+   * A.giving ↔ B.receiving, A.receiving ↔ B.giving.
+   * Applies to built-in GR items and double-scale custom items.
+   */
+  crossMapGR?: boolean
 }
 
 /**
@@ -356,6 +362,7 @@ export function categoryItemAlignment(
   const slotA = answersA?.[catId] ?? {}
   const slotB = answersB?.[catId] ?? {}
   const diffs: number[] = []
+  const crossMapGR = Boolean(opts?.crossMapGR)
 
   function cellNorm(cell: AnswerEntry | undefined, parentScale: readonly MutableScaleStep[]): number | null {
     if (!cell) return null
@@ -364,7 +371,51 @@ export function categoryItemAlignment(
     return result ? result.norm : null
   }
 
-  function customItemFormat(key: string): 'scale' | 'text' | 'single' | 'multi' | 'ranking' {
+  function cellSideNorm(cell: AnswerEntry | undefined, parentScale: readonly MutableScaleStep[], side: 'giving' | 'receiving'): number | null {
+    if (!cell) return null
+    const scale = cell.itemScale ?? parentScale
+    const max = scaleMaxValue(scale)
+    if (max === 0) return null
+    const e = cell as unknown as Record<string, unknown>
+    if (side === 'giving') {
+      if (typeof e['givingFrac'] === 'number') return e['givingFrac'] as number
+      if (e['giving']) return scale.find((s) => s.key === e['giving'])?.value != null ? scale.find((s) => s.key === e['giving'])!.value / max : null
+      if (e['gr'] === 'G' || e['gr'] === 'Both') {
+        if (typeof e['scaleFrac'] === 'number') return e['scaleFrac'] as number
+        if (cell.scale) return (scale.find((s) => s.key === cell.scale)?.value ?? null) != null ? scale.find((s) => s.key === cell.scale)!.value / max : null
+      }
+      return null
+    } else {
+      if (typeof e['receivingFrac'] === 'number') return e['receivingFrac'] as number
+      if (e['receiving']) return scale.find((s) => s.key === e['receiving'])?.value != null ? scale.find((s) => s.key === e['receiving'])!.value / max : null
+      if (e['gr'] === 'R' || e['gr'] === 'Both') {
+        if (typeof e['scaleFrac'] === 'number') return e['scaleFrac'] as number
+        if (cell.scale) return (scale.find((s) => s.key === cell.scale)?.value ?? null) != null ? scale.find((s) => s.key === cell.scale)!.value / max : null
+      }
+      return null
+    }
+  }
+
+  function pushGrOrAvgDiff(cellA: AnswerEntry | undefined, cellB: AnswerEntry | undefined, pScaleA: readonly MutableScaleStep[], pScaleB: readonly MutableScaleStep[]) {
+    if (crossMapGR) {
+      const agN = cellSideNorm(cellA, pScaleA, 'giving')
+      const arN = cellSideNorm(cellA, pScaleA, 'receiving')
+      const bgN = cellSideNorm(cellB, pScaleB, 'giving')
+      const brN = cellSideNorm(cellB, pScaleB, 'receiving')
+      const d1 = agN !== null && brN !== null ? Math.abs(agN - brN) : null
+      const d2 = arN !== null && bgN !== null ? Math.abs(arN - bgN) : null
+      if (d1 !== null || d2 !== null) {
+        const parts = [d1, d2].filter((d): d is number => d !== null)
+        diffs.push(parts.reduce((a, b) => a + b, 0) / parts.length)
+      }
+    } else {
+      const nA = cellNorm(cellA, pScaleA)
+      const nB = cellNorm(cellB, pScaleB)
+      if (nA !== null && nB !== null) diffs.push(Math.abs(nA - nB))
+    }
+  }
+
+  function customItemFormat(key: string): 'scale' | 'double-scale' | 'text' | 'single' | 'multi' | 'ranking' {
     // Standard category with custom items: look up in customItemDefs
     const defA = opts?.customItemDefsA?.[catId]?.[key]
     const defB = opts?.customItemDefsB?.[catId]?.[key]
@@ -379,9 +430,7 @@ export function categoryItemAlignment(
 
   if (cat) {
     for (const item of cat.items) {
-      const nA = cellNorm(slotA[item], scaleA)
-      const nB = cellNorm(slotB[item], scaleB)
-      if (nA !== null && nB !== null) diffs.push(Math.abs(nA - nB))
+      pushGrOrAvgDiff(slotA[item], slotB[item], scaleA, scaleB)
     }
   }
 
@@ -389,10 +438,8 @@ export function categoryItemAlignment(
     if (!(key in (slotB.__custom ?? {}))) continue
     const format = customItemFormat(key)
     if (format === 'text') continue
-    if (format === 'scale') {
-      const nA = cellNorm(slotA.__custom?.[key], scaleA)
-      const nB = cellNorm(slotB.__custom?.[key], scaleB)
-      if (nA !== null && nB !== null) diffs.push(Math.abs(nA - nB))
+    if (format === 'scale' || format === 'double-scale') {
+      pushGrOrAvgDiff(slotA.__custom?.[key], slotB.__custom?.[key], scaleA, scaleB)
     } else {
       const diff = nonScaleItemDiff(slotA.__custom?.[key], slotB.__custom?.[key], format)
       if (diff !== null) diffs.push(diff)

@@ -37,7 +37,7 @@ export interface Profile {
 
 export type GROfBoth = 'G' | 'R' | 'Both'
 
-export type CustomItemFormat = 'scale' | 'text' | 'single' | 'multi' | 'ranking'
+export type CustomItemFormat = 'scale' | 'double-scale' | 'text' | 'single' | 'multi' | 'ranking'
 
 export interface CustomItemDef {
   format: CustomItemFormat

@@ -5,6 +5,11 @@
 import { CATEGORIES } from '@/lib/data/data'
 import type { Result, AnswersBlob, CustomCategoryDef, CustomItemDef } from '@/lib/storage/types'
 
+interface DatasetWithItemDefs {
+  customItemDefs?: Record<string, Record<string, CustomItemDef>>
+  customCategories?: CustomCategoryDef[]
+}
+
 /**
  * Build a seed AnswersBlob for a newly-created map that was based on a template.
  * Reads from customItemDefs first; falls back to customCategories[x].items so that
@@ -40,6 +45,29 @@ export function seedAnswersFromTemplate(
 export function isGrCat(catId: string): boolean {
   const cat = CATEGORIES.find((c) => c.id === catId)
   return Boolean((cat as { gr?: boolean } | undefined)?.gr)
+}
+
+/**
+ * Returns true when the category should render two separate spiders (giving + receiving).
+ * True for built-in GR categories and for any category containing a double-scale custom item.
+ */
+export function categoryNeedsGrSpiders(datasets: readonly DatasetWithItemDefs[], catId: string): boolean {
+  if (isGrCat(catId)) return true
+  for (const ds of datasets) {
+    const itemDefs = ds.customItemDefs?.[catId]
+    if (itemDefs) {
+      for (const def of Object.values(itemDefs)) {
+        if (def.format === 'double-scale') return true
+      }
+    }
+    const customCat = ds.customCategories?.find((c) => c.id === catId)
+    if (customCat?.items) {
+      for (const item of customCat.items) {
+        if (item.format === 'double-scale') return true
+      }
+    }
+  }
+  return false
 }
 
 export interface FlatItem { catId: string; item: string; isCustom: boolean }

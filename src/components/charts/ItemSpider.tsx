@@ -59,14 +59,18 @@ export function ItemSpider({ datasets, catId, size = 480, grSide, zoomable = tru
     const { base, custom } = enabledItemsForCat(ds.answers, catId)
     custom.forEach((item) => {
       const def = ds.customItemDefs?.[catId]?.[item]
-      if (!def || def.format === 'scale') itemSet.add(`✶ ${item}`)
+      if (!def || def.format === 'scale' || def.format === 'double-scale') itemSet.add(`✶ ${item}`)
     })
     base.forEach((item) => itemSet.add(item))
   }
   const allItems = Array.from(itemSet)
 
   // Pre-compute per-dataset per-axis values (all items, before filtering)
-  const allDataPoints = truncated.map((ds) => {
+  // For exactly 2 datasets in GR mode, cross-map: dataset[1] flips giving ↔ receiving.
+  const allDataPoints = truncated.map((ds, di) => {
+    const effectiveGrSide = grSide !== undefined && truncated.length === 2 && di === 1
+      ? (grSide === 'giving' ? 'receiving' : 'giving')
+      : grSide
     return allItems.map((displayItem) => {
       const isCustom = displayItem.startsWith('✶ ')
       const key = isCustom ? displayItem.slice(2) : displayItem
@@ -78,15 +82,22 @@ export function ItemSpider({ datasets, catId, size = 480, grSide, zoomable = tru
       let scaleKey: string | undefined
       let fracVal: number | undefined
 
-      if (grSide) {
-        if (grSide === 'giving') {
+      if (effectiveGrSide) {
+        if (effectiveGrSide === 'giving') {
           scaleKey = cell.giving ?? (cell.gr === 'G' || cell.gr === 'Both' ? cell.scale : undefined)
           fracVal = cell.givingFrac ?? (cell.gr === 'G' || cell.gr === 'Both' ? cell.scaleFrac : undefined)
         } else {
           scaleKey = cell.receiving ?? (cell.gr === 'R' || cell.gr === 'Both' ? cell.scale : undefined)
           fracVal = cell.receivingFrac ?? (cell.gr === 'R' || cell.gr === 'Both' ? cell.scaleFrac : undefined)
         }
-        if (!scaleKey && fracVal == null) return { step: undefined as typeof ds.scale[0] | undefined, norm: 0, v: 0, answered: false }
+        if (!scaleKey && fracVal == null) {
+          // No GR data — fall back to regular scale (non-GR item in a mixed GR category)
+          if (!cell.scale || (isCustom && cell.scale === 'open' && cell.scaleFrac == null)) {
+            return { step: undefined as typeof ds.scale[0] | undefined, norm: 0, v: 0, answered: false }
+          }
+          scaleKey = cell.scale
+          fracVal = cell.scaleFrac
+        }
       } else {
         // Normal (non-GR) mode — treat 'open' without scaleFrac as unanswered sentinel
         if (!cell.scale || (isCustom && cell.scale === 'open' && cell.scaleFrac == null)) {

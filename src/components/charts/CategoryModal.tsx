@@ -12,7 +12,7 @@ import { CategoryBars } from './CategoryBars'
 import { RsQuestionCard } from '@/components/questionnaire/RsQuestionCard'
 import { useStore } from '@/lib/storage/store'
 import { useTemplateWarning } from '@/lib/hooks/useTemplateWarning'
-import { enabledItemsForCat, isGrCat } from '@/lib/charts/items'
+import { enabledItemsForCat, categoryNeedsGrSpiders } from '@/lib/charts/items'
 import { dialog } from '@/lib/dialog/dialog'
 import { useToast } from '@/lib/hooks/useToast'
 import { runAddCustomItemFlow } from '@/components/questionnaire/addCustomItemFlow'
@@ -228,7 +228,7 @@ export function CategoryModal({ open, onOpenChange, datasets, cat, result, initi
             role="tabpanel"
             data-testid="cat-modal-panel-spider"
           >
-            {isGrCat(cat.id) ? (
+            {categoryNeedsGrSpiders(datasets, cat.id) ? (
               <div className="flex flex-col gap-4">
                 <div>
                   <p className="muted small text-center mb-1">{t('lbl_giving')}</p>
