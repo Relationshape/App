@@ -5,6 +5,7 @@
 import { render, fireEvent, act, cleanup, waitFor } from '@testing-library/react'
 import { describe, it, expect, vi, afterEach } from 'vitest'
 import { MemoryLocalStorage } from '../../../tests/helpers/MemoryLocalStorage'
+import { setTestLocation } from '../../../tests/helpers/browserRouterTest'
 
 const P1 = 'profile-1'
 const R1 = 'result-1'
@@ -78,7 +79,7 @@ async function mountAtHash(hash: string, storeJson?: string) {
   const mem = new MemoryLocalStorage()
   mem.setItem('relationshape.v1', storeJson ?? makeStore())
   vi.stubGlobal('localStorage', mem)
-  window.location.hash = hash
+  setTestLocation(hash)
   const appMod = await import('@/App')
   await act(async () => {
     render(<appMod.default />)
@@ -135,8 +136,8 @@ describe('Compare route (SHARE-05, D-25, D-35)', () => {
       const chip2 = document.querySelector(`[data-testid="compare-chip-${R2}"]`)
       expect(chip1?.getAttribute('aria-pressed')).toBe('false')
       expect(chip2?.getAttribute('aria-pressed')).toBe('true')
-      expect(window.location.hash).toContain(`ids=${R2}`)
-      expect(window.location.hash).not.toContain(R1)
+      expect(window.location.search).toContain(`ids=${R2}`)
+      expect(window.location.search).not.toContain(R1)
     })
   }, 30000)
 

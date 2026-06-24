@@ -8,6 +8,7 @@
 // vi.resetModules() + dynamic import the modules under test.
 import { render, screen, fireEvent, act, cleanup } from '@testing-library/react'
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+import { setTestLocation } from '../../tests/helpers/browserRouterTest'
 
 class MemoryLocalStorage {
   private store = new Map<string, string>()
@@ -42,7 +43,7 @@ describe('<DesignSystem /> route (DESIGN-05, DESIGN-06)', () => {
   beforeEach(() => {
     document.documentElement.removeAttribute('data-theme')
     document.body.removeAttribute('data-prm')
-    window.location.hash = ''
+    setTestLocation('/')
     vi.restoreAllMocks()
   })
 
@@ -83,8 +84,8 @@ describe('<DesignSystem /> route (DESIGN-05, DESIGN-06)', () => {
   it('theme toggle reactively updates html data-theme (DESIGN-05)', async () => {
     // DESIGN-05 specifically requires the DOM attribute side-effect (data-theme on <html>).
     // The useTheme() hook lives in App.tsx so we mount the full App and navigate to
-    // /design-system via window.location.hash BEFORE mount so createHashRouter lands there.
-    window.location.hash = '#/design-system'
+    // /design-system via setTestLocation BEFORE mount so createBrowserRouter lands there.
+    setTestLocation('/design-system')
     vi.resetModules()
     const mem = new MemoryLocalStorage()
     // Seed ageConfirmed + wizardSeen so AgeGate/WizardHost don't block the test view

@@ -5,6 +5,7 @@
 import { render, fireEvent, act, cleanup, waitFor } from '@testing-library/react'
 import { describe, it, expect, afterEach, vi } from 'vitest'
 import { MemoryLocalStorage } from '../../../tests/helpers/MemoryLocalStorage'
+import { setTestLocation } from '../../../tests/helpers/browserRouterTest'
 
 function makeStore(extra: object = {}) {
   return JSON.stringify({
@@ -49,7 +50,7 @@ async function mountSettings(storeJson?: string) {
     }
     return el
   })
-  window.location.hash = '#/settings'
+  setTestLocation('/settings')
   const appMod = await import('@/App')
   await act(async () => {
     render(<appMod.default />)

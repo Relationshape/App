@@ -6,6 +6,7 @@
 import { render, act, cleanup } from '@testing-library/react'
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { MemoryLocalStorage } from '../../tests/helpers/MemoryLocalStorage'
+import { setTestLocation } from '../../tests/helpers/browserRouterTest'
 
 /** Seed ageConfirmed + wizardSeen so AgeGate/WizardHost don't block Nav tests. */
 function makeSeededMemory() {
@@ -25,7 +26,7 @@ function makeSeededMemory() {
 
 describe('<Nav /> (SHELL-03)', () => {
   beforeEach(() => {
-    window.location.hash = '#/'
+    setTestLocation('/')
     vi.restoreAllMocks()
     document.documentElement.removeAttribute('data-theme')
   })

@@ -5,6 +5,7 @@
 import { render, fireEvent, act, cleanup, waitFor } from '@testing-library/react'
 import { describe, it, expect, vi, afterEach } from 'vitest'
 import { MemoryLocalStorage } from '../../../tests/helpers/MemoryLocalStorage'
+import { setTestLocation } from '../../../tests/helpers/browserRouterTest'
 import { encryptResult } from '@/lib/crypto/crypto'
 
 function makeEmptyStore() {
@@ -22,7 +23,7 @@ async function mountAtHash(hash: string, storeJson?: string) {
   const mem = new MemoryLocalStorage()
   mem.setItem('relationshape.v1', storeJson ?? makeEmptyStore())
   vi.stubGlobal('localStorage', mem)
-  window.location.hash = hash
+  setTestLocation(hash)
   const appMod = await import('@/App')
   await act(async () => {
     render(<appMod.default />)
@@ -71,7 +72,7 @@ describe('Import route (SHARE-03)', () => {
 
     // After navigate, should have left the import page (now routes to profile/home)
     await waitFor(() => {
-      expect(window.location.hash).not.toContain('/import')
+      expect(window.location.pathname).not.toContain('/import')
     }, { timeout: 5000 })
   })
 

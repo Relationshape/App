@@ -6,6 +6,7 @@
 import { render, fireEvent, act, cleanup } from '@testing-library/react'
 import { describe, it, expect, afterEach, vi } from 'vitest'
 import { MemoryLocalStorage } from '../../../tests/helpers/MemoryLocalStorage'
+import { setTestLocation } from '../../../tests/helpers/browserRouterTest'
 
 // Profile IDs for pre-seeded data
 const PROFILE_A = 'profile-alpha'
@@ -58,7 +59,7 @@ async function mountAtHash(hash: string, storeJson: string) {
   const mem = new MemoryLocalStorage()
   mem.setItem('relationshape.v1', storeJson)
   vi.stubGlobal('localStorage', mem)
-  window.location.hash = hash
+  setTestLocation(hash)
   const appMod = await import('@/App')
   const AppRoot = appMod.default
   await act(async () => {
@@ -124,7 +125,7 @@ describe('Profile lifecycle (PROFILE-01..04)', () => {
     })
 
     // After submission, navigation should go to /profile/<newId>
-    expect(window.location.hash).toMatch(/^#\/profile\/[a-z0-9-]+$/)
+    expect(window.location.pathname).toMatch(/^\/profile\/[a-z0-9-]+$/)
 
     // Store should have 1 profile
     vi.resetModules()

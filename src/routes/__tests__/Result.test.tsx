@@ -6,6 +6,7 @@
 import { render, act, cleanup, waitFor } from '@testing-library/react'
 import { describe, it, expect, afterEach, vi } from 'vitest'
 import { MemoryLocalStorage } from '../../../tests/helpers/MemoryLocalStorage'
+import { setTestLocation } from '../../../tests/helpers/browserRouterTest'
 
 const PROFILE_ID = 'p-result-test'
 const RESULT_ID = 'r-result-test'
@@ -44,7 +45,7 @@ async function mountAtHash(hash: string, storeJson?: string) {
   const mem = new MemoryLocalStorage()
   mem.setItem('relationshape.v1', storeJson ?? makeStore())
   vi.stubGlobal('localStorage', mem)
-  window.location.hash = hash
+  setTestLocation(hash)
   const appMod = await import('@/App')
   const AppRoot = appMod.default
   await act(async () => {

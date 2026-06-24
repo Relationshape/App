@@ -9,6 +9,7 @@
 import { render, fireEvent, act, cleanup, waitFor } from '@testing-library/react'
 import { describe, it, expect, afterEach, vi } from 'vitest'
 import { MemoryLocalStorage } from '../../tests/helpers/MemoryLocalStorage'
+import { navigateTestLocation, setTestLocation } from '../../tests/helpers/browserRouterTest'
 
 const PASSPHRASE = 'golden-path-pass'
 
@@ -41,7 +42,7 @@ async function mountAt(hash: string, storeJson?: string) {
     }
     return el
   })
-  window.location.hash = hash
+  setTestLocation(hash)
   const appMod = await import('@/App')
   await act(async () => {
     render(<appMod.default />)
@@ -152,11 +153,7 @@ describe('Phase-final golden path (parity.smoke)', () => {
     expect(Object.keys(useStore.getState().results[0]!.answers?.connection ?? {}).length).toBe(3)
 
     // ── Step 3: View result ─────────────────────────────────────────────────
-    window.location.hash = `#/result/r-golden`
-    await act(async () => {
-      // Hash change triggers router navigation — force React re-render
-      window.dispatchEvent(new Event('hashchange'))
-    })
+    await navigateTestLocation('/result/r-golden', act)
     await waitFor(() => {
       const page = document.querySelector('[data-testid="result-page"]')
         ?? document.querySelector('[data-testid="home-page"]')
@@ -164,10 +161,7 @@ describe('Phase-final golden path (parity.smoke)', () => {
     }, { timeout: 5000 })
 
     // ── Step 4: Share ───────────────────────────────────────────────────────
-    window.location.hash = `#/share/r-golden`
-    await act(async () => {
-      window.dispatchEvent(new Event('hashchange'))
-    })
+    await navigateTestLocation('/share/r-golden', act)
     await waitFor(() => {
       const page = document.querySelector('[data-testid="share-page"]')
         ?? document.querySelector('[data-testid="home-page"]')
@@ -197,10 +191,7 @@ describe('Phase-final golden path (parity.smoke)', () => {
 
     // ── Step 5: Import ──────────────────────────────────────────────────────
     if (armoredOutput) {
-      window.location.hash = '#/import'
-      await act(async () => {
-        window.dispatchEvent(new Event('hashchange'))
-      })
+      await navigateTestLocation('/import', act)
       await waitFor(() => {
         expect(document.querySelector('[data-testid="import-page"]')).not.toBeNull()
       }, { timeout: 5000 })
@@ -223,10 +214,7 @@ describe('Phase-final golden path (parity.smoke)', () => {
 
       // ── Step 6: Compare ─────────────────────────────────────────────────
       // Import now routes to the profile page; navigate to compare manually.
-      window.location.hash = `#/compare?ids=imp:${impId}`
-      await act(async () => {
-        window.dispatchEvent(new Event('hashchange'))
-      })
+      await navigateTestLocation(`/compare?ids=imp:${impId}`, act)
       await waitFor(() => {
         const comparePage = document.querySelector('[data-testid="compare-page"]')
         expect(comparePage).not.toBeNull()
@@ -237,10 +225,7 @@ describe('Phase-final golden path (parity.smoke)', () => {
     }
 
     // ── Step 7: Backup export ───────────────────────────────────────────────
-    window.location.hash = '#/settings'
-    await act(async () => {
-      window.dispatchEvent(new Event('hashchange'))
-    })
+    await navigateTestLocation('/settings', act)
     await waitFor(() => {
       expect(document.querySelector('[data-testid="settings-page"]')).not.toBeNull()
     }, { timeout: 5000 })

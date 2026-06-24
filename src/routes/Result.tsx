@@ -59,14 +59,11 @@ export function Result() {
     return () => cancelAnimationFrame(raf)
   }, [catId, result, profile])
 
-  if (!result) {
-    navigate('/')
-    return null
-  }
-  if (!profile) {
-    navigate('/')
-    return null
-  }
+  useEffect(() => {
+    if (!result || !profile) navigate('/')
+  }, [result, profile, navigate])
+
+  if (!result || !profile) return null
 
   const dataset = mapResultToDataset(result, profile)
   const datasets = [dataset]

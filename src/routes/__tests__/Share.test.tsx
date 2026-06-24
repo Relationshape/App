@@ -5,6 +5,7 @@
 import { render, fireEvent, act, cleanup, waitFor } from '@testing-library/react'
 import { describe, it, expect, vi, afterEach } from 'vitest'
 import { MemoryLocalStorage } from '../../../tests/helpers/MemoryLocalStorage'
+import { setTestLocation } from '../../../tests/helpers/browserRouterTest'
 
 const PROFILE_ID = 'p-share-test'
 const RESULT_ID = 'r-share-test'
@@ -50,7 +51,7 @@ async function mountAtHash(hash: string, storeJson?: string) {
   // Only stub the static methods, not the URL constructor itself
   vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:mock-url')
   vi.spyOn(URL, 'revokeObjectURL').mockReturnValue(undefined)
-  window.location.hash = hash
+  setTestLocation(hash)
   const appMod = await import('@/App')
   await act(async () => {
     render(<appMod.default />)

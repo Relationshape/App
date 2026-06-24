@@ -4,6 +4,7 @@
 import { render, screen, act, fireEvent, cleanup, waitFor } from '@testing-library/react'
 import { describe, it, expect, afterEach, vi } from 'vitest'
 import { MemoryLocalStorage } from '../../tests/helpers/MemoryLocalStorage'
+import { setTestLocation } from '../../tests/helpers/browserRouterTest'
 
 /** Seed localStorage so AgeGate + WizardHost don't block the view in tests. */
 function makeMemoryLocalStorage(overrideSettings?: Record<string, unknown>) {
@@ -34,7 +35,7 @@ function makeMemoryLocalStorage(overrideSettings?: Record<string, unknown>) {
 async function mountApp() {
   const mem = makeMemoryLocalStorage()
   vi.stubGlobal('localStorage', mem)
-  window.location.hash = '#/'
+  setTestLocation('/')
   const appMod = await import('@/App')
   const AppRoot = appMod.default
   let result: ReturnType<typeof render> | undefined

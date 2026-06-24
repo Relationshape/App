@@ -5,6 +5,7 @@
 import { render, fireEvent, act, cleanup, waitFor } from '@testing-library/react'
 import { describe, it, expect, afterEach, vi } from 'vitest'
 import { MemoryLocalStorage } from '../../../tests/helpers/MemoryLocalStorage'
+import { setTestLocation } from '../../../tests/helpers/browserRouterTest'
 
 const SCALE_KEY_A = 'step-a'
 const SCALE_KEY_B = 'step-b'
@@ -35,7 +36,7 @@ async function mountSettings(storeJson?: string) {
   const mem = new MemoryLocalStorage()
   mem.setItem('relationshape.v1', storeJson ?? makeStore())
   vi.stubGlobal('localStorage', mem)
-  window.location.hash = '#/settings'
+  setTestLocation('/settings')
   const appMod = await import('@/App')
   await act(async () => {
     render(<appMod.default />)

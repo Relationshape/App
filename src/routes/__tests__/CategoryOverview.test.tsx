@@ -5,6 +5,7 @@
 import { render, act, fireEvent, cleanup, waitFor } from '@testing-library/react'
 import { describe, it, expect, afterEach, vi } from 'vitest'
 import { MemoryLocalStorage } from '../../../tests/helpers/MemoryLocalStorage'
+import { setTestLocation } from '../../../tests/helpers/browserRouterTest'
 import { CATEGORIES } from '@/lib/data/data'
 
 const PROFILE_ID = 'p-test'
@@ -38,7 +39,7 @@ async function mountAtHash(hash: string, storeJson?: string) {
   const mem = new MemoryLocalStorage()
   mem.setItem('relationshape.v1', storeJson ?? makeStore())
   vi.stubGlobal('localStorage', mem)
-  window.location.hash = hash
+  setTestLocation(hash)
   const appMod = await import('@/App')
   const AppRoot = appMod.default
   await act(async () => {
@@ -85,7 +86,7 @@ describe('CategoryOverview (QUEST-01 + 260516-qva)', () => {
     expect(saved?.enabledCategories).toEqual(enabled)
     // catIndex should be seeded to the clicked tile's position within enabledCats.
     expect(saved?.progress?.catIndex).toBe(1)
-    expect(window.location.hash).toBe(`#/q/${PROFILE_ID}/${RESULT_ID}`)
+    expect(window.location.pathname).toBe(`/q/${PROFILE_ID}/${RESULT_ID}`)
   })
 
   it('Add more categories opens the picker and merges newly selected ids', async () => {
@@ -179,6 +180,6 @@ describe('CategoryOverview (QUEST-01 + 260516-qva)', () => {
     await act(async () => { fireEvent.click(btn) })
     // Has answers → navigate directly, no pre-share prompt
     expect(document.querySelector('[data-testid="pre-share-prompt"]')).toBeNull()
-    expect(window.location.hash).toBe(`#/q/${PROFILE_ID}/${RESULT_ID}`)
+    expect(window.location.pathname).toBe(`/q/${PROFILE_ID}/${RESULT_ID}`)
   })
 })

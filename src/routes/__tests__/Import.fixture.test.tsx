@@ -9,6 +9,7 @@ import { render, fireEvent, act, cleanup } from '@testing-library/react'
 import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 import { MemoryLocalStorage } from '../../../tests/helpers/MemoryLocalStorage'
+import { setTestLocation } from '../../../tests/helpers/browserRouterTest'
 import { PASSPHRASE, EXPECTED_PAYLOAD } from '../../../tests/fixtures/v1-bundle.fixture'
 
 function makeEmptyStore() {
@@ -29,7 +30,7 @@ describe('SHARE-04: v1.0 bundle fixture regression', () => {
     mem = new MemoryLocalStorage()
     mem.setItem('relationshape.v1', makeEmptyStore())
     vi.stubGlobal('localStorage', mem)
-    window.location.hash = '#/import'
+    setTestLocation('/import')
   })
 
   afterEach(() => { cleanup(); vi.restoreAllMocks() })
