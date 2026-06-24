@@ -1,6 +1,6 @@
 // src/router.tsx
 // SHELL-01, SHELL-02, D-13, D-24. Full route table; plans 3-7 replace placeholders with real views.
-import { createHashRouter } from 'react-router-dom'
+import { createBrowserRouter } from 'react-router-dom'
 import { RootLayout } from './routes/RootLayout'
 import { DesignSystem } from './routes/DesignSystem'
 import { Home } from './routes/Home'
@@ -20,7 +20,7 @@ import { MapSettings } from './routes/MapSettings'
 import { ImportView } from './routes/ImportView'
 import { RouteErrorFallback } from './routes/RouteErrorFallback'
 
-export const router = createHashRouter([
+export const router = createBrowserRouter([
   {
     path: '/',
     element: <RootLayout />,
