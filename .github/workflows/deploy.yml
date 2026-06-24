@@ -44,16 +44,13 @@ jobs:
           VITE_BASE_PATH: /${{ github.event.repository.name }}/
         run: pnpm build
 
-      - name: Publish dist to ${{ env.DEPLOY_BRANCH }}
-        env:
-          DEPLOY_BRANCH: ${{ env.DEPLOY_BRANCH }}
-        run: |
-          set -euo pipefail
-          cd dist
-          touch .nojekyll
-          git init -q -b "$DEPLOY_BRANCH"
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A
-          git commit -q -m "Deploy ${GITHUB_SHA} to ${DEPLOY_BRANCH}"
-          git push -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git" "HEAD:${DEPLOY_BRANCH}"
+      - name: Copy files to Hetzner via SCP
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          source: "dist/*"
+          target: "/var/www/relationshapes"
+          strip_components: 1
